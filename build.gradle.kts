@@ -1,30 +1,38 @@
 plugins {
-    id 'java'
-    id 'org.jetbrains.intellij' version '0.4.16'
+    id("java")
+    id("org.jetbrains.intellij") version "1.5.2"
 }
 
-group 'com.github.xiaolyuh'
-version '1.1.4'
-
-sourceCompatibility = JavaVersion.VERSION_1_8
+group "com.github.xiaolyuh"
+version "1.1.4"
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    compile 'com.squareup.okhttp3:okhttp:3.6.0'
-    compile 'com.alibaba:fastjson:1.2.71'
+    testImplementation("junit:junit:4.12")
+    implementation("com.squareup.okhttp3:okhttp:3.6.0")
+    implementation("com.alibaba:fastjson:1.2.71")
 }
 
 intellij {
-    version '2020.2'
-    plugins 'git4idea', 'tasks'
-    intellij.updateSinceUntilBuild false
+    version.set("2022.1.2")
+    type.set("IC")
+    plugins.set(listOf("git4idea", "tasks"))
+    intellij.updateSinceUntilBuild.set(false)
 }
-patchPluginXml {
-    changeNotes """
+
+tasks {
+    // Set the JVM compatibility versions
+    withType<JavaCompile> {
+        sourceCompatibility = "11"
+        targetCompatibility = "11"
+        options.encoding = "UTF-8"
+    }
+
+    patchPluginXml {
+        changeNotes.set("""
         <em>1.1.21<em></br
         <em>1. 修复gitlib 解决冲突分支相互合并的问题 <em></br>   
         
@@ -85,10 +93,17 @@ patchPluginXml {
         <em>1.0.0<em></br>
         <em>插件名称修改成GitFlowPlus</em></br>
         <em>发布完成和发布失败强制校验发布分支是否锁定</em></br>
-      """
-}
+      """)
+    }
 
-tasks.withType(JavaCompile) {
-    options.encoding = "UTF-8"
+    signPlugin {
+        certificateChain.set(System.getenv("CERTIFICATE_CHAIN"))
+        privateKey.set(System.getenv("PRIVATE_KEY"))
+        password.set(System.getenv("PRIVATE_KEY_PASSWORD"))
+    }
+
+    publishPlugin {
+        token.set(System.getenv("PUBLISH_TOKEN"))
+    }
 }
 

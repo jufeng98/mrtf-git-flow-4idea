@@ -40,7 +40,7 @@ public class I18n {
         try {
             String fileName = language.getFile();
             // 加载资源文件
-            try (InputStream in = I18n.class.getClassLoader().getResourceAsStream("/" + fileName)) {
+            try (InputStream in = I18n.class.getClassLoader().getResourceAsStream(fileName)) {
                 properties = new Properties();
                 properties.load(in);
             }

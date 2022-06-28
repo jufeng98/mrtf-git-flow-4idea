@@ -1,0 +1,1 @@
+rootProject.name = "git-flow-plus-4idea"
