@@ -4,7 +4,7 @@ plugins {
 }
 
 group "com.github.xiaolyuh"
-version "1.1.4"
+version "1.1.5"
 
 repositories {
     mavenCentral()
@@ -17,7 +17,7 @@ dependencies {
 }
 
 intellij {
-    version.set("2022.1.2")
+    version.set("2022.1.4")
     type.set("IC")
     plugins.set(listOf("git4idea", "tasks"))
     intellij.updateSinceUntilBuild.set(false)

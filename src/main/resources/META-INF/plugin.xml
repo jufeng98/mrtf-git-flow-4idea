@@ -42,7 +42,7 @@
     <depends>com.intellij.tasks</depends>
     <depends>Git4Idea</depends>
 
-    <idea-version since-build="191" until-build="211.*"/>
+    <idea-version since-build="191"/>
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
