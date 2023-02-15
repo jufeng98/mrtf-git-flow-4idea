@@ -23,19 +23,19 @@ public class UnLockCheckValve extends Valve {
 
     @Override
     public boolean invoke(Project project, GitRepository repository, String sourceBranch, String targetBranch, TagOptions tagOptions) {
-        String lastCommitMsg = gitFlowPlus.getRemoteLastCommit(repository, Constants.LOCK_BRANCH_NAME);
-        String email = gitFlowPlus.getUserEmail(repository);
+//        String lastCommitMsg = gitFlowPlus.getRemoteLastCommit(repository, Constants.LOCK_BRANCH_NAME);
+//        String email = gitFlowPlus.getUserEmail(repository);
         // 校验操作人
-        if (!lastCommitMsg.contains(email)) {
-            NotifyUtil.notifyError(project, "Error", String.format(I18n.getContent(I18nKey.LOCK_VALVE$LOCKED), lastCommitMsg));
-            return false;
-        }
+//        if (!lastCommitMsg.contains(email)) {
+//            NotifyUtil.notifyError(project, "Error", String.format(I18n.getContent(I18nKey.LOCK_VALVE$LOCKED), lastCommitMsg));
+//            return false;
+//        }
 
         // 校验锁定状态
-        if (!gitFlowPlus.isLock(repository)) {
-            NotifyUtil.notifyError(project, "Error", I18n.getContent(I18nKey.UN_LOCK_CHECK_VALVE$UN_LOCKED));
-            return false;
-        }
+//        if (!gitFlowPlus.isLock(repository)) {
+//            NotifyUtil.notifyError(project, "Error", I18n.getContent(I18nKey.UN_LOCK_CHECK_VALVE$UN_LOCKED));
+//            return false;
+//        }
         return true;
     }
 }

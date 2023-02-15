@@ -37,15 +37,23 @@ public class I18n {
     }
 
     public static void loadLanguageProperties(LanguageEnum language) {
+        InputStream in = null;
         try {
             String fileName = language.getFile();
             // 加载资源文件
-            try (InputStream in = I18n.class.getClassLoader().getResourceAsStream(fileName)) {
-                properties = new Properties();
-                properties.load(in);
+            in = I18n.class.getClassLoader().getResourceAsStream(fileName);
+            if (in == null) {
+                in = I18n.class.getClassLoader().getResourceAsStream("/" + fileName);
             }
+            properties = new Properties();
+            properties.load(in);
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }finally {
+            try {
+                Objects.requireNonNull(in).close();
+            } catch (Exception ignored) {
+            }
         }
     }
 
