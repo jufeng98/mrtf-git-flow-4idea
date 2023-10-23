@@ -13,6 +13,8 @@ import git4idea.repo.GitRepository;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.regex.Pattern;
 
 /**
@@ -31,6 +33,10 @@ public class TagDialog extends DialogWrapper {
         super(project);
         this.project = project;
         setTitle(I18n.getContent(I18nKey.TAG_DIALOG$TITLE));
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmm");
+        String text = dateFormat.format(new Date());
+        titleTextField.setText(text);
+        messageTextArea.setText(text);
         init();
     }
 
