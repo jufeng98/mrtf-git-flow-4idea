@@ -18,7 +18,7 @@ public class KubesphereUtils {
 
     public static void triggerPipeline(String selectService, Project project) {
         if (StringUtils.isBlank(selectService)) {
-            NotifyUtil.notifyError(project, "温馨提示", "未选择服务,跳过触发流水线");
+            NotifyUtil.notifyGitCommand(project, "未选择服务,跳过触发流水线");
             return;
         }
         JSONObject configObj = ConfigUtil.getProjectConfigToFile(project);
@@ -28,12 +28,12 @@ public class KubesphereUtils {
         }
         kubesphereToken = PREFERENCES.get("kubesphereToken", "");
         if (StringUtils.isBlank(kubesphereToken)) {
-            NotifyUtil.notifyError(project, "温馨提示", "请先配置Kubesphere用户信息");
+            NotifyUtil.notifyGitCommand(project, "请先配置Kubesphere用户信息");
             return;
         }
 
         if (configObj == null) {
-            NotifyUtil.notifyError(project, "温馨提示", "缺少配置文件,跳过触发流水线");
+            NotifyUtil.notifyGitCommand(project, "缺少配置文件,跳过触发流水线");
             return;
         }
         String crumbissuerUrl = configObj.getString("crumbissuerUrl");
