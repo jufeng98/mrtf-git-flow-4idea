@@ -98,12 +98,8 @@ public class InitPluginAction extends AnAction {
                         }
                     }
 
-                    String kubesphereUsername = initOptions.getKubesphereUsername();
-                    String kubespherePassword = initOptions.getKubespherePassword();
-                    initOptions.setKubesphereUsername("");
-                    initOptions.setKubespherePassword("");
-                    PREFERENCES.put("kubesphereUsername", kubesphereUsername);
-                    PREFERENCES.put("kubespherePassword", kubespherePassword);
+                    PREFERENCES.put("kubesphereUsername", initOptions.getKubesphereUsername());
+                    PREFERENCES.put("kubespherePassword", initOptions.getKubespherePassword());
 
                     // 存储配置
                     String configJson = JSON.toJSONString(initOptions);
