@@ -15,10 +15,13 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.vcs.FileStatus;
 import com.intellij.openapi.vcs.changes.Change;
 import com.intellij.openapi.vcs.changes.ChangeListManager;
 import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.util.ReflectionUtil;
 import git4idea.repo.GitRepository;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -96,39 +99,51 @@ public abstract class AbstractMergeAction extends AnAction {
         final Project project = event.getProject();
         final String currentBranch = gitFlowPlus.getCurrentBranch(project);
         final String targetBranch = getTargetBranch(project);
+        final boolean isStartTest = this.getClass() == StartTestAction.class;
 
         final GitRepository repository = GitBranchUtil.getCurrentRepository(project);
         if (Objects.isNull(repository)) {
             return;
         }
 
-//        int flag = Messages.showOkCancelDialog(project, getDialogContent(project),
-//                getDialogTitle(project), I18n.getContent(I18nKey.OK_TEXT), I18n.getContent(I18nKey.CANCEL_TEXT),
-//                IconLoader.getIcon("/icons/warning.svg", Objects.requireNonNull(ReflectionUtil.getGrandCallerClass())));
-
-        ConfirmAndTriggerForm confirmAndTriggerForm = new ConfirmAndTriggerForm(getDialogContent(project), project);
-        confirmAndTriggerForm.show();
-        if (confirmAndTriggerForm.isOK()) {
-            new Task.Backgroundable(project, getTaskTitle(project), false) {
-                @Override
-                public void run(@NotNull ProgressIndicator indicator) {
-                    NotifyUtil.notifyGitCommand(event.getProject(), "===================================================================================");
-                    List<Valve> valves = getValves();
-                    for (Valve valve : valves) {
-                        if (!valve.invoke(project, repository, currentBranch, targetBranch, tagOptions)) {
-                            return;
-                        }
-                    }
-
-                    // 刷新
-                    repository.update();
-                    myProject.getMessageBus().syncPublisher(GitRepository.GIT_REPO_CHANGE).repositoryChanged(repository);
-                    VirtualFileManager.getInstance().asyncRefresh(null);
-
-                    triggerPipeline(confirmAndTriggerForm.getSelectService(), project);
-                }
-            }.queue();
+        boolean clickOk;
+        String selectService = "";
+        if (isStartTest) {
+            ConfirmAndTriggerForm confirmAndTriggerForm = new ConfirmAndTriggerForm(getDialogContent(project), project);
+            confirmAndTriggerForm.show();
+            clickOk = confirmAndTriggerForm.isOK();
+            selectService = confirmAndTriggerForm.getSelectService();
+        } else {
+            int flag = Messages.showOkCancelDialog(project, getDialogContent(project),
+                    getDialogTitle(project), I18n.getContent(I18nKey.OK_TEXT), I18n.getContent(I18nKey.CANCEL_TEXT),
+                    IconLoader.getIcon("/icons/warning.svg", Objects.requireNonNull(ReflectionUtil.getGrandCallerClass())));
+            clickOk = flag == 0;
         }
+        if (!clickOk) {
+            return;
+        }
+        String finalSelectService = selectService;
+        new Task.Backgroundable(project, getTaskTitle(project), false) {
+            @Override
+            public void run(@NotNull ProgressIndicator indicator) {
+                NotifyUtil.notifyGitCommand(event.getProject(), "===================================================================================");
+                List<Valve> valves = getValves();
+                for (Valve valve : valves) {
+                    if (!valve.invoke(project, repository, currentBranch, targetBranch, tagOptions)) {
+                        return;
+                    }
+                }
+
+                // 刷新
+                repository.update();
+                myProject.getMessageBus().syncPublisher(GitRepository.GIT_REPO_CHANGE).repositoryChanged(repository);
+                VirtualFileManager.getInstance().asyncRefresh(null);
+
+                if (isStartTest) {
+                    triggerPipeline(finalSelectService, project);
+                }
+            }
+        }.queue();
     }
 
     /**
