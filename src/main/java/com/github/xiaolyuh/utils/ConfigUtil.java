@@ -1,15 +1,22 @@
 package com.github.xiaolyuh.utils;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.github.xiaolyuh.Constants;
 import com.github.xiaolyuh.InitOptions;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.project.Project;
+import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.prefs.Preferences;
 
 /**
  * 配置管理工具
@@ -17,7 +24,8 @@ import java.util.Optional;
  * @author yuhao.wang3
  * @since 2020/3/18 11:19
  */
-public abstract class ConfigUtil {
+public class ConfigUtil {
+    public static Preferences PREFERENCES = Preferences.userRoot().node("com.github.xiaolyuh");
     /**
      * 将配置存储到本地项目空间
      *
@@ -73,7 +81,10 @@ public abstract class ConfigUtil {
         if (Objects.isNull(options)) {
             options = getConfigToLocal(project);
         }
-
+        if (Objects.nonNull(options)) {
+            options.setKubesphereUsername(PREFERENCES.get("kubesphereUsername", ""));
+            options.setKubespherePassword(PREFERENCES.get("kubespherePassword", ""));
+        }
         return Optional.ofNullable(options);
     }
 
@@ -102,30 +113,27 @@ public abstract class ConfigUtil {
         try {
             String filePath = project.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME;
             File file = new File(filePath);
-            if (file.exists()) {
-                StringBuilder result = new StringBuilder();
-                try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-                    String s;
-                    //使用readLine方法，一次读一行
-                    while ((s = br.readLine()) != null) {
-                        result.append(s);
-                    }
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-                String config = result.toString().replace(" ", "");
-                if (StringUtils.isNotBlank(config)) {
-                    try {
-                        return JSON.parseObject(config, InitOptions.class);
-                    } catch (Exception e) {
-                        throw new RuntimeException("配置内容格式错误", e);
-                    }
-                }
+            if (!file.exists()) {
+                return null;
             }
+            String config = FileUtils.readFileToString(file, StandardCharsets.UTF_8.name());
+            return JSON.parseObject(config, InitOptions.class);
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
+    }
 
-        return null;
+    public static JSONObject getProjectConfigToFile(Project project) {
+        try {
+            String filePath = project.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME_PROJECT;
+            File file = new File(filePath);
+            if (!file.exists()) {
+                return null;
+            }
+            String config = FileUtils.readFileToString(file, StandardCharsets.UTF_8.name());
+            return JSON.parseObject(config, JSONObject.class);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
