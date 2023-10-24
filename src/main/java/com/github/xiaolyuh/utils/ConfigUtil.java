@@ -26,6 +26,7 @@ import java.util.prefs.Preferences;
  */
 public class ConfigUtil {
     public static Preferences PREFERENCES = Preferences.userRoot().node("com.github.xiaolyuh");
+
     /**
      * 将配置存储到本地项目空间
      *
@@ -110,8 +111,8 @@ public class ConfigUtil {
      * @return InitOptions
      */
     private static InitOptions getConfigToFile(Project project) {
+        String filePath = project.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME;
         try {
-            String filePath = project.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME;
             File file = new File(filePath);
             if (!file.exists()) {
                 return null;
@@ -119,7 +120,8 @@ public class ConfigUtil {
             String config = FileUtils.readFileToString(file, StandardCharsets.UTF_8.name());
             return JSON.parseObject(config, InitOptions.class);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            NotifyUtil.notifyGitCommand(project, "读取" + filePath + "错误:" + e.getClass().getSimpleName() + "," + e.getMessage());
+            return null;
         }
     }
 
