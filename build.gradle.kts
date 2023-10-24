@@ -7,7 +7,7 @@ group "com.github.xiaolyuh"
 version "1.1.4"
 
 repositories {
-    mavenCentral()
+    mavenCentral(mapOf("url" to "https://maven.aliyun.com/nexus/content/groups/public/"))
 }
 
 dependencies {

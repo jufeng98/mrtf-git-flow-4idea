@@ -24,6 +24,8 @@ public abstract class I18nKey {
     public static final String INIT_PLUGIN_DIALOG$TEST_LIKE_RELEASE = "InitPluginDialog.TestLikeRelease";
     public static final String INIT_PLUGIN_DIALOG$FEATURE_PREFIX_REQUIRED = "InitPluginDialog.FeaturePrefixRequired";
     public static final String INIT_PLUGIN_DIALOG$HOTFIX_PREFIX_REQUIRED = "InitPluginDialog.HotfixPrefixRequired";
+    public static final String INIT_PLUGIN_DIALOG$KUBESPHERE_USERNAME_REQUIRED = "InitPluginDialog.kubesphereUsernameRequired";
+    public static final String INIT_PLUGIN_DIALOG$KUBESPHERE_PASSWORD_REQUIRED = "InitPluginDialog.kubespherePasswordRequired";
 
     public static final String FAILURE_RELEASE_ACTION$TEXT = "FailureReleaseAction.text";
     public static final String FAILURE_RELEASE_ACTION$DIALOG_TITLE = "FailureReleaseAction.DialogTitle";

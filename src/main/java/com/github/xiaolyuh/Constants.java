@@ -16,6 +16,7 @@ public abstract class Constants {
      * 配置文件名称
      */
     public static final String CONFIG_FILE_NAME = "git-flow-plus.config";
+    public static final String CONFIG_FILE_NAME_PROJECT = "git-flow-project.json";
 
     /**
      * 加锁分支名称

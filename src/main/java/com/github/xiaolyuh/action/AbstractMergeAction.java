@@ -4,6 +4,7 @@ import com.github.xiaolyuh.GitFlowPlus;
 import com.github.xiaolyuh.TagOptions;
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
+import com.github.xiaolyuh.ui.ConfirmAndTriggerForm;
 import com.github.xiaolyuh.utils.ConfigUtil;
 import com.github.xiaolyuh.utils.GitBranchUtil;
 import com.github.xiaolyuh.utils.NotifyUtil;
@@ -14,13 +15,10 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.vcs.FileStatus;
 import com.intellij.openapi.vcs.changes.Change;
 import com.intellij.openapi.vcs.changes.ChangeListManager;
 import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.util.ReflectionUtil;
 import git4idea.repo.GitRepository;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -29,6 +27,8 @@ import javax.swing.*;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+
+import static com.github.xiaolyuh.utils.KubesphereUtils.triggerPipeline;
 
 /**
  * Merge 抽象Action
@@ -102,10 +102,13 @@ public abstract class AbstractMergeAction extends AnAction {
             return;
         }
 
-        int flag = Messages.showOkCancelDialog(project, getDialogContent(project),
-                getDialogTitle(project), I18n.getContent(I18nKey.OK_TEXT), I18n.getContent(I18nKey.CANCEL_TEXT),
-                IconLoader.getIcon("/icons/warning.svg", Objects.requireNonNull(ReflectionUtil.getGrandCallerClass())));
-        if (flag == 0) {
+//        int flag = Messages.showOkCancelDialog(project, getDialogContent(project),
+//                getDialogTitle(project), I18n.getContent(I18nKey.OK_TEXT), I18n.getContent(I18nKey.CANCEL_TEXT),
+//                IconLoader.getIcon("/icons/warning.svg", Objects.requireNonNull(ReflectionUtil.getGrandCallerClass())));
+
+        ConfirmAndTriggerForm confirmAndTriggerForm = new ConfirmAndTriggerForm(getDialogContent(project), project);
+        confirmAndTriggerForm.show();
+        if (confirmAndTriggerForm.isOK()) {
             new Task.Backgroundable(project, getTaskTitle(project), false) {
                 @Override
                 public void run(@NotNull ProgressIndicator indicator) {
@@ -121,6 +124,8 @@ public abstract class AbstractMergeAction extends AnAction {
                     repository.update();
                     myProject.getMessageBus().syncPublisher(GitRepository.GIT_REPO_CHANGE).repositoryChanged(repository);
                     VirtualFileManager.getInstance().asyncRefresh(null);
+
+                    triggerPipeline(confirmAndTriggerForm.getSelectService(), project);
                 }
             }.queue();
         }

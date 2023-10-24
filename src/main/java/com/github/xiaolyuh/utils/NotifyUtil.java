@@ -39,6 +39,9 @@ public class NotifyUtil {
     }
 
     private static void notify(NotificationType type, NotificationGroup group, Project project, String title, String message) {
+        if (project == null) {
+            return;
+        }
         group.createNotification(title, message, type, null).notify(project);
     }
 }

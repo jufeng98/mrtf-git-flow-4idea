@@ -1,5 +1,7 @@
 package com.github.xiaolyuh;
 
+import com.alibaba.fastjson.annotation.JSONField;
+
 import java.util.Objects;
 
 /**
@@ -53,6 +55,10 @@ public class InitOptions {
      * 钉钉Token
      */
     private String dingtalkToken;
+    @JSONField(serialize = false)
+    private String kubesphereUsername;
+    @JSONField(serialize = false)
+    private String kubespherePassword;
 
     /**
      * 语言
@@ -129,6 +135,22 @@ public class InitOptions {
 
     public void setDingtalkToken(String dingtalkToken) {
         this.dingtalkToken = dingtalkToken;
+    }
+
+    public String getKubesphereUsername() {
+        return kubesphereUsername;
+    }
+
+    public void setKubesphereUsername(String kubesphereUsername) {
+        this.kubesphereUsername = kubesphereUsername;
+    }
+
+    public String getKubespherePassword() {
+        return kubespherePassword;
+    }
+
+    public void setKubespherePassword(String kubespherePassword) {
+        this.kubespherePassword = kubespherePassword;
     }
 
     public LanguageEnum getLanguage() {

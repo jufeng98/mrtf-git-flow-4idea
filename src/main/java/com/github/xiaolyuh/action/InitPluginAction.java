@@ -24,6 +24,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Objects;
 
+import static com.github.xiaolyuh.utils.ConfigUtil.PREFERENCES;
+
 /**
  * 初始化Action
  *
@@ -95,6 +97,13 @@ public class InitPluginAction extends AnAction {
                             return;
                         }
                     }
+
+                    String kubesphereUsername = initOptions.getKubesphereUsername();
+                    String kubespherePassword = initOptions.getKubespherePassword();
+                    initOptions.setKubesphereUsername("");
+                    initOptions.setKubespherePassword("");
+                    PREFERENCES.put("kubesphereUsername", kubesphereUsername);
+                    PREFERENCES.put("kubespherePassword", kubespherePassword);
 
                     // 存储配置
                     String configJson = JSON.toJSONString(initOptions);

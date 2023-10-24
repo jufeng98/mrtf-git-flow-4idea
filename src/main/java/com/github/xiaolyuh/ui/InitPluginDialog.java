@@ -34,6 +34,8 @@ public class InitPluginDialog extends DialogWrapper {
     private JTextField hotfixPrefixTextField;
     private JTextField tagPrefixTextField;
     private JTextField dingtalkTokenTextField;
+    private JTextField kubesphereUsernameTextField;
+    private JPasswordField kubespherePasswordTextField;
     private JCheckBox releaseFinishIsDeleteReleaseCheckBox;
     private JCheckBox releaseFinishIsDeleteFeatureCheckBox;
     private JComboBox<String> languageComboBox;
@@ -91,6 +93,8 @@ public class InitPluginDialog extends DialogWrapper {
         options.setReleaseFinishIsDeleteFeature(releaseFinishIsDeleteFeatureCheckBox.isSelected());
         options.setReleaseFinishIsDeleteRelease(releaseFinishIsDeleteReleaseCheckBox.isSelected());
         options.setDingtalkToken(dingtalkTokenTextField.getText());
+        options.setKubesphereUsername(kubesphereUsernameTextField.getText());
+        options.setKubespherePassword(String.valueOf(kubespherePasswordTextField.getPassword()));
         options.setLanguage(LanguageEnum.getByLanguage((String) languageComboBox.getSelectedItem()));
 
         return options;
@@ -122,6 +126,8 @@ public class InitPluginDialog extends DialogWrapper {
             releaseFinishIsDeleteReleaseCheckBox.setSelected(false);
             releaseFinishIsDeleteFeatureCheckBox.setSelected(false);
             dingtalkTokenTextField.setText(options.get().getDingtalkToken());
+            kubesphereUsernameTextField.setText(options.get().getKubesphereUsername());
+            kubespherePasswordTextField.setText(options.get().getKubespherePassword());
 
             languageSwitch();
         } else {
@@ -162,7 +168,12 @@ public class InitPluginDialog extends DialogWrapper {
         if (StringUtil.isEmptyOrSpaces(hotfixPrefixTextField.getText())) {
             return new ValidationInfo(I18n.getContent(I18nKey.INIT_PLUGIN_DIALOG$HOTFIX_PREFIX_REQUIRED), hotfixPrefixTextField);
         }
-
+        if (StringUtil.isEmptyOrSpaces(kubesphereUsernameTextField.getText())) {
+            return new ValidationInfo(I18n.getContent(I18nKey.INIT_PLUGIN_DIALOG$KUBESPHERE_USERNAME_REQUIRED), kubesphereUsernameTextField);
+        }
+        if (StringUtil.isEmptyOrSpaces(String.valueOf(kubespherePasswordTextField.getPassword()))) {
+            return new ValidationInfo(I18n.getContent(I18nKey.INIT_PLUGIN_DIALOG$KUBESPHERE_PASSWORD_REQUIRED), kubespherePasswordTextField);
+        }
         return null;
     }
 

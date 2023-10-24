@@ -1,7 +1,13 @@
 package com.github.xiaolyuh.utils;
 
 import com.alibaba.fastjson.JSON;
-import okhttp3.*;
+import com.github.xiaolyuh.HttpException;
+import okhttp3.FormBody;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,6 +97,33 @@ public abstract class OkHttpClientUtil {
                     JSON.toJSONString(headers), StringUtils.isEmpty(result) ? errorMsg : result);
         }
 
+        return JSON.parseObject(result, clazz);
+    }
+
+    public static <T> T get(String url, Map<String, String> headers, Class<T> clazz) {
+        Request.Builder builder = new Request.Builder()
+                .url(url)
+                .get();
+        if (!isEmpty(headers)) {
+            for (String key : headers.keySet()) {
+                builder.addHeader(key, headers.get(key));
+            }
+        }
+        Request request = builder.build();
+        Response response;
+        String result;
+        try {
+            //创建/Call
+            response = okHttpClient.newCall(request).execute();
+            if (!response.isSuccessful()) {
+                throw new HttpException(response.code(), response.message());
+            }
+            result = response.body().string();
+        } catch (HttpException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException(url, e);
+        }
         return JSON.parseObject(result, clazz);
     }
 

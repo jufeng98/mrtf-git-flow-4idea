@@ -1,8 +1,8 @@
 package com.github.xiaolyuh;
 
 import com.github.xiaolyuh.ui.GitFlowPlusWidget;
+import com.github.xiaolyuh.utils.KubesphereUtils;
 import com.intellij.openapi.components.NamedComponent;
-import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.ProjectLevelVcsManager;
 import com.intellij.openapi.vcs.VcsListener;
@@ -27,6 +27,10 @@ public class GitFlowPlusComponent implements VcsListener, NamedComponent {
 
     public GitFlowPlusComponent(Project project) {
         this.project = project;
+
+//        triggerPipeline();
+//        KubesphereUtils.loginByUrl("80546269", "12345678", null);
+//        System.exit(0);
 
         messageBus = project.getMessageBus();
         messageBus.connect().subscribe(ProjectLevelVcsManager.VCS_CONFIGURATION_CHANGED, this);
