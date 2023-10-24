@@ -108,6 +108,7 @@ public abstract class I18nKey {
     public static final String MERGE_CONFLICT_TITLE = "MergeConflictTitle";
     public static final String MERGE_CONFLICT_CONTENT = "MergeConflictContent";
     public static final String MERGE_BRANCH_MSG = "MergeBranchMsg";
+    public static final String MERGE_BRANCH_MSG_OTHER = "MergeBranchMsgOther";
 
     public static final String DELETE_BRANCH_SUCCESS = "DeleteBranchSuccess";
     public static final String DELETE_BRANCH_ERROR = "DeleteBranchError";

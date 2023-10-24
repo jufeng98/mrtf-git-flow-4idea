@@ -109,12 +109,12 @@ public abstract class AbstractMergeAction extends AnAction {
         boolean clickOk;
         String selectService = "";
         if (isStartTest) {
-            ConfirmAndTriggerForm confirmAndTriggerForm = new ConfirmAndTriggerForm(getDialogContent(project), project);
+            ConfirmAndTriggerForm confirmAndTriggerForm = new ConfirmAndTriggerForm(getDialogContent(project, true), project);
             confirmAndTriggerForm.show();
             clickOk = confirmAndTriggerForm.isOK();
             selectService = confirmAndTriggerForm.getSelectService();
         } else {
-            int flag = Messages.showOkCancelDialog(project, getDialogContent(project),
+            int flag = Messages.showOkCancelDialog(project, getDialogContent(project, false),
                     getDialogTitle(project), I18n.getContent(I18nKey.OK_TEXT), I18n.getContent(I18nKey.CANCEL_TEXT),
                     IconLoader.getIcon("/icons/warning.svg", Objects.requireNonNull(ReflectionUtil.getGrandCallerClass())));
             clickOk = flag == 0;
@@ -165,11 +165,14 @@ public abstract class AbstractMergeAction extends AnAction {
     /**
      * 获取弹框内容
      *
-     * @param project project
+     * @param project     project
+     * @param isStartTest
      * @return String
      */
-    protected String getDialogContent(Project project) {
-        return String.format(I18n.getContent(I18nKey.MERGE_BRANCH_MSG), gitFlowPlus.getCurrentBranch(project), getTargetBranch(project));
+    protected String getDialogContent(Project project, boolean isStartTest) {
+        String other = isStartTest ? I18n.getContent(I18nKey.MERGE_BRANCH_MSG_OTHER) : "";
+        return String.format(I18n.getContent(I18nKey.MERGE_BRANCH_MSG), gitFlowPlus.getCurrentBranch(project),
+                getTargetBranch(project), other);
     }
 
     /**

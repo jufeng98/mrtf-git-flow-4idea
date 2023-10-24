@@ -18,7 +18,7 @@ public class KubesphereUtils {
 
     public static void triggerPipeline(String selectService, Project project) {
         if (StringUtils.isBlank(selectService)) {
-            NotifyUtil.notifyError(project, "温馨提示", "缺少服务配置文件,跳过触发流水线");
+            NotifyUtil.notifyError(project, "温馨提示", "未选择服务,跳过触发流水线");
             return;
         }
         JSONObject configObj = ConfigUtil.getProjectConfigToFile(project);

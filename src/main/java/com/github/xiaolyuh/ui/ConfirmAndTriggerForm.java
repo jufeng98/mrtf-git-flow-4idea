@@ -10,7 +10,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 
 public class ConfirmAndTriggerForm extends DialogWrapper {
-    private static int lastSelectIndex = 0;
     private JPanel panel1;
     @SuppressWarnings("rawtypes")
     private JList jlist;
@@ -30,18 +29,18 @@ public class ConfirmAndTriggerForm extends DialogWrapper {
             }
             //noinspection unchecked
             jlist.setModel(listModel);
-            jlist.setSelectedIndex(lastSelectIndex);
         } else {
             DefaultListModel<String> listModel = new DefaultListModel<>();
             listModel.addElement("缺少服务配置,无法触发流水线!请先在git-flow-project.json文件配置项目服务");
             jlist.setEnabled(false);
+            //noinspection unchecked
+            jlist.setModel(listModel);
         }
 
     }
 
     public String getSelectService() {
         if (jlist.isEnabled()) {
-            lastSelectIndex = jlist.getSelectedIndex();
             return (String) jlist.getSelectedValue();
         }
         return "";

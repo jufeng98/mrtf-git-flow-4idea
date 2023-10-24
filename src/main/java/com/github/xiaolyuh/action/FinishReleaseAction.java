@@ -46,7 +46,7 @@ public class FinishReleaseAction extends AbstractMergeAction {
     }
 
     @Override
-    protected String getDialogContent(Project project) {
+    protected String getDialogContent(Project project, boolean isStartTest) {
         String release = ConfigUtil.getConfig(project).get().getReleaseBranch();
         return String.format(I18n.getContent(I18nKey.MERGE_BRANCH_MSG), release, getTargetBranch(project));
     }
