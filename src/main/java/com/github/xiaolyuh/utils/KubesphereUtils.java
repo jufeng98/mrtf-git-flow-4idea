@@ -69,10 +69,11 @@ public class KubesphereUtils {
                     , String.format("{\"parameters\":[{\"name\":\"MDL_NAME\",\"value\":\"%s\"}]}", selectService));
         }
         resObj = OkHttpClientUtil.post(runsUrl, "runsUrl", requestBody, null, headers, JSONObject.class);
-        NotifyUtil.notifyGitCommand(project, "请求url:" + runsUrl + ",结果:" + resObj.toJSONString());
-        NotifyUtil.notifyGitCommand(project, selectService + "触发流水线成功");
+        String msg = String.format("请求url:%s,结果id:%s,queueId:%s,state:%s", runsUrl, resObj.getString("id"),
+                resObj.getString("queueId"), resObj.getString("state"));
+        NotifyUtil.notifyGitCommand(project, msg);
+        NotifyUtil.notifyGitCommand(project, selectService + "触发流水线成功!");
     }
-
 
     public static void loginAndSaveToken(Project project) {
         String kubesphereUsername = PREFERENCES.get("kubesphereUsername", "");
