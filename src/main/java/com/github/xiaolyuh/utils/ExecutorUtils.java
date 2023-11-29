@@ -42,17 +42,25 @@ public class ExecutorUtils {
                     return;
                 }
                 String result = resObj.getString("result");
-                NotifyUtil.notifyInfo(project, selectService + "构建结果:" + result);
+                if (!"SUCCESS".equals(result)) {
+                    NotifyUtil.notifyError(project, selectService + "构建失败");
+                    return;
+                }
+                NotifyUtil.notifyInfo(project, selectService + "构建成功");
+
+                monitorStartTask(runsUrl, selectService, id, project);
+
+                NotifyUtil.notifyWarn(project, "开始监控" + selectService + "启动情况");
             } catch (Exception e) {
                 NotifyUtil.notifyWarn(project, "检测" + selectService + "构建情况出错,原因:" + e.getMessage());
             }
         };
     }
 
-    public static void monitorStartTask(String runsUrl, String selectService, Project project) {
+    public static void monitorStartTask(String runsUrl, String selectService, String id, Project project) {
         executorService.submit(() -> {
             try {
-                TimeUnit.SECONDS.sleep(60);
+                TimeUnit.SECONDS.sleep(10);
             } catch (InterruptedException ignored) {
             }
             String namespace = findNamespace(runsUrl);
@@ -62,7 +70,7 @@ public class ExecutorUtils {
 
             String newInstanceName;
             try {
-                newInstanceName = findNewInstanceName(podUrl);
+                newInstanceName = findNewInstanceName(podUrl, id);
             } catch (Exception e) {
                 NotifyUtil.notifyWarn(project, "检测" + selectService + "启动情况出错啦,原因:" + e.getMessage());
                 return;
@@ -128,31 +136,44 @@ public class ExecutorUtils {
         };
     }
 
-    private static String findNewInstanceName(String podUrl) throws Exception {
+    private static String findNewInstanceName(String podUrl, String id) throws Exception {
         String kubesphereToken = PREFERENCES.get("kubesphereToken", "");
         Map<String, String> headers = Maps.newHashMap();
         headers.put("Cookie", "token=" + kubesphereToken);
         JSONObject resObj = OkHttpClientUtil.get(podUrl, headers, JSONObject.class);
 
-        int totalItems = resObj.getIntValue("totalItems");
-        if (totalItems <= 1) {
-            TimeUnit.SECONDS.sleep(10);
-            return findNewInstanceName(podUrl);
+        JSONArray items = resObj.getJSONArray("items");
+        for (Object item : items) {
+            JSONObject itemObject = (JSONObject) item;
+            JSONObject specObj = itemObject.getJSONObject("spec");
+            JSONArray containers = specObj.getJSONArray("containers");
+            for (Object container : containers) {
+                JSONObject containerObject= (JSONObject) container;
+                String image = containerObject.getString("image");
+                if (image.endsWith(id)) {
+                    return itemObject.getJSONObject("metadata").getString("name");
+                }
+            }
         }
 
-        JSONArray items = resObj.getJSONArray("items");
-        JSONObject itemObject = (JSONObject) items.get(0);
-        return itemObject.getJSONObject("metadata").getString("name");
+        TimeUnit.SECONDS.sleep(10);
+        return findNewInstanceName(podUrl, id);
     }
 
     private static int getRestartCount(JSONObject statusObj, String key) {
         JSONArray statuses = statusObj.getJSONArray(key);
+        if (statuses == null) {
+            return 0;
+        }
         JSONObject tmpObj = (JSONObject) statuses.get(0);
         return tmpObj.getIntValue("restartCount");
     }
 
     private static boolean getReady(JSONObject statusObj, String key) {
         JSONArray statuses = statusObj.getJSONArray(key);
+        if (statuses == null) {
+            return true;
+        }
         JSONObject tmpObj = (JSONObject) statuses.get(0);
         return tmpObj.getBooleanValue("ready");
     }
