@@ -120,6 +120,7 @@ public class ExecutorUtils {
                     return;
                 }
 
+                TimeUnit.SECONDS.sleep(15);
                 NotifyUtil.notifyInfo(project, newInstanceName + "新实例启动成功");
             } catch (Exception e) {
                 NotifyUtil.notifyWarn(project, "检测" + selectService + "启动情况出错,原因:" + e.getMessage());
