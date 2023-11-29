@@ -26,12 +26,24 @@ public class NotifyUtil {
         notify(NotificationType.INFORMATION, BALLOON_NOTIFICATION, project, title, message);
     }
 
+    public static void notifyInfo(Project project, String message) {
+        notifyInfo(project, "温馨提示", message);
+    }
+
     public static void notifyInfo(Project project, String title, String message) {
         notify(NotificationType.INFORMATION, TOOLWINDOW_NOTIFICATION, project, title, message);
     }
 
+    public static void notifyError(Project project, String message) {
+        notifyError(project, "温馨提示", message);
+    }
+
     public static void notifyError(Project project, String title, String message) {
         notify(NotificationType.ERROR, TOOLWINDOW_NOTIFICATION, project, title, message);
+    }
+
+    public static void notifyWarn(Project project, String command) {
+        notify(NotificationType.WARNING, NONE, project, "温馨提示", command);
     }
 
     public static void notifyGitCommand(Project project, String command) {

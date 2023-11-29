@@ -24,7 +24,8 @@ import java.util.Objects;
 public class StartTestAction extends AbstractMergeAction {
 
     public StartTestAction() {
-        super("提测", "将当前开发分支合并到test分支", IconLoader.getIcon("/icons/mergeToTest.svg", Objects.requireNonNull(ReflectionUtil.getGrandCallerClass())));
+        super("提测", "将当前开发分支合并到test分支", IconLoader.getIcon("/icons/mergeToTest.svg",
+                Objects.requireNonNull(ReflectionUtil.getGrandCallerClass())));
     }
 
     @Override
