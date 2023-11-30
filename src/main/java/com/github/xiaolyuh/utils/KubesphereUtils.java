@@ -75,7 +75,7 @@ public class KubesphereUtils {
         NotifyUtil.notifyWarn(project, msg);
         NotifyUtil.notifyWarn(project, selectService + "触发流水线成功!");
         ExecutorUtils.monitorBuildTask(runsUrl, id, selectService, project);
-        NotifyUtil.notifyWarn(project, "开始监控" + selectService + "构建情况");
+        NotifyUtil.notifyWarn(project, "开始监控" + selectService + " id为" + id + "的构建情况");
     }
 
     public static void loginAndSaveToken(Project project) {

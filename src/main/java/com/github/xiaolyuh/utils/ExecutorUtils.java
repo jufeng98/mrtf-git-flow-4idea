@@ -43,16 +43,16 @@ public class ExecutorUtils {
                 }
                 String result = resObj.getString("result");
                 if (!"SUCCESS".equals(result)) {
-                    NotifyUtil.notifyError(project, selectService + "构建失败");
+                    NotifyUtil.notifyError(project, selectService + " id为" + id + "构建失败");
                     return;
                 }
-                NotifyUtil.notifyInfo(project, selectService + "构建成功");
+                NotifyUtil.notifyInfo(project, selectService + " id为" + id + "构建成功");
 
                 monitorStartTask(runsUrl, selectService, id, project);
 
-                NotifyUtil.notifyWarn(project, "开始监控" + selectService + "启动情况");
+                NotifyUtil.notifyWarn(project, "开始监控" + selectService + " id为" + id + "启动情况");
             } catch (Exception e) {
-                NotifyUtil.notifyWarn(project, "检测" + selectService + "构建情况出错,原因:" + e.getMessage());
+                NotifyUtil.notifyWarn(project, "检测" + selectService + " id为" + id + "的构建情况出错,原因:" + e.getMessage());
             }
         };
     }
@@ -66,16 +66,17 @@ public class ExecutorUtils {
             String namespace = findNamespace(runsUrl);
 
             String podUrl = String.format("http://host-kslb.mh.bluemoon.com.cn/kapis/clusters/sim-1/resources.kubesphere.io/v1alpha3/namespaces/%s/pods?name=%s&sortBy=startTime&limit=10",
-                    namespace, selectService);
+                    namespace, selectService.toLowerCase());
 
             String newInstanceName;
             try {
-                newInstanceName = findNewInstanceName(podUrl, id);
+                newInstanceName = findNewInstanceName(podUrl, id, 0);
             } catch (Exception e) {
-                NotifyUtil.notifyWarn(project, "检测" + selectService + "启动情况出错啦,原因:" + e.getMessage());
+                NotifyUtil.notifyWarn(project, "检测" + selectService + " id为" + id +
+                        "的启动情况出错啦,原因:" + e.getMessage());
                 return;
             }
-            NotifyUtil.notifyWarn(project, "新实例" + newInstanceName + "启动中...");
+            NotifyUtil.notifyWarn(project, "新实例" + newInstanceName + "启动中......");
             monitorStartedTask(podUrl, selectService, project, newInstanceName);
         });
     }
@@ -136,7 +137,7 @@ public class ExecutorUtils {
         };
     }
 
-    private static String findNewInstanceName(String podUrl, String id) throws Exception {
+    private static String findNewInstanceName(String podUrl, String id, int detectTimes) throws Exception {
         String kubesphereToken = PREFERENCES.get("kubesphereToken", "");
         Map<String, String> headers = Maps.newHashMap();
         headers.put("Cookie", "token=" + kubesphereToken);
@@ -148,16 +149,19 @@ public class ExecutorUtils {
             JSONObject specObj = itemObject.getJSONObject("spec");
             JSONArray containers = specObj.getJSONArray("containers");
             for (Object container : containers) {
-                JSONObject containerObject= (JSONObject) container;
+                JSONObject containerObject = (JSONObject) container;
                 String image = containerObject.getString("image");
                 if (image.endsWith(id)) {
                     return itemObject.getJSONObject("metadata").getString("name");
                 }
             }
         }
-
+        detectTimes++;
+        if (detectTimes >= 18) {
+            throw new RuntimeException("当前url:" + podUrl + ",返回结果:" + resObj.toJSONString());
+        }
         TimeUnit.SECONDS.sleep(10);
-        return findNewInstanceName(podUrl, id);
+        return findNewInstanceName(podUrl, id, detectTimes);
     }
 
     private static int getRestartCount(JSONObject statusObj, String key) {
