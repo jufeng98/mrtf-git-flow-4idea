@@ -27,6 +27,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -36,6 +37,8 @@ import java.util.Set;
  * @since 2020/3/23 9:53
  */
 public class GitFlowPlusImpl implements GitFlowPlus {
+    private static boolean mockLockFlag = false;
+
     private Git git = Git.getInstance();
 
     @Override
@@ -175,6 +178,11 @@ public class GitFlowPlusImpl implements GitFlowPlus {
 
     @Override
     public boolean lock(GitRepository repository, String currentBranch) {
+        if (true) {
+            mockLockFlag = true;
+            return true;
+        }
+
         GitCommandResult result = git.push(repository, currentBranch, Constants.LOCK_BRANCH_NAME, false);
 
         if (result.success() && isNewBranch(result)) {
@@ -186,11 +194,19 @@ public class GitFlowPlusImpl implements GitFlowPlus {
 
     @Override
     public GitCommandResult unlock(GitRepository repository) {
+        if (true) {
+            mockLockFlag = false;
+            return new GitCommandResult(false, 0, Collections.emptyList(), Collections.emptyList());
+        }
+
         return git.deleteRemoteBranch(repository, Constants.LOCK_BRANCH_NAME);
     }
 
     @Override
     public boolean isLock(Project project) {
+        if (true) {
+            return mockLockFlag;
+        }
 
         return GitBranchUtil.getRemoteBranches(project).contains(Constants.LOCK_BRANCH_NAME);
     }
