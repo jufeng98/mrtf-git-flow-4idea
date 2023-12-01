@@ -169,8 +169,12 @@ public class ExecutorUtils {
         if (statuses == null) {
             return 0;
         }
-        JSONObject tmpObj = (JSONObject) statuses.get(0);
-        return tmpObj.getIntValue("restartCount");
+        return statuses.stream()
+                .mapToInt(it -> {
+                    JSONObject tmpObj = (JSONObject) it;
+                    return tmpObj.getIntValue("restartCount");
+                })
+                .sum();
     }
 
     private static boolean getReady(JSONObject statusObj, String key) {
@@ -178,8 +182,11 @@ public class ExecutorUtils {
         if (statuses == null) {
             return true;
         }
-        JSONObject tmpObj = (JSONObject) statuses.get(0);
-        return tmpObj.getBooleanValue("ready");
+        return statuses.stream()
+                .allMatch(it -> {
+                    JSONObject tmpObj = (JSONObject) it;
+                    return tmpObj.getBooleanValue("ready");
+                });
     }
 
     private static String findNamespace(String runsUrl) {
