@@ -14,8 +14,6 @@ import com.intellij.openapi.wm.ToolWindowId;
 public class NotifyUtil {
     private static final NotificationGroup TOOLWINDOW_NOTIFICATION = NotificationGroup.toolWindowGroup(
             "GitflowPlus Errors", ToolWindowId.VCS, true);
-    private static final NotificationGroup STICKY_NOTIFICATION = new NotificationGroup(
-            "GitflowPlus Errors", NotificationDisplayType.STICKY_BALLOON, true);
     private static final NotificationGroup BALLOON_NOTIFICATION = new NotificationGroup(
             "GitflowPlus Notifications", NotificationDisplayType.BALLOON, true);
 

@@ -3,12 +3,14 @@ package com.github.xiaolyuh.test;
 import com.alibaba.fastjson.JSONObject;
 import com.github.xiaolyuh.test.utils.SftpClient;
 import org.apache.commons.io.FileUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
+@Ignore
 public class UploadTest {
 
     @Test

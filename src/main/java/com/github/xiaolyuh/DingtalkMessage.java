@@ -12,7 +12,7 @@ public class DingtalkMessage {
 
     private String msgtype;
     private Text text = new Text();
-    private At at = new At();
+    private final At at = new At();
 
     public String getMsgtype() {
         return "text";
@@ -47,14 +47,9 @@ public class DingtalkMessage {
     }
 
     public static class At {
-        /**
-         * isAtAll : false
-         */
-
-        private boolean isAtAll = false;
 
         public boolean isIsAtAll() {
-            return isAtAll;
+            return false;
         }
     }
 }

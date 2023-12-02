@@ -9,6 +9,7 @@ import okhttp3.FormBody;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
@@ -21,21 +22,24 @@ public class KubesphereUtils {
             NotifyUtil.notifyWarn(project, "未选择服务,跳过触发流水线");
             return;
         }
+
         JSONObject configObj = ConfigUtil.getProjectConfigToFile(project);
+        if (configObj == null) {
+            NotifyUtil.notifyWarn(project, "缺少配置文件,跳过触发流水线");
+            return;
+        }
+
         String kubesphereToken = PREFERENCES.get("kubesphereToken", "");
         if (StringUtils.isBlank(kubesphereToken)) {
             loginAndSaveToken(project);
         }
+
         kubesphereToken = PREFERENCES.get("kubesphereToken", "");
         if (StringUtils.isBlank(kubesphereToken)) {
             NotifyUtil.notifyWarn(project, "请先配置Kubesphere用户信息");
             return;
         }
 
-        if (configObj == null) {
-            NotifyUtil.notifyWarn(project, "缺少配置文件,跳过触发流水线");
-            return;
-        }
         String crumbissuerUrl = configObj.getString("crumbissuerUrl");
         String runsUrl = configObj.getString("runsUrl");
         Boolean isFrontProject = configObj.getBoolean("isFrontProject");
@@ -69,12 +73,16 @@ public class KubesphereUtils {
                     , String.format("{\"parameters\":[{\"name\":\"MDL_NAME\",\"value\":\"%s\"}]}", selectService));
         }
         resObj = OkHttpClientUtil.post(runsUrl, "runsUrl", requestBody, null, headers, JSONObject.class);
+
         String id = resObj.getString("id");
         String msg = String.format("请求url:%s,结果id:%s,queueId:%s,state:%s", runsUrl, id, resObj.getString("queueId"),
                 resObj.getString("state"));
         NotifyUtil.notifyWarn(project, msg);
+
         NotifyUtil.notifyWarn(project, selectService + "触发流水线成功!");
+
         ExecutorUtils.monitorBuildTask(runsUrl, id, selectService, project);
+
         NotifyUtil.notifyWarn(project, "开始监控" + selectService + " id为" + id + "的构建情况");
     }
 
@@ -113,6 +121,7 @@ public class KubesphereUtils {
             Runtime runtime = Runtime.getRuntime();
             Process process = runtime.exec(cmd);
             process.waitFor();
+            @SuppressWarnings("deprecation")
             String res = StreamUtil.readText(process.getInputStream(), StandardCharsets.UTF_8);
             String[] split = res.split("\r\n");
             for (String line : split) {

@@ -2,6 +2,7 @@ package com.github.xiaolyuh.utils;
 
 import com.alibaba.fastjson.JSON;
 import com.github.xiaolyuh.HttpException;
+import okhttp3.Call;
 import okhttp3.FormBody;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -24,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 public abstract class OkHttpClientUtil {
     private static final Logger logger = LoggerFactory.getLogger(OkHttpClientUtil.class);
 
-    private static OkHttpClient okHttpClient = new OkHttpClient.Builder()
+    private static final OkHttpClient okHttpClient = new OkHttpClient.Builder()
             .connectTimeout(10, TimeUnit.SECONDS)
             .writeTimeout(10, TimeUnit.SECONDS)
             .readTimeout(20, TimeUnit.SECONDS)
@@ -36,15 +37,13 @@ public abstract class OkHttpClientUtil {
      * @param url           地址
      * @param param         参数
      * @param interfaceName 接口名称
-     * @return T
-     * @throws Exception Exception
      */
-    public static <T> T postApplicationJson(String url, Object param, String interfaceName, Class<T> clazz) {
+    public static <T> void postApplicationJson(String url, Object param, String interfaceName, Class<T> clazz) {
         // 生成requestBody
         RequestBody requestBody = FormBody.create(MediaType.parse("application/json; charset=utf-8")
                 , JSON.toJSONString(param));
 
-        return post(url, interfaceName, requestBody, param, null, clazz);
+        post(url, interfaceName, requestBody, param, null, clazz);
     }
 
     /**
@@ -61,7 +60,7 @@ public abstract class OkHttpClientUtil {
                 .url(url)
                 .post(requestBody);
 
-        if (!isEmpty(headers)) {
+        if (isNotEmpty(headers)) {
             for (String key : headers.keySet()) {
                 builder.addHeader(key, headers.get(key));
             }
@@ -75,8 +74,7 @@ public abstract class OkHttpClientUtil {
             //创建/Call
             response = okHttpClient.newCall(request).execute();
             if (!response.isSuccessful()) {
-                logger.error("访问外部系统异常 {}: {}", url, response.toString());
-                errorMsg = String.format("访问外部系统异常:%s", response.toString());
+                errorMsg = String.format("访问外部系统异常:%s", response);
                 throw new RuntimeException(errorMsg);
             }
             result = response.body().string();
@@ -90,7 +88,7 @@ public abstract class OkHttpClientUtil {
                 errorMsg = String.format("访问外部系统异常::%s", e.getMessage());
                 throw new RuntimeException(errorMsg, e);
             }
-            errorMsg = String.format("访问外部系统异常:::%s", response.toString());
+            errorMsg = String.format("访问外部系统异常:::%s", response);
             throw new RuntimeException(errorMsg, e);
         } finally {
             logger.info("请求 {}  {}，请求参数：{}, header:{}, 返回参数：{}", interfaceName, url, JSON.toJSONString(param),
@@ -104,17 +102,18 @@ public abstract class OkHttpClientUtil {
         Request.Builder builder = new Request.Builder()
                 .url(url)
                 .get();
-        if (!isEmpty(headers)) {
+        if (isNotEmpty(headers)) {
             for (String key : headers.keySet()) {
                 builder.addHeader(key, headers.get(key));
             }
         }
         Request request = builder.build();
-        Response response;
+        Response response = null;
         String result;
         try {
             //创建/Call
-            response = okHttpClient.newCall(request).execute();
+            Call call = okHttpClient.newCall(request);
+            response = call.execute();
             if (!response.isSuccessful()) {
                 throw new HttpException(response.code(), response.message());
             }
@@ -123,11 +122,15 @@ public abstract class OkHttpClientUtil {
             throw e;
         } catch (Exception e) {
             throw new RuntimeException(url, e);
+        }finally {
+            if (response != null) {
+                response.close();
+            }
         }
         return JSON.parseObject(result, clazz);
     }
 
-    public static boolean isEmpty(Map map) {
-        return map == null || map.isEmpty();
+    public static boolean isNotEmpty(Map<?,?> map) {
+        return map != null && !map.isEmpty();
     }
 }

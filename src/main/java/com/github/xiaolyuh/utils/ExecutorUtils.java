@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Maps;
 import com.intellij.openapi.project.Project;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -18,16 +19,17 @@ public class ExecutorUtils {
 
     public static void monitorBuildTask(String runsUrl, String id, String selectService, Project project) {
         executorService.submit(() -> {
-            try {
-                TimeUnit.SECONDS.sleep(30);
-            } catch (InterruptedException ignored) {
-            }
-            Runnable task = createMonitorBuildTask(runsUrl, id, selectService, project);
-            executorService.submit(task);
+            sleep(60);
+            createMonitorBuildTask(runsUrl, id, selectService, project);
         });
     }
 
-    private static Runnable createMonitorBuildTask(String runsUrl, String id, String selectService, Project project) {
+    private static void createMonitorBuildTask(String runsUrl, String id, String selectService, Project project){
+        Runnable task = createMonitorBuildTaskReal(runsUrl, id, selectService, project);
+        executorService.submit(task);
+    }
+
+    private static Runnable createMonitorBuildTaskReal(String runsUrl, String id, String selectService, Project project) {
         return () -> {
             try {
                 String kubesphereToken = PREFERENCES.get("kubesphereToken", "");
@@ -36,9 +38,9 @@ public class ExecutorUtils {
                 JSONObject resObj = OkHttpClientUtil.get(runsUrl + "/" + id + "/", headers, JSONObject.class);
                 String state = resObj.getString("state");
                 if (!"FINISHED".equals(state)) {
-                    TimeUnit.SECONDS.sleep(10);
+                    sleep(10);
                     // 构建未完成,重新监控
-                    monitorBuildTask(runsUrl, id, selectService, project);
+                    createMonitorBuildTask(runsUrl, id, selectService, project);
                     return;
                 }
                 String result = resObj.getString("result");
@@ -52,17 +54,14 @@ public class ExecutorUtils {
 
                 NotifyUtil.notifyWarn(project, "开始监控" + selectService + " id为" + id + "启动情况");
             } catch (Exception e) {
-                NotifyUtil.notifyWarn(project, "检测" + selectService + " id为" + id + "的构建情况出错,原因:" + e.getMessage());
+                NotifyUtil.notifyError(project, "检测" + selectService + " id为" + id + "的构建情况出错,原因:" + e.getMessage());
             }
         };
     }
 
     public static void monitorStartTask(String runsUrl, String selectService, String id, Project project) {
         executorService.submit(() -> {
-            try {
-                TimeUnit.SECONDS.sleep(10);
-            } catch (InterruptedException ignored) {
-            }
+            sleep(10);
             String namespace = findNamespace(runsUrl);
 
             String podUrl = String.format("http://host-kslb.mh.bluemoon.com.cn/kapis/clusters/sim-1/resources.kubesphere.io/v1alpha3/namespaces/%s/pods?name=%s&sortBy=startTime&limit=10",
@@ -72,11 +71,13 @@ public class ExecutorUtils {
             try {
                 newInstanceName = findNewInstanceName(podUrl, id, 0);
             } catch (Exception e) {
-                NotifyUtil.notifyWarn(project, "检测" + selectService + " id为" + id +
+                NotifyUtil.notifyError(project, "检测" + selectService + " id为" + id +
                         "的启动情况出错啦,原因:" + e.getMessage());
                 return;
             }
             NotifyUtil.notifyWarn(project, "新实例" + newInstanceName + "启动中......");
+
+            sleep(60);
             monitorStartedTask(podUrl, selectService, project, newInstanceName);
         });
     }
@@ -95,44 +96,48 @@ public class ExecutorUtils {
                 JSONObject resObj = OkHttpClientUtil.get(podUrl, headers, JSONObject.class);
 
                 JSONArray items = resObj.getJSONArray("items");
-                JSONObject newItemObject = (JSONObject) items.stream()
+                List<Object> list = items.stream()
                         .filter(it -> {
                             JSONObject itemObject = (JSONObject) it;
                             String instanceName = itemObject.getJSONObject("metadata").getString("name");
                             return instanceName.equals(newInstanceName);
                         })
-                        .collect(Collectors.toList())
-                        .get(0);
+                        .collect(Collectors.toList());
+                if (list.isEmpty()) {
+                    NotifyUtil.notifyError(project, newInstanceName + "启动失败啦");
+                    return;
+                }
+                JSONObject newItemObject = (JSONObject) list.get(0);
 
                 JSONObject statusObj = newItemObject.getJSONObject("status");
                 int restartCount = getRestartCount(statusObj, "initContainerStatuses");
                 if (restartCount > 0) {
-                    NotifyUtil.notifyError(project, selectService + "容器初始化失败,当前重启次数:" + restartCount);
+                    NotifyUtil.notifyError(project, newInstanceName + "容器初始化失败,当前重启次数:" + restartCount);
                     return;
                 }
                 restartCount = getRestartCount(statusObj, "containerStatuses");
                 if (restartCount > 0) {
-                    NotifyUtil.notifyError(project, selectService + "容器启动失败,当前重启次数:" + restartCount);
+                    NotifyUtil.notifyError(project, newInstanceName + "容器启动失败,当前重启次数:" + restartCount);
                     return;
                 }
 
                 boolean ready = getReady(statusObj, "initContainerStatuses");
                 if (!ready) {
-                    TimeUnit.SECONDS.sleep(10);
+                    sleep(10);
                     monitorStartedTask(podUrl, selectService, project, newInstanceName);
                     return;
                 }
                 ready = getReady(statusObj, "containerStatuses");
                 if (!ready) {
-                    TimeUnit.SECONDS.sleep(10);
+                    sleep(10);
                     monitorStartedTask(podUrl, selectService, project, newInstanceName);
                     return;
                 }
 
-                TimeUnit.SECONDS.sleep(15);
+                sleep(15);
                 NotifyUtil.notifyInfo(project, newInstanceName + "新实例启动成功");
             } catch (Exception e) {
-                NotifyUtil.notifyWarn(project, "检测" + selectService + "启动情况出错,原因:" + e.getMessage());
+                NotifyUtil.notifyWarn(project, "检测" + newInstanceName + "启动情况出错,原因:" + e.getMessage());
             }
         };
     }
@@ -193,5 +198,12 @@ public class ExecutorUtils {
         int start = runsUrl.indexOf("pipelines") + "pipelines".length() + 1;
         int end = runsUrl.indexOf("branches") - 1;
         return runsUrl.substring(start, end);
+    }
+
+    private static void sleep(int seconds) {
+        try {
+            TimeUnit.SECONDS.sleep(seconds);
+        } catch (InterruptedException ignored) {
+        }
     }
 }
