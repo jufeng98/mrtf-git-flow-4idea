@@ -33,10 +33,11 @@ import static com.github.xiaolyuh.utils.ConfigUtil.PREFERENCES;
  */
 public class InitPluginAction extends AnAction {
 
-    private GitFlowPlus gitFlowPlus = GitFlowPlus.getInstance();
+    private final GitFlowPlus gitFlowPlus = GitFlowPlus.getInstance();
 
     public InitPluginAction() {
-        super("初始化配置", "初始化仓库配置，如果测试分支与发布分支不存在，将基于master新建", IconLoader.getIcon("/icons/config.svg", Objects.requireNonNull(ReflectionUtil.getGrandCallerClass())));
+        super("初始化配置", "初始化仓库配置，如果测试分支与发布分支不存在，将基于master新建",
+                IconLoader.getIcon("/icons/config.svg", Objects.requireNonNull(ReflectionUtil.getGrandCallerClass())));
     }
 
     @Override

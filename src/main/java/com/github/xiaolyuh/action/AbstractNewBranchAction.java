@@ -69,7 +69,7 @@ public abstract class AbstractNewBranchAction extends AnAction {
         new Task.Backgroundable(project, getTitle(newBranchName), false) {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
-                final String master = ConfigUtil.getConfig(project).get().getMasterBranch();
+                final String master = ConfigUtil.getInitOptions(project).getMasterBranch();
 
                 if (gitFlowPlus.isExistChangeFile(project)) {
                     return;

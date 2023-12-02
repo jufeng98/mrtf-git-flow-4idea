@@ -200,7 +200,7 @@ public class GitImpl implements Git {
         h.addParameters("-f");
         h.addParameters("-m");
         h.addParameters(message);
-        h.addParameters(ConfigUtil.getConfig(repository.getProject()).get().getTagPrefix() + tagName);
+        h.addParameters(ConfigUtil.getInitOptions(repository.getProject()).getTagPrefix() + tagName);
 
         NotifyUtil.notifyGitCommand(repository.getProject(), h.printableCommandLine());
         return git.runCommand(h);

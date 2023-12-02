@@ -33,7 +33,7 @@ public class StartReleaseAction extends AbstractMergeAction {
 
     @Override
     protected String getTargetBranch(Project project) {
-        return ConfigUtil.getConfig(project).get().getReleaseBranch();
+        return ConfigUtil.getInitOptions(project).getReleaseBranch();
     }
 
     @Override

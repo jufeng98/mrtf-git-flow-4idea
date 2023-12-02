@@ -39,7 +39,7 @@ import java.util.Set;
 public class GitFlowPlusImpl implements GitFlowPlus {
     private static boolean mockLockFlag = false;
 
-    private Git git = Git.getInstance();
+    private final Git git = Git.getInstance();
 
     @Override
     public void addConfigToGit(GitRepository repository) {
@@ -48,7 +48,7 @@ public class GitFlowPlusImpl implements GitFlowPlus {
             FilePath path = VcsUtil.getFilePath(filePath);
             GitFileUtils.addPaths(repository.getProject(), repository.getRoot(), Lists.newArrayList(path));
         } catch (VcsException e) {
-
+            throw new RuntimeException(e);
         }
     }
 
@@ -121,7 +121,7 @@ public class GitFlowPlusImpl implements GitFlowPlus {
     @Override
     public GitCommandResult mergeBranchAndPush(GitRepository repository, String currentBranch, String targetBranch,
                                                TagOptions tagOptions) {
-        String releaseBranch = ReadAction.compute(() -> ConfigUtil.getConfig(repository.getProject()).get().getReleaseBranch());
+        String releaseBranch = ReadAction.compute(() -> ConfigUtil.getInitOptions(repository.getProject()).getReleaseBranch());
         // 判断目标分支是否存在
         GitCommandResult result = checkTargetBranchIsExist(repository, targetBranch);
         if (Objects.nonNull(result) && !result.success()) {
@@ -185,11 +185,7 @@ public class GitFlowPlusImpl implements GitFlowPlus {
 
         GitCommandResult result = git.push(repository, currentBranch, Constants.LOCK_BRANCH_NAME, false);
 
-        if (result.success() && isNewBranch(result)) {
-            return true;
-        }
-
-        return false;
+        return result.success() && isNewBranch(result);
     }
 
     @Override
@@ -221,7 +217,7 @@ public class GitFlowPlusImpl implements GitFlowPlus {
     @Override
     public void thirdPartyNotify(GitRepository repository) {
         try {
-            String dingtalkToken = ConfigUtil.getConfig(repository.getProject()).get().getDingtalkToken();
+            String dingtalkToken = ConfigUtil.getInitOptions(repository.getProject()).getDingtalkToken();
             if (StringUtils.isNotBlank(dingtalkToken)) {
                 String url = String.format("https://oapi.dingtalk.com/robot/send?access_token=%s", dingtalkToken);
                 String msg = getRemoteLastCommit(repository, Constants.LOCK_BRANCH_NAME);
@@ -230,19 +226,17 @@ public class GitFlowPlusImpl implements GitFlowPlus {
                 OkHttpClientUtil.postApplicationJson(url, new DingtalkMessage(msg), "钉钉通知接口", String.class);
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println(e);
+            throw new RuntimeException(e);
         }
     }
 
     @Override
     public boolean isExistChangeFile(@NotNull Project project) {
-
         Collection<Change> changes = ChangeListManager.getInstance(project).getAllChanges();
         if (CollectionUtils.isNotEmpty(changes)) {
             StringBuffer builder = new StringBuffer();
-            changes.parallelStream().forEach(change -> builder.append(change.toString() + "\r\n"));
-            NotifyUtil.notifyError(project, "Error", String.format(I18n.getContent(I18nKey.CHANGE_FILE_VALVE$FILE_NOT_SUBMITTED) + ":\r\n %s", builder.toString()));
+            changes.parallelStream().forEach(change -> builder.append(change.toString()).append("\r\n"));
+            NotifyUtil.notifyError(project, "Error", String.format(I18n.getContent(I18nKey.CHANGE_FILE_VALVE$FILE_NOT_SUBMITTED) + ":\r\n %s", builder));
             return true;
         }
         return false;
@@ -296,7 +290,7 @@ public class GitFlowPlusImpl implements GitFlowPlus {
             if (GitBranchUtil.getRemoteBranches(repository.getProject()).contains(targetBranch)) {
                 return git.checkoutNewBranch(repository, targetBranch);
             } else {
-                String master = ConfigUtil.getConfig(repository.getProject()).get().getMasterBranch();
+                String master = ConfigUtil.getInitOptions(repository.getProject()).getMasterBranch();
                 return newNewBranchBaseRemoteMaster(repository, master, targetBranch);
             }
         }
@@ -317,7 +311,7 @@ public class GitFlowPlusImpl implements GitFlowPlus {
         return git.pull(repository, targetBranch);
     }
 
-    private class MyMergeConflictResolver extends GitMergeCommittingConflictResolver {
+    private static class MyMergeConflictResolver extends GitMergeCommittingConflictResolver {
         String currentBranch;
         String targetBranch;
 

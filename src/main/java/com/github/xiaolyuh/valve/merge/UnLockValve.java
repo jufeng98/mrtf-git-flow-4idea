@@ -15,7 +15,7 @@ import git4idea.repo.GitRepository;
  * @since 2020/4/7 16:42
  */
 public class UnLockValve extends Valve {
-    private static UnLockValve valve = new UnLockValve();
+    private static final UnLockValve valve = new UnLockValve();
 
     public static Valve getInstance() {
         return valve;

@@ -31,7 +31,7 @@ public class NewFeatureAction extends AbstractNewBranchAction {
 
     @Override
     public String getPrefix(Project project) {
-        return ConfigUtil.getConfig(project).get().getFeaturePrefix();
+        return ConfigUtil.getInitOptions(project).getFeaturePrefix();
     }
 
     @Override

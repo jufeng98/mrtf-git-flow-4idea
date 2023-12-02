@@ -19,7 +19,7 @@ import java.util.Collection;
  * @since 2020/4/7 16:42
  */
 public class ChangeFileValve extends Valve {
-    private static ChangeFileValve valve = new ChangeFileValve();
+    private static final ChangeFileValve valve = new ChangeFileValve();
 
     public static Valve getInstance() {
         return valve;
@@ -30,8 +30,8 @@ public class ChangeFileValve extends Valve {
         Collection<Change> changes = ChangeListManager.getInstance(project).getAllChanges();
         if (CollectionUtils.isNotEmpty(changes)) {
             StringBuffer builder = new StringBuffer();
-            changes.parallelStream().forEach(change -> builder.append(change.toString() + "\r\n"));
-            NotifyUtil.notifyError(project, "Error", String.format(I18n.getContent(I18nKey.CHANGE_FILE_VALVE$FILE_NOT_SUBMITTED) + ":\r\n %s", builder.toString()));
+            changes.parallelStream().forEach(change -> builder.append(change.toString()).append("\r\n"));
+            NotifyUtil.notifyError(project, "Error", String.format(I18n.getContent(I18nKey.CHANGE_FILE_VALVE$FILE_NOT_SUBMITTED) + ":\r\n %s", builder));
             return false;
         }
         return true;

@@ -35,7 +35,7 @@ public class StartTestAction extends AbstractMergeAction {
 
     @Override
     protected String getTargetBranch(Project project) {
-        return ConfigUtil.getConfig(project).get().getTestBranch();
+        return ConfigUtil.getInitOptions(project).getTestBranch();
     }
 
     @Override

@@ -11,7 +11,7 @@ import git4idea.repo.GitRepository;
  * @since 2020/4/7 16:42
  */
 public class ReleaseLockNotifyValve extends Valve {
-    private static ReleaseLockNotifyValve valve = new ReleaseLockNotifyValve();
+    private static final ReleaseLockNotifyValve valve = new ReleaseLockNotifyValve();
 
     public static Valve getInstance() {
         return valve;

@@ -10,12 +10,12 @@ import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.prefs.Preferences;
 
 /**
@@ -26,6 +26,7 @@ import java.util.prefs.Preferences;
  */
 public class ConfigUtil {
     public static Preferences PREFERENCES = Preferences.userRoot().node("com.github.xiaolyuh");
+    private static final Map<String, InitOptions> map = new ConcurrentHashMap<>();
 
     /**
      * 将配置存储到本地项目空间
@@ -37,10 +38,11 @@ public class ConfigUtil {
         // 存储到本地项目空间
         PropertiesComponent component = PropertiesComponent.getInstance(project);
         component.setValue(Constants.KEY_PREFIX + project.getName(), configJson);
+        map.remove(project.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME);
     }
 
     /**
-     * 将配置存储到文件项目空间
+     * 将配置存储到本地文件
      *
      * @param project    project
      * @param configJson configJson
@@ -48,13 +50,12 @@ public class ConfigUtil {
     public static void saveConfigToFile(Project project, String configJson) {
         String filePath = project.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME;
         File file = new File(filePath);
-        try (PrintStream ps = new PrintStream(new FileOutputStream(file))) {
-            // 往文件里写入字符串
-            ps.println(configJson);
-            ps.flush();
-        } catch (FileNotFoundException e) {
+        try {
+            FileUtils.write(file, configJson, StandardCharsets.UTF_8);
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        map.remove(project.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME);
     }
 
     /**
@@ -71,13 +72,22 @@ public class ConfigUtil {
         return getConfig(project).isPresent();
     }
 
+    public static @NotNull InitOptions getInitOptions(Project project) {
+        return map.get(project.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME);
+    }
+
     /**
-     * 将配置存储到配置文件
+     * 获取配置
      *
      * @param project project
      * @return InitOptions
      */
     public static Optional<InitOptions> getConfig(@NotNull Project project) {
+        InitOptions initOptions = map.get(project.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME);
+        if (initOptions != null) {
+            return Optional.of(initOptions);
+        }
+
         InitOptions options = getConfigToFile(project);
         if (Objects.isNull(options)) {
             options = getConfigToLocal(project);
@@ -85,6 +95,7 @@ public class ConfigUtil {
         if (Objects.nonNull(options)) {
             options.setKubesphereUsername(PREFERENCES.get("kubesphereUsername", ""));
             options.setKubespherePassword(PREFERENCES.get("kubespherePassword", ""));
+            map.put(project.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME, options);
         }
         return Optional.ofNullable(options);
     }
@@ -97,8 +108,10 @@ public class ConfigUtil {
      */
     private static InitOptions getConfigToLocal(@NotNull Project project) {
         PropertiesComponent component = PropertiesComponent.getInstance(project);
-        String json = component.getValue(Constants.KEY_PREFIX + project.getName());
+        String key = Constants.KEY_PREFIX + project.getName();
+        String json = component.getValue(key);
         if (StringUtils.isNotBlank(json)) {
+            NotifyUtil.notifyWarn(project, "完成读取项目空间配置workspace.xml,key:" + key);
             return JSON.parseObject(json, InitOptions.class);
         }
         return null;
@@ -118,9 +131,10 @@ public class ConfigUtil {
                 return null;
             }
             String config = FileUtils.readFileToString(file, StandardCharsets.UTF_8.name());
+            NotifyUtil.notifyWarn(project, "完成读取配置文件:" + filePath);
             return JSON.parseObject(config, InitOptions.class);
         } catch (Exception e) {
-            NotifyUtil.notifyGitCommand(project, "读取" + filePath + "错误:" + e.getClass().getSimpleName() + "," + e.getMessage());
+            NotifyUtil.notifyError(project, "读取" + filePath + "错误:" + e.getClass().getSimpleName() + "," + e.getMessage());
             return null;
         }
     }

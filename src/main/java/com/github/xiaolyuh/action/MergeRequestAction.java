@@ -45,7 +45,7 @@ public class MergeRequestAction extends AbstractMergeAction {
     public void actionPerformed(AnActionEvent event) {
         Project project = event.getProject();
         final String currentBranch = gitFlowPlus.getCurrentBranch(project);
-        final String targetBranch = ConfigUtil.getConfig(project).get().getTestBranch();
+        final String targetBranch = ConfigUtil.getInitOptions(project).getTestBranch();
         final GitRepository repository = GitBranchUtil.getCurrentRepository(project);
         if (Objects.isNull(repository)) {
             return;

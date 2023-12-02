@@ -109,12 +109,6 @@ public class InitPluginDialog extends DialogWrapper {
         List<String> languages = LanguageEnum.getAllLanguage();
 
         if (options.isPresent()) {
-            List<String> masterBranchList = Lists.newArrayList(options.get().getMasterBranch());
-            List<String> releaseBranchList = Lists.newArrayList(options.get().getReleaseBranch());
-            List<String> testBranchList = Lists.newArrayList(options.get().getTestBranch());
-            masterBranchList.addAll(remoteBranches);
-            releaseBranchList.addAll(remoteBranches);
-            testBranchList.addAll(remoteBranches);
             masterBranchComboBox.setModel(new CollectionComboBoxModel<>(remoteBranches, options.get().getMasterBranch()));
             releaseBranchComboBox.setModel(new CollectionComboBoxModel<>(remoteBranches, options.get().getReleaseBranch()));
             testBranchComboBox.setModel(new CollectionComboBoxModel<>(remoteBranches, options.get().getTestBranch()));

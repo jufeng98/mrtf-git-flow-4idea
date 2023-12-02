@@ -7,11 +7,7 @@ import com.github.xiaolyuh.utils.ConfigUtil;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.util.IconLoader;
 import git4idea.GitUtil;
-import org.jetbrains.annotations.Nullable;
-
-import javax.swing.*;
 
 /**
  * 新建修复分支
@@ -31,7 +27,7 @@ public class NewHotFixAction extends AbstractNewBranchAction {
 
     @Override
     public String getPrefix(Project project) {
-        return ConfigUtil.getConfig(project).get().getHotfixPrefix();
+        return ConfigUtil.getInitOptions(project).getHotfixPrefix();
     }
 
     @Override

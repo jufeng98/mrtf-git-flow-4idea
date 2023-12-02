@@ -38,7 +38,7 @@ public class RebuildReleaseAction extends AbstractNewBranchAction {
 
     @Override
     public String getInputString(Project project) {
-        String release = ConfigUtil.getConfig(project).get().getReleaseBranch();
+        String release = ConfigUtil.getInitOptions(project).getReleaseBranch();
         int flag = Messages.showOkCancelDialog(project,
                 String.format(I18n.getContent(I18nKey.REBUILD_RELEASE_ACTION$DIALOG_MESSAGE), release, release),
                 I18n.getContent(I18nKey.REBUILD_RELEASE_ACTION$DIALOG_TITLE),

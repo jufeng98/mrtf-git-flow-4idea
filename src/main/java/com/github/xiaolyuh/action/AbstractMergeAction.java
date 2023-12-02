@@ -60,10 +60,11 @@ public abstract class AbstractMergeAction extends AnAction {
         }
 
         String currentBranch = gitFlowPlus.getCurrentBranch(event.getProject());
-        String featurePrefix = ConfigUtil.getConfig(event.getProject()).get().getFeaturePrefix();
-        String hotfixPrefix = ConfigUtil.getConfig(event.getProject()).get().getHotfixPrefix();
+        String featurePrefix = ConfigUtil.getInitOptions(event.getProject()).getFeaturePrefix();
+        String hotfixPrefix = ConfigUtil.getInitOptions(event.getProject()).getHotfixPrefix();
         // 已经初始化并且前缀是开发分支才显示
-        boolean isDevBranch = StringUtils.startsWith(currentBranch, featurePrefix) || StringUtils.startsWith(currentBranch, hotfixPrefix);
+        boolean isDevBranch = StringUtils.startsWith(currentBranch, featurePrefix)
+                || StringUtils.startsWith(currentBranch, hotfixPrefix);
         event.getPresentation().setEnabled(isDevBranch && !isConflicts(event.getProject()));
 
         setEnabledAndText(event);

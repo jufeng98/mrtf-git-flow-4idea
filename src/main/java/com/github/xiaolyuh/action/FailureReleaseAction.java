@@ -37,7 +37,7 @@ public class FailureReleaseAction extends AbstractMergeAction {
 
     @Override
     protected String getTargetBranch(Project project) {
-        return ConfigUtil.getConfig(project).get().getMasterBranch();
+        return ConfigUtil.getInitOptions(project).getMasterBranch();
     }
 
     @Override
@@ -47,13 +47,13 @@ public class FailureReleaseAction extends AbstractMergeAction {
 
     @Override
     protected String getDialogContent(Project project, boolean isStartTest) {
-        String release = ConfigUtil.getConfig(project).get().getReleaseBranch();
+        String release = ConfigUtil.getInitOptions(project).getReleaseBranch();
         return String.format(I18n.getContent(I18nKey.FAILURE_RELEASE_ACTION$DIALOG_CONTENT), release, "");
     }
 
     @Override
     protected String getTaskTitle(Project project) {
-        String release = ConfigUtil.getConfig(project).get().getReleaseBranch();
+        String release = ConfigUtil.getInitOptions(project).getReleaseBranch();
         return String.format(I18n.getContent(I18nKey.FAILURE_RELEASE_ACTION$TASK_TITLE), release);
     }
 

@@ -39,7 +39,7 @@ public class RebuildTestAction extends AbstractNewBranchAction {
 
     @Override
     public String getInputString(Project project) {
-        String test = ConfigUtil.getConfig(project).get().getTestBranch();
+        String test = ConfigUtil.getInitOptions(project).getTestBranch();
         int flag = Messages.showOkCancelDialog(project,
                 String.format(I18n.getContent(I18nKey.REBUILD_TEST_ACTION$DIALOG_MESSAGE), test, test),
                 I18n.getContent(I18nKey.REBUILD_TEST_ACTION$DIALOG_TITLE),
