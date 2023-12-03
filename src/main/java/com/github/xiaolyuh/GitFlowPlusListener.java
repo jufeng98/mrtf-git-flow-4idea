@@ -22,6 +22,7 @@ public class GitFlowPlusListener implements ProjectManagerListener, VcsListener 
         project.getMessageBus().connect().subscribe(ProjectLevelVcsManager.VCS_CONFIGURATION_CHANGED, this);
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     @Override
     public void directoryMappingChanged() {
         VcsRoot[] vcsRoots = ProjectLevelVcsManager.getInstance(project).getAllVcsRoots();

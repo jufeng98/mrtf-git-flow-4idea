@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.xiaolyuh.Constants;
 import com.github.xiaolyuh.InitOptions;
 import com.intellij.ide.util.PropertiesComponent;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
@@ -25,6 +26,8 @@ import java.util.prefs.Preferences;
  * @since 2020/3/18 11:19
  */
 public class ConfigUtil {
+    private static final Logger LOG = Logger.getInstance(ConfigUtil.class);
+
     public static Preferences PREFERENCES = Preferences.userRoot().node("com.github.xiaolyuh");
     private static final Map<String, InitOptions> map = new ConcurrentHashMap<>();
 
@@ -111,7 +114,7 @@ public class ConfigUtil {
         String key = Constants.KEY_PREFIX + project.getName();
         String json = component.getValue(key);
         if (StringUtils.isNotBlank(json)) {
-            NotifyUtil.notifyWarn(project, "完成读取项目空间配置workspace.xml,key:" + key);
+            LOG.info("完成读取项目空间配置workspace.xml,key:" + key);
             return JSON.parseObject(json, InitOptions.class);
         }
         return null;
