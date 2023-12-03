@@ -15,6 +15,7 @@ import com.github.xiaolyuh.action.StartReleaseAction;
 import com.github.xiaolyuh.action.StartTestAction;
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
+import com.github.xiaolyuh.utils.SvgUtils;
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.CustomShortcutSet;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
@@ -34,6 +35,8 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * mrtf git flow 状态栏小部件
@@ -66,8 +69,10 @@ public class GitFlowPlusWidget extends EditorBasedWidget implements StatusBarWid
     }
 
     private void showPopup(MouseEvent e) {
-        ListPopup popup = new PopupFactoryImpl.ActionGroupPopup("GitFlowPlus", popupGroup, DataManager.getInstance().getDataContext(myComponent),
-                false, false, true, true, null, -1, null, null);
+        ListPopup popup = new PopupFactoryImpl.ActionGroupPopup("GitFlowPlus", popupGroup,
+                DataManager.getInstance().getDataContext(myComponent),
+                false, false, true, true,
+                null, -1, null, null);
 
         Dimension dimension = popup.getContent().getPreferredSize();
         Point at = new Point(0, -dimension.height);
@@ -79,6 +84,16 @@ public class GitFlowPlusWidget extends EditorBasedWidget implements StatusBarWid
         myComponent.setVisible(true);
         myComponent.setToolTipText("GitFlowPlus");
         myComponent.setText("GitFlowPlus");
+
+        byte[] bytes;
+        ClassLoader classLoader = getClass().getClassLoader();
+        try (InputStream inputStream = classLoader.getResourceAsStream("icons/icon.svg")){
+            bytes = SvgUtils.convertToImageBytes(inputStream);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        myComponent.setIcon( new ImageIcon(bytes));
         myComponent.invalidate();
         if (myStatusBar != null) {
             myStatusBar.updateWidget(ID());
