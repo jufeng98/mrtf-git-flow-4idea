@@ -49,6 +49,7 @@ public class GitFlowPlusWidget extends EditorBasedWidget implements StatusBarWid
     Project project;
 
 
+    @SuppressWarnings("deprecation")
     public GitFlowPlusWidget(@NotNull Project project) {
         super(project);
         this.project = project;
@@ -60,7 +61,6 @@ public class GitFlowPlusWidget extends EditorBasedWidget implements StatusBarWid
         new ClickListener() {
             @Override
             public boolean onClick(@NotNull MouseEvent e, int clickCount) {
-                update();
                 showPopup(e);
                 return true;
             }

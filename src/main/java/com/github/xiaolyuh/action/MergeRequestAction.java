@@ -33,7 +33,8 @@ public class MergeRequestAction extends AbstractMergeAction {
     protected GitFlowPlus gitFlowPlus = GitFlowPlus.getInstance();
 
     public MergeRequestAction() {
-        super("Merge Request", "发起 code review", IconLoader.getIcon("/icons/mergeToTest.svg", Objects.requireNonNull(ReflectionUtil.getGrandCallerClass())));
+        super("Merge Request", "发起 code review", IconLoader.getIcon("/icons/mergeToTest.svg",
+                Objects.requireNonNull(ReflectionUtil.getGrandCallerClass())));
     }
 
     @Override
@@ -54,7 +55,9 @@ public class MergeRequestAction extends AbstractMergeAction {
 
         GitCommandResult result = gitFlowPlus.getLocalLastCommit(repository, currentBranch);
         String[] msgs = result.getOutputAsJoinedString().split("-body:");
-        MergeRequestDialog mergeRequestDialog = new MergeRequestDialog(project, msgs.length >= 1 ? msgs[0] : "", msgs.length >= 2 ? msgs[1] : "");
+        MergeRequestDialog mergeRequestDialog = new MergeRequestDialog(project,
+                msgs.length >= 1 ? msgs[0] : "",
+                msgs.length >= 2 ? msgs[1] : "");
         mergeRequestDialog.show();
         if (!mergeRequestDialog.isOK()) {
             return;
