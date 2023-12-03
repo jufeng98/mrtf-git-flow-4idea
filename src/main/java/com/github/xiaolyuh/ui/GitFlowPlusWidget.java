@@ -30,7 +30,6 @@ import com.intellij.ui.ClickListener;
 import com.intellij.ui.awt.RelativePoint;
 import com.intellij.ui.popup.PopupFactoryImpl;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
@@ -70,12 +69,10 @@ public class GitFlowPlusWidget extends EditorBasedWidget implements StatusBarWid
         ListPopup popup = new PopupFactoryImpl.ActionGroupPopup("GitFlowPlus", popupGroup, DataManager.getInstance().getDataContext(myComponent),
                 false, false, true, true, null, -1, null, null);
 
-        if (popup != null) {
-            Dimension dimension = popup.getContent().getPreferredSize();
-            Point at = new Point(0, -dimension.height);
-            popup.show(new RelativePoint(e.getComponent(), at));
-            Disposer.register(this, popup); // destroy popup on unexpected project close
-        }
+        Dimension dimension = popup.getContent().getPreferredSize();
+        Point at = new Point(0, -dimension.height);
+        popup.show(new RelativePoint(e.getComponent(), at));
+        Disposer.register(this, popup); // destroy popup on unexpected project close
     }
 
     public void update() {

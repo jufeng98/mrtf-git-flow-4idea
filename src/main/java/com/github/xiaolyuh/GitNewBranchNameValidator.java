@@ -21,7 +21,7 @@ public final class GitNewBranchNameValidator implements InputValidatorEx {
 
     private final Collection<GitRepository> myRepositories;
     private String myErrorText;
-    private String prefix;
+    private final String prefix;
 
     private GitNewBranchNameValidator(@NotNull Collection<GitRepository> repositories, String prefix) {
         this.myRepositories = repositories;
@@ -85,7 +85,7 @@ public final class GitNewBranchNameValidator implements InputValidatorEx {
             }
         }
         if (conflictsWithCurrentName == myRepositories.size()) {
-            myErrorText = String.format(I18n.getContent(I18nKey.BRANCH_VALIDATOR$CURRENT_BRANCH), inputString);;
+            myErrorText = String.format(I18n.getContent(I18nKey.BRANCH_VALIDATOR$CURRENT_BRANCH), inputString);
             return true;
         }
         return false;

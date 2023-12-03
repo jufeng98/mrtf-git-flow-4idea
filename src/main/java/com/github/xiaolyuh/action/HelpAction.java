@@ -18,7 +18,8 @@ import java.util.Objects;
  */
 public class HelpAction extends AnAction {
     public HelpAction() {
-        super("帮助", "帮助", IconLoader.getIcon("/icons/help.svg", Objects.requireNonNull(ReflectionUtil.getGrandCallerClass())));
+        super("帮助", "帮助", IconLoader.getIcon("/icons/help.svg",
+                Objects.requireNonNull(ReflectionUtil.getGrandCallerClass())));
     }
 
     @Override
@@ -29,7 +30,7 @@ public class HelpAction extends AnAction {
     }
 
     @Override
-    public void actionPerformed(AnActionEvent event) {
+    public void actionPerformed(@NotNull AnActionEvent event) {
         BrowserUtil.browse("https://xiaolyuh.blog.csdn.net/article/details/105150446");
     }
 }

@@ -74,7 +74,6 @@ public class GitBranchUtil {
      * 获取当前仓库
      *
      * @param project project
-     * @return
      */
     public static GitRepository getCurrentRepository(@NotNull Project project) {
         return git4idea.branch.GitBranchUtil.getCurrentRepository(project);

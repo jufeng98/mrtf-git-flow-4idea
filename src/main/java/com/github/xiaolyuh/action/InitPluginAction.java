@@ -53,6 +53,7 @@ public class InitPluginAction extends AnAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
         final Project project = event.getProject();
+        @SuppressWarnings("ConstantConditions")
         final GitRepository repository = GitBranchUtil.getCurrentRepository(project);
         if (Objects.isNull(repository)) {
             return;
@@ -64,7 +65,8 @@ public class InitPluginAction extends AnAction {
         if (initPluginDialog.isOK()) {
             final InitOptions initOptions = initPluginDialog.getOptions();
 
-            new Task.Backgroundable(project, "Init GitFlowPlus Plugins", false) {
+            new Task.Backgroundable(project, "Init gitFlowPlus plugins", false) {
+                @SuppressWarnings("ConstantConditions")
                 @Override
                 public void run(@NotNull ProgressIndicator indicator) {
                     NotifyUtil.notifyGitCommand(event.getProject(), "===================================================================================");

@@ -32,7 +32,8 @@ public class CompatibleUtil {
     static Hash getHead(@NotNull GitRepository repository) {
         GitCommandResult result = Git.getInstance().tip(repository, "HEAD");
         if (!result.success()) {
-            NotifyUtil.notifyError(repository.getProject(), "Error", String.format("Couldn't identify the HEAD for %s : %s", repository.toString(), result.getErrorOutputAsJoinedString()));
+            NotifyUtil.notifyError(repository.getProject(), "Error", String.format("Couldn't identify the HEAD for %s : %s",
+                    repository, result.getErrorOutputAsJoinedString()));
             return null;
         }
         String head = result.getOutputAsJoinedString();

@@ -101,7 +101,6 @@ public interface GitFlowPlus {
      *
      * @param repository gitRepository
      * @param branchName 分支名称
-     * @return
      */
     GitCommandResult getLocalLastCommit(@NotNull GitRepository repository, @Nullable String branchName);
 
@@ -130,9 +129,6 @@ public interface GitFlowPlus {
 
     /**
      * 解锁
-     *
-     * @param repository
-     * @return
      */
     GitCommandResult unlock(GitRepository repository);
 
@@ -161,37 +157,25 @@ public interface GitFlowPlus {
 
     /**
      * 是否存在未提交文件
-     *
-     * @param project
-     * @return
      */
     boolean isExistChangeFile(@NotNull Project project);
 
     /**
      * 获取当前Git账号的邮箱
-     *
-     * @param repository
-     * @return
      */
     String getUserEmail(GitRepository repository);
 
     /**
      * 判断tag是否存在
-     *
-     * @param repository
-     * @param tagName
-     * @return
      */
     boolean isExistTag(GitRepository repository, String tagName);
 
     /**
      * mergeRequest
      *
-     * @param repository
      * @param sourceBranch        源分支
      * @param targetBranch        目标分支
      * @param mergeRequestOptions merge request参数
-     * @return
      */
     GitCommandResult mergeRequest(GitRepository repository, String sourceBranch, String targetBranch, MergeRequestOptions mergeRequestOptions);
 

@@ -1,6 +1,7 @@
 package com.github.xiaolyuh.action;
 
 import com.github.xiaolyuh.GitFlowPlus;
+import com.github.xiaolyuh.InitOptions;
 import com.github.xiaolyuh.TagOptions;
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
@@ -60,8 +61,9 @@ public abstract class AbstractMergeAction extends AnAction {
         }
 
         String currentBranch = gitFlowPlus.getCurrentBranch(event.getProject());
-        String featurePrefix = ConfigUtil.getInitOptions(event.getProject()).getFeaturePrefix();
-        String hotfixPrefix = ConfigUtil.getInitOptions(event.getProject()).getHotfixPrefix();
+        InitOptions initOptions = ConfigUtil.getInitOptions(event.getProject());
+        String featurePrefix = initOptions.getFeaturePrefix();
+        String hotfixPrefix = initOptions.getHotfixPrefix();
         // 已经初始化并且前缀是开发分支才显示
         boolean isDevBranch = StringUtils.startsWith(currentBranch, featurePrefix)
                 || StringUtils.startsWith(currentBranch, hotfixPrefix);
@@ -72,8 +74,6 @@ public abstract class AbstractMergeAction extends AnAction {
 
     /**
      * 设置是否启用和Text
-     *
-     * @param event
      */
     protected abstract void setEnabledAndText(AnActionEvent event);
 
@@ -92,12 +92,13 @@ public abstract class AbstractMergeAction extends AnAction {
     }
 
     @Override
-    public void actionPerformed(AnActionEvent event) {
+    public void actionPerformed(@NotNull AnActionEvent event) {
         actionPerformed(event, null);
     }
 
     void actionPerformed(@NotNull AnActionEvent event, TagOptions tagOptions) {
         final Project project = event.getProject();
+        @SuppressWarnings("ConstantConditions")
         final String currentBranch = gitFlowPlus.getCurrentBranch(project);
         final String targetBranch = getTargetBranch(project);
         final boolean isStartTest = this.getClass() == StartTestAction.class;
@@ -125,9 +126,10 @@ public abstract class AbstractMergeAction extends AnAction {
         }
         String finalSelectService = selectService;
         new Task.Backgroundable(project, getTaskTitle(project), false) {
+            @SuppressWarnings("ConstantConditions")
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
-                NotifyUtil.notifyGitCommand(event.getProject(), "===================================================================================");
+                NotifyUtil.notifyGitCommand(event.getProject(), "=========================");
                 List<Valve> valves = getValves();
                 for (Valve valve : valves) {
                     if (!valve.invoke(project, repository, currentBranch, targetBranch, tagOptions)) {
@@ -167,7 +169,6 @@ public abstract class AbstractMergeAction extends AnAction {
      * 获取弹框内容
      *
      * @param project     project
-     * @param isStartTest
      * @return String
      */
     protected String getDialogContent(Project project, boolean isStartTest) {

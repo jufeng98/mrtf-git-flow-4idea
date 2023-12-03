@@ -9,6 +9,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.util.ReflectionUtil;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +36,7 @@ public class FinishReleaseAction extends AbstractMergeAction {
     }
 
     @Override
-    public void actionPerformed(AnActionEvent event) {
+    public void actionPerformed(@NotNull AnActionEvent event) {
         Project project = event.getProject();
 
         TagDialog tagDialog = new TagDialog(project);

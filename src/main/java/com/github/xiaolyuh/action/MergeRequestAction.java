@@ -42,8 +42,9 @@ public class MergeRequestAction extends AbstractMergeAction {
     }
 
     @Override
-    public void actionPerformed(AnActionEvent event) {
+    public void actionPerformed(@NotNull AnActionEvent event) {
         Project project = event.getProject();
+        @SuppressWarnings("ConstantConditions")
         final String currentBranch = gitFlowPlus.getCurrentBranch(project);
         final String targetBranch = ConfigUtil.getInitOptions(project).getTestBranch();
         final GitRepository repository = GitBranchUtil.getCurrentRepository(project);
@@ -59,16 +60,17 @@ public class MergeRequestAction extends AbstractMergeAction {
             return;
         }
 
-        new Task.Backgroundable(project, "Merge Request", false) {
+        new Task.Backgroundable(project, "Merge request", false) {
+            @SuppressWarnings("ConstantConditions")
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
-                NotifyUtil.notifyGitCommand(event.getProject(), "===================================================================================");
+                NotifyUtil.notifyGitCommand(event.getProject(), "==================================");
 
                 String tempBranchName = currentBranch + "_temp";
                 // 删除分支
-                GitCommandResult result = gitFlowPlus.deleteBranch(repository, currentBranch, tempBranchName);
+                gitFlowPlus.deleteBranch(repository, currentBranch, tempBranchName);
                 // 新建分支
-                result = gitFlowPlus.newNewBranchByLocalBranch(repository, currentBranch, tempBranchName);
+                GitCommandResult result = gitFlowPlus.newNewBranchByLocalBranch(repository, currentBranch, tempBranchName);
                 if (!result.success()) {
                     NotifyUtil.notifyError(project, "Error", result.getErrorOutputAsJoinedString());
                     return;
@@ -81,7 +83,7 @@ public class MergeRequestAction extends AbstractMergeAction {
                 NotifyUtil.notifySuccess(project, "Success", result.getErrorOutputAsHtmlString());
                 if (CollectionUtils.isNotEmpty(result.getErrorOutput()) && result.getErrorOutput().size() > 3) {
                     String address = result.getErrorOutput().get(2);
-                    address = address.split("   ")[1];
+                    address = address.split(" {3}")[1];
                     BrowserUtil.browse(address);
                 }
                 // 删除本地临时分支

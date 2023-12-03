@@ -119,7 +119,7 @@ public class GitFlowPlusImpl implements GitFlowPlus {
     }
 
     @Override
-    public GitCommandResult mergeBranchAndPush(GitRepository repository, String currentBranch, String targetBranch,
+    public GitCommandResult mergeBranchAndPush(@NotNull GitRepository repository, String currentBranch, String targetBranch,
                                                TagOptions tagOptions) {
         String releaseBranch = ReadAction.compute(() -> ConfigUtil.getInitOptions(repository.getProject()).getReleaseBranch());
         // 判断目标分支是否存在
