@@ -2,6 +2,7 @@ package com.github.xiaolyuh.action;
 
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
+import com.github.xiaolyuh.ui.SampleDialog;
 import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -31,6 +32,11 @@ public class HelpAction extends AnAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
+        if (false) {
+            SampleDialog sampleDialog = new SampleDialog(event.getProject());
+            sampleDialog.show();
+        }
+
         BrowserUtil.browse("https://xiaolyuh.blog.csdn.net/article/details/105150446");
     }
 }

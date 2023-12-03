@@ -53,11 +53,11 @@
                             serviceImplementation="com.github.xiaolyuh.GitImpl"/>
     </extensions>
 
-    <project-components>
-        <component>
-            <implementation-class>com.github.xiaolyuh.GitFlowPlusComponent</implementation-class>
-        </component>
-    </project-components>
+    <projectListeners>
+        <listener
+                class="com.github.xiaolyuh.GitFlowPlusListener"
+                topic="com.intellij.openapi.project.ProjectManagerListener"/>
+    </projectListeners>
 
     <actions>
         <!-- Add your actions here -->
