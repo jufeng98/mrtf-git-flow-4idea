@@ -1,4 +1,4 @@
-package com.github.xiaolyuh;
+package com.github.xiaolyuh.listener;
 
 import com.github.xiaolyuh.ui.GitFlowPlusWidget;
 import com.intellij.openapi.project.Project;

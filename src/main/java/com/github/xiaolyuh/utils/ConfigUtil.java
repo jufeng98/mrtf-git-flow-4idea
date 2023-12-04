@@ -134,7 +134,7 @@ public class ConfigUtil {
                 return null;
             }
             String config = FileUtils.readFileToString(file, StandardCharsets.UTF_8.name());
-            NotifyUtil.notifyWarn(project, "完成读取配置文件:" + filePath);
+            LOG.info("完成读取配置文件:" + filePath);
             return JSON.parseObject(config, InitOptions.class);
         } catch (Exception e) {
             NotifyUtil.notifyError(project, "读取" + filePath + "错误:" + e.getClass().getSimpleName() + "," + e.getMessage());

@@ -15,7 +15,7 @@ import com.github.xiaolyuh.action.StartReleaseAction;
 import com.github.xiaolyuh.action.StartTestAction;
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
-import com.github.xiaolyuh.utils.SvgUtils;
+import com.github.xiaolyuh.utils.StreamUtils;
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.CustomShortcutSet;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
@@ -87,13 +87,14 @@ public class GitFlowPlusWidget extends EditorBasedWidget implements StatusBarWid
 
         byte[] bytes;
         ClassLoader classLoader = getClass().getClassLoader();
-        try (InputStream inputStream = classLoader.getResourceAsStream("icons/icon.svg")){
-            bytes = SvgUtils.convertToImageBytes(inputStream);
+        try (InputStream inputStream = classLoader.getResourceAsStream("icons/icon.png")){
+            //noinspection DataFlowIssue
+            bytes = StreamUtils.readBytes(inputStream);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        myComponent.setIcon( new ImageIcon(bytes));
+        myComponent.setIcon(new ImageIcon(bytes));
         myComponent.invalidate();
         if (myStatusBar != null) {
             myStatusBar.updateWidget(ID());

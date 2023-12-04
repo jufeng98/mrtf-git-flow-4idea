@@ -12,9 +12,9 @@ repositories {
 
 dependencies {
     implementation("com.jcraft:jsch:0.1.54")
-    testImplementation("junit:junit:4.12")
+    testImplementation("junit:junit:4.13.1")
     implementation("com.squareup.okhttp3:okhttp:3.6.0")
-    implementation("com.alibaba:fastjson:1.2.71")
+    implementation("com.alibaba:fastjson:1.2.83")
 }
 
 intellij {
