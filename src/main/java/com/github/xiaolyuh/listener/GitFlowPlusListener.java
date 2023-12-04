@@ -9,7 +9,6 @@ import com.intellij.openapi.vcs.VcsRoot;
 import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.WindowManager;
 import git4idea.GitVcs;
-import git4idea.ui.branch.GitBranchWidget;
 import org.jetbrains.annotations.NotNull;
 
 public class GitFlowPlusListener implements ProjectManagerListener, VcsListener {
@@ -33,7 +32,7 @@ public class GitFlowPlusListener implements ProjectManagerListener, VcsListener 
             if (gitFlowPlusWidget == null) {
                 gitFlowPlusWidget = new GitFlowPlusWidget(project);
 
-                statusBar.addWidget(gitFlowPlusWidget, "after " + GitBranchWidget.class.getName(), project);
+                statusBar.addWidget(gitFlowPlusWidget, "last", statusBar);
                 gitFlowPlusWidget.update();
             }
         } else {
