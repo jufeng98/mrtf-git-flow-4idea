@@ -1,25 +1,8 @@
 package com.github.xiaolyuh.ui;
 
-import com.github.xiaolyuh.action.FailureReleaseAction;
-import com.github.xiaolyuh.action.FinishReleaseAction;
-import com.github.xiaolyuh.action.GitResolveConflictsAction;
-import com.github.xiaolyuh.action.HelpAction;
-import com.github.xiaolyuh.action.InitPluginAction;
-import com.github.xiaolyuh.action.MergeRequestAction;
-import com.github.xiaolyuh.action.NewFeatureAction;
-import com.github.xiaolyuh.action.NewHotFixAction;
-import com.github.xiaolyuh.action.RebuildActionGroup;
-import com.github.xiaolyuh.action.RebuildReleaseAction;
-import com.github.xiaolyuh.action.RebuildTestAction;
-import com.github.xiaolyuh.action.StartReleaseAction;
-import com.github.xiaolyuh.action.StartTestAction;
-import com.github.xiaolyuh.i18n.I18n;
-import com.github.xiaolyuh.i18n.I18nKey;
-import com.github.xiaolyuh.utils.StreamUtils;
 import com.intellij.ide.DataManager;
-import com.intellij.openapi.actionSystem.CustomShortcutSet;
+import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
-import com.intellij.openapi.actionSystem.Separator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.openapi.util.Disposer;
@@ -35,8 +18,6 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
-import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * mrtf git flow 状态栏小部件
@@ -44,19 +25,19 @@ import java.io.InputStream;
  * @author yuhao.wang3
  */
 public class GitFlowPlusWidget extends EditorBasedWidget implements StatusBarWidget.Multiframe, CustomStatusBarWidget {
-    private final TextPanel.WithIconAndArrows myComponent;
-    DefaultActionGroup popupGroup;
-    Project project;
-
+    private final TextPanel.WithIconAndArrows iconAnArrows;
+    private final Project project;
 
     @SuppressWarnings("deprecation")
     public GitFlowPlusWidget(@NotNull Project project) {
         super(project);
         this.project = project;
 
-        initPopupGroup(project);
-        myComponent = new TextPanel.WithIconAndArrows() {
+        iconAnArrows = new TextPanel.WithIconAndArrows() {
         };
+        DefaultActionGroup defaultActionGroup = (DefaultActionGroup) ActionManager.getInstance().getAction("GitFlowPlus.Menu");
+        iconAnArrows.setIcon(defaultActionGroup.getTemplatePresentation().getIcon());
+        iconAnArrows.setBorder(WidgetBorder.WIDE);
 
         new ClickListener() {
             @Override
@@ -64,86 +45,35 @@ public class GitFlowPlusWidget extends EditorBasedWidget implements StatusBarWid
                 showPopup(e);
                 return true;
             }
-        }.installOn(myComponent);
-        myComponent.setBorder(WidgetBorder.WIDE);
+        }.installOn(iconAnArrows);
     }
 
     private void showPopup(MouseEvent e) {
-        ListPopup popup = new PopupFactoryImpl.ActionGroupPopup("GitFlowPlus", popupGroup,
-                DataManager.getInstance().getDataContext(myComponent),
+        DefaultActionGroup defaultActionGroup = (DefaultActionGroup) ActionManager.getInstance().getAction("GitFlowPlus.Menu");
+        ListPopup popup = new PopupFactoryImpl.ActionGroupPopup("GitFlowPlus", defaultActionGroup,
+                DataManager.getInstance().getDataContext(iconAnArrows),
                 false, false, true, true,
                 null, -1, null, null);
-
+        Disposer.register(this, popup); // destroy popup on unexpected project close
         Dimension dimension = popup.getContent().getPreferredSize();
         Point at = new Point(0, -dimension.height);
         popup.show(new RelativePoint(e.getComponent(), at));
-        Disposer.register(this, popup); // destroy popup on unexpected project close
     }
 
     public void update() {
-        myComponent.setVisible(true);
-        myComponent.setToolTipText("GitFlowPlus");
-        myComponent.setText("GitFlowPlus");
+        iconAnArrows.setVisible(true);
+        iconAnArrows.setToolTipText("GitFlowPlus");
+        iconAnArrows.setText("GitFlowPlus");
 
-        byte[] bytes;
-        ClassLoader classLoader = getClass().getClassLoader();
-        try (InputStream inputStream = classLoader.getResourceAsStream("icons/icon.png")){
-            //noinspection DataFlowIssue
-            bytes = StreamUtils.readBytes(inputStream);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        myComponent.setIcon(new ImageIcon(bytes));
-        myComponent.invalidate();
+        iconAnArrows.invalidate();
         if (myStatusBar != null) {
             myStatusBar.updateWidget(ID());
         }
     }
 
-    private void initPopupGroup(Project project) {
-        //No advanced features in the status-bar widget
-        popupGroup = new DefaultActionGroup();
-        popupGroup.add(new InitPluginAction());
-        popupGroup.add(new Separator());
-
-        popupGroup.add(new NewFeatureAction());
-        popupGroup.add(new NewHotFixAction());
-        popupGroup.add(new Separator());
-
-        DefaultActionGroup rebuildPopupGroup = new RebuildActionGroup("重建分支", true);
-        rebuildPopupGroup.add(new RebuildTestAction());
-        rebuildPopupGroup.add(new RebuildReleaseAction());
-        popupGroup.add(rebuildPopupGroup);
-        popupGroup.add(new Separator());
-
-        I18n.init(project);
-        GitResolveConflictsAction conflictsAction = new GitResolveConflictsAction();
-        conflictsAction.getTemplatePresentation().setText(I18n.getContent(I18nKey.GIT_RESOLVE_CONFLICTS_ACTION$TEXT));
-        popupGroup.add(conflictsAction);
-        popupGroup.add(new Separator());
-
-        MergeRequestAction mergeRequestAction = new MergeRequestAction();
-        popupGroup.add(mergeRequestAction);
-        popupGroup.add(new Separator());
-
-        StartTestAction action = new StartTestAction();
-        action.registerCustomShortcutSet(new CustomShortcutSet(KeyStroke.getKeyStroke("ctrl shift T")), myComponent);
-        popupGroup.add(action);
-        popupGroup.add(new Separator());
-
-        popupGroup.add(new StartReleaseAction());
-        popupGroup.add(new FinishReleaseAction());
-        popupGroup.add(new FailureReleaseAction());
-        popupGroup.add(new Separator());
-
-        popupGroup.add(new HelpAction());
-    }
-
-
     @Override
     public JComponent getComponent() {
-        return myComponent;
+        return iconAnArrows;
     }
 
     @Override
