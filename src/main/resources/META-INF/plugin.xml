@@ -1,3 +1,4 @@
+<!--suppress PluginXmlCapitalization -->
 <idea-plugin>
     <id>com.github.xiaolyuh.mrtf-git-flow-4idea</id>
     <name>GitFlowPlus</name>

@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class GitFlowPlusListener implements ProjectManagerListener, VcsListener {
     private Project project;
-    private GitFlowPlusWidget gitFlowPlusWidget;
+    private static GitFlowPlusWidget gitFlowPlusWidget;
 
     @Override
     public void projectOpened(@NotNull Project project) {
