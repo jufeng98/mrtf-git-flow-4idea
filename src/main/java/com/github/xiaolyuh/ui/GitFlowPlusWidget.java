@@ -38,6 +38,8 @@ public class GitFlowPlusWidget extends EditorBasedWidget implements StatusBarWid
         DefaultActionGroup defaultActionGroup = (DefaultActionGroup) ActionManager.getInstance().getAction("GitFlowPlus.Menu");
         iconAnArrows.setIcon(defaultActionGroup.getTemplatePresentation().getIcon());
         iconAnArrows.setBorder(WidgetBorder.WIDE);
+        iconAnArrows.setToolTipText("GitFlowPlus");
+        iconAnArrows.setText("GitFlowPlus");
 
         new ClickListener() {
             @Override
@@ -46,6 +48,8 @@ public class GitFlowPlusWidget extends EditorBasedWidget implements StatusBarWid
                 return true;
             }
         }.installOn(iconAnArrows);
+
+        iconAnArrows.setVisible(true);
     }
 
     private void showPopup(MouseEvent e) {
@@ -58,17 +62,6 @@ public class GitFlowPlusWidget extends EditorBasedWidget implements StatusBarWid
         Dimension dimension = popup.getContent().getPreferredSize();
         Point at = new Point(0, -dimension.height);
         popup.show(new RelativePoint(e.getComponent(), at));
-    }
-
-    public void update() {
-        iconAnArrows.setVisible(true);
-        iconAnArrows.setToolTipText("GitFlowPlus");
-        iconAnArrows.setText("GitFlowPlus");
-
-        iconAnArrows.invalidate();
-        if (myStatusBar != null) {
-            myStatusBar.updateWidget(ID());
-        }
     }
 
     @Override
