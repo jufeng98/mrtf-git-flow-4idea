@@ -1,13 +1,17 @@
+import java.net.URI
+
 plugins {
     id("java")
     id("org.jetbrains.intellij") version "1.5.2"
 }
 
-group "com.github.xiaolyuh"
-version "1.1.4"
+group = "com.github.xiaolyuh"
+version = "1.1.4"
 
 repositories {
-    mavenCentral(mapOf("url" to "https://maven.aliyun.com/nexus/content/groups/public/"))
+    maven { url = URI("https://maven.aliyun.com/nexus/content/groups/public/") }
+    mavenLocal()
+    mavenCentral()
 }
 
 dependencies {
@@ -33,7 +37,8 @@ tasks {
     }
 
     patchPluginXml {
-        changeNotes.set("""
+        changeNotes.set(
+            """
         <em>1.1.21<em></br
         <em>1. 修复gitlib 解决冲突分支相互合并的问题 <em></br>   
         
@@ -94,7 +99,8 @@ tasks {
         <em>1.0.0<em></br>
         <em>插件名称修改成GitFlowPlus</em></br>
         <em>发布完成和发布失败强制校验发布分支是否锁定</em></br>
-      """)
+      """
+        )
     }
 
     signPlugin {
