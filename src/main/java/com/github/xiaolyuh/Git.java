@@ -1,6 +1,6 @@
 package com.github.xiaolyuh;
 
-import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.application.ApplicationManager;
 import git4idea.commands.GitCommandResult;
 import git4idea.commands.GitLineHandlerListener;
 import git4idea.repo.GitRepository;
@@ -19,7 +19,7 @@ public interface Git {
      */
     @NotNull
     static Git getInstance() {
-        return ServiceManager.getService(Git.class);
+        return ApplicationManager.getApplication().getService(Git.class);
     }
 
     /**

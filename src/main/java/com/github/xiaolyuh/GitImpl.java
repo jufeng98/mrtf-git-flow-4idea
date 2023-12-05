@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
  * @since 2020/4/7 14:36
  */
 public class GitImpl implements Git {
-    private git4idea.commands.Git git = git4idea.commands.Git.getInstance();
+    private final git4idea.commands.Git git = git4idea.commands.Git.getInstance();
 
     @NotNull
     @Override

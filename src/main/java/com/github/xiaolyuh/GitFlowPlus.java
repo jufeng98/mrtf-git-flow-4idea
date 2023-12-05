@@ -1,6 +1,6 @@
 package com.github.xiaolyuh;
 
-import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import git4idea.commands.GitCommandResult;
 import git4idea.repo.GitRepository;
@@ -20,7 +20,7 @@ public interface GitFlowPlus {
      */
     @NotNull
     static GitFlowPlus getInstance() {
-        return ServiceManager.getService(GitFlowPlus.class);
+        return ApplicationManager.getApplication().getService(GitFlowPlus.class);
     }
 
     /**
