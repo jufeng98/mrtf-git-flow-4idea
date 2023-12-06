@@ -24,6 +24,7 @@
               <model>
                 <item value="已上线分支"/>
                 <item value="全部开发分支"/>
+                <item value="全部分支"/>
               </model>
             </properties>
           </component>
