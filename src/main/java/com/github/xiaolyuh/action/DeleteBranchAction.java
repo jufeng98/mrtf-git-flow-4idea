@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -63,6 +64,9 @@ public class DeleteBranchAction extends AbstractMergeAction {
         new Task.Backgroundable(project, "Deleting " + deleteBranchOptions.getBranches().size() + " branches", false) {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
+                AtomicInteger i = new AtomicInteger(1);
+                double faction = 1.0 / deleteBranchOptions.getBranches().size();
+
                 NotifyUtil.notifyGitCommand(event.getProject(), "=====================================");
                 @SuppressWarnings("DataFlowIssue")
                 String currentBranchName = repository.getCurrentBranch().getName();
@@ -73,12 +77,14 @@ public class DeleteBranchAction extends AbstractMergeAction {
                 map.getOrDefault(false, Collections.emptyList())
                         .forEach((branchVo) -> {
                             gitFlowPlus.deleteBranch(repository, branchVo.getBranch(), deleteBranchOptions.isDeleteLocalBranch());
+                            indicator.setFraction(faction * (i.getAndIncrement()));
                         });
 
                 List<BranchVo> branchVos = map.get(true);
                 if (branchVos != null) {
                     BranchVo branchVo = branchVos.get(0);
                     gitFlowPlus.deleteBranch(repository, "master", branchVo.getBranch());
+                    indicator.setFraction(faction * (i.getAndIncrement()));
                 }
 
                 repository.update();

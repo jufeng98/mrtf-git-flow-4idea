@@ -3,15 +3,18 @@ package com.github.xiaolyuh.ui;
 import com.github.xiaolyuh.GitFlowPlus;
 import com.github.xiaolyuh.InitOptions;
 import com.github.xiaolyuh.utils.ConfigUtil;
-import com.github.xiaolyuh.utils.ExecutorUtils;
 import com.github.xiaolyuh.utils.StringUtils;
 import com.github.xiaolyuh.vo.BranchVo;
 import com.github.xiaolyuh.vo.DeleteBranchOptions;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import git4idea.repo.GitRepository;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.commons.lang.time.DateUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
@@ -46,41 +49,47 @@ public class BranchDeleteDialog extends DialogWrapper {
         gitFlowPlus = GitFlowPlus.getInstance();
         setTitle("Branch Delete");
         setOKButtonText("Delete");
-        refreshBranchList(repository);
         searchButton.addActionListener((actionEvent) -> refreshBranchList(repository));
+
         init();
+
+        refreshBranchList(repository);
     }
 
     public void refreshBranchList(GitRepository repository) {
-        ExecutorUtils.executorService.submit(() -> {
-            InitOptions initOptions = ConfigUtil.getInitOptions(repository.getProject());
+        Task.Modal task = new Task.Modal(repository.getProject(), mainPanel, "Loading......", true) {
+            @Override
+            public void run(@NotNull ProgressIndicator indicator) {
+                InitOptions initOptions = ConfigUtil.getInitOptions(repository.getProject());
 
-            List<BranchVo> branchVoList = getBranchListFiltered(repository);
+                List<BranchVo> branchVoList = getBranchListFiltered(repository);
 
-            String selectedItem = (String) branchModel.getSelectedItem();
-            //noinspection DataFlowIssue
-            switch (selectedItem) {
-                case "已上线分支":
-                    List<String> mergedBranches = gitFlowPlus.getMergedBranchList(repository);
-                    branchVoList = branchVoList.stream()
-                            .filter((branchVo) -> mergedBranches.contains(branchVo.getBranch()))
-                            .collect(Collectors.toList());
-                    break;
-                case "全部开发分支":
-                    branchVoList = branchVoList.stream()
-                            .filter((branchVo) -> {
-                                String branch = branchVo.getBranch();
-                                return branch.contains(initOptions.getFeaturePrefix())
-                                        || branch.contains(initOptions.getHotfixPrefix());
-                            })
-                            .collect(Collectors.toList());
-                    break;
-                default:
+                String selectedItem = (String) branchModel.getSelectedItem();
+                //noinspection DataFlowIssue
+                switch (selectedItem) {
+                    case "已上线分支":
+                        List<String> mergedBranches = gitFlowPlus.getMergedBranchList(repository);
+                        branchVoList = branchVoList.stream()
+                                .filter((branchVo) -> mergedBranches.contains(branchVo.getBranch()))
+                                .collect(Collectors.toList());
+                        break;
+                    case "全部开发分支":
+                        branchVoList = branchVoList.stream()
+                                .filter((branchVo) -> {
+                                    String branch = branchVo.getBranch();
+                                    return branch.contains(initOptions.getFeaturePrefix())
+                                            || branch.contains(initOptions.getHotfixPrefix());
+                                })
+                                .collect(Collectors.toList());
+                        break;
+                    default:
+                }
+
+                List<BranchVo> finalBranchVoList = branchVoList;
+                SwingUtilities.invokeLater(() -> renderingBranchTable(finalBranchVoList));
             }
-
-            List<BranchVo> finalBranchVoList = branchVoList;
-            SwingUtilities.invokeLater(() -> renderingBranchTable(finalBranchVoList));
-        });
+        };
+        ProgressManager.getInstance().run(task);
     }
 
     private void renderingBranchTable(List<BranchVo> branches) {
