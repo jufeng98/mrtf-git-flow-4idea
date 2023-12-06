@@ -2,7 +2,13 @@ package com.github.xiaolyuh;
 
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
-import com.github.xiaolyuh.utils.*;
+import com.github.xiaolyuh.utils.CollectionUtils;
+import com.github.xiaolyuh.utils.ConfigUtil;
+import com.github.xiaolyuh.utils.GitBranchUtil;
+import com.github.xiaolyuh.utils.NotifyUtil;
+import com.github.xiaolyuh.utils.OkHttpClientUtil;
+import com.github.xiaolyuh.utils.StringUtils;
+import com.github.xiaolyuh.vo.BranchVo;
 import com.google.common.collect.Lists;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.progress.ProcessCanceledException;
@@ -22,15 +28,22 @@ import git4idea.repo.GitRepository;
 import git4idea.util.GitFileUtils;
 import git4idea.util.GitUIUtil;
 import git4idea.util.StringScanner;
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.text.ParseException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author yuhao.wang3
@@ -72,12 +85,19 @@ public class GitFlowPlusImpl implements GitFlowPlus {
     public GitCommandResult deleteBranch(@NotNull GitRepository repository,
                                          @Nullable String checkoutBranchName,
                                          @Nullable String branchName) {
-
         git.checkout(repository, checkoutBranchName);
         git.deleteRemoteBranch(repository, branchName);
         return git.deleteLocalBranch(repository, branchName);
     }
 
+    public void deleteBranch(@NotNull GitRepository repository,
+                             @Nullable String branchName,
+                             boolean isDeleteLocalBranch) {
+        if (isDeleteLocalBranch) {
+            git.deleteLocalBranch(repository, branchName);
+        }
+        git.deleteRemoteBranch(repository, branchName);
+    }
 
     @Override
     public GitCommandResult deleteLocalBranch(@NotNull GitRepository repository,
@@ -116,6 +136,59 @@ public class GitFlowPlusImpl implements GitFlowPlus {
     public GitCommandResult getLocalLastCommit(@NotNull GitRepository repository, @Nullable String branchName) {
         git.fetch(repository);
         return git.showLocalLastCommit(repository, branchName);
+    }
+
+    @Override
+    public List<BranchVo> getBranchList(GitRepository repository) {
+        InitOptions initOptions = ConfigUtil.getInitOptions(repository.getProject());
+        GitCommandResult gitCommandResult = git.getAllBranchList(repository);
+        List<String> output = gitCommandResult.getOutput();
+        return output.stream()
+                .map((row) -> row.replace("origin/", ""))
+                .filter((row) -> {
+                    String[] msg = row.split("@@@");
+                    if (msg[2].equalsIgnoreCase(initOptions.getMasterBranch())) {
+                        return false;
+                    } else if (msg[2].equalsIgnoreCase(initOptions.getReleaseBranch())) {
+                        return false;
+                    } else if (msg[2].equalsIgnoreCase(initOptions.getTestBranch())) {
+                        return false;
+                    } else if (msg[2].equalsIgnoreCase("HEAD")) {
+                        return false;
+                    } else {
+                        return !msg[2].endsWith("_mr");
+                    }
+                }).map((row) -> {
+                    String[] msg = row.split("@@@");
+                    BranchVo branchVo = new BranchVo();
+                    try {
+                        branchVo.setLastCommitDate(DateUtils.parseDate(msg[0], "yyyy-MM-dd"));
+                    } catch (ParseException e) {
+                        throw new RuntimeException(e);
+                    }
+                    branchVo.setCreateUser(msg[1]);
+                    branchVo.setBranch(msg[2]);
+                    return branchVo;
+                }).distinct()
+                .sorted(Comparator.comparing(BranchVo::getLastCommitDate))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<String> getMergedBranchList(GitRepository repository) {
+        String date = DateFormatUtils.format(DateUtils.addYears(new Date(), -2), "yyyy-MM-dd");
+        GitCommandResult branchList = git.getMergedBranchList(repository, date);
+        List<String> output = branchList.getOutput();
+        return output.stream()
+                .filter(StringUtils::isNotBlank)
+                .filter((message) -> message.startsWith("Merge branch"))
+                .map((row) -> {
+                    String[] msg = row.replace("'", "").split(" ");
+                    return msg.length < 3 ? null : msg[2].replace("_mr", "");
+                })
+                .filter(Objects::nonNull)
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -269,7 +342,7 @@ public class GitFlowPlusImpl implements GitFlowPlus {
         }
         for (StringScanner s = new StringScanner(result.getOutputAsJoinedString()); s.hasMoreData(); ) {
             String line = s.line();
-            if (line.length() == 0) {
+            if (line.isEmpty()) {
                 continue;
             }
             myExistingTags.add(line);

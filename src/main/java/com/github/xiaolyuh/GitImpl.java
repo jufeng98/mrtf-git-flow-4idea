@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -102,7 +103,6 @@ public class GitImpl implements Git {
      * @param repository       gitRepository
      * @param localBranchName  分支名称
      * @param remoteBranchName 是否是新建分支
-     * @return
      */
     @Override
     public GitCommandResult push(GitRepository repository, String localBranchName, String remoteBranchName, boolean isNewBranch) {
@@ -193,6 +193,35 @@ public class GitImpl implements Git {
     }
 
     @Override
+    public GitCommandResult getAllBranchList(GitRepository repository) {
+        GitRemote remote = this.getDefaultRemote(repository);
+        GitLineHandler h = new GitLineHandler(repository.getProject(), repository.getRoot(), GitCommand.BRANCH);
+        h.setSilent(false);
+        h.setStdoutSuppressed(false);
+        h.setUrls(Objects.requireNonNull(remote).getUrls());
+        h.addParameters("-a");
+        h.addParameters("--sort", "committerdate");
+        h.addParameters("--format", "%(committerdate:short)@@@%(authorname)@@@%(refname:short)");
+        NotifyUtil.notifyGitCommand(repository.getProject(), h.printableCommandLine());
+        return git.runCommand(h);
+    }
+
+    @Override
+    public GitCommandResult getMergedBranchList(GitRepository repository, String date) {
+        GitRemote remote = this.getDefaultRemote(repository);
+        GitLineHandler h = new GitLineHandler(repository.getProject(), repository.getRoot(), GitCommand.LOG);
+        h.setSilent(false);
+        h.setStdoutSuppressed(false);
+        h.setUrls(remote.getUrls());
+        h.addParameters("origin/master", "-i", "-10000");
+        h.addParameters(String.format("--after=%s", date));
+        h.addParameters("--grep=Merge");
+        h.addParameters("--format=%s-body:%b");
+        NotifyUtil.notifyGitCommand(repository.getProject(), h.printableCommandLine());
+        return this.git.runCommand(h);
+    }
+
+    @Override
     public GitCommandResult createNewTag(@NotNull GitRepository repository, @Nullable String tagName, @Nullable String message) {
         final GitLineHandler h = new GitLineHandler(repository.getProject(), repository.getRoot(), GitCommand.TAG);
         h.setSilent(false);
@@ -222,7 +251,7 @@ public class GitImpl implements Git {
     @Override
     public GitCommandResult fetch(@NotNull GitRepository repository) {
         NotifyUtil.notifyGitCommand(repository.getProject(), String.format("git -c core.quotepath=false -c log.showSignature=false fetch origin"));
-        return git.fetch(repository, getDefaultRemote(repository), Collections.singletonList(new GitImpl.GitFetchPruneDetector()), new String[0]);
+        return git.fetch(repository, getDefaultRemote(repository), Collections.singletonList(new GitFetchPruneDetector()), new String[0]);
     }
 
     @Override
@@ -299,7 +328,7 @@ public class GitImpl implements Git {
         }
     }
 
-    private class GitFetchPruneDetector implements GitLineHandlerListener {
+    private static class GitFetchPruneDetector implements GitLineHandlerListener {
 
         private final Pattern PRUNE_PATTERN = Pattern.compile("\\s*x\\s*\\[deleted\\].*->\\s*(\\S*)");
 

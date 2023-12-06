@@ -1,11 +1,14 @@
 package com.github.xiaolyuh;
 
+import com.github.xiaolyuh.vo.BranchVo;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import git4idea.commands.GitCommandResult;
 import git4idea.repo.GitRepository;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 /**
  * @author yuhao.wang3
@@ -67,6 +70,17 @@ public interface GitFlowPlus {
                                   @Nullable String branchName);
 
     /**
+     * 删除分支
+     *
+     * @param repository          仓库
+     * @param branchName          需要删除的分支
+     * @param isDeleteLocalBranch 是否删除本地分支
+     */
+    void deleteBranch(@NotNull GitRepository repository,
+                      @Nullable String branchName,
+                      boolean isDeleteLocalBranch);
+
+    /**
      * 删除本地分支
      *
      * @param repository         repository
@@ -103,6 +117,16 @@ public interface GitFlowPlus {
      * @param branchName 分支名称
      */
     GitCommandResult getLocalLastCommit(@NotNull GitRepository repository, @Nullable String branchName);
+
+    /**
+     * 获取分支列表
+     */
+    List<BranchVo> getBranchList(GitRepository repository);
+
+    /**
+     * 获取Merge过的分支列表
+     */
+    List<String> getMergedBranchList(GitRepository repository);
 
     /**
      * 合并分支

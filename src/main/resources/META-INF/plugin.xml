@@ -114,10 +114,14 @@
                     text="发布失败" description="解锁，这时新的开发分支可以合并到发布分支了" icon="/icons/failure.svg"/>
             <separator/>
 
+            <action id="GitFlowPlus.DeleteBranchAction"
+                    class="com.github.xiaolyuh.action.DeleteBranchAction" text="删除分支"
+                    description="批量删除无效分支"/>
+            <separator/>
+
             <!--帮助-->
             <action id="GitFlowPlus.HelpAction" class="com.github.xiaolyuh.action.HelpAction"
                     text="帮助" description="帮助" icon="/icons/help.svg"/>
-
         </group>
     </actions>
 </idea-plugin>

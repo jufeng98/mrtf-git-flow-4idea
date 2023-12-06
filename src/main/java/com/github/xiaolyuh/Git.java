@@ -27,7 +27,6 @@ public interface Git {
      *
      * @param repository gitRepository
      * @param reference  要切换的分支
-     * @return
      */
     @NotNull
     GitCommandResult checkout(@NotNull GitRepository repository,
@@ -38,7 +37,6 @@ public interface Git {
      *
      * @param repository    gitRepository
      * @param newBranchName 新建分支名称
-     * @return
      */
     GitCommandResult checkoutNewBranch(GitRepository repository, String newBranchName);
 
@@ -49,7 +47,6 @@ public interface Git {
      * @param repository    gitRepository
      * @param master        master
      * @param newBranchName newBranchName
-     * @return
      */
     GitCommandResult fetchNewBranchByRemoteMaster(GitRepository repository, String master, String newBranchName);
 
@@ -80,7 +77,6 @@ public interface Git {
      * @param repository      gitRepository
      * @param localBranchName 本地分支名称
      * @param isNewBranch     是否是新建分支
-     * @return
      */
     GitCommandResult push(GitRepository repository, String localBranchName, boolean isNewBranch);
 
@@ -91,7 +87,6 @@ public interface Git {
      * @param localBranchName  分支名称
      * @param remoteBranchName 是否是新建分支
      * @param isNewBranch      是否是新建分支
-     * @return
      */
     GitCommandResult push(GitRepository repository, String localBranchName, String remoteBranchName, boolean isNewBranch);
 
@@ -118,7 +113,6 @@ public interface Git {
      *
      * @param repository       gitRepository
      * @param remoteBranchName 分支名称
-     * @return
      */
     GitCommandResult showRemoteLastCommit(@NotNull GitRepository repository, @Nullable String remoteBranchName);
 
@@ -127,17 +121,23 @@ public interface Git {
      *
      * @param repository gitRepository
      * @param branchName 分支名称
-     * @return
      */
     GitCommandResult showLocalLastCommit(@NotNull GitRepository repository, @Nullable String branchName);
 
     /**
      * 获取最后的发布时间
-     *
-     * @param repository
-     * @return
      */
     GitCommandResult getLastReleaseTime(@NotNull GitRepository repository);
+
+    /**
+     * 获取所有分支
+     */
+    GitCommandResult getAllBranchList(GitRepository repository);
+
+    /**
+     * 获取Merge过的分支
+     */
+    GitCommandResult getMergedBranchList(GitRepository repository, String date);
 
     /**
      * 创建tag
@@ -145,7 +145,6 @@ public interface Git {
      * @param repository gitRepository
      * @param tagName    tag名称
      * @param message    备注信息
-     * @return
      */
     GitCommandResult createNewTag(@NotNull GitRepository repository, @Nullable String tagName, @Nullable String message);
 
@@ -153,7 +152,6 @@ public interface Git {
      * 获取Tag列表
      *
      * @param repository gitRepository
-     * @return
      */
     GitCommandResult tagList(@NotNull GitRepository repository);
 
@@ -161,7 +159,6 @@ public interface Git {
      * git fetch origin
      *
      * @param repository gitRepository
-     * @return
      */
     GitCommandResult fetch(@NotNull GitRepository repository);
 
@@ -170,7 +167,6 @@ public interface Git {
      *
      * @param repository gitRepository
      * @param branchName branchName
-     * @return
      */
     GitCommandResult pull(GitRepository repository, @Nullable String branchName);
 
@@ -181,16 +177,15 @@ public interface Git {
      * @param sourceBranch 需要merge的分支
      * @param targetBranch 目标分支（合并到的分支）
      * @param listeners    GitLineHandlerListener
-     * @return
      */
-    GitCommandResult merge(@NotNull GitRepository repository, @NotNull String sourceBranch, @NotNull String targetBranch, @NotNull GitLineHandlerListener... listeners);
+    GitCommandResult merge(@NotNull GitRepository repository, @NotNull String sourceBranch, @NotNull String targetBranch,
+                           @NotNull GitLineHandlerListener... listeners);
 
 
     /**
      * 获取当前git账户
      *
      * @param repository gitRepository
-     * @return
      */
     GitCommandResult getUserEmail(GitRepository repository);
 
@@ -201,7 +196,6 @@ public interface Git {
      * @param sourceBranch        需要merge的分支
      * @param targetBranch        目标分支（合并到的分支）
      * @param mergeRequestOptions merge request参数
-     * @return
      */
     GitCommandResult mergeRequest(GitRepository repository, String sourceBranch, String targetBranch, MergeRequestOptions mergeRequestOptions);
 }
