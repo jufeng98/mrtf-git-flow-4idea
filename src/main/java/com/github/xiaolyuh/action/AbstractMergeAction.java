@@ -5,7 +5,7 @@ import com.github.xiaolyuh.InitOptions;
 import com.github.xiaolyuh.TagOptions;
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
-import com.github.xiaolyuh.ui.ConfirmAndTriggerForm;
+import com.github.xiaolyuh.ui.ConfirmAndTriggerDialog;
 import com.github.xiaolyuh.utils.ConfigUtil;
 import com.github.xiaolyuh.utils.GitBranchUtil;
 import com.github.xiaolyuh.utils.NotifyUtil;
@@ -111,10 +111,10 @@ public abstract class AbstractMergeAction extends AnAction {
         boolean clickOk;
         String selectService = "";
         if (isStartTest) {
-            ConfirmAndTriggerForm confirmAndTriggerForm = new ConfirmAndTriggerForm(getDialogContent(project, true), project);
-            confirmAndTriggerForm.show();
-            clickOk = confirmAndTriggerForm.isOK();
-            selectService = confirmAndTriggerForm.getSelectService();
+            ConfirmAndTriggerDialog confirmAndTriggerDialog = new ConfirmAndTriggerDialog(getDialogContent(project, true), project);
+            confirmAndTriggerDialog.show();
+            clickOk = confirmAndTriggerDialog.isOK();
+            selectService = confirmAndTriggerDialog.getSelectService();
         } else {
             int flag = Messages.showOkCancelDialog(project, getDialogContent(project, false),
                     getDialogTitle(project), I18n.getContent(I18nKey.OK_TEXT), I18n.getContent(I18nKey.CANCEL_TEXT),
