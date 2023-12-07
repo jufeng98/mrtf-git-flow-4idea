@@ -6,6 +6,7 @@ import com.github.xiaolyuh.utils.ConfigUtil;
 import com.github.xiaolyuh.utils.StringUtils;
 import com.github.xiaolyuh.vo.BranchVo;
 import com.github.xiaolyuh.vo.DeleteBranchOptions;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
@@ -86,7 +87,7 @@ public class BranchDeleteDialog extends DialogWrapper {
                 }
 
                 List<BranchVo> finalBranchVoList = branchVoList;
-                SwingUtilities.invokeLater(() -> renderingBranchTable(finalBranchVoList));
+                ApplicationManager.getApplication().invokeLater(() -> renderingBranchTable(finalBranchVoList));
             }
         };
         ProgressManager.getInstance().run(task);
