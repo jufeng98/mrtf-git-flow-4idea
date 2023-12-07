@@ -92,7 +92,7 @@ public class DeleteBranchAction extends AbstractMergeAction {
                 myProject.getMessageBus()
                         .syncPublisher(GitRepository.GIT_REPO_CHANGE).repositoryChanged(repository);
                 VirtualFileManager.getInstance().asyncRefresh(null);
-                NotifyUtil.notifyInfo(event.getProject(), "完成删除" + deleteBranchOptions.getBranches().size() + "个分支");
+                NotifyUtil.notifySuccess(event.getProject(), "完成删除" + deleteBranchOptions.getBranches().size() + "个分支");
             }
         }.queue();
     }

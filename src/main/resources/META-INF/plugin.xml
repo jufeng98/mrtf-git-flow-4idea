@@ -49,9 +49,18 @@
         <!-- Add your extensions here -->
         <applicationService serviceInterface="com.github.xiaolyuh.GitFlowPlus"
                             serviceImplementation="com.github.xiaolyuh.GitFlowPlusImpl"/>
+
         <!-- Add your extensions here -->
         <applicationService serviceInterface="com.github.xiaolyuh.Git"
                             serviceImplementation="com.github.xiaolyuh.GitImpl"/>
+
+        <notificationGroup id="GitflowPlus.STICKY_BALLOON"
+                           isLogByDefault="true"
+                           displayType="STICKY_BALLOON"/>
+
+        <notificationGroup id="GitflowPlus.NONE"
+                           isLogByDefault="true"
+                           displayType="NONE"/>
     </extensions>
 
     <projectListeners>

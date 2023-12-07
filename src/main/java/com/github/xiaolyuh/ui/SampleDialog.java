@@ -31,7 +31,7 @@ public class SampleDialog extends DialogWrapper {
         });
 
         openNotificationBtn.addActionListener((e) -> {
-            NotifyUtil.notifyInfo(project, "这里是信息");
+            NotifyUtil.notifySuccess(project, "这里是信息");
             NotifyUtil.notifyError(project, "这里是警告");
         });
 

@@ -18,13 +18,13 @@ public class KubesphereUtils {
 
     public static void triggerPipeline(String selectService, Project project) {
         if (StringUtils.isBlank(selectService)) {
-            NotifyUtil.notifyWarn(project, "未选择服务,跳过触发流水线");
+            NotifyUtil.notifyInfo(project, "未选择服务,跳过触发流水线");
             return;
         }
 
         JSONObject configObj = ConfigUtil.getProjectConfigToFile(project);
         if (configObj == null) {
-            NotifyUtil.notifyWarn(project, "缺少配置文件,跳过触发流水线");
+            NotifyUtil.notifyInfo(project, "缺少配置文件,跳过触发流水线");
             return;
         }
 
@@ -35,7 +35,7 @@ public class KubesphereUtils {
 
         kubesphereToken = PREFERENCES.get("kubesphereToken", "");
         if (StringUtils.isBlank(kubesphereToken)) {
-            NotifyUtil.notifyWarn(project, "请先配置Kubesphere用户信息");
+            NotifyUtil.notifyError(project, "请先配置Kubesphere用户信息");
             return;
         }
 
@@ -50,7 +50,7 @@ public class KubesphereUtils {
             resObj = OkHttpClientUtil.get(crumbissuerUrl, headers, JSONObject.class);
         } catch (HttpException e) {
             if (e.getCode() == 401) {
-                NotifyUtil.notifyWarn(project, "token失效,尝试重新登录");
+                NotifyUtil.notifyInfo(project, "token失效,尝试重新登录");
                 loginAndSaveToken(project);
                 kubesphereToken = PREFERENCES.get("kubesphereToken", "");
                 headers.put("Cookie", "token=" + kubesphereToken);
@@ -60,7 +60,7 @@ public class KubesphereUtils {
             }
         }
         String crumb = resObj.getString("crumb");
-        NotifyUtil.notifyWarn(project, "请求url:" + crumbissuerUrl + ",结果crumb:" + crumb);
+        NotifyUtil.notifyInfo(project, "请求url:" + crumbissuerUrl + ",结果crumb:" + crumb);
 
         headers.put("Jenkins-Crumb", crumb);
 
@@ -76,13 +76,13 @@ public class KubesphereUtils {
         String id = resObj.getString("id");
         String msg = String.format("请求url:%s,结果id:%s,queueId:%s,state:%s", runsUrl, id, resObj.getString("queueId"),
                 resObj.getString("state"));
-        NotifyUtil.notifyWarn(project, msg);
+        NotifyUtil.notifyInfo(project, msg);
 
-        NotifyUtil.notifyWarn(project, selectService + "触发流水线成功!");
+        NotifyUtil.notifyInfo(project, selectService + "触发流水线成功!");
 
         ExecutorUtils.monitorBuildTask(runsUrl, id, selectService, project);
 
-        NotifyUtil.notifyWarn(project, "开始监控" + selectService + " id为" + id + "的构建情况");
+        NotifyUtil.notifyInfo(project, "开始监控" + selectService + " id为" + id + "的构建情况");
     }
 
     public static void loginAndSaveToken(Project project) {
@@ -103,7 +103,7 @@ public class KubesphereUtils {
             String url = "http://10.255.243.18:30219/oauth/token";
             JSONObject jsonObject = OkHttpClientUtil.post(url, "登录接口", requestBody, null, null, JSONObject.class);
             String accessToken = jsonObject.getString("access_token");
-            NotifyUtil.notifyWarn(project, "请求url:" + url + ",登录结果:" + jsonObject.toJSONString());
+            NotifyUtil.notifyInfo(project, "请求url:" + url + ",登录结果:" + jsonObject.toJSONString());
             return accessToken;
         } catch (Exception e) {
             throw new RuntimeException(String.format("登录失败,用户名:%s,密码:%s", kubesphereUsername, kubespherePassword), e);
@@ -127,7 +127,7 @@ public class KubesphereUtils {
                 if (line.startsWith("Set-Cookie: token=")) {
                     String token = line.replace("Set-Cookie: token=", "").split(";")[0];
                     PREFERENCES.put("kubesphereToken", token);
-                    NotifyUtil.notifyWarn(project, "成功登录Kubesphere,Token:" + token);
+                    NotifyUtil.notifyInfo(project, "成功登录Kubesphere,Token:" + token);
                     break;
                 }
             }

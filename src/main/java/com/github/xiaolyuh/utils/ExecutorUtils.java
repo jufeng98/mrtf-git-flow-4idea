@@ -48,11 +48,11 @@ public class ExecutorUtils {
                     NotifyUtil.notifyError(project, selectService + " id为" + id + "构建失败");
                     return;
                 }
-                NotifyUtil.notifyInfo(project, selectService + " id为" + id + "构建成功");
+                NotifyUtil.notifySuccess(project, selectService + " id为" + id + "构建成功");
 
                 monitorStartTask(runsUrl, selectService, id, project);
 
-                NotifyUtil.notifyWarn(project, "开始监控" + selectService + " id为" + id + "启动情况");
+                NotifyUtil.notifyInfo(project, "开始监控" + selectService + " id为" + id + "启动情况");
             } catch (Exception e) {
                 NotifyUtil.notifyError(project, "检测" + selectService + " id为" + id + "的构建情况出错,原因:" + e.getMessage());
             }
@@ -75,7 +75,7 @@ public class ExecutorUtils {
                         "的启动情况出错啦,原因:" + e.getMessage());
                 return;
             }
-            NotifyUtil.notifyWarn(project, "新实例" + newInstanceName + "启动中......");
+            NotifyUtil.notifyInfo(project, "新实例" + newInstanceName + "启动中......");
 
             sleep(60);
             monitorStartedTask(podUrl, selectService, project, newInstanceName);
@@ -135,9 +135,9 @@ public class ExecutorUtils {
                 }
 
                 sleep(15);
-                NotifyUtil.notifyInfo(project, newInstanceName + "新实例启动成功");
+                NotifyUtil.notifySuccess(project, newInstanceName + "新实例启动成功");
             } catch (Exception e) {
-                NotifyUtil.notifyWarn(project, "检测" + newInstanceName + "启动情况出错,原因:" + e.getMessage());
+                NotifyUtil.notifyError(project, "检测" + newInstanceName + "启动情况出错,原因:" + e.getMessage());
             }
         };
     }
