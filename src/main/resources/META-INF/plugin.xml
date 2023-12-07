@@ -2,7 +2,7 @@
 <idea-plugin>
     <id>com.github.xiaolyuh.mrtf-git-flow-4idea</id>
     <name>GitFlowPlus</name>
-    <vendor email="xiaolyuh@163.com" url="https://xiaolyuh.blog.csdn.net/article/details/105150446">汪雨浩</vendor>
+    <vendor email="xiaolyuh@163.com" url="https://xiaolyuh.blog.csdn.net/article/details/105150446">Author:汪雨浩;enhance by:梁煜东</vendor>
 
     <description>
         <![CDATA[
