@@ -7,6 +7,7 @@ import com.github.xiaolyuh.InitOptions;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import kotlin.Pair;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,6 +31,10 @@ public class ConfigUtil {
 
     public static Preferences PREFERENCES = Preferences.userRoot().node("com.github.xiaolyuh");
     private static final Map<String, InitOptions> map = new ConcurrentHashMap<>();
+
+    public static Pair<String, String> getKubesphereUser() {
+        return new Pair<>(PREFERENCES.get("kubesphereUsername", ""), PREFERENCES.get("kubespherePassword", ""));
+    }
 
     /**
      * 将配置存储到本地项目空间

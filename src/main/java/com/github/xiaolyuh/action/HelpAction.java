@@ -32,9 +32,10 @@ public class HelpAction extends AnAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
-        if (false) {
+        if (true) {
             SampleDialog sampleDialog = new SampleDialog(event.getProject());
             sampleDialog.show();
+            return;
         }
 
         BrowserUtil.browse("https://xiaolyuh.blog.csdn.net/article/details/105150446");

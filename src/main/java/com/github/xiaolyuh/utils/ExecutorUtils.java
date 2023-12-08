@@ -188,7 +188,7 @@ public class ExecutorUtils {
         return runsUrl.substring(start, end);
     }
 
-    private static void sleep(int seconds) {
+    public static void sleep(int seconds) {
         try {
             TimeUnit.SECONDS.sleep(seconds);
         } catch (InterruptedException ignored) {

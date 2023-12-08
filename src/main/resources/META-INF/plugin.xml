@@ -2,7 +2,9 @@
 <idea-plugin>
     <id>com.github.xiaolyuh.mrtf-git-flow-4idea</id>
     <name>GitFlowPlus</name>
-    <vendor email="xiaolyuh@163.com" url="https://xiaolyuh.blog.csdn.net/article/details/105150446">Author:汪雨浩;enhance by:梁煜东</vendor>
+    <vendor email="xiaolyuh@163.com" url="https://xiaolyuh.blog.csdn.net/article/details/105150446">Author:汪雨浩;enhance
+        by:梁煜东
+    </vendor>
 
     <description>
         <![CDATA[
@@ -61,6 +63,12 @@
         <notificationGroup id="GitflowPlus.NONE"
                            isLogByDefault="true"
                            displayType="NONE"/>
+
+        <toolWindow factoryClass="com.github.xiaolyuh.ui.GitFlowToolWindow"
+                    icon="/icons/icon.svg"
+                    anchor="right"
+                    doNotActivateOnStart="true"
+                    id="GitflowPlus.toolWindow"/>
     </extensions>
 
     <projectListeners>
@@ -78,7 +86,8 @@
 
             <!--配置管理-->
             <action id="GitFlowPlus.InitPluginAction" class="com.github.xiaolyuh.action.InitPluginAction"
-                    text="初始化配置" description="初始化仓库配置，如果测试分支与发布分支不存在，将基于master新建" icon="/icons/config.svg"/>
+                    text="初始化配置" description="初始化仓库配置，如果测试分支与发布分支不存在，将基于master新建"
+                    icon="/icons/config.svg"/>
             <separator/>
 
             <!--新建分支-->
@@ -91,9 +100,11 @@
             <group id="GitFlowPlus.RebuildBranch" popup="true" text="重建分支"
                    class="com.github.xiaolyuh.action.RebuildActionGroup">
                 <action id="GitFlowPlus.RebuildTestAction" class="com.github.xiaolyuh.action.RebuildTestAction"
-                        text="重建测试分支" description="重建测试分支，并推送到远程仓库，原来的分支将被删除" icon="/icons/test.svg"/>
+                        text="重建测试分支" description="重建测试分支，并推送到远程仓库，原来的分支将被删除"
+                        icon="/icons/test.svg"/>
                 <action id="GitFlowPlus.RebuildReleaseAction" class="com.github.xiaolyuh.action.RebuildReleaseAction"
-                        text="重建发布分支" description="重建发布分支，并推送到远程仓库，原来的分支将被删除" icon="/icons/release.svg"/>
+                        text="重建发布分支" description="重建发布分支，并推送到远程仓库，原来的分支将被删除"
+                        icon="/icons/release.svg"/>
             </group>
             <separator/>
 
@@ -115,7 +126,8 @@
 
             <!--发布流程-->
             <action id="GitFlowPlus.StartReleaseAction" class="com.github.xiaolyuh.action.StartReleaseAction"
-                    text="开始发布" description="将当前开发分支合并到发布分支，加锁，防止再有开发分支合并到发布分支" icon="/icons/start.svg"/>
+                    text="开始发布" description="将当前开发分支合并到发布分支，加锁，防止再有开发分支合并到发布分支"
+                    icon="/icons/start.svg"/>
             <action id="GitFlowPlus.FinishReleaseAction" class="com.github.xiaolyuh.action.FinishReleaseAction"
                     text="发布完成" description="解锁，并将发布分支合并到主干分支" icon="/icons/finished.svg"/>
             <action id="GitFlowPlus.FailureReleaseAction" class="com.github.xiaolyuh.action.FailureReleaseAction"
