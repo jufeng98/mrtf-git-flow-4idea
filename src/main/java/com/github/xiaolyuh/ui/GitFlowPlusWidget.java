@@ -38,8 +38,7 @@ public class GitFlowPlusWidget extends EditorBasedWidget implements StatusBarWid
         DefaultActionGroup defaultActionGroup = (DefaultActionGroup) ActionManager.getInstance().getAction("GitFlowPlus.Menu");
         iconAnArrows.setIcon(defaultActionGroup.getTemplatePresentation().getIcon());
         iconAnArrows.setBorder(WidgetBorder.WIDE);
-        iconAnArrows.setToolTipText("enhance by:梁煜东");
-        iconAnArrows.setText("GitFlowPlus");
+        iconAnArrows.setToolTipText("GitFlowPlus enhance by:梁煜东");
 
         new ClickListener() {
             @Override

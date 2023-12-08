@@ -77,7 +77,7 @@ public class ExecutorUtils {
             }
             NotifyUtil.notifyInfo(project, "新实例" + newInstanceName + "启动中......");
 
-            sleep(60);
+            sleep(10);
             monitorStartedTask(podUrl, selectService, project, newInstanceName);
         });
     }
@@ -104,7 +104,7 @@ public class ExecutorUtils {
                         })
                         .collect(Collectors.toList());
                 if (list.isEmpty()) {
-                    NotifyUtil.notifyError(project, newInstanceName + "启动失败啦");
+                    NotifyUtil.notifyError(project, newInstanceName + "实例已不存在,请自行检查服务情况");
                     return;
                 }
                 JSONObject newItemObject = (JSONObject) list.get(0);
