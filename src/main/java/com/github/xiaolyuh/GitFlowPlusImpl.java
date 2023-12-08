@@ -296,7 +296,7 @@ public class GitFlowPlusImpl implements GitFlowPlus {
                 String msg = getRemoteLastCommit(repository, Constants.LOCK_BRANCH_NAME);
 
                 msg = String.format(I18n.getContent(I18nKey.THIRD_PARTY_NOTIFY), repository.getProject().getName(), msg);
-                OkHttpClientUtil.postApplicationJson(url, new DingtalkMessage(msg), "钉钉通知接口", String.class);
+                OkHttpClientUtil.postApplicationJson(url, new DingtalkMessage(msg), String.class);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

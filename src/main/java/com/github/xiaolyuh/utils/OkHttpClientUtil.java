@@ -2,6 +2,7 @@ package com.github.xiaolyuh.utils;
 
 import com.alibaba.fastjson.JSON;
 import com.github.xiaolyuh.HttpException;
+import com.google.common.collect.Maps;
 import okhttp3.Call;
 import okhttp3.FormBody;
 import okhttp3.MediaType;
@@ -9,13 +10,13 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+
+import static com.github.xiaolyuh.utils.ConfigUtil.PREFERENCES;
 
 /**
  * OkHttpClient工具
@@ -28,7 +29,7 @@ public abstract class OkHttpClientUtil {
     private static final OkHttpClient okHttpClient = new OkHttpClient.Builder()
             .connectTimeout(10, TimeUnit.SECONDS)
             .writeTimeout(10, TimeUnit.SECONDS)
-            .readTimeout(20, TimeUnit.SECONDS)
+            .readTimeout(10, TimeUnit.SECONDS)
             .build();
 
     /**
@@ -36,31 +37,33 @@ public abstract class OkHttpClientUtil {
      *
      * @param url           地址
      * @param param         参数
-     * @param interfaceName 接口名称
      */
-    public static <T> void postApplicationJson(String url, Object param, String interfaceName, Class<T> clazz) {
-        // 生成requestBody
+    public static <T> void postApplicationJson(String url, Object param, Class<T> clazz) {
         RequestBody requestBody = FormBody.create(MediaType.parse("application/json; charset=utf-8")
                 , JSON.toJSONString(param));
+        post(url, requestBody, null, clazz);
+    }
 
-        post(url, interfaceName, requestBody, param, null, clazz);
+    public static <T> T postWithToken(String url, RequestBody requestBody, Map<String, String> headers, Class<T> clazz) {
+        String kubesphereToken = PREFERENCES.get("kubesphereToken", "");
+        if (headers == null) {
+            headers = Maps.newHashMap();
+            headers.put("Cookie", "token=" + kubesphereToken);
+        } else {
+            headers.put("Cookie", "token=" + kubesphereToken);
+        }
+        return post(url, requestBody, headers, clazz);
     }
 
     /**
      * 发起post请求，不做任何签名
      *
      * @param url           发送请求的URL
-     * @param interfaceName 接口名称
      * @param requestBody   请求体
-     * @param param         参数
      */
-    public static <T> T post(String url, String interfaceName, RequestBody requestBody, Object param, Map<String, String> headers, Class<T> clazz) {
-        Request.Builder builder = new Request.Builder()
-                //请求的url
-                .url(url)
-                .post(requestBody);
-
-        if (isNotEmpty(headers)) {
+    public static <T> T post(String url, RequestBody requestBody, Map<String, String> headers, Class<T> clazz) {
+        Request.Builder builder = new Request.Builder().url(url).post(requestBody);
+        if (headers != null) {
             for (String key : headers.keySet()) {
                 builder.addHeader(key, headers.get(key));
             }
@@ -68,41 +71,38 @@ public abstract class OkHttpClientUtil {
         Request request = builder.build();
 
         Response response = null;
-        String result = "";
-        String errorMsg = "";
+        String result;
         try {
-            //创建/Call
             response = okHttpClient.newCall(request).execute();
             if (!response.isSuccessful()) {
-                errorMsg = String.format("访问外部系统异常:%s", response);
-                throw new RuntimeException(errorMsg);
+                throw new HttpException(response.code(), response.message());
             }
             result = response.body().string();
-        } catch (RuntimeException e) {
-            logger.warn(e.getMessage(), e);
-            result = e.getMessage();
-            throw e;
         } catch (Exception e) {
-            logger.warn(e.getMessage(), e);
-            if (Objects.isNull(response)) {
-                errorMsg = String.format("访问外部系统异常::%s", e.getMessage());
-                throw new RuntimeException(errorMsg, e);
-            }
-            errorMsg = String.format("访问外部系统异常:::%s", response);
-            throw new RuntimeException(errorMsg, e);
+            throw new RuntimeException(url, e);
         } finally {
-            logger.info("请求 {}  {}，请求参数：{}, header:{}, 返回参数：{}", interfaceName, url, JSON.toJSONString(param),
-                    JSON.toJSONString(headers), StringUtils.isEmpty(result) ? errorMsg : result);
+            if (response != null) {
+                response.close();
+            }
         }
 
         return JSON.parseObject(result, clazz);
     }
 
+    public static <T> T getWithToken(String url, Map<String, String> headers, Class<T> clazz) {
+        String kubesphereToken = PREFERENCES.get("kubesphereToken", "");
+        if (headers == null) {
+            headers = Maps.newHashMap();
+            headers.put("Cookie", "token=" + kubesphereToken);
+        } else {
+            headers.put("Cookie", "token=" + kubesphereToken);
+        }
+        return get(url, headers, clazz);
+    }
+
     public static <T> T get(String url, Map<String, String> headers, Class<T> clazz) {
-        Request.Builder builder = new Request.Builder()
-                .url(url)
-                .get();
-        if (isNotEmpty(headers)) {
+        Request.Builder builder = new Request.Builder().url(url).get();
+        if (headers != null) {
             for (String key : headers.keySet()) {
                 builder.addHeader(key, headers.get(key));
             }
@@ -111,18 +111,15 @@ public abstract class OkHttpClientUtil {
         Response response = null;
         String result;
         try {
-            //创建/Call
             Call call = okHttpClient.newCall(request);
             response = call.execute();
             if (!response.isSuccessful()) {
                 throw new HttpException(response.code(), response.message());
             }
             result = response.body().string();
-        } catch (HttpException e) {
-            throw e;
-        } catch (Exception e) {
+        }  catch (Exception e) {
             throw new RuntimeException(url, e);
-        }finally {
+        } finally {
             if (response != null) {
                 response.close();
             }
@@ -130,7 +127,4 @@ public abstract class OkHttpClientUtil {
         return JSON.parseObject(result, clazz);
     }
 
-    public static boolean isNotEmpty(Map<?,?> map) {
-        return map != null && !map.isEmpty();
-    }
 }

@@ -2,7 +2,6 @@ package com.github.xiaolyuh.utils;
 
 import com.alibaba.fastjson.JSONObject;
 import com.github.xiaolyuh.HttpException;
-import com.google.common.collect.Maps;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.StreamUtil;
 import okhttp3.FormBody;
@@ -10,6 +9,7 @@ import okhttp3.MediaType;
 import okhttp3.RequestBody;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
 
 import static com.github.xiaolyuh.utils.ConfigUtil.PREFERENCES;
@@ -40,21 +40,14 @@ public class KubesphereUtils {
         }
 
         String crumbissuerUrl = configObj.getString("crumbissuerUrl");
-        String runsUrl = configObj.getString("runsUrl");
-        Boolean isFrontProject = configObj.getBoolean("isFrontProject");
-
-        Map<String, String> headers = Maps.newHashMap();
-        headers.put("Cookie", "token=" + kubesphereToken);
         JSONObject resObj;
         try {
-            resObj = OkHttpClientUtil.get(crumbissuerUrl, headers, JSONObject.class);
+            resObj = OkHttpClientUtil.getWithToken(crumbissuerUrl, null, JSONObject.class);
         } catch (HttpException e) {
             if (e.getCode() == 401) {
                 NotifyUtil.notifyInfo(project, "token失效,尝试重新登录");
                 loginAndSaveToken(project);
-                kubesphereToken = PREFERENCES.get("kubesphereToken", "");
-                headers.put("Cookie", "token=" + kubesphereToken);
-                resObj = OkHttpClientUtil.get(crumbissuerUrl, headers, JSONObject.class);
+                resObj = OkHttpClientUtil.getWithToken(crumbissuerUrl, null, JSONObject.class);
             } else {
                 throw e;
             }
@@ -62,8 +55,7 @@ public class KubesphereUtils {
         String crumb = resObj.getString("crumb");
         NotifyUtil.notifyInfo(project, "请求url:" + crumbissuerUrl + ",结果crumb:" + crumb);
 
-        headers.put("Jenkins-Crumb", crumb);
-
+        Boolean isFrontProject = configObj.getBoolean("isFrontProject");
         RequestBody requestBody;
         if (isFrontProject) {
             requestBody = FormBody.create(MediaType.parse("application/json"), "{\"parameters\":[]}");
@@ -71,7 +63,11 @@ public class KubesphereUtils {
             requestBody = FormBody.create(MediaType.parse("application/json")
                     , String.format("{\"parameters\":[{\"name\":\"MDL_NAME\",\"value\":\"%s\"}]}", selectService));
         }
-        resObj = OkHttpClientUtil.post(runsUrl, "runsUrl", requestBody, null, headers, JSONObject.class);
+
+        String runsUrl = configObj.getString("runsUrl");
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Jenkins-Crumb", crumb);
+        resObj = OkHttpClientUtil.postWithToken(runsUrl, requestBody, headers, JSONObject.class);
 
         String id = resObj.getString("id");
         String msg = String.format("请求url:%s,结果id:%s,queueId:%s,state:%s", runsUrl, id, resObj.getString("queueId"),
@@ -101,7 +97,7 @@ public class KubesphereUtils {
             RequestBody requestBody = FormBody.create(MediaType.parse("application/x-www-form-urlencoded")
                     , String.format("grant_type=password&username=%s&password=%s", kubesphereUsername, kubespherePassword));
             String url = "http://10.255.243.18:30219/oauth/token";
-            JSONObject jsonObject = OkHttpClientUtil.post(url, "登录接口", requestBody, null, null, JSONObject.class);
+            JSONObject jsonObject = OkHttpClientUtil.post(url, requestBody, null, JSONObject.class);
             String accessToken = jsonObject.getString("access_token");
             NotifyUtil.notifyInfo(project, "请求url:" + url + ",登录结果:" + jsonObject.toJSONString());
             return accessToken;

@@ -2,17 +2,13 @@ package com.github.xiaolyuh.utils;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.google.common.collect.Maps;
 import com.intellij.openapi.project.Project;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
-import static com.github.xiaolyuh.utils.ConfigUtil.PREFERENCES;
 
 public class ExecutorUtils {
     public static ExecutorService executorService = Executors.newCachedThreadPool();
@@ -24,7 +20,7 @@ public class ExecutorUtils {
         });
     }
 
-    private static void createMonitorBuildTask(String runsUrl, String id, String selectService, Project project){
+    private static void createMonitorBuildTask(String runsUrl, String id, String selectService, Project project) {
         Runnable task = createMonitorBuildTaskReal(runsUrl, id, selectService, project);
         executorService.submit(task);
     }
@@ -32,10 +28,7 @@ public class ExecutorUtils {
     private static Runnable createMonitorBuildTaskReal(String runsUrl, String id, String selectService, Project project) {
         return () -> {
             try {
-                String kubesphereToken = PREFERENCES.get("kubesphereToken", "");
-                Map<String, String> headers = Maps.newHashMap();
-                headers.put("Cookie", "token=" + kubesphereToken);
-                JSONObject resObj = OkHttpClientUtil.get(runsUrl + "/" + id + "/", headers, JSONObject.class);
+                JSONObject resObj = OkHttpClientUtil.getWithToken(runsUrl + "/" + id + "/", null, JSONObject.class);
                 String state = resObj.getString("state");
                 if (!"FINISHED".equals(state)) {
                     sleep(10);
@@ -90,10 +83,7 @@ public class ExecutorUtils {
     public static Runnable createMonitorStartTask(String podUrl, String selectService, Project project, String newInstanceName) {
         return () -> {
             try {
-                String kubesphereToken = PREFERENCES.get("kubesphereToken", "");
-                Map<String, String> headers = Maps.newHashMap();
-                headers.put("Cookie", "token=" + kubesphereToken);
-                JSONObject resObj = OkHttpClientUtil.get(podUrl, headers, JSONObject.class);
+                JSONObject resObj = OkHttpClientUtil.getWithToken(podUrl, null, JSONObject.class);
 
                 JSONArray items = resObj.getJSONArray("items");
                 List<Object> list = items.stream()
@@ -104,7 +94,8 @@ public class ExecutorUtils {
                         })
                         .collect(Collectors.toList());
                 if (list.isEmpty()) {
-                    NotifyUtil.notifyError(project, newInstanceName + "实例已不存在,请自行检查服务情况");
+                    NotifyUtil.notifyError(project,
+                            newInstanceName + "实例已不存在,表明已有新实例启动,请自行检查服务情况,目前检测到的实例个数:" + items.size());
                     return;
                 }
                 JSONObject newItemObject = (JSONObject) list.get(0);
@@ -134,7 +125,7 @@ public class ExecutorUtils {
                     return;
                 }
 
-                sleep(15);
+                sleep(10);
                 NotifyUtil.notifySuccess(project, newInstanceName + "新实例启动成功");
             } catch (Exception e) {
                 NotifyUtil.notifyError(project, "检测" + newInstanceName + "启动情况出错,原因:" + e.getMessage());
@@ -143,10 +134,7 @@ public class ExecutorUtils {
     }
 
     private static String findNewInstanceName(String podUrl, String id, int detectTimes) throws Exception {
-        String kubesphereToken = PREFERENCES.get("kubesphereToken", "");
-        Map<String, String> headers = Maps.newHashMap();
-        headers.put("Cookie", "token=" + kubesphereToken);
-        JSONObject resObj = OkHttpClientUtil.get(podUrl, headers, JSONObject.class);
+        JSONObject resObj = OkHttpClientUtil.getWithToken(podUrl, null, JSONObject.class);
 
         JSONArray items = resObj.getJSONArray("items");
         for (Object item : items) {
