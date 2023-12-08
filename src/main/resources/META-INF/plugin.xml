@@ -108,10 +108,9 @@
             </action>
             <separator/>
 
-            <!--提测-->
-            <action id="GitFlowPlus.StartTestAction" class="com.github.xiaolyuh.action.StartTestAction"
-                    text="提测" description="将当前开发分支合并到test分支" icon="/icons/mergeToTest.svg">
-            </action>
+            <action id="GitFlowPlus.DeleteBranchAction"
+                    class="com.github.xiaolyuh.action.DeleteBranchAction" text="删除分支"
+                    description="批量删除无效分支"/>
             <separator/>
 
             <!--发布流程-->
@@ -123,9 +122,10 @@
                     text="发布失败" description="解锁，这时新的开发分支可以合并到发布分支了" icon="/icons/failure.svg"/>
             <separator/>
 
-            <action id="GitFlowPlus.DeleteBranchAction"
-                    class="com.github.xiaolyuh.action.DeleteBranchAction" text="删除分支"
-                    description="批量删除无效分支"/>
+            <!--提测-->
+            <action id="GitFlowPlus.StartTestAction" class="com.github.xiaolyuh.action.StartTestAction"
+                    text="提测" description="将当前开发分支合并到test分支" icon="/icons/mergeToTest.svg">
+            </action>
             <separator/>
 
             <!--帮助-->
