@@ -1,8 +1,9 @@
 package com.github.xiaolyuh.ui;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.github.xiaolyuh.utils.ConfigUtil;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import org.jetbrains.annotations.Nullable;
@@ -20,12 +21,13 @@ public class ConfirmAndTriggerDialog extends DialogWrapper {
         init();
         jlabel.setText(txt);
 
-        JSONObject jsonObject = ConfigUtil.getProjectConfigToFile(project);
+        JsonObject jsonObject = ConfigUtil.getProjectConfigToFile(project);
         if (jsonObject != null) {
-            JSONArray services = jsonObject.getJSONArray("services");
+            JsonArray services = jsonObject.getAsJsonArray("services");
             DefaultListModel<String> listModel = new DefaultListModel<>();
             for (Object service : services) {
-                listModel.addElement((String) service);
+                JsonPrimitive jsonPrimitive = (JsonPrimitive) service;
+                listModel.addElement(jsonPrimitive.getAsString());
             }
             //noinspection unchecked
             jlist.setModel(listModel);

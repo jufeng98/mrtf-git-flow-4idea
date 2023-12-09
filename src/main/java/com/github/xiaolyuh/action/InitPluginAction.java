@@ -1,6 +1,5 @@
 package com.github.xiaolyuh.action;
 
-import com.alibaba.fastjson.JSON;
 import com.github.xiaolyuh.GitFlowPlus;
 import com.github.xiaolyuh.InitOptions;
 import com.github.xiaolyuh.i18n.I18n;
@@ -8,6 +7,7 @@ import com.github.xiaolyuh.i18n.I18nKey;
 import com.github.xiaolyuh.ui.InitPluginDialog;
 import com.github.xiaolyuh.utils.ConfigUtil;
 import com.github.xiaolyuh.utils.GitBranchUtil;
+import com.github.xiaolyuh.utils.HttpClientUtil;
 import com.github.xiaolyuh.utils.NotifyUtil;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -105,7 +105,7 @@ public class InitPluginAction extends AnAction {
                     PREFERENCES.put("kubespherePassword", initOptions.getKubespherePassword());
 
                     // 存储配置
-                    String configJson = JSON.toJSONString(initOptions);
+                    String configJson = HttpClientUtil.gson.toJson(initOptions);
                     ConfigUtil.saveConfigToLocal(project, configJson);
                     ConfigUtil.saveConfigToFile(project, configJson);
 

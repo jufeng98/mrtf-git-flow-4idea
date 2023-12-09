@@ -1,21 +1,21 @@
 package com.github.xiaolyuh.utils;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.intellij.openapi.project.Project;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 public class ExecutorUtils {
     public static ExecutorService executorService = Executors.newCachedThreadPool();
 
-    public static Future<?> addTask(Runnable runnable) {
-        return executorService.submit(runnable);
+    public static void addTask(Runnable runnable) {
+        executorService.submit(runnable);
     }
 
     public static void monitorBuildTask(String runsUrl, String id, String selectService, Project project) {
@@ -33,15 +33,15 @@ public class ExecutorUtils {
     private static Runnable createMonitorBuildTaskReal(String runsUrl, String id, String selectService, Project project) {
         return () -> {
             try {
-                JSONObject resObj = OkHttpClientUtil.getWithToken(runsUrl + "/" + id + "/", null, JSONObject.class);
-                String state = resObj.getString("state");
+                JsonObject resObj = HttpClientUtil.getForObjectWithToken(runsUrl + "/" + id + "/", null, JsonObject.class);
+                String state = resObj.get("state").getAsString();
                 if (!"FINISHED".equals(state)) {
                     sleep(10);
                     // 构建未完成,重新监控
                     createMonitorBuildTask(runsUrl, id, selectService, project);
                     return;
                 }
-                String result = resObj.getString("result");
+                String result = resObj.get("result").getAsString();
                 if (!"SUCCESS".equals(result)) {
                     NotifyUtil.notifyError(project, selectService + " id为" + id + "构建失败");
                     return;
@@ -88,24 +88,27 @@ public class ExecutorUtils {
     public static Runnable createMonitorStartTask(String podUrl, String selectService, Project project, String newInstanceName) {
         return () -> {
             try {
-                JSONObject resObj = OkHttpClientUtil.getWithToken(podUrl, null, JSONObject.class);
+                JsonObject resObj = HttpClientUtil.getForObjectWithToken(podUrl, null, JsonObject.class);
+                JsonArray items = resObj.getAsJsonArray("items");
 
-                JSONArray items = resObj.getJSONArray("items");
-                List<Object> list = items.stream()
-                        .filter(it -> {
-                            JSONObject itemObject = (JSONObject) it;
-                            String instanceName = itemObject.getJSONObject("metadata").getString("name");
-                            return instanceName.equals(newInstanceName);
-                        })
-                        .collect(Collectors.toList());
+                List<JsonObject> list = new ArrayList<>();
+                for (JsonElement item : items) {
+                    JsonObject itemObject = (JsonObject) item;
+                    String instanceName = itemObject.getAsJsonObject("metadata").get("name").getAsString();
+                    if (instanceName.equals(newInstanceName)) {
+                        list.add(itemObject);
+                        break;
+                    }
+                }
+
                 if (list.isEmpty()) {
                     NotifyUtil.notifyError(project,
                             newInstanceName + "实例已不存在,表明已有新实例启动,请自行检查服务情况,目前检测到的实例个数:" + items.size());
                     return;
                 }
-                JSONObject newItemObject = (JSONObject) list.get(0);
 
-                JSONObject statusObj = newItemObject.getJSONObject("status");
+                JsonObject newItemObject = list.get(0);
+                JsonObject statusObj = newItemObject.getAsJsonObject("status");
                 int restartCount = getRestartCount(statusObj, "initContainerStatuses");
                 if (restartCount > 0) {
                     NotifyUtil.notifyError(project, newInstanceName + "容器初始化失败,当前重启次数:" + restartCount);
@@ -139,52 +142,54 @@ public class ExecutorUtils {
     }
 
     private static String findNewInstanceName(String podUrl, String id, int detectTimes) throws Exception {
-        JSONObject resObj = OkHttpClientUtil.getWithToken(podUrl, null, JSONObject.class);
+        JsonObject resObj = HttpClientUtil.getForObjectWithToken(podUrl, null, JsonObject.class);
 
-        JSONArray items = resObj.getJSONArray("items");
+        JsonArray items = resObj.getAsJsonArray("items");
         for (Object item : items) {
-            JSONObject itemObject = (JSONObject) item;
-            JSONObject specObj = itemObject.getJSONObject("spec");
-            JSONArray containers = specObj.getJSONArray("containers");
+            JsonObject itemObject = (JsonObject) item;
+            JsonObject specObj = itemObject.getAsJsonObject("spec");
+            JsonArray containers = specObj.getAsJsonArray("containers");
             for (Object container : containers) {
-                JSONObject containerObject = (JSONObject) container;
-                String image = containerObject.getString("image");
+                JsonObject containerObject = (JsonObject) container;
+                String image = containerObject.get("image").getAsString();
                 if (image.endsWith(id)) {
-                    return itemObject.getJSONObject("metadata").getString("name");
+                    return itemObject.getAsJsonObject("metadata").get("name").getAsString();
                 }
             }
         }
         detectTimes++;
         if (detectTimes >= 18) {
-            throw new RuntimeException("当前url:" + podUrl + ",返回结果:" + resObj.toJSONString());
+            throw new RuntimeException("当前url:" + podUrl + ",返回结果:" + resObj);
         }
         TimeUnit.SECONDS.sleep(10);
         return findNewInstanceName(podUrl, id, detectTimes);
     }
 
-    private static int getRestartCount(JSONObject statusObj, String key) {
-        JSONArray statuses = statusObj.getJSONArray(key);
+    private static int getRestartCount(JsonObject statusObj, String key) {
+        JsonArray statuses = statusObj.getAsJsonArray(key);
         if (statuses == null) {
             return 0;
         }
-        return statuses.stream()
-                .mapToInt(it -> {
-                    JSONObject tmpObj = (JSONObject) it;
-                    return tmpObj.getIntValue("restartCount");
-                })
-                .sum();
+        int sum = 0;
+        for (JsonElement status : statuses) {
+            JsonObject tmpObj = (JsonObject) status;
+            sum += tmpObj.get("restartCount").getAsInt();
+        }
+        return sum;
     }
 
-    private static boolean getReady(JSONObject statusObj, String key) {
-        JSONArray statuses = statusObj.getJSONArray(key);
+    private static boolean getReady(JsonObject statusObj, String key) {
+        JsonArray statuses = statusObj.getAsJsonArray(key);
         if (statuses == null) {
             return true;
         }
-        return statuses.stream()
-                .allMatch(it -> {
-                    JSONObject tmpObj = (JSONObject) it;
-                    return tmpObj.getBooleanValue("ready");
-                });
+        List<Boolean> list = new ArrayList<>();
+        for (JsonElement status : statuses) {
+            JsonObject tmpObj = (JsonObject) status;
+            list.add(tmpObj.get("ready").getAsBoolean());
+
+        }
+        return list.stream().allMatch(it -> it);
     }
 
     private static String findNamespace(String runsUrl) {

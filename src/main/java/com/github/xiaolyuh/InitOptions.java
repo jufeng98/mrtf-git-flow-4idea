@@ -1,7 +1,5 @@
 package com.github.xiaolyuh;
 
-import com.alibaba.fastjson.annotation.JSONField;
-
 import java.util.Objects;
 
 /**
@@ -55,10 +53,8 @@ public class InitOptions {
      * 钉钉Token
      */
     private String dingtalkToken;
-    @JSONField(serialize = false)
-    private String kubesphereUsername;
-    @JSONField(serialize = false)
-    private String kubespherePassword;
+    private transient String kubesphereUsername;
+    private transient String kubespherePassword;
 
     /**
      * 语言

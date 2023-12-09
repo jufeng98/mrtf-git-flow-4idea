@@ -1,9 +1,8 @@
 package com.github.xiaolyuh.utils;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.github.xiaolyuh.Constants;
 import com.github.xiaolyuh.InitOptions;
+import com.google.gson.JsonObject;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
@@ -120,7 +119,7 @@ public class ConfigUtil {
         String json = component.getValue(key);
         if (StringUtils.isNotBlank(json)) {
             LOG.info("完成读取项目空间配置workspace.xml,key:" + key);
-            return JSON.parseObject(json, InitOptions.class);
+            return HttpClientUtil.gson.fromJson(json, InitOptions.class);
         }
         return null;
     }
@@ -140,14 +139,14 @@ public class ConfigUtil {
             }
             String config = FileUtils.readFileToString(file, StandardCharsets.UTF_8.name());
             LOG.info("完成读取配置文件:" + filePath);
-            return JSON.parseObject(config, InitOptions.class);
+            return HttpClientUtil.gson.fromJson(config, InitOptions.class);
         } catch (Exception e) {
             NotifyUtil.notifyError(project, "读取" + filePath + "错误:" + e.getClass().getSimpleName() + "," + e.getMessage());
             return null;
         }
     }
 
-    public static JSONObject getProjectConfigToFile(Project project) {
+    public static JsonObject getProjectConfigToFile(Project project) {
         try {
             String filePath = project.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME_PROJECT;
             File file = new File(filePath);
@@ -155,7 +154,7 @@ public class ConfigUtil {
                 return null;
             }
             String config = FileUtils.readFileToString(file, StandardCharsets.UTF_8.name());
-            return JSON.parseObject(config, JSONObject.class);
+            return HttpClientUtil.gson.fromJson(config, JsonObject.class);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

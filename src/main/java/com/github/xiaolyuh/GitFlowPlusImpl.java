@@ -6,7 +6,7 @@ import com.github.xiaolyuh.utils.CollectionUtils;
 import com.github.xiaolyuh.utils.ConfigUtil;
 import com.github.xiaolyuh.utils.GitBranchUtil;
 import com.github.xiaolyuh.utils.NotifyUtil;
-import com.github.xiaolyuh.utils.OkHttpClientUtil;
+import com.github.xiaolyuh.utils.HttpClientUtil;
 import com.github.xiaolyuh.utils.StringUtils;
 import com.github.xiaolyuh.vo.BranchVo;
 import com.google.common.collect.Lists;
@@ -296,7 +296,7 @@ public class GitFlowPlusImpl implements GitFlowPlus {
                 String msg = getRemoteLastCommit(repository, Constants.LOCK_BRANCH_NAME);
 
                 msg = String.format(I18n.getContent(I18nKey.THIRD_PARTY_NOTIFY), repository.getProject().getName(), msg);
-                OkHttpClientUtil.postApplicationJson(url, new DingtalkMessage(msg), String.class);
+                HttpClientUtil.postApplicationJson(url, new DingtalkMessage(msg), String.class);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
