@@ -18,10 +18,14 @@ public class GitFlowToolWindowComp extends JComponent {
     private JButton availableBtn;
     private JButton button1;
 
-    public GitFlowToolWindowComp(@NotNull Project project, @NotNull ToolWindow toolWindow) {
+    public GitFlowToolWindowComp(@NotNull Project project, ToolWindow toolWindow) {
         Pair<String, String> pair = ConfigUtil.getKubesphereUser();
         usernameField.setText(pair.getFirst());
         passwordField.setText(pair.getSecond());
+
+        if (toolWindow == null) {
+            return;
+        }
 
         hideBtn.addActionListener(e -> toolWindow.hide());
         availableBtn.addActionListener(e -> toolWindow.setAvailable(false));

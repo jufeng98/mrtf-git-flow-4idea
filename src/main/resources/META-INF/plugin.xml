@@ -69,6 +69,8 @@
                     anchor="right"
                     doNotActivateOnStart="true"
                     id="GitflowPlus.toolWindow"/>
+
+        <typedHandler implementation="com.github.xiaolyuh.handler.GitFlowPlusTypedHandler"/>
     </extensions>
 
     <projectListeners>
@@ -144,5 +146,14 @@
             <action id="GitFlowPlus.HelpAction" class="com.github.xiaolyuh.action.HelpAction"
                     text="帮助" description="帮助" icon="/icons/help.svg"/>
         </group>
+
+        <action
+                id="GitFlowPlus.EditorIllustrationAction"
+                class="com.github.xiaolyuh.action.TranslateAction"
+                text="翻译"
+                description="翻译当前选择文本"
+                icon="/icons/actionGroupNew.svg">
+            <add-to-group group-id="EditorPopupMenu" anchor="first"/>
+        </action>
     </actions>
 </idea-plugin>

@@ -10,6 +10,7 @@ import com.intellij.openapi.util.IconLoader;
 import com.intellij.util.ReflectionUtil;
 import org.jetbrains.annotations.NotNull;
 
+import java.awt.event.InputEvent;
 import java.util.Objects;
 
 /**
@@ -30,9 +31,10 @@ public class HelpAction extends AnAction {
         event.getPresentation().setText(I18n.getContent(I18nKey.HELP_ACTION$TEXT));
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
-        if (true) {
+        if (event.getModifiers() == (InputEvent.ALT_MASK | InputEvent.BUTTON1_MASK)) {
             SampleDialog sampleDialog = new SampleDialog(event.getProject());
             sampleDialog.show();
             return;
@@ -40,4 +42,5 @@ public class HelpAction extends AnAction {
 
         BrowserUtil.browse("https://xiaolyuh.blog.csdn.net/article/details/105150446");
     }
+
 }

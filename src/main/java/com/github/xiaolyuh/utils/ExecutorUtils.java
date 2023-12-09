@@ -7,11 +7,16 @@ import com.intellij.openapi.project.Project;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class ExecutorUtils {
     public static ExecutorService executorService = Executors.newCachedThreadPool();
+
+    public static Future<?> addTask(Runnable runnable) {
+        return executorService.submit(runnable);
+    }
 
     public static void monitorBuildTask(String runsUrl, String id, String selectService, Project project) {
         executorService.submit(() -> {
