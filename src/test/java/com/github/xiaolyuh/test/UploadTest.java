@@ -1,7 +1,8 @@
 package com.github.xiaolyuh.test;
 
-import com.alibaba.fastjson.JSONObject;
 import com.github.xiaolyuh.test.utils.SftpClient;
+import com.github.xiaolyuh.utils.HttpClientUtil;
+import com.google.gson.JsonObject;
 import org.apache.commons.io.FileUtils;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -19,9 +20,9 @@ public class UploadTest {
         String configJsonStr = FileUtils.readFileToString(new File("C:\\Users\\Admin\\Documents\\java-config.json"),
                 StandardCharsets.UTF_8.name());
         System.out.println("config:" + configJsonStr);
-        JSONObject configJson = JSONObject.parseObject(configJsonStr).getJSONObject("ssoInfo");
-        SftpClient sftpClient = new SftpClient(configJson.getString("name"), configJson.getString("pwd"),
-                configJson.getString("ip"), configJson.getInteger("port"));
+        JsonObject configJson = HttpClientUtil.gson.fromJson(configJsonStr, JsonObject.class).getAsJsonObject("ssoInfo");
+        SftpClient sftpClient = new SftpClient(configJson.get("name").getAsString(), configJson.get("pwd").getAsString(),
+                configJson.get("ip").getAsString(), configJson.get("port").getAsInt());
         String name = "git-flow-plus-4idea.zip";
         try {
             sftpClient.connect();
