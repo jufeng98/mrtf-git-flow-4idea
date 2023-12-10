@@ -16,7 +16,7 @@ import java.util.Map;
 import static com.github.xiaolyuh.utils.ConfigUtil.PREFERENCES;
 
 /**
- * OkHttpClient工具
+ * HttpClient工具
  *
  * @author yuhao.wang3
  */
@@ -46,10 +46,8 @@ public class HttpClientUtil {
         String kubesphereToken = PREFERENCES.get("kubesphereToken", "");
         if (headers == null) {
             headers = Maps.newHashMap();
-            headers.put("Cookie", "token=" + kubesphereToken);
-        } else {
-            headers.put("Cookie", "token=" + kubesphereToken);
         }
+        headers.put("Cookie", "token=" + kubesphereToken);
         headers.put("Content-Type", "application/json");
         headers.put("Accept", "application/json");
         return postForObjectWithToken(url, reqBody, headers, clazz);
@@ -59,10 +57,8 @@ public class HttpClientUtil {
         String kubesphereToken = PREFERENCES.get("kubesphereToken", "");
         if (headers == null) {
             headers = Maps.newHashMap();
-            headers.put("Cookie", "token=" + kubesphereToken);
-        } else {
-            headers.put("Cookie", "token=" + kubesphereToken);
         }
+        headers.put("Cookie", "token=" + kubesphereToken);
         return postForObject(url, reqBody, headers, clazz);
     }
 
@@ -88,10 +84,8 @@ public class HttpClientUtil {
         String kubesphereToken = PREFERENCES.get("kubesphereToken", "");
         if (headers == null) {
             headers = Maps.newHashMap();
-            headers.put("Cookie", "token=" + kubesphereToken);
-        } else {
-            headers.put("Cookie", "token=" + kubesphereToken);
         }
+        headers.put("Cookie", "token=" + kubesphereToken);
         return getForObject(url, headers, clazz);
     }
 

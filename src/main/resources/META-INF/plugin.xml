@@ -71,6 +71,12 @@
                     id="GitflowPlus.toolWindow"/>
 
         <typedHandler implementation="com.github.xiaolyuh.handler.GitFlowPlusTypedHandler"/>
+
+        <projectConfigurable
+                parentId="tools"
+                instance="com.github.xiaolyuh.ui.AppSettingsConfigurable"
+                id="com.github.xiaolyuh.ui.AppSettingsConfigurable"
+                displayName="GitFlowPlus配置"/>
     </extensions>
 
     <projectListeners>

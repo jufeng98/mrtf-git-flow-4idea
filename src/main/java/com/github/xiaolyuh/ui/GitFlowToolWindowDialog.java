@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
-public class GitFlowToolWindowComp extends JComponent {
+public class GitFlowToolWindowDialog extends JComponent {
     private JTextField usernameField;
     private JPasswordField passwordField;
     private JPanel mainPanel;
@@ -18,7 +18,7 @@ public class GitFlowToolWindowComp extends JComponent {
     private JButton availableBtn;
     private JButton button1;
 
-    public GitFlowToolWindowComp(@NotNull Project project, ToolWindow toolWindow) {
+    public GitFlowToolWindowDialog(@NotNull Project project, ToolWindow toolWindow) {
         Pair<String, String> pair = ConfigUtil.getKubesphereUser();
         usernameField.setText(pair.getFirst());
         passwordField.setText(pair.getSecond());

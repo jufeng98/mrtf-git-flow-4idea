@@ -1,6 +1,7 @@
 package com.github.xiaolyuh.utils;
 
 import com.github.xiaolyuh.HttpException;
+import com.google.common.collect.Maps;
 import com.google.gson.JsonObject;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.StreamUtil;
@@ -91,7 +92,7 @@ public class KubesphereUtils {
     public static String loginByUrl(String kubesphereUsername, String kubespherePassword, Project project) {
         try {
             String reqBody = String.format("grant_type=password&username=%s&password=%s", kubesphereUsername, kubespherePassword);
-            Map<String, String> headers = new HashMap<>();
+            Map<String, String> headers = Maps.newHashMap();
             headers.put("Content-Type", "application/x-www-form-urlencoded");
             String url = "http://10.255.243.18:30219/oauth/token";
             JsonObject jsonObject = HttpClientUtil.postForObject(url, reqBody, headers, JsonObject.class);
@@ -103,7 +104,7 @@ public class KubesphereUtils {
         }
     }
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "ExtractMethodRecommender"})
     public static void loginByWsl(String kubesphereUsername, String kubespherePassword, Project project) {
         try {
             String[] cmd;
