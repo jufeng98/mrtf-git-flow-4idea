@@ -44,6 +44,7 @@
     <depends>com.intellij.modules.vcs</depends>
     <depends>com.intellij.tasks</depends>
     <depends>Git4Idea</depends>
+    <depends>com.intellij.java</depends>
 
     <idea-version since-build="212.*" until-build="232.*"/>
 
@@ -77,6 +78,15 @@
                 instance="com.github.xiaolyuh.ui.AppSettingsConfigurable"
                 id="com.github.xiaolyuh.ui.AppSettingsConfigurable"
                 displayName="GitFlowPlus配置"/>
+
+        <localInspection language="JAVA"
+                         groupPath="Java"
+                         groupBundle="messages.InspectionsBundle"
+                         groupKey="group.names.probable.bugs"
+                         enabledByDefault="true"
+                         level="ERROR"
+                         implementationClass="com.github.xiaolyuh.inspection.FieldNameInspection"
+                         displayName="GitFlowPlus检查"/>
     </extensions>
 
     <projectListeners>
@@ -84,6 +94,12 @@
                 class="com.github.xiaolyuh.listener.GitFlowPlusListener"
                 topic="com.intellij.openapi.project.ProjectManagerListener"/>
     </projectListeners>
+
+    <applicationListeners>
+        <listener
+                class="com.github.xiaolyuh.listener.FileEditorListener"
+                topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"/>
+    </applicationListeners>
 
     <actions>
         <!-- Add your actions here -->

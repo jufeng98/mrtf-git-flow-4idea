@@ -22,7 +22,7 @@ dependencies {
 intellij {
     version.set("2022.1.2")
     type.set("IC")
-    plugins.set(listOf("git4idea", "tasks"))
+    plugins.set(listOf("git4idea", "tasks", "com.intellij.java"))
     intellij.updateSinceUntilBuild.set(false)
 }
 

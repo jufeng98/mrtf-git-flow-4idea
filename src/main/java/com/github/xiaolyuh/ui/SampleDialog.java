@@ -15,8 +15,6 @@ import com.intellij.openapi.wm.ToolWindowManager;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -105,10 +103,10 @@ public class SampleDialog extends DialogWrapper {
                     MessageType.INFO, String.format("<div>%s</div>", String.join("<br/>", strings)));
         });
 
-        button1.addActionListener(e -> Messages.showInfoMessage(project, "这是说明啊","标题"));
+        button1.addActionListener(e -> Messages.showInfoMessage(project, "这是说明啊", "标题"));
 
         button2.addActionListener(e -> {
-
+            close(CLOSE_EXIT_CODE);
         });
     }
 
