@@ -1,7 +1,7 @@
 package com.github.xiaolyuh.ui;
 
-import com.github.xiaolyuh.GitFlowPlus;
-import com.github.xiaolyuh.InitOptions;
+import com.github.xiaolyuh.service.GitFlowPlus;
+import com.github.xiaolyuh.config.InitOptions;
 import com.github.xiaolyuh.utils.ConfigUtil;
 import com.github.xiaolyuh.utils.StringUtils;
 import com.github.xiaolyuh.vo.BranchVo;

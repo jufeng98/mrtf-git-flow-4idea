@@ -1,4 +1,4 @@
-package com.github.xiaolyuh;
+package com.github.xiaolyuh.vo;
 
 /**
  * @author yuhao.wang3

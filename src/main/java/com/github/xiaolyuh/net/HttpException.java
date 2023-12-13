@@ -1,4 +1,4 @@
-package com.github.xiaolyuh;
+package com.github.xiaolyuh.net;
 
 public class HttpException extends RuntimeException {
     private final int code;

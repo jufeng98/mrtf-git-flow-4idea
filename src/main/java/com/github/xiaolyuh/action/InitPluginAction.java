@@ -1,7 +1,7 @@
 package com.github.xiaolyuh.action;
 
-import com.github.xiaolyuh.GitFlowPlus;
-import com.github.xiaolyuh.InitOptions;
+import com.github.xiaolyuh.service.GitFlowPlus;
+import com.github.xiaolyuh.config.InitOptions;
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
 import com.github.xiaolyuh.ui.InitPluginDialog;

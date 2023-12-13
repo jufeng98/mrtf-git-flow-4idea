@@ -1,6 +1,6 @@
 package com.github.xiaolyuh.ui;
 
-import com.github.xiaolyuh.MergeRequestOptions;
+import com.github.xiaolyuh.vo.MergeRequestOptions;
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
 import com.github.xiaolyuh.utils.StringUtils;

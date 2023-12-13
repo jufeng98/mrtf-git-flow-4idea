@@ -1,4 +1,6 @@
-package com.github.xiaolyuh;
+package com.github.xiaolyuh.config;
+
+import com.github.xiaolyuh.enums.LanguageEnum;
 
 import java.util.Objects;
 

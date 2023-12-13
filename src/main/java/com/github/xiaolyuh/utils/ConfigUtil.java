@@ -1,7 +1,7 @@
 package com.github.xiaolyuh.utils;
 
-import com.github.xiaolyuh.Constants;
-import com.github.xiaolyuh.InitOptions;
+import com.github.xiaolyuh.consts.Constants;
+import com.github.xiaolyuh.config.InitOptions;
 import com.google.gson.JsonObject;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.diagnostic.Logger;

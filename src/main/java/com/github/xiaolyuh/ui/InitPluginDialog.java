@@ -1,7 +1,7 @@
 package com.github.xiaolyuh.ui;
 
-import com.github.xiaolyuh.InitOptions;
-import com.github.xiaolyuh.LanguageEnum;
+import com.github.xiaolyuh.config.InitOptions;
+import com.github.xiaolyuh.enums.LanguageEnum;
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
 import com.github.xiaolyuh.utils.ConfigUtil;

@@ -1,4 +1,4 @@
-package com.github.xiaolyuh;
+package com.github.xiaolyuh.enums;
 
 import java.util.ArrayList;
 import java.util.List;

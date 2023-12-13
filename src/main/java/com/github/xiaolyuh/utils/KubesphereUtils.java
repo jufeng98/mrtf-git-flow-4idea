@@ -1,6 +1,6 @@
 package com.github.xiaolyuh.utils;
 
-import com.github.xiaolyuh.HttpException;
+import com.github.xiaolyuh.net.HttpException;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonObject;
 import com.intellij.openapi.project.Project;

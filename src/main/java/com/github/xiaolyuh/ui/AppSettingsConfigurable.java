@@ -1,6 +1,6 @@
 package com.github.xiaolyuh.ui;
 
-import com.github.xiaolyuh.GitFlowPlus;
+import com.github.xiaolyuh.service.GitFlowPlus;
 import com.github.xiaolyuh.utils.ConfigUtil;
 import com.intellij.openapi.options.Configurable;
 import kotlin.Pair;

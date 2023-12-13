@@ -1,5 +1,6 @@
-package com.github.xiaolyuh;
+package com.github.xiaolyuh.service;
 
+import com.github.xiaolyuh.vo.MergeRequestOptions;
 import com.intellij.openapi.application.ApplicationManager;
 import git4idea.commands.GitCommandResult;
 import git4idea.commands.GitLineHandlerListener;

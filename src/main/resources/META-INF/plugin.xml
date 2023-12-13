@@ -50,12 +50,12 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
-        <applicationService serviceInterface="com.github.xiaolyuh.GitFlowPlus"
-                            serviceImplementation="com.github.xiaolyuh.GitFlowPlusImpl"/>
+        <applicationService serviceInterface="com.github.xiaolyuh.service.GitFlowPlus"
+                            serviceImplementation="com.github.xiaolyuh.service.impl.GitFlowPlusImpl"/>
 
         <!-- Add your extensions here -->
-        <applicationService serviceInterface="com.github.xiaolyuh.Git"
-                            serviceImplementation="com.github.xiaolyuh.GitImpl"/>
+        <applicationService serviceInterface="com.github.xiaolyuh.service.Git"
+                            serviceImplementation="com.github.xiaolyuh.service.impl.GitImpl"/>
 
         <notificationGroup id="GitflowPlus.STICKY_BALLOON"
                            isLogByDefault="true"

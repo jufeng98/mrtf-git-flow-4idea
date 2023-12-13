@@ -1,6 +1,6 @@
 package com.github.xiaolyuh.action;
 
-import com.github.xiaolyuh.GitNewBranchNameValidator;
+import com.github.xiaolyuh.validator.GitNewBranchNameValidator;
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
 import com.github.xiaolyuh.utils.ConfigUtil;

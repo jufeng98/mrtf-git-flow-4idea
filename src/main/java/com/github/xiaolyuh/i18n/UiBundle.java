@@ -1,6 +1,6 @@
 package com.github.xiaolyuh.i18n;
 
-import com.github.xiaolyuh.LanguageEnum;
+import com.github.xiaolyuh.enums.LanguageEnum;
 import com.github.xiaolyuh.utils.ConfigUtil;
 import com.intellij.BundleBase;
 import com.intellij.ide.impl.ProjectUtil;

@@ -1,7 +1,7 @@
 package com.github.xiaolyuh.ui;
 
-import com.github.xiaolyuh.GitFlowPlus;
-import com.github.xiaolyuh.TagOptions;
+import com.github.xiaolyuh.service.GitFlowPlus;
+import com.github.xiaolyuh.vo.TagOptions;
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
 import com.github.xiaolyuh.utils.GitBranchUtil;

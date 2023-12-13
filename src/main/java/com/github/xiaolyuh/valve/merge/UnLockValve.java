@@ -1,6 +1,6 @@
 package com.github.xiaolyuh.valve.merge;
 
-import com.github.xiaolyuh.TagOptions;
+import com.github.xiaolyuh.vo.TagOptions;
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
 import com.github.xiaolyuh.utils.NotifyUtil;
