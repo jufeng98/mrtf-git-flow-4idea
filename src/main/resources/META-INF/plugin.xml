@@ -81,12 +81,12 @@
 
         <localInspection language="JAVA"
                          groupPath="Java"
-                         groupBundle="messages.InspectionsBundle"
-                         groupKey="group.names.probable.bugs"
+                         groupBundle="messages.ui"
+                         groupKey="inspection.group.names.gitflowplus"
                          enabledByDefault="true"
-                         level="ERROR"
+                         level="WARNING"
                          implementationClass="com.github.xiaolyuh.inspection.FieldNameInspection"
-                         displayName="GitFlowPlus检查"/>
+                         displayName="字段名不能以下划线开头"/>
     </extensions>
 
     <projectListeners>

@@ -1,5 +1,6 @@
 package com.github.xiaolyuh.inspection;
 
+import com.github.xiaolyuh.i18n.UiBundle;
 import com.intellij.codeInspection.AbstractBaseJavaLocalInspectionTool;
 import com.intellij.codeInspection.LocalQuickFix;
 import com.intellij.codeInspection.ProblemDescriptor;
@@ -15,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class FieldNameInspection extends AbstractBaseJavaLocalInspectionTool {
     private final RemoveUnderlineStartFix fix = new RemoveUnderlineStartFix();
+    private static final String UNDERLINE = "_";
 
     @Override
     public @NotNull PsiElementVisitor buildVisitor(@NotNull ProblemsHolder holder, boolean isOnTheFly) {
@@ -22,8 +24,8 @@ public class FieldNameInspection extends AbstractBaseJavaLocalInspectionTool {
             @Override
             public void visitField(PsiField field) {
                 String name = field.getName();
-                if (name.startsWith("_")) {
-                    holder.registerProblem(field, "", fix);
+                if (name.startsWith(UNDERLINE)) {
+                    holder.registerProblem(field, UiBundle.message("inspection.group.names.gitflowplus.fieldname.desc"), fix);
                 }
             }
         };
@@ -33,7 +35,7 @@ public class FieldNameInspection extends AbstractBaseJavaLocalInspectionTool {
         @NotNull
         @Override
         public String getName() {
-            return "去掉下划线";
+            return UiBundle.message("inspection.group.names.gitflowplus.fieldname");
         }
 
         @Override
@@ -45,8 +47,27 @@ public class FieldNameInspection extends AbstractBaseJavaLocalInspectionTool {
         public void applyFix(@NotNull Project project, @NotNull ProblemDescriptor descriptor) {
             PsiField psiField = (PsiField) descriptor.getPsiElement();
             RefactoringFactory factory = RefactoringFactory.getInstance(project);
-            RenameRefactoring rename = factory.createRename(psiField, psiField.getName().replace("_", ""));
+            String newFieldName = getNewFieldName(psiField.getName());
+            RenameRefactoring rename = factory.createRename(psiField, newFieldName);
             rename.run();
+        }
+
+        @Override
+        public boolean startInWriteAction() {
+            return false;
+        }
+
+        private String getNewFieldName(String fieldName) {
+            char[] charArray = fieldName.toCharArray();
+            int index = 0;
+            for (int i = 0; i < charArray.length; i++) {
+                char c = charArray[i];
+                if (c != UNDERLINE.charAt(0)) {
+                    index = i;
+                    break;
+                }
+            }
+            return fieldName.substring(index);
         }
     }
 }
