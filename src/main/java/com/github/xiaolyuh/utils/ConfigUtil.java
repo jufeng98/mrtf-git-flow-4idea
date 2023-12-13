@@ -27,12 +27,24 @@ import java.util.prefs.Preferences;
  */
 public class ConfigUtil {
     private static final Logger LOG = Logger.getInstance(ConfigUtil.class);
-
-    public static Preferences PREFERENCES = Preferences.userRoot().node("com.github.xiaolyuh");
+    private static final Preferences PREFERENCES = Preferences.userRoot().node("com.github.xiaolyuh");
     private static final Map<String, InitOptions> map = new ConcurrentHashMap<>();
 
     public static Pair<String, String> getKubesphereUser() {
         return new Pair<>(PREFERENCES.get("kubesphereUsername", ""), PREFERENCES.get("kubespherePassword", ""));
+    }
+
+    public static void saveKubesphereUser(String name, String pwd) {
+        PREFERENCES.put("kubesphereUsername", name);
+        PREFERENCES.put("kubespherePassword", pwd);
+    }
+
+    public static String getKubesphereToken() {
+        return PREFERENCES.get("kubesphereToken", "");
+    }
+
+    public static void saveKubesphereToken(String token) {
+        PREFERENCES.put("kubesphereToken", token);
     }
 
     /**
@@ -72,11 +84,21 @@ public class ConfigUtil {
      * @return boolean 已初始化返回true，否则返回false
      */
     public static boolean isInit(Project project) {
-        if (Objects.isNull(project)) {
-            return false;
+        return getConfig(project).isPresent();
+    }
+
+    public static void tryInitConfig(Project project) {
+        InitOptions options = getFromProjectConfigFile(project);
+        if (Objects.isNull(options)) {
+            options = getFromProjectWorkspace(project);
         }
 
-        return getConfig(project).isPresent();
+        if (Objects.nonNull(options)) {
+            Pair<String, String> pair = getKubesphereUser();
+            options.setKubesphereUsername(pair.getFirst());
+            options.setKubespherePassword(pair.getSecond());
+            map.put(project.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME, options);
+        }
     }
 
     public static @NotNull InitOptions getInitOptions(Project project) {
@@ -91,20 +113,7 @@ public class ConfigUtil {
      */
     public static Optional<InitOptions> getConfig(@NotNull Project project) {
         InitOptions initOptions = map.get(project.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME);
-        if (initOptions != null) {
-            return Optional.of(initOptions);
-        }
-
-        InitOptions options = getConfigToFile(project);
-        if (Objects.isNull(options)) {
-            options = getConfigToLocal(project);
-        }
-        if (Objects.nonNull(options)) {
-            options.setKubesphereUsername(PREFERENCES.get("kubesphereUsername", ""));
-            options.setKubespherePassword(PREFERENCES.get("kubespherePassword", ""));
-            map.put(project.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME, options);
-        }
-        return Optional.ofNullable(options);
+        return Optional.ofNullable(initOptions);
     }
 
     /**
@@ -113,7 +122,7 @@ public class ConfigUtil {
      * @param project project
      * @return InitOptions
      */
-    private static InitOptions getConfigToLocal(@NotNull Project project) {
+    private static InitOptions getFromProjectWorkspace(@NotNull Project project) {
         PropertiesComponent component = PropertiesComponent.getInstance(project);
         String key = Constants.KEY_PREFIX + project.getName();
         String json = component.getValue(key);
@@ -130,7 +139,7 @@ public class ConfigUtil {
      * @param project project
      * @return InitOptions
      */
-    private static InitOptions getConfigToFile(Project project) {
+    private static InitOptions getFromProjectConfigFile(Project project) {
         String filePath = project.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME;
         try {
             File file = new File(filePath);

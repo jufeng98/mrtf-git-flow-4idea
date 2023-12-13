@@ -31,7 +31,7 @@ public class UnLockCheckValve extends Valve {
         String email = gitFlowPlus.getUserEmail(repository);
         // 校验操作人
         if (!lastCommitMsg.contains(email)) {
-            NotifyUtil.notifyError(project, "Error", String.format(I18n.getContent(I18nKey.LOCK_VALVE$LOCKED), lastCommitMsg));
+            NotifyUtil.notifyError(project, "Error", I18n.getContent(I18nKey.LOCK_VALVE$LOCKED, lastCommitMsg));
             return false;
         }
 

@@ -27,7 +27,6 @@ public class HelpAction extends AnAction {
     @Override
     public void update(@NotNull AnActionEvent event) {
         super.update(event);
-        I18n.init(event.getProject());
         event.getPresentation().setText(I18n.getContent(I18nKey.HELP_ACTION$TEXT));
     }
 

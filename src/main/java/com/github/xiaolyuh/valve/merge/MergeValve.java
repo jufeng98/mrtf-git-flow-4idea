@@ -31,7 +31,7 @@ public class MergeValve extends Valve {
         if (result.success()) {
             String releaseBranch = ReadAction.compute(() -> ConfigUtil.getInitOptions(project).getReleaseBranch());
             String source = Objects.nonNull(tagOptions) ? releaseBranch : sourceBranch;
-            NotifyUtil.notifySuccess(project, "Success", String.format(I18n.getContent(I18nKey.MERGE_VALVE$MERGE_SUCCESS), source, targetBranch));
+            NotifyUtil.notifySuccess(project, "Success", I18n.getContent(I18nKey.MERGE_VALVE$MERGE_SUCCESS, source, targetBranch));
             return true;
         }
 

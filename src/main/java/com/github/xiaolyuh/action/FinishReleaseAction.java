@@ -49,7 +49,7 @@ public class FinishReleaseAction extends AbstractMergeAction {
     @Override
     protected String getDialogContent(Project project, boolean isStartTest) {
         String release = ConfigUtil.getInitOptions(project).getReleaseBranch();
-        return String.format(I18n.getContent(I18nKey.MERGE_BRANCH_MSG), release, getTargetBranch(project), "");
+        return I18n.getContent(I18nKey.MERGE_BRANCH_MSG, release, getTargetBranch(project), "");
     }
 
     @Override
@@ -65,7 +65,7 @@ public class FinishReleaseAction extends AbstractMergeAction {
     @Override
     protected String getTaskTitle(Project project) {
         String release = ConfigUtil.getInitOptions(project).getReleaseBranch();
-        return String.format(I18n.getContent(I18nKey.MERGE_BRANCH_TASK_TITLE), release, getTargetBranch(project));
+        return I18n.getContent(I18nKey.MERGE_BRANCH_TASK_TITLE, release, getTargetBranch(project));
     }
 
     @Override

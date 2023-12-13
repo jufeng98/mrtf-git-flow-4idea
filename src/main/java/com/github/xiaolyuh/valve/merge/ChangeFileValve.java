@@ -31,7 +31,7 @@ public class ChangeFileValve extends Valve {
         if (CollectionUtils.isNotEmpty(changes)) {
             StringBuffer builder = new StringBuffer();
             changes.parallelStream().forEach(change -> builder.append(change.toString()).append("\r\n"));
-            NotifyUtil.notifyError(project, "Error", String.format(I18n.getContent(I18nKey.CHANGE_FILE_VALVE$FILE_NOT_SUBMITTED) + ":\r\n %s", builder));
+            NotifyUtil.notifyError(project, "Error", I18n.getContent(I18nKey.CHANGE_FILE_VALVE$FILE_NOT_SUBMITTED, builder));
             return false;
         }
         return true;

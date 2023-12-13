@@ -25,7 +25,7 @@ public class LockValve extends Valve {
     public boolean invoke(Project project, GitRepository repository, String sourceBranch, String targetBranch, TagOptions tagOptions) {
         if (!gitFlowPlus.lock(repository, sourceBranch)) {
             String msg = gitFlowPlus.getRemoteLastCommit(repository, Constants.LOCK_BRANCH_NAME);
-            NotifyUtil.notifyError(project, "Error", String.format(I18n.getContent(I18nKey.LOCK_VALVE$LOCKED), msg));
+            NotifyUtil.notifyError(project, "Error", I18n.getContent(I18nKey.LOCK_VALVE$LOCKED, msg));
             return false;
         }
         return true;

@@ -2,21 +2,22 @@ package com.github.xiaolyuh;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * @author yuhao.wang3
  * @since 2020/4/7 20:20
  */
 public enum LanguageEnum {
-    CN("中文", "language_cn.properties"),
-    EN("English", "language_en.properties");
+    CN("中文", Locale.CHINESE),
+    EN("English", Locale.ENGLISH);
 
     private final String language;
-    private final String file;
+    private final Locale locale;
 
-    LanguageEnum(String language, String file) {
+    LanguageEnum(String language, Locale locale) {
         this.language = language;
-        this.file = file;
+        this.locale = locale;
     }
 
     public static LanguageEnum getByLanguage(String language) {
@@ -28,13 +29,8 @@ public enum LanguageEnum {
         return CN;
     }
 
-    public static String getByLanguageFile(String language) {
-        for (LanguageEnum anEnum : values()) {
-            if (anEnum.getLanguage().equals(language)) {
-                return anEnum.getFile();
-            }
-        }
-        return CN.getFile();
+    public Locale getLocale() {
+        return locale;
     }
 
     public static List<String> getAllLanguage() {
@@ -49,6 +45,4 @@ public enum LanguageEnum {
         return language;
     }
 
-    public String getFile() {
-        return file;
-    }}
+}

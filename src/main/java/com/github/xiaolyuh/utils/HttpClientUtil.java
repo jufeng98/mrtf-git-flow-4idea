@@ -13,8 +13,6 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Map;
 
-import static com.github.xiaolyuh.utils.ConfigUtil.PREFERENCES;
-
 /**
  * HttpClient工具
  *
@@ -43,7 +41,7 @@ public class HttpClientUtil {
     }
 
     public static <T> T postJsonForObjectWithToken(String url, String reqBody, Map<String, String> headers, Class<T> clazz) {
-        String kubesphereToken = PREFERENCES.get("kubesphereToken", "");
+        String kubesphereToken = ConfigUtil.getKubesphereToken();
         if (headers == null) {
             headers = Maps.newHashMap();
         }
@@ -54,7 +52,7 @@ public class HttpClientUtil {
     }
 
     public static <T> T postForObjectWithToken(String url, String reqBody, Map<String, String> headers, Class<T> clazz) {
-        String kubesphereToken = PREFERENCES.get("kubesphereToken", "");
+        String kubesphereToken = ConfigUtil.getKubesphereToken();
         if (headers == null) {
             headers = Maps.newHashMap();
         }
@@ -81,7 +79,7 @@ public class HttpClientUtil {
     }
 
     public static <T> T getForObjectWithToken(String url, Map<String, String> headers, Class<T> clazz) {
-        String kubesphereToken = PREFERENCES.get("kubesphereToken", "");
+        String kubesphereToken = ConfigUtil.getKubesphereToken();
         if (headers == null) {
             headers = Maps.newHashMap();
         }

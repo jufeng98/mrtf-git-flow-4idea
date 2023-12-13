@@ -15,7 +15,6 @@ public class GitResolveConflictsAction extends git4idea.actions.GitResolveConfli
     @Override
     public void update(@NotNull AnActionEvent event) {
         super.update(event);
-        I18n.init(event.getProject());
         event.getPresentation().setText(I18n.getContent(I18nKey.GIT_RESOLVE_CONFLICTS_ACTION$TEXT));
     }
 }

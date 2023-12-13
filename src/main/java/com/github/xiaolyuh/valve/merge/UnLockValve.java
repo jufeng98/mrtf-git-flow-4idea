@@ -30,7 +30,7 @@ public class UnLockValve extends Valve {
             return true;
         }
 
-        NotifyUtil.notifyError(repository.getProject(), "Error", String.format(I18n.getContent(I18nKey.UN_LOCK_VALVE$UN_LOCKED_ERROR) + ":%s", result.getErrorOutputAsJoinedString()));
+        NotifyUtil.notifyError(repository.getProject(), "Error", I18n.getContent(I18nKey.UN_LOCK_VALVE$UN_LOCKED_ERROR, result.getErrorOutputAsJoinedString()));
         return false;
     }
 }

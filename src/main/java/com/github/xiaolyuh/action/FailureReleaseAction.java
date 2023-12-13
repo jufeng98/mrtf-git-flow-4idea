@@ -48,13 +48,13 @@ public class FailureReleaseAction extends AbstractMergeAction {
     @Override
     protected String getDialogContent(Project project, boolean isStartTest) {
         String release = ConfigUtil.getInitOptions(project).getReleaseBranch();
-        return String.format(I18n.getContent(I18nKey.FAILURE_RELEASE_ACTION$DIALOG_CONTENT), release, "");
+        return I18n.getContent(I18nKey.FAILURE_RELEASE_ACTION$DIALOG_CONTENT,release);
     }
 
     @Override
     protected String getTaskTitle(Project project) {
         String release = ConfigUtil.getInitOptions(project).getReleaseBranch();
-        return String.format(I18n.getContent(I18nKey.FAILURE_RELEASE_ACTION$TASK_TITLE), release);
+        return I18n.getContent(I18nKey.FAILURE_RELEASE_ACTION$TASK_TITLE, release);
     }
 
     @Override

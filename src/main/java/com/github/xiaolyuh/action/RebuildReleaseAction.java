@@ -40,7 +40,7 @@ public class RebuildReleaseAction extends AbstractNewBranchAction {
     public String getInputString(Project project) {
         String release = ConfigUtil.getInitOptions(project).getReleaseBranch();
         int flag = Messages.showOkCancelDialog(project,
-                String.format(I18n.getContent(I18nKey.REBUILD_RELEASE_ACTION$DIALOG_MESSAGE), release, release),
+                I18n.getContent(I18nKey.REBUILD_RELEASE_ACTION$DIALOG_MESSAGE, release, release),
                 I18n.getContent(I18nKey.REBUILD_RELEASE_ACTION$DIALOG_TITLE),
                 I18n.getContent(I18nKey.OK_TEXT), I18n.getContent(I18nKey.CANCEL_TEXT),
                 IconLoader.getIcon("/icons/warning.svg", Objects.requireNonNull(ReflectionUtil.getGrandCallerClass())));

@@ -51,7 +51,7 @@ public final class GitNewBranchNameValidator implements InputValidatorEx {
 
     private boolean isNotPermitted(@NotNull String inputString) {
         if (inputString.equalsIgnoreCase("head")) {
-            myErrorText = String.format(I18n.getContent(I18nKey.BRANCH_VALIDATOR$NOT_PERMITTED), inputString);
+            myErrorText = I18n.getContent(I18nKey.BRANCH_VALIDATOR$NOT_PERMITTED, inputString);
             return true;
         }
         return false;
@@ -85,7 +85,7 @@ public final class GitNewBranchNameValidator implements InputValidatorEx {
             }
         }
         if (conflictsWithCurrentName == myRepositories.size()) {
-            myErrorText = String.format(I18n.getContent(I18nKey.BRANCH_VALIDATOR$CURRENT_BRANCH), inputString);
+            myErrorText = I18n.getContent(I18nKey.BRANCH_VALIDATOR$CURRENT_BRANCH, inputString);
             return true;
         }
         return false;

@@ -8,8 +8,6 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 
-import static com.github.xiaolyuh.utils.ConfigUtil.PREFERENCES;
-
 public class AppSettingsConfigurable implements Configurable {
     private KubesphereDialog kubesphereDialog;
 
@@ -39,7 +37,6 @@ public class AppSettingsConfigurable implements Configurable {
     @Override
     public void apply() {
         Pair<String, String> curPair = kubesphereDialog.getCurKubesphereUser();
-        PREFERENCES.put("kubesphereUsername", curPair.getFirst());
-        PREFERENCES.put("kubespherePassword", curPair.getSecond());
+        ConfigUtil.saveKubesphereUser(curPair.getFirst(), curPair.getSecond());
     }
 }

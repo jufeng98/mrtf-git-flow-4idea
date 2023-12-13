@@ -10,8 +10,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.github.xiaolyuh.utils.ConfigUtil.PREFERENCES;
-
 public class KubesphereUtils {
 
     public static void triggerPipeline(String selectService, Project project) {
@@ -26,12 +24,12 @@ public class KubesphereUtils {
             return;
         }
 
-        String kubesphereToken = PREFERENCES.get("kubesphereToken", "");
+        String kubesphereToken = ConfigUtil.getKubesphereToken();
         if (StringUtils.isBlank(kubesphereToken)) {
             loginAndSaveToken(project);
         }
 
-        kubesphereToken = PREFERENCES.get("kubesphereToken", "");
+        kubesphereToken = ConfigUtil.getKubesphereToken();
         if (StringUtils.isBlank(kubesphereToken)) {
             NotifyUtil.notifyError(project, "请先配置Kubesphere用户信息");
             return;
@@ -79,14 +77,14 @@ public class KubesphereUtils {
     }
 
     public static void loginAndSaveToken(Project project) {
-        String kubesphereUsername = PREFERENCES.get("kubesphereUsername", "");
+        String kubesphereUsername = ConfigUtil.getKubesphereToken();
         if (StringUtils.isBlank(kubesphereUsername)) {
             NotifyUtil.notifyError(project, "温馨提示", "未配置Kubesphere用户信息");
             return;
         }
-        String kubespherePassword = PREFERENCES.get("kubespherePassword", "");
+        String kubespherePassword = ConfigUtil.getKubesphereToken();
         String accessToken = loginByUrl(kubesphereUsername, kubespherePassword, project);
-        PREFERENCES.put("kubesphereToken", accessToken);
+        ConfigUtil.saveKubesphereToken(accessToken);
     }
 
     public static String loginByUrl(String kubesphereUsername, String kubespherePassword, Project project) {
@@ -120,7 +118,7 @@ public class KubesphereUtils {
             for (String line : split) {
                 if (line.startsWith("Set-Cookie: token=")) {
                     String token = line.replace("Set-Cookie: token=", "").split(";")[0];
-                    PREFERENCES.put("kubesphereToken", token);
+                    ConfigUtil.saveKubesphereToken(token);
                     NotifyUtil.notifyInfo(project, "成功登录Kubesphere,Token:" + token);
                     break;
                 }

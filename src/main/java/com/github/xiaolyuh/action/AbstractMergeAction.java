@@ -49,7 +49,6 @@ public abstract class AbstractMergeAction extends AnAction {
     @Override
     public void update(@NotNull AnActionEvent event) {
         super.update(event);
-        I18n.init(event.getProject());
         if (Objects.isNull(event.getProject())) {
             event.getPresentation().setEnabled(false);
             return;
@@ -98,8 +97,7 @@ public abstract class AbstractMergeAction extends AnAction {
 
     void actionPerformed(@NotNull AnActionEvent event, TagOptions tagOptions) {
         final Project project = event.getProject();
-        @SuppressWarnings("ConstantConditions")
-        final String currentBranch = gitFlowPlus.getCurrentBranch(project);
+        @SuppressWarnings("ConstantConditions") final String currentBranch = gitFlowPlus.getCurrentBranch(project);
         final String targetBranch = getTargetBranch(project);
         final boolean isStartTest = this.getClass() == StartTestAction.class;
 
@@ -168,12 +166,12 @@ public abstract class AbstractMergeAction extends AnAction {
     /**
      * 获取弹框内容
      *
-     * @param project     project
+     * @param project project
      * @return String
      */
     protected String getDialogContent(Project project, boolean isStartTest) {
         String other = isStartTest ? I18n.getContent(I18nKey.MERGE_BRANCH_MSG_OTHER) : "";
-        return String.format(I18n.getContent(I18nKey.MERGE_BRANCH_MSG), gitFlowPlus.getCurrentBranch(project),
+        return I18n.getContent(I18nKey.MERGE_BRANCH_MSG, gitFlowPlus.getCurrentBranch(project),
                 getTargetBranch(project), other);
     }
 

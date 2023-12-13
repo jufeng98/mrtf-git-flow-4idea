@@ -24,8 +24,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Objects;
 
-import static com.github.xiaolyuh.utils.ConfigUtil.PREFERENCES;
-
 /**
  * 初始化Action
  *
@@ -43,7 +41,6 @@ public class InitPluginAction extends AnAction {
     @Override
     public void update(@NotNull AnActionEvent event) {
         super.update(event);
-        I18n.init(event.getProject());
         event.getPresentation().setEnabledAndVisible(GitBranchUtil.isGitProject(event.getProject()));
 
         event.getPresentation().setText(ConfigUtil.isInit(event.getProject())
@@ -53,8 +50,7 @@ public class InitPluginAction extends AnAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
         final Project project = event.getProject();
-        @SuppressWarnings("ConstantConditions")
-        final GitRepository repository = GitBranchUtil.getCurrentRepository(project);
+        @SuppressWarnings("ConstantConditions") final GitRepository repository = GitBranchUtil.getCurrentRepository(project);
         if (Objects.isNull(repository)) {
             return;
         }
@@ -74,7 +70,7 @@ public class InitPluginAction extends AnAction {
                     // 校验主干分支是否存在
                     List<String> remoteBranches = GitBranchUtil.getRemoteBranches(project);
                     if (!remoteBranches.contains(initOptions.getMasterBranch())) {
-                        NotifyUtil.notifyError(myProject, "Error", String.format(I18n.getContent(I18nKey.INIT_PLUGIN_ACTION$NOT_EXIST_MASTER_INFO), initOptions.getMasterBranch()));
+                        NotifyUtil.notifyError(myProject, "Error", I18n.getContent(I18nKey.INIT_PLUGIN_ACTION$NOT_EXIST_MASTER_INFO, initOptions.getMasterBranch()));
                         return;
                     }
 
@@ -82,9 +78,9 @@ public class InitPluginAction extends AnAction {
                     if (!remoteBranches.contains(initOptions.getTestBranch())) {
                         GitCommandResult result = gitFlowPlus.newNewBranchBaseRemoteMaster(repository, initOptions.getMasterBranch(), initOptions.getTestBranch());
                         if (result.success()) {
-                            NotifyUtil.notifySuccess(myProject, "Success", String.format(I18n.getContent(I18nKey.NEW_BRANCH_SUCCESS), initOptions.getMasterBranch(), initOptions.getTestBranch()));
+                            NotifyUtil.notifySuccess(myProject, "Success", I18n.getContent(I18nKey.NEW_BRANCH_SUCCESS, initOptions.getMasterBranch(), initOptions.getTestBranch()));
                         } else {
-                            NotifyUtil.notifyError(myProject, "Error", String.format(I18n.getContent(I18nKey.INIT_PLUGIN_ACTION$INIT_FAILURE), result.getErrorOutputAsJoinedString()));
+                            NotifyUtil.notifyError(myProject, "Error", I18n.getContent(I18nKey.INIT_PLUGIN_ACTION$INIT_FAILURE, result.getErrorOutputAsJoinedString()));
                             return;
                         }
                     }
@@ -94,20 +90,21 @@ public class InitPluginAction extends AnAction {
                         // 新建分支发布分支
                         GitCommandResult result = gitFlowPlus.newNewBranchBaseRemoteMaster(repository, initOptions.getMasterBranch(), initOptions.getReleaseBranch());
                         if (result.success()) {
-                            NotifyUtil.notifySuccess(myProject, "Success", String.format(I18n.getContent(I18nKey.NEW_BRANCH_SUCCESS), initOptions.getMasterBranch(), initOptions.getReleaseBranch()));
+                            NotifyUtil.notifySuccess(myProject, "Success", I18n.getContent(I18nKey.NEW_BRANCH_SUCCESS, initOptions.getMasterBranch(), initOptions.getReleaseBranch()));
                         } else {
-                            NotifyUtil.notifyError(myProject, "Error", String.format(I18n.getContent(I18nKey.INIT_PLUGIN_ACTION$INIT_FAILURE), result.getErrorOutputAsJoinedString()));
+                            NotifyUtil.notifyError(myProject, "Error", I18n.getContent(I18nKey.INIT_PLUGIN_ACTION$INIT_FAILURE, result.getErrorOutputAsJoinedString()));
                             return;
                         }
                     }
 
-                    PREFERENCES.put("kubesphereUsername", initOptions.getKubesphereUsername());
-                    PREFERENCES.put("kubespherePassword", initOptions.getKubespherePassword());
+                    ConfigUtil.saveKubesphereUser(initOptions.getKubesphereUsername(), initOptions.getKubespherePassword());
 
                     // 存储配置
                     String configJson = HttpClientUtil.gson.toJson(initOptions);
                     ConfigUtil.saveConfigToLocal(project, configJson);
                     ConfigUtil.saveConfigToFile(project, configJson);
+
+                    ConfigUtil.tryInitConfig(project);
 
                     // 将配置文件加入GIT管理
                     gitFlowPlus.addConfigToGit(repository);

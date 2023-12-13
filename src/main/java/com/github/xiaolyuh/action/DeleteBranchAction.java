@@ -39,7 +39,7 @@ public class DeleteBranchAction extends AbstractMergeAction {
         event.getPresentation().setText(I18n.getContent("DeleteBranchAction.text"));
     }
 
-    public void actionPerformed(AnActionEvent event) {
+    public void actionPerformed(@NotNull AnActionEvent event) {
         Project project = event.getProject();
         //noinspection DataFlowIssue
         GitRepository repository = GitBranchUtil.getCurrentRepository(project);
@@ -107,7 +107,7 @@ public class DeleteBranchAction extends AbstractMergeAction {
 
     protected String getTaskTitle(Project project) {
         String release = ConfigUtil.getInitOptions(project).getReleaseBranch();
-        return String.format(I18n.getContent("FailureReleaseAction.TaskTitle"), release);
+        return I18n.getContent("FailureReleaseAction.TaskTitle", release);
     }
 
     protected List<Valve> getValves() {

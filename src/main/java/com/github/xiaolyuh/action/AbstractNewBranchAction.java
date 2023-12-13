@@ -38,7 +38,6 @@ public abstract class AbstractNewBranchAction extends AnAction {
         super.update(event);
         Project project = event.getProject();
         event.getPresentation().setEnabled(GitBranchUtil.isGitProject(project) && ConfigUtil.isInit(project));
-        I18n.init(project);
         setEnabledAndText(event);
     }
 
@@ -80,7 +79,7 @@ public abstract class AbstractNewBranchAction extends AnAction {
                     GitCommandResult result = gitFlowPlus.deleteBranch(repository, master, newBranchName);
                     if (result.success()) {
                         NotifyUtil.notifySuccess(myProject, "Success",
-                                String.format(I18n.getContent(I18nKey.DELETE_BRANCH_SUCCESS), newBranchName));
+                                I18n.getContent(I18nKey.DELETE_BRANCH_SUCCESS, newBranchName));
                     } else {
                         NotifyUtil.notifyError(myProject, "Error",
                                 I18n.getContent(I18nKey.DELETE_BRANCH_ERROR) + "：" + result.getErrorOutputAsJoinedString());
@@ -91,7 +90,7 @@ public abstract class AbstractNewBranchAction extends AnAction {
                 GitCommandResult result = gitFlowPlus.newNewBranchBaseRemoteMaster(repository, master, newBranchName);
                 if (result.success()) {
                     NotifyUtil.notifySuccess(myProject, "Success",
-                            String.format(I18n.getContent(I18nKey.NEW_BRANCH_SUCCESS), master, newBranchName));
+                            I18n.getContent(I18nKey.NEW_BRANCH_SUCCESS, master, newBranchName));
                 } else {
                     NotifyUtil.notifyError(myProject, "Error", result.getErrorOutputAsJoinedString());
                 }

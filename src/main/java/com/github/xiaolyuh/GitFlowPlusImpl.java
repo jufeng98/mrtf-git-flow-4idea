@@ -295,7 +295,7 @@ public class GitFlowPlusImpl implements GitFlowPlus {
                 String url = String.format("https://oapi.dingtalk.com/robot/send?access_token=%s", dingtalkToken);
                 String msg = getRemoteLastCommit(repository, Constants.LOCK_BRANCH_NAME);
 
-                msg = String.format(I18n.getContent(I18nKey.THIRD_PARTY_NOTIFY), repository.getProject().getName(), msg);
+                msg = I18n.getContent(I18nKey.THIRD_PARTY_NOTIFY, repository.getProject().getName(), msg);
                 HttpClientUtil.postApplicationJson(url, new DingtalkMessage(msg), String.class);
             }
         } catch (Exception e) {
@@ -309,7 +309,7 @@ public class GitFlowPlusImpl implements GitFlowPlus {
         if (CollectionUtils.isNotEmpty(changes)) {
             StringBuffer builder = new StringBuffer();
             changes.parallelStream().forEach(change -> builder.append(change.toString()).append("\r\n"));
-            NotifyUtil.notifyError(project, "Error", String.format(I18n.getContent(I18nKey.CHANGE_FILE_VALVE$FILE_NOT_SUBMITTED) + ":\r\n %s", builder));
+            NotifyUtil.notifyError(project, "Error", I18n.getContent(I18nKey.CHANGE_FILE_VALVE$FILE_NOT_SUBMITTED, builder));
             return true;
         }
         return false;
@@ -397,7 +397,7 @@ public class GitFlowPlusImpl implements GitFlowPlus {
 
         @Override
         protected void notifyUnresolvedRemain() {
-            notifyWarning(I18n.getContent(I18nKey.MERGE_CONFLICT_TITLE), String.format(I18n.getContent(I18nKey.MERGE_CONFLICT_CONTENT), currentBranch, targetBranch));
+            notifyWarning(I18n.getContent(I18nKey.MERGE_CONFLICT_TITLE), I18n.getContent(I18nKey.MERGE_CONFLICT_CONTENT, currentBranch, targetBranch));
         }
     }
 

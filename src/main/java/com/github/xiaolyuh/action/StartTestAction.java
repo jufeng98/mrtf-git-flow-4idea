@@ -45,7 +45,7 @@ public class StartTestAction extends AbstractMergeAction {
 
     @Override
     protected String getTaskTitle(Project project) {
-        return String.format(I18n.getContent(I18nKey.MERGE_BRANCH_TASK_TITLE),
+        return I18n.getContent(I18nKey.MERGE_BRANCH_TASK_TITLE,
                 GitFlowPlus.getInstance().getCurrentBranch(project), getTargetBranch(project));
     }
 
