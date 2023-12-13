@@ -9,12 +9,9 @@ import com.github.xiaolyuh.valve.merge.MergeValve;
 import com.github.xiaolyuh.valve.merge.Valve;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.IconLoader;
-import com.intellij.util.ReflectionUtil;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * 提测
@@ -22,11 +19,6 @@ import java.util.Objects;
  * @author yuhao.wang3
  */
 public class StartTestAction extends AbstractMergeAction {
-
-    public StartTestAction() {
-        super("提测", "将当前开发分支合并到test分支", IconLoader.getIcon("/icons/mergeToTest.svg",
-                Objects.requireNonNull(ReflectionUtil.getGrandCallerClass())));
-    }
 
     @Override
     protected void setEnabledAndText(AnActionEvent event) {

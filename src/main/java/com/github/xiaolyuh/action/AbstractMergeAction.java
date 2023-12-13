@@ -25,9 +25,7 @@ import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.ReflectionUtil;
 import git4idea.repo.GitRepository;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -41,10 +39,6 @@ import static com.github.xiaolyuh.utils.KubesphereUtils.triggerPipeline;
  */
 public abstract class AbstractMergeAction extends AnAction {
     protected GitFlowPlus gitFlowPlus = GitFlowPlus.getInstance();
-
-    public AbstractMergeAction(@Nullable String text, @Nullable String description, @Nullable Icon icon) {
-        super(text, description, icon);
-    }
 
     @Override
     public void update(@NotNull AnActionEvent event) {

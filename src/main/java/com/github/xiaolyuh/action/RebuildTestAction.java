@@ -19,11 +19,6 @@ import java.util.Objects;
  */
 public class RebuildTestAction extends AbstractNewBranchAction {
 
-    public RebuildTestAction() {
-        super("重建测试分支", "重建测试分支，并推送到远程仓库，原来的分支将被删除",
-                IconLoader.getIcon("/icons/test.svg", Objects.requireNonNull(ReflectionUtil.getGrandCallerClass())));
-    }
-
     @Override
     protected void setEnabledAndText(AnActionEvent event) {
         event.getPresentation().setText(I18n.getContent(I18nKey.REBUILD_TEST_ACTION$TEXT));

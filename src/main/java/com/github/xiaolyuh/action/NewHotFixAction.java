@@ -16,10 +16,6 @@ import git4idea.GitUtil;
  */
 public class NewHotFixAction extends AbstractNewBranchAction {
 
-    public NewHotFixAction() {
-        super("新建修复分支","新建开发分支，并推送到远程仓库", null);
-    }
-
     @Override
     protected void setEnabledAndText(AnActionEvent event) {
         event.getPresentation().setText(I18n.getContent(I18nKey.NEW_HOT_FIX_ACTION$TEXT));

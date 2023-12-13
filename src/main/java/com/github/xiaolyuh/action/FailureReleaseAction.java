@@ -9,12 +9,9 @@ import com.github.xiaolyuh.valve.merge.UnLockValve;
 import com.github.xiaolyuh.valve.merge.Valve;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.IconLoader;
-import com.intellij.util.ReflectionUtil;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * 发布失败
@@ -22,10 +19,6 @@ import java.util.Objects;
  * @author yuhao.wang3
  */
 public class FailureReleaseAction extends AbstractMergeAction {
-
-    public FailureReleaseAction() {
-        super("发布失败", "解锁，这时新的开发分支可以合并到发布分支了", IconLoader.getIcon("/icons/failure.svg", Objects.requireNonNull(ReflectionUtil.getGrandCallerClass())));
-    }
 
     @Override
     protected void setEnabledAndText(AnActionEvent event) {

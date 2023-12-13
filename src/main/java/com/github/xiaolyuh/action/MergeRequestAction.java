@@ -15,9 +15,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.util.ReflectionUtil;
 import git4idea.commands.GitCommandResult;
 import git4idea.repo.GitRepository;
 import org.jetbrains.annotations.NotNull;
@@ -33,11 +31,6 @@ import java.util.Objects;
  */
 public class MergeRequestAction extends AbstractMergeAction {
     protected GitFlowPlus gitFlowPlus = GitFlowPlus.getInstance();
-
-    public MergeRequestAction() {
-        super("Merge Request", "发起 code review", IconLoader.getIcon("/icons/mergeToTest.svg",
-                Objects.requireNonNull(ReflectionUtil.getGrandCallerClass())));
-    }
 
     @Override
     protected void setEnabledAndText(AnActionEvent event) {

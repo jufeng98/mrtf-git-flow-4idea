@@ -4,15 +4,16 @@ import com.github.xiaolyuh.GitFlowPlus;
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
 import com.github.xiaolyuh.utils.ConfigUtil;
-import com.github.xiaolyuh.valve.merge.*;
+import com.github.xiaolyuh.valve.merge.ChangeFileValve;
+import com.github.xiaolyuh.valve.merge.LockValve;
+import com.github.xiaolyuh.valve.merge.MergeValve;
+import com.github.xiaolyuh.valve.merge.ReleaseLockNotifyValve;
+import com.github.xiaolyuh.valve.merge.Valve;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.IconLoader;
-import com.intellij.util.ReflectionUtil;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * 开始发布
@@ -20,11 +21,6 @@ import java.util.Objects;
  * @author yuhao.wang3
  */
 public class StartReleaseAction extends AbstractMergeAction {
-
-    public StartReleaseAction() {
-        super("开始发布", "将当前开发分支合并到发布分支，加锁，防止再有开发分支合并到发布分支",
-                IconLoader.getIcon("/icons/start.svg", Objects.requireNonNull(ReflectionUtil.getGrandCallerClass())));
-    }
 
     @Override
     protected void setEnabledAndText(AnActionEvent event) {

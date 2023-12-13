@@ -30,9 +30,6 @@ import java.util.stream.Collectors;
  * @author yudong
  */
 public class DeleteBranchAction extends AbstractMergeAction {
-    public DeleteBranchAction() {
-        super("删除分支", "批量删除无效分支", IconLoader.getIcon("/icons/delete.svg", DeleteBranchAction.class));
-    }
 
     protected void setEnabledAndText(AnActionEvent event) {
         event.getPresentation().setEnabled(true);

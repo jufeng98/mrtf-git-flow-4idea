@@ -18,10 +18,6 @@ import java.util.Objects;
  * @author yuhao.wang3
  */
 public class RebuildReleaseAction extends AbstractNewBranchAction {
-    public RebuildReleaseAction() {
-        super("重建发布分支", "重建发布分支，并推送到远程仓库，原来的分支将被删除",
-                IconLoader.getIcon("/icons/release.svg", Objects.requireNonNull(ReflectionUtil.getGrandCallerClass())));
-    }
 
     @Override
     protected void setEnabledAndText(AnActionEvent event) {

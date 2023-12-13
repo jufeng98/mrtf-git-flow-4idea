@@ -11,17 +11,11 @@ import org.jetbrains.annotations.NotNull;
  * @since 2020/4/8 18:27
  */
 public class RebuildActionGroup extends DefaultActionGroup {
-    public RebuildActionGroup() {
-        super("重建分支", true);
-    }
-
-    public RebuildActionGroup(String shortName, boolean popup) {
-        super(shortName, popup);
-    }
 
     @Override
     public void update(@NotNull AnActionEvent event) {
         super.update(event);
         event.getPresentation().setText(I18n.getContent(I18nKey.REBUILD_ACTION_GROUP$TEXT));
     }
+
 }

@@ -4,16 +4,17 @@ import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
 import com.github.xiaolyuh.ui.TagDialog;
 import com.github.xiaolyuh.utils.ConfigUtil;
-import com.github.xiaolyuh.valve.merge.*;
+import com.github.xiaolyuh.valve.merge.ChangeFileValve;
+import com.github.xiaolyuh.valve.merge.MergeValve;
+import com.github.xiaolyuh.valve.merge.UnLockCheckValve;
+import com.github.xiaolyuh.valve.merge.UnLockValve;
+import com.github.xiaolyuh.valve.merge.Valve;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.IconLoader;
-import com.intellij.util.ReflectionUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * 发布完成
@@ -21,11 +22,6 @@ import java.util.Objects;
  * @author yuhao.wang3
  */
 public class FinishReleaseAction extends AbstractMergeAction {
-
-    public FinishReleaseAction() {
-        super("发布完成", "解锁，并将发布分支合并到主干分支",
-                IconLoader.getIcon("/icons/finished.svg", Objects.requireNonNull(ReflectionUtil.getGrandCallerClass())));
-    }
 
     @Override
     protected void setEnabledAndText(AnActionEvent event) {

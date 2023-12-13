@@ -7,11 +7,7 @@ import com.github.xiaolyuh.utils.ConfigUtil;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.util.IconLoader;
-import com.intellij.util.ReflectionUtil;
 import git4idea.GitUtil;
-
-import java.util.Objects;
 
 /**
  * 新建开发分支
@@ -19,11 +15,6 @@ import java.util.Objects;
  * @author yuhao.wang3
  */
 public class NewFeatureAction extends AbstractNewBranchAction {
-
-    public NewFeatureAction() {
-        super("新建开发分支", "新建开发分支，并推送到远程仓库", IconLoader.getIcon("/icons/feature.svg",
-                Objects.requireNonNull(ReflectionUtil.getGrandCallerClass())));
-    }
 
     @Override
     protected void setEnabledAndText(AnActionEvent event) {

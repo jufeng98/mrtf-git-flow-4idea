@@ -16,9 +16,7 @@ import com.intellij.openapi.vfs.VirtualFileManager;
 import git4idea.commands.GitCommandResult;
 import git4idea.repo.GitRepository;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
 import java.util.Objects;
 
 /**
@@ -28,10 +26,6 @@ import java.util.Objects;
  */
 public abstract class AbstractNewBranchAction extends AnAction {
     GitFlowPlus gitFlowPlus = GitFlowPlus.getInstance();
-
-    public AbstractNewBranchAction(@Nullable String text, @Nullable String description, @Nullable Icon icon) {
-        super(text, description, icon);
-    }
 
     @Override
     public void update(@NotNull AnActionEvent event) {
