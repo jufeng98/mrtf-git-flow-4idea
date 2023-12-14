@@ -4,8 +4,12 @@ import com.github.xiaolyuh.net.HttpException;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.intellij.openapi.util.io.StreamUtil;
 
+import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URI;
+import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -110,6 +114,37 @@ public class HttpClientUtil {
             throw e;
         } catch (Exception e) {
             throw new RuntimeException(url, e);
+        }
+    }
+
+    public static <T> T getForObjectWithTokenUseUrl(String url, Map<String, String> headers, Class<T> clazz) {
+        String kubesphereToken = ConfigUtil.getKubesphereToken();
+        if (headers == null) {
+            headers = Maps.newHashMap();
+        }
+        headers.put("Cookie", "token=" + kubesphereToken);
+        return getForObjectUseUrl(url, headers, clazz);
+    }
+
+    public static <T> T getForObjectUseUrl(String url, Map<String, String> headers, Class<T> clazz) {
+        try {
+            HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+            connection.setRequestMethod("GET");
+            for (Map.Entry<String, String> stringStringEntry : headers.entrySet()) {
+                connection.setRequestProperty(stringStringEntry.getKey(), stringStringEntry.getValue());
+            }
+            connection.connect();
+            InputStream inputStream = connection.getInputStream();
+            byte[] bytes = StreamUtil.readBytes(inputStream);
+            inputStream.close();
+            String body = new String(bytes);
+            if (clazz == String.class) {
+                //noinspection unchecked
+                return (T) body;
+            }
+            return gson.fromJson(body, clazz);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 }
