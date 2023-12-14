@@ -84,6 +84,9 @@ public class ConfigUtil {
      * @return boolean 已初始化返回true，否则返回false
      */
     public static boolean isInit(Project project) {
+        if (project == null) {
+            return false;
+        }
         return getConfig(project).isPresent();
     }
 
