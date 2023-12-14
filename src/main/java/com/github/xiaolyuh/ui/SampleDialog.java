@@ -12,11 +12,20 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowId;
 import com.intellij.openapi.wm.ToolWindowManager;
+import com.intellij.psi.JavaPsiFacade;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.search.FilenameIndex;
+import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.psi.search.PsiShortNamesCache;
+import com.intellij.psi.search.searches.ClassInheritorsSearch;
+import com.intellij.util.Query;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -31,6 +40,8 @@ public class SampleDialog extends DialogWrapper {
     private JButton projectBtn;
     private JButton button1;
     private JButton button2;
+    private JButton findBtn;
+    private JButton btn3;
 
     public SampleDialog(@Nullable Project project) {
         super(true);
@@ -71,13 +82,10 @@ public class SampleDialog extends DialogWrapper {
                     MessageType.INFO, String.format("<div>%s</div>", String.join("<br/>", strings)));
         });
 
-        openPopupBtn.addActionListener((e) -> {
-            JBPopupFactory.getInstance()
-                    .createConfirmation("温馨提示", () -> {
-                        JBPopupFactory.getInstance().createMessage("你选择了OK").showInFocusCenter();
-                    }, 0)
-                    .showInFocusCenter();
-        });
+        openPopupBtn.addActionListener((e) -> JBPopupFactory.getInstance()
+                .createConfirmation("温馨提示", () ->
+                        JBPopupFactory.getInstance().createMessage("你选择了OK").showInFocusCenter(), 0)
+                .showInFocusCenter());
 
         openNotificationBtn.addActionListener((e) -> {
             NotifyUtil.notifySuccess(project, "这里是成功提示");
@@ -85,10 +93,9 @@ public class SampleDialog extends DialogWrapper {
             NotifyUtil.notifyInfo(project, "这里是消息提示");
         });
 
-        toolWindowBalloonBtn.addActionListener(e -> {
-            ToolWindowManager.getInstance(project).notifyByBalloon(ToolWindowId.VCS,
-                    MessageType.INFO, "<h2>这是Tool window balloon</h2>");
-        });
+        toolWindowBalloonBtn.addActionListener(e -> ToolWindowManager.getInstance(project)
+                .notifyByBalloon(ToolWindowId.VCS,
+                        MessageType.INFO, "<h2>这是Tool window balloon</h2>"));
 
         projectBtn.addActionListener(e -> {
             List<String> strings = new ArrayList<>();
@@ -106,7 +113,28 @@ public class SampleDialog extends DialogWrapper {
         button1.addActionListener(e -> Messages.showInfoMessage(project, "这是说明啊", "标题"));
 
         button2.addActionListener(e -> {
-            close(CLOSE_EXIT_CODE);
+            Collection<VirtualFile> files = FilenameIndex.getVirtualFilesByName("git-flow-project.json",
+                    GlobalSearchScope.projectScope(project));
+
+            ToolWindowManager.getInstance(project).notifyByBalloon(ToolWindowId.VCS,
+                    MessageType.INFO, String.format("<div>%s</div>", String.join("<br/>", files.toString())));
+        });
+        findBtn.addActionListener(e -> {
+            PsiClass aClass = JavaPsiFacade.getInstance(project).findClass("java.util.LinkedList",
+                    GlobalSearchScope.everythingScope(project));
+
+            Query<PsiClass> search = ClassInheritorsSearch.search(aClass);
+            PsiClass[] array = search.toArray(new PsiClass[0]);
+            ToolWindowManager.getInstance(project).notifyByBalloon(ToolWindowId.VCS,
+                    MessageType.INFO, String.format("<div>LinkedList的所有实现类</div><div>%s</div>", Arrays.toString(array)));
+        });
+
+        btn3.addActionListener(e -> {
+            @NotNull PsiClass[] psiClasses = PsiShortNamesCache.getInstance(project).getClassesByName("StringEscapeUtils",
+                    GlobalSearchScope.everythingScope(project));
+
+            ToolWindowManager.getInstance(project).notifyByBalloon(ToolWindowId.VCS,
+                    MessageType.INFO, String.format("<div>%s</div>", Arrays.toString(psiClasses)));
         });
     }
 
