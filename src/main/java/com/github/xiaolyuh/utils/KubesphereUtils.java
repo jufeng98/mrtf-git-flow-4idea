@@ -4,11 +4,13 @@ import com.github.xiaolyuh.net.HttpException;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonObject;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.io.StreamUtil;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 public class KubesphereUtils {
 
@@ -99,6 +101,23 @@ public class KubesphereUtils {
             return accessToken;
         } catch (Exception e) {
             throw new RuntimeException(String.format("登录失败,用户名:%s,密码:%s", kubesphereUsername, kubespherePassword), e);
+        }
+    }
+
+    public static Pair<String, String> getBuildErrorInfo(String url) {
+        String urlPush = url + "nodes/33/steps/36/log/?start=0";
+        String urlCompile = url + "log/?start=0";
+        CompletableFuture<String> futureCompile = CompletableFuture.supplyAsync(() ->
+                HttpClientUtil.getForObjectWithToken(urlCompile, null, String.class));
+        CompletableFuture<String> futurePush = CompletableFuture.supplyAsync(() ->
+                HttpClientUtil.getForObjectWithToken(urlPush, null, String.class));
+        CompletableFuture.allOf(futureCompile, futurePush).join();
+        try {
+            String res1 = futureCompile.get();
+            String res2 = futurePush.get();
+            return Pair.create(res1, res2);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 

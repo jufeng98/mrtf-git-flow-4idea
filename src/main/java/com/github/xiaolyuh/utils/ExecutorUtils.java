@@ -1,9 +1,13 @@
 package com.github.xiaolyuh.utils;
 
+import com.github.xiaolyuh.ui.KbsErrorDialog;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +24,7 @@ public class ExecutorUtils {
 
     public static void monitorBuildTask(String runsUrl, String id, String selectService, Project project) {
         executorService.submit(() -> {
-            sleep(60);
+            sleep(30);
             createMonitorBuildTask(runsUrl, id, selectService, project);
         });
     }
@@ -33,7 +37,8 @@ public class ExecutorUtils {
     private static Runnable createMonitorBuildTaskReal(String runsUrl, String id, String selectService, Project project) {
         return () -> {
             try {
-                JsonObject resObj = HttpClientUtil.getForObjectWithToken(runsUrl + "/" + id + "/", null, JsonObject.class);
+                String url = runsUrl + "/" + id + "/";
+                JsonObject resObj = HttpClientUtil.getForObjectWithToken(url, null, JsonObject.class);
                 String state = resObj.get("state").getAsString();
                 if (!"FINISHED".equals(state)) {
                     sleep(10);
@@ -43,7 +48,11 @@ public class ExecutorUtils {
                 }
                 String result = resObj.get("result").getAsString();
                 if (!"SUCCESS".equals(result)) {
-                    NotifyUtil.notifyError(project, selectService + " id为" + id + "构建失败");
+                    Pair<String, String> pair = KubesphereUtils.getBuildErrorInfo(url);
+                    ApplicationManager.getApplication().invokeLater(() -> {
+                        KbsErrorDialog dialog = new KbsErrorDialog(selectService + " id为" + id + "构建失败", pair, project);
+                        dialog.show();
+                    }, ModalityState.NON_MODAL);
                     return;
                 }
                 NotifyUtil.notifySuccess(project, selectService + " id为" + id + "构建成功");

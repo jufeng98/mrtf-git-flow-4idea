@@ -101,6 +101,10 @@ public class HttpClientUtil {
                 throw new HttpException(401, "token失效");
             }
             String body = response.body();
+            if (clazz == String.class) {
+                //noinspection unchecked
+                return (T) body;
+            }
             return gson.fromJson(body, clazz);
         } catch (HttpException e) {
             throw e;
