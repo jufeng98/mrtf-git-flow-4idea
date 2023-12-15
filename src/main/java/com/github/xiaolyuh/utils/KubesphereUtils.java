@@ -192,37 +192,35 @@ public class KubesphereUtils {
         return list.stream().allMatch(it -> it);
     }
 
-    public static Pair<String, String> getBuildErrorInfo(String url) {
+    public static Pair<byte[], byte[]> getBuildErrorInfo(String url) {
         String urlCompile = url + "nodes/33/steps/36/log/?start=0";
         String urlPush = url + "log/?start=0";
-        CompletableFuture<String> futurePush = CompletableFuture.supplyAsync(() ->
-                HttpClientUtil.getForObjectWithToken(urlPush, null, String.class));
-        CompletableFuture<String> futureCompile = CompletableFuture.supplyAsync(() ->
-                HttpClientUtil.getForObjectWithToken(urlCompile, null, String.class));
+        CompletableFuture<byte[]> futurePush = CompletableFuture.supplyAsync(() ->
+                HttpClientUtil.getForObjectWithToken(urlPush, null, byte[].class));
+        CompletableFuture<byte[]> futureCompile = CompletableFuture.supplyAsync(() ->
+                HttpClientUtil.getForObjectWithToken(urlCompile, null, byte[].class));
         CompletableFuture.allOf(futurePush, futureCompile).join();
         try {
-            String res1 = futurePush.get();
-            String res2 = futureCompile.get();
-            return Pair.create(res1, res2);
+            return Pair.create(futurePush.get(), futureCompile.get());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static String getContainerStartInfo(String runsUrl, String selectService, String newInstanceName, int tailLines,
+    public static byte[] getContainerStartInfo(String runsUrl, String selectService, String newInstanceName, int tailLines,
                                                boolean previous, boolean follow) {
         String namespace = findNamespace(runsUrl);
         String logUrl = String.format("http://host-kslb.mh.bluemoon.com.cn/api/clusters/sim-1/v1/namespaces/%s/pods/%s/log?container=%s&tailLines=%s&timestamps=true&follow=%s&previous=%s",
                 namespace, newInstanceName, selectService.toLowerCase(), tailLines, follow, previous);
-        return HttpClientUtil.getForObjectWithTokenUseUrl(logUrl, null, String.class);
+        return HttpClientUtil.getForObjectWithTokenUseUrl(logUrl, null, byte[].class);
     }
 
     public static void getContainerStartInfo(String runsUrl, String selectService, String newInstanceName, int tailLines,
-                                             boolean previous, boolean follow, Consumer<String> consumer, KbsMsgDialog kbsMsgDialog) {
+                                             boolean previous, boolean follow, Consumer<byte[]> consumer, KbsMsgDialog kbsMsgDialog) {
         String namespace = findNamespace(runsUrl);
         String logUrl = String.format("http://host-kslb.mh.bluemoon.com.cn/api/clusters/sim-1/v1/namespaces/%s/pods/%s/log?container=%s&tailLines=%s&timestamps=true&follow=%s&previous=%s",
                 namespace, newInstanceName, selectService.toLowerCase(), tailLines, follow, previous);
-        HttpClientUtil.getForObjectWithTokenUseUrl(logUrl, null, String.class, consumer, kbsMsgDialog);
+        HttpClientUtil.getForObjectWithTokenUseUrl(logUrl, null, byte[].class, consumer, kbsMsgDialog);
     }
 
     @SuppressWarnings({"unused", "ExtractMethodRecommender"})

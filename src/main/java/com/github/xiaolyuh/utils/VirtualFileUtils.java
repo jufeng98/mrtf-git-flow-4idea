@@ -11,14 +11,14 @@ import java.nio.file.Path;
 public class VirtualFileUtils {
 
     @SuppressWarnings("DataFlowIssue")
-    public static VirtualFile createVirtualFileFromText(String content) {
+    public static VirtualFile createVirtualFileFromText(byte[] txtBytes) {
         Path tempFile;
         try {
             tempFile = Files.createTempFile("k8s-", ".log");
             File file = tempFile.toFile();
             VirtualFile virtualFile = LocalFileSystem.getInstance()
                     .refreshAndFindFileByPath(file.getAbsolutePath());
-            virtualFile.setBinaryContent(content.getBytes());
+            virtualFile.setBinaryContent(txtBytes);
             file.deleteOnExit();
             return virtualFile;
         } catch (IOException e) {

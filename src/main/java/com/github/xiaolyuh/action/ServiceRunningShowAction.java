@@ -54,11 +54,14 @@ public class ServiceRunningShowAction extends AnAction {
                         throw new RuntimeException(ex);
                     }
                 }
+                if (choose[0] == -1) {
+                    return;
+                }
                 InstanceVo instanceVo = instanceVos.get(choose[0]);
-                String msg = KubesphereUtils.getContainerStartInfo(runsUrl, selectService, instanceVo.getName(),
+                byte[] textBytes = KubesphereUtils.getContainerStartInfo(runsUrl, selectService, instanceVo.getName(),
                         300, instanceVo.isPreviews(), false);
                 ApplicationManager.getApplication().invokeLater(() -> {
-                    KbsMsgDialog dialog = new KbsMsgDialog(selectService, msg, project, selectService, runsUrl,
+                    KbsMsgDialog dialog = new KbsMsgDialog(selectService, textBytes, project, selectService, runsUrl,
                             instanceVo.getName(), false);
                     dialog.show();
                 }, ModalityState.NON_MODAL);

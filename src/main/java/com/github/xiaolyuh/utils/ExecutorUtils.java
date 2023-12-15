@@ -55,7 +55,7 @@ public class ExecutorUtils {
                 if (!"SUCCESS".equals(result)) {
                     String title = selectService + " id为" + id + "构建失败";
                     NotifyUtil.notifyInfo(project, title);
-                    Pair<String, String> pair = KubesphereUtils.getBuildErrorInfo(url);
+                    Pair<byte[], byte[]> pair = KubesphereUtils.getBuildErrorInfo(url);
                     ApplicationManager.getApplication().invokeLater(() -> {
                         KbsMsgDialog dialog = new KbsMsgDialog(title, pair, project);
                         dialog.show();
@@ -130,10 +130,10 @@ public class ExecutorUtils {
                     sleep(30);
                     String title = newInstanceName + "容器初始化失败,当前重启次数:" + restartCount;
                     NotifyUtil.notifyInfo(project, title);
-                    String error = KubesphereUtils.getContainerStartInfo(runsUrl, selectService, newInstanceName,
+                    byte[] errorBytes = KubesphereUtils.getContainerStartInfo(runsUrl, selectService, newInstanceName,
                             300, false, false);
                     ApplicationManager.getApplication().invokeLater(() -> {
-                        KbsMsgDialog dialog = new KbsMsgDialog(title, error, project, selectService, runsUrl,
+                        KbsMsgDialog dialog = new KbsMsgDialog(title, errorBytes, project, selectService, runsUrl,
                                 newInstanceName, false);
                         dialog.show();
                     }, ModalityState.NON_MODAL);
@@ -144,10 +144,10 @@ public class ExecutorUtils {
                     sleep(30);
                     String title = newInstanceName + "容器启动失败,当前重启次数:" + restartCount;
                     NotifyUtil.notifyInfo(project, title);
-                    String error = KubesphereUtils.getContainerStartInfo(runsUrl, selectService, newInstanceName,
+                    byte[] errorBytes = KubesphereUtils.getContainerStartInfo(runsUrl, selectService, newInstanceName,
                             300, false, false);
                     ApplicationManager.getApplication().invokeLater(() -> {
-                        KbsMsgDialog dialog = new KbsMsgDialog(title, error, project, selectService, runsUrl,
+                        KbsMsgDialog dialog = new KbsMsgDialog(title, errorBytes, project, selectService, runsUrl,
                                 newInstanceName, false);
                         dialog.show();
                     }, ModalityState.NON_MODAL);

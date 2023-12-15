@@ -3,12 +3,14 @@ package com.github.xiaolyuh.ui;
 import com.github.xiaolyuh.utils.ExecutorUtils;
 import com.github.xiaolyuh.utils.KubesphereUtils;
 import com.github.xiaolyuh.utils.VirtualFileUtils;
+import com.google.common.collect.Lists;
 import com.intellij.find.EditorSearchSession;
 import com.intellij.find.SearchReplaceComponent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.ScrollType;
 import com.intellij.openapi.fileEditor.FileEditorProvider;
@@ -21,13 +23,14 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.util.ArrayUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 public class KbsMsgDialog extends DialogWrapper {
     private JPanel mainPanel;
@@ -40,8 +43,9 @@ public class KbsMsgDialog extends DialogWrapper {
     private volatile boolean insRefreshOpen = false;
     private int tailLines = 300;
     private TextEditor textEditor;
+    private final List<Editor> editorList = Lists.newArrayList();
 
-    public KbsMsgDialog(String title, Pair<String, String> pair, Project project) {
+    public KbsMsgDialog(String title, Pair<byte[], byte[]> pair, Project project) {
         super(project);
         setTitle(title);
         init();
@@ -55,7 +59,7 @@ public class KbsMsgDialog extends DialogWrapper {
         fillEditorWithErrorTxt(project, pair);
     }
 
-    public KbsMsgDialog(String title, String msg, Project project, String selectService, String runsUrl,
+    public KbsMsgDialog(String title, byte[] textBytes, Project project, String selectService, String runsUrl,
                         String newInstanceName, boolean previews) {
         super(project);
 
@@ -68,6 +72,7 @@ public class KbsMsgDialog extends DialogWrapper {
         });
 
         insRefreshBtn.addActionListener(e -> {
+            //noinspection NonAtomicOperationOnVolatileField
             insRefreshOpen = !insRefreshOpen;
             String tip = insRefreshOpen ? "关闭实时刷新" : "开启实时刷新";
             insRefreshBtn.setText(tip);
@@ -87,12 +92,13 @@ public class KbsMsgDialog extends DialogWrapper {
 
         bottomBtn.addActionListener(e -> scrollToBottom(textEditor.getEditor()));
 
-        fillEditorWithRunningTxt(project, msg, false);
+        fillEditorWithRunningTxt(project, textBytes, false);
     }
 
     @Override
     protected void dispose() {
         insRefreshOpen = false;
+        editorList.forEach(editor -> EditorFactory.getInstance().releaseEditor(editor));
         super.dispose();
     }
 
@@ -101,11 +107,9 @@ public class KbsMsgDialog extends DialogWrapper {
         Task.Modal task = new Task.Modal(project, mainPanel, "Loading......", true) {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
-                String msg = KubesphereUtils.getContainerStartInfo(runsUrl, selectService, newInstanceName, tailLines,
+                byte[] textBytes = KubesphereUtils.getContainerStartInfo(runsUrl, selectService, newInstanceName, tailLines,
                         previews, false);
-                ApplicationManager.getApplication().invokeLater(() -> {
-                    fillEditorWithRunningTxt(project, msg, false);
-                });
+                ApplicationManager.getApplication().invokeLater(() -> fillEditorWithRunningTxt(project, textBytes, false));
             }
         };
         ProgressManager.getInstance().run(task);
@@ -113,25 +117,19 @@ public class KbsMsgDialog extends DialogWrapper {
 
     private void refreshInsRunningData(Project project, String runsUrl, String selectService, String newInstanceName,
                                        int tailLines, KbsMsgDialog kbsMsgDialog) {
-        ExecutorUtils.addTask(() -> {
-            KubesphereUtils.getContainerStartInfo(runsUrl, selectService, newInstanceName, tailLines,
-                    false, true, msg -> {
-                        SwingUtilities.invokeLater(() -> {
-                            ApplicationManager.getApplication().invokeLater(() -> {
-                                fillEditorWithRunningTxt(project, msg, true);
-                            });
-                        });
-                    }, kbsMsgDialog);
-        });
+        ExecutorUtils.addTask(() -> KubesphereUtils.getContainerStartInfo(runsUrl, selectService, newInstanceName, tailLines,
+                false, true, body -> SwingUtilities
+                        .invokeLater(() -> ApplicationManager.getApplication()
+                                .invokeLater(() -> fillEditorWithRunningTxt(project, body, true))), kbsMsgDialog));
     }
 
-    private void fillEditorWithErrorTxt(Project project, Pair<String, String> pair) {
+    private void fillEditorWithErrorTxt(Project project, Pair<byte[], byte[]> pair) {
         addTab("compile", project, pair.getSecond());
         addTab("push", project, pair.getFirst());
     }
 
-    private void addTab(String tabTitle, Project project, String txt) {
-        TextEditor textEditor = convertTxtToEditor(project, txt);
+    private void addTab(String tabTitle, Project project, byte[] txtBytes) {
+        TextEditor textEditor = convertTxtToEditor(project, txtBytes);
 
         JPanel panel = new JPanel(new BorderLayout());
         jTabbedPane.addTab(tabTitle, panel);
@@ -144,7 +142,7 @@ public class KbsMsgDialog extends DialogWrapper {
         panel.add(findComp, BorderLayout.NORTH);
     }
 
-    private void fillEditorWithRunningTxt(Project project, String txt, boolean append) {
+    private void fillEditorWithRunningTxt(Project project, byte[] txtBytes, boolean append) {
         ApplicationManager.getApplication().runWriteAction(() -> {
             if (textEditor != null) {
                 try {
@@ -152,10 +150,10 @@ public class KbsMsgDialog extends DialogWrapper {
                         InputStream inputStream = textEditor.getFile().getInputStream();
                         byte[] bytes = inputStream.readAllBytes();
                         inputStream.close();
-                        String s = new String(bytes) + txt;
-                        textEditor.getFile().setBinaryContent(s.getBytes(StandardCharsets.UTF_8));
+                        byte[] newBytes = ArrayUtil.mergeArrays(bytes, txtBytes);
+                        textEditor.getFile().setBinaryContent(newBytes);
                     } else {
-                        textEditor.getFile().setBinaryContent(txt.getBytes(StandardCharsets.UTF_8));
+                        textEditor.getFile().setBinaryContent(txtBytes);
                     }
                     scrollToBottom(textEditor.getEditor());
                 } catch (Throwable ignored) {
@@ -163,7 +161,7 @@ public class KbsMsgDialog extends DialogWrapper {
                 }
                 return;
             }
-            textEditor = convertTxtToEditor(project, txt);
+            textEditor = convertTxtToEditor(project, txtBytes);
 
             JPanel panel = new JPanel(new BorderLayout());
             jTabbedPane.addTab("容器日志", panel);
@@ -177,10 +175,10 @@ public class KbsMsgDialog extends DialogWrapper {
         });
     }
 
-    private TextEditor convertTxtToEditor(Project project, String txt) {
+    private TextEditor convertTxtToEditor(Project project, byte[] txtBytes) {
         final TextEditor[] textEditors = new TextEditor[1];
         WriteAction.runAndWait(() -> {
-            VirtualFile virtualFile = VirtualFileUtils.createVirtualFileFromText(txt);
+            VirtualFile virtualFile = VirtualFileUtils.createVirtualFileFromText(txtBytes);
             FileEditorProvider provider = FileEditorProviderManager.getInstance().getProviders(project, virtualFile)[0];
             TextEditor textEditor = (TextEditor) provider.createEditor(project, virtualFile);
 
@@ -189,6 +187,8 @@ public class KbsMsgDialog extends DialogWrapper {
             scrollToBottom(textEditor.getEditor());
 
             textEditors[0] = textEditor;
+
+            editorList.add(textEditor.getEditor());
         });
         return textEditors[0];
     }

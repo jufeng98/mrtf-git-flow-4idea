@@ -24,11 +24,9 @@ public class UiBundle extends DynamicBundle {
     @Override
     public @NotNull @Nls String getMessage(@NotNull @NonNls String key, Object @NotNull ... params) {
         Project activeProject = ProjectUtil.getActiveProject();
-        LanguageEnum language;
-        if (activeProject != null) {
+        LanguageEnum language = LanguageEnum.CN;
+        if (ConfigUtil.isInit(activeProject)) {
             language = ConfigUtil.getInitOptions(activeProject).getLanguage();
-        } else {
-            language = LanguageEnum.CN;
         }
         return message(key, language, params);
     }
