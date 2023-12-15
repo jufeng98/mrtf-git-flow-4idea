@@ -2,17 +2,20 @@ package com.github.xiaolyuh.utils;
 
 import com.github.xiaolyuh.net.HttpException;
 import com.google.common.collect.Maps;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.io.StreamUtil;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-
-import static com.github.xiaolyuh.utils.ExecutorUtils.findNamespace;
+import java.util.concurrent.TimeUnit;
 
 public class KubesphereUtils {
 
@@ -22,7 +25,7 @@ public class KubesphereUtils {
             return;
         }
 
-        JsonObject configObj = ConfigUtil.getProjectConfigToFile(project);
+        JsonObject configObj = ConfigUtil.getProjectConfigFromFile(project);
         if (configObj == null) {
             NotifyUtil.notifyInfo(project, "缺少配置文件,跳过触发流水线");
             return;
@@ -104,6 +107,91 @@ public class KubesphereUtils {
         } catch (Exception e) {
             throw new RuntimeException(String.format("登录失败,用户名:%s,密码:%s", kubesphereUsername, kubespherePassword), e);
         }
+    }
+
+    public static String findNamespace(String runsUrl) {
+        int start = runsUrl.indexOf("pipelines") + "pipelines".length() + 1;
+        int end = runsUrl.indexOf("branches") - 1;
+        return runsUrl.substring(start, end);
+    }
+
+    public static String findInstanceName(String podUrl, String id, int detectTimes) throws Exception {
+        JsonObject resObj = HttpClientUtil.getForObjectWithToken(podUrl, null, JsonObject.class);
+
+        JsonArray items = resObj.getAsJsonArray("items");
+        for (Object item : items) {
+            JsonObject itemObject = (JsonObject) item;
+            JsonObject specObj = itemObject.getAsJsonObject("spec");
+            JsonArray containers = specObj.getAsJsonArray("containers");
+            for (Object container : containers) {
+                JsonObject containerObject = (JsonObject) container;
+                String image = containerObject.get("image").getAsString();
+                if (image.endsWith(id)) {
+                    return itemObject.getAsJsonObject("metadata").get("name").getAsString();
+                }
+            }
+        }
+        detectTimes++;
+        if (detectTimes >= 18) {
+            throw new RuntimeException("当前url:" + podUrl + ",返回结果:" + resObj);
+        }
+        TimeUnit.SECONDS.sleep(10);
+        return findInstanceName(podUrl, id, detectTimes);
+    }
+
+    public static String findInstanceName(String runsUrl, String selectService) {
+        String podUrl = findPodUrl(runsUrl, selectService);
+
+        JsonObject resObj = HttpClientUtil.getForObjectWithToken(podUrl, null, JsonObject.class);
+
+        JsonArray items = resObj.getAsJsonArray("items");
+        String instanceName = "";
+        for (Object item : items) {
+            JsonObject itemObject = (JsonObject) item;
+            JsonObject statusObj = itemObject.getAsJsonObject("status");
+            boolean ready1 = getReady(statusObj, "initContainerStatuses");
+            boolean ready2 = getReady(statusObj, "containerStatuses");
+            if (ready1 && ready2) {
+                instanceName = itemObject.getAsJsonObject("metadata").get("name").getAsString();
+                break;
+            }
+            instanceName = itemObject.getAsJsonObject("metadata").get("name").getAsString();
+        }
+        return instanceName;
+    }
+
+    public static String findPodUrl(String runsUrl, String selectService) {
+        String namespace = findNamespace(runsUrl);
+
+        return String.format("http://host-kslb.mh.bluemoon.com.cn/kapis/clusters/sim-1/resources.kubesphere.io/v1alpha3/namespaces/%s/pods?name=%s&sortBy=startTime&limit=10",
+                namespace, selectService.toLowerCase());
+    }
+
+    public static int getRestartCount(JsonObject statusObj, String key) {
+        JsonArray statuses = statusObj.getAsJsonArray(key);
+        if (statuses == null) {
+            return 0;
+        }
+        int sum = 0;
+        for (JsonElement status : statuses) {
+            JsonObject tmpObj = (JsonObject) status;
+            sum += tmpObj.get("restartCount").getAsInt();
+        }
+        return sum;
+    }
+
+    public static boolean getReady(JsonObject statusObj, String key) {
+        JsonArray statuses = statusObj.getAsJsonArray(key);
+        if (statuses == null) {
+            return true;
+        }
+        List<Boolean> list = new ArrayList<>();
+        for (JsonElement status : statuses) {
+            JsonObject tmpObj = (JsonObject) status;
+            list.add(tmpObj.get("ready").getAsBoolean());
+
+        }
+        return list.stream().allMatch(it -> it);
     }
 
     public static Pair<String, String> getBuildErrorInfo(String url) {

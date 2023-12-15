@@ -158,7 +158,7 @@ public class ConfigUtil {
         }
     }
 
-    public static JsonObject getProjectConfigToFile(Project project) {
+    public static JsonObject getProjectConfigFromFile(Project project) {
         try {
             String filePath = project.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME_PROJECT;
             File file = new File(filePath);

@@ -21,7 +21,7 @@ public class ServiceDialog extends DialogWrapper {
         init();
         jlabel.setText(txt);
 
-        JsonObject jsonObject = ConfigUtil.getProjectConfigToFile(project);
+        JsonObject jsonObject = ConfigUtil.getProjectConfigFromFile(project);
         if (jsonObject != null) {
             JsonArray services = jsonObject.getAsJsonArray("services");
             DefaultListModel<String> listModel = new DefaultListModel<>();

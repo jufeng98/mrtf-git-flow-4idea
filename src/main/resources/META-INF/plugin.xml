@@ -158,6 +158,11 @@
                     text="发布失败" description="解锁，这时新的开发分支可以合并到发布分支了" icon="/icons/failure.svg"/>
             <separator/>
 
+            <action id="GitFlowPlus.ServiceRunningShowAction" class="com.github.xiaolyuh.action.ServiceRunningShowAction"
+                    text="查看服务" description="查看Kubesphere服务的运行信息" icon="/icons/mergeToTest.svg">
+            </action>
+            <separator/>
+
             <!--提测-->
             <action id="GitFlowPlus.StartTestAction" class="com.github.xiaolyuh.action.StartTestAction"
                     text="提测" description="将当前开发分支合并到test分支" icon="/icons/mergeToTest.svg">

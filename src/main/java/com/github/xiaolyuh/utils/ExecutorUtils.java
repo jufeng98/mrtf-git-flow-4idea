@@ -15,6 +15,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import static com.github.xiaolyuh.utils.KubesphereUtils.findInstanceName;
+import static com.github.xiaolyuh.utils.KubesphereUtils.findPodUrl;
+import static com.github.xiaolyuh.utils.KubesphereUtils.getReady;
+import static com.github.xiaolyuh.utils.KubesphereUtils.getRestartCount;
+
 public class ExecutorUtils {
     public static ExecutorService executorService = Executors.newCachedThreadPool();
 
@@ -71,14 +76,12 @@ public class ExecutorUtils {
     public static void monitorStartTask(String runsUrl, String selectService, String id, Project project) {
         addTask(() -> {
             sleep(10);
-            String namespace = findNamespace(runsUrl);
 
-            String podUrl = String.format("http://host-kslb.mh.bluemoon.com.cn/kapis/clusters/sim-1/resources.kubesphere.io/v1alpha3/namespaces/%s/pods?name=%s&sortBy=startTime&limit=10",
-                    namespace, selectService.toLowerCase());
+            String podUrl = findPodUrl(runsUrl, selectService);
 
             String newInstanceName;
             try {
-                newInstanceName = findNewInstanceName(podUrl, id, 0);
+                newInstanceName = findInstanceName(podUrl, id, 0);
             } catch (Exception e) {
                 NotifyUtil.notifyError(project, "检测" + selectService + " id为" + id +
                         "的启动情况出错啦,原因:" + e.getMessage());
@@ -129,7 +132,8 @@ public class ExecutorUtils {
                     NotifyUtil.notifyInfo(project, title);
                     String error = KubesphereUtils.getContainerStartInfo(runsUrl, selectService, newInstanceName, 300, false);
                     ApplicationManager.getApplication().invokeLater(() -> {
-                        KbsMsgDialog dialog = new KbsMsgDialog(title, error, project, selectService, runsUrl, newInstanceName, false);
+                        KbsMsgDialog dialog = new KbsMsgDialog(title, error, project, selectService, runsUrl,
+                                newInstanceName, false);
                         dialog.show();
                     }, ModalityState.NON_MODAL);
                     return;
@@ -141,7 +145,8 @@ public class ExecutorUtils {
                     NotifyUtil.notifyInfo(project, title);
                     String error = KubesphereUtils.getContainerStartInfo(runsUrl, selectService, newInstanceName, 300, false);
                     ApplicationManager.getApplication().invokeLater(() -> {
-                        KbsMsgDialog dialog = new KbsMsgDialog(title, error, project, selectService, runsUrl, newInstanceName, false);
+                        KbsMsgDialog dialog = new KbsMsgDialog(title, error, project, selectService, runsUrl,
+                                newInstanceName, false);
                         dialog.show();
                     }, ModalityState.NON_MODAL);
                     return;
@@ -166,63 +171,6 @@ public class ExecutorUtils {
                 NotifyUtil.notifyError(project, "检测" + newInstanceName + "启动情况出错,原因:" + e.getMessage());
             }
         };
-    }
-
-    private static String findNewInstanceName(String podUrl, String id, int detectTimes) throws Exception {
-        JsonObject resObj = HttpClientUtil.getForObjectWithToken(podUrl, null, JsonObject.class);
-
-        JsonArray items = resObj.getAsJsonArray("items");
-        for (Object item : items) {
-            JsonObject itemObject = (JsonObject) item;
-            JsonObject specObj = itemObject.getAsJsonObject("spec");
-            JsonArray containers = specObj.getAsJsonArray("containers");
-            for (Object container : containers) {
-                JsonObject containerObject = (JsonObject) container;
-                String image = containerObject.get("image").getAsString();
-                if (image.endsWith(id)) {
-                    return itemObject.getAsJsonObject("metadata").get("name").getAsString();
-                }
-            }
-        }
-        detectTimes++;
-        if (detectTimes >= 18) {
-            throw new RuntimeException("当前url:" + podUrl + ",返回结果:" + resObj);
-        }
-        TimeUnit.SECONDS.sleep(10);
-        return findNewInstanceName(podUrl, id, detectTimes);
-    }
-
-    private static int getRestartCount(JsonObject statusObj, String key) {
-        JsonArray statuses = statusObj.getAsJsonArray(key);
-        if (statuses == null) {
-            return 0;
-        }
-        int sum = 0;
-        for (JsonElement status : statuses) {
-            JsonObject tmpObj = (JsonObject) status;
-            sum += tmpObj.get("restartCount").getAsInt();
-        }
-        return sum;
-    }
-
-    private static boolean getReady(JsonObject statusObj, String key) {
-        JsonArray statuses = statusObj.getAsJsonArray(key);
-        if (statuses == null) {
-            return true;
-        }
-        List<Boolean> list = new ArrayList<>();
-        for (JsonElement status : statuses) {
-            JsonObject tmpObj = (JsonObject) status;
-            list.add(tmpObj.get("ready").getAsBoolean());
-
-        }
-        return list.stream().allMatch(it -> it);
-    }
-
-    public static String findNamespace(String runsUrl) {
-        int start = runsUrl.indexOf("pipelines") + "pipelines".length() + 1;
-        int end = runsUrl.indexOf("branches") - 1;
-        return runsUrl.substring(start, end);
     }
 
     public static void sleep(int seconds) {
