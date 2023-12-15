@@ -17,6 +17,8 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Map;
 
+import static com.github.xiaolyuh.utils.KubesphereUtils.loginAndSaveToken;
+
 /**
  * HttpClient工具
  *
@@ -45,11 +47,6 @@ public class HttpClientUtil {
     }
 
     public static <T> T postJsonForObjectWithToken(String url, String reqBody, Map<String, String> headers, Class<T> clazz) {
-        String kubesphereToken = ConfigUtil.getKubesphereToken();
-        if (headers == null) {
-            headers = Maps.newHashMap();
-        }
-        headers.put("Cookie", "token=" + kubesphereToken);
         headers.put("Content-Type", "application/json");
         headers.put("Accept", "application/json");
         return postForObjectWithToken(url, reqBody, headers, clazz);
@@ -75,6 +72,11 @@ public class HttpClientUtil {
         HttpResponse<String> response;
         try {
             response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            int statusCode = response.statusCode();
+            if (statusCode == 401) {
+                loginAndSaveToken();
+                return postForObjectWithToken(url, reqBody, headers, clazz);
+            }
             String body = response.body();
             return gson.fromJson(body, clazz);
         } catch (Exception e) {
@@ -102,7 +104,8 @@ public class HttpClientUtil {
         try {
             response = client.send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() == 401) {
-                throw new HttpException(401, "token失效");
+                loginAndSaveToken();
+                return getForObjectWithToken(url, headers, clazz);
             }
             String body = response.body();
             if (clazz == String.class) {
@@ -134,6 +137,11 @@ public class HttpClientUtil {
                 connection.setRequestProperty(entry.getKey(), entry.getValue());
             }
             connection.connect();
+            int responseCode = connection.getResponseCode();
+            if (responseCode == 401) {
+                loginAndSaveToken();
+                return getForObjectWithTokenUseUrl(url, headers, clazz);
+            }
             InputStream inputStream = connection.getInputStream();
             byte[] bytes = StreamUtil.readBytes(inputStream);
             inputStream.close();

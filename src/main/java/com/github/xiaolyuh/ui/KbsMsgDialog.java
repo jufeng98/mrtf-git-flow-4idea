@@ -8,6 +8,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.ScrollType;
 import com.intellij.openapi.fileEditor.FileEditorProvider;
 import com.intellij.openapi.fileEditor.TextEditor;
@@ -31,6 +32,9 @@ public class KbsMsgDialog extends DialogWrapper {
     private JPanel mainPanel;
     private JTabbedPane jTabbedPane;
     private JButton refreshBtn;
+    private JButton topBtn;
+    private JButton bottomBtn;
+    private JButton swBtn;
     private int tailLines = 300;
     private TextEditor textEditor;
 
@@ -39,7 +43,10 @@ public class KbsMsgDialog extends DialogWrapper {
         setTitle(title);
         init();
 
+        mainPanel.remove(swBtn);
+        mainPanel.remove(topBtn);
         mainPanel.remove(refreshBtn);
+        mainPanel.remove(bottomBtn);
 
         fillEditorWithErrorTxt(project, pair);
     }
@@ -55,6 +62,16 @@ public class KbsMsgDialog extends DialogWrapper {
             tailLines += tailLines;
             refreshRunningData(project, runsUrl, selectService, newInstanceName, tailLines, previews);
         });
+
+        swBtn.addActionListener(e -> {
+            EditorSettings settings = textEditor.getEditor().getSettings();
+            boolean useSoftWraps = settings.isUseSoftWraps();
+            settings.setUseSoftWraps(!useSoftWraps);
+        });
+
+        topBtn.addActionListener(e -> scrollToTop(textEditor.getEditor()));
+
+        bottomBtn.addActionListener(e -> scrollToBottom(textEditor.getEditor()));
 
         fillEditorWithRunningTxt(project, msg);
     }
@@ -129,6 +146,12 @@ public class KbsMsgDialog extends DialogWrapper {
             textEditors[0] = textEditor;
         });
         return textEditors[0];
+    }
+
+    private void scrollToTop(@NotNull Editor editor) {
+        Caret caret = editor.getCaretModel().getPrimaryCaret();
+        caret.moveToOffset(0);
+        editor.getScrollingModel().scrollToCaret(ScrollType.RELATIVE);
     }
 
     private void scrollToBottom(@NotNull Editor editor) {

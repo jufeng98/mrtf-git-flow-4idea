@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.intellij.ide.impl.ProjectUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.io.StreamUtil;
@@ -31,17 +32,6 @@ public class KubesphereUtils {
             return;
         }
 
-        String kubesphereToken = ConfigUtil.getKubesphereToken();
-        if (StringUtils.isBlank(kubesphereToken)) {
-            loginAndSaveToken(project);
-        }
-
-        kubesphereToken = ConfigUtil.getKubesphereToken();
-        if (StringUtils.isBlank(kubesphereToken)) {
-            NotifyUtil.notifyError(project, "请先配置Kubesphere用户信息");
-            return;
-        }
-
         String crumbissuerUrl = configObj.get("crumbissuerUrl").getAsString();
         JsonObject resObj;
         try {
@@ -49,7 +39,7 @@ public class KubesphereUtils {
         } catch (HttpException e) {
             if (e.getCode() == 401) {
                 NotifyUtil.notifyInfo(project, "token失效,尝试重新登录");
-                loginAndSaveToken(project);
+                loginAndSaveToken();
                 resObj = HttpClientUtil.getForObjectWithToken(crumbissuerUrl, null, JsonObject.class);
             } else {
                 throw e;
@@ -83,18 +73,19 @@ public class KubesphereUtils {
         NotifyUtil.notifyInfo(project, "开始监控" + selectService + " id为" + id + "的构建情况");
     }
 
-    public static void loginAndSaveToken(Project project) {
-        String kubesphereUsername = ConfigUtil.getKubesphereToken();
+    public static void loginAndSaveToken() {
+        kotlin.Pair<String, String> pair = ConfigUtil.getKubesphereUser();
+        String kubesphereUsername = pair.getFirst();
         if (StringUtils.isBlank(kubesphereUsername)) {
-            NotifyUtil.notifyError(project, "温馨提示", "未配置Kubesphere用户信息");
+            NotifyUtil.notifyError(ProjectUtil.getActiveProject(), "请先配置Kubesphere用户信息");
             return;
         }
-        String kubespherePassword = ConfigUtil.getKubesphereToken();
-        String accessToken = loginByUrl(kubesphereUsername, kubespherePassword, project);
+        String kubespherePassword = pair.getSecond();
+        String accessToken = loginByUrl(kubesphereUsername, kubespherePassword);
         ConfigUtil.saveKubesphereToken(accessToken);
     }
 
-    public static String loginByUrl(String kubesphereUsername, String kubespherePassword, Project project) {
+    public static String loginByUrl(String kubesphereUsername, String kubespherePassword) {
         try {
             String reqBody = String.format("grant_type=password&username=%s&password=%s", kubesphereUsername, kubespherePassword);
             Map<String, String> headers = Maps.newHashMap();
@@ -102,7 +93,7 @@ public class KubesphereUtils {
             String url = "http://10.255.243.18:30219/oauth/token";
             JsonObject jsonObject = HttpClientUtil.postForObject(url, reqBody, headers, JsonObject.class);
             String accessToken = jsonObject.get("access_token").getAsString();
-            NotifyUtil.notifyInfo(project, "请求url:" + url + ",登录结果:" + jsonObject);
+            NotifyUtil.notifyInfo(ProjectUtil.getActiveProject(), "请求url:" + url + ",登录结果:" + jsonObject);
             return accessToken;
         } catch (Exception e) {
             throw new RuntimeException(String.format("登录失败,用户名:%s,密码:%s", kubesphereUsername, kubespherePassword), e);
@@ -139,13 +130,14 @@ public class KubesphereUtils {
         return findInstanceName(podUrl, id, detectTimes);
     }
 
-    public static String findInstanceName(String runsUrl, String selectService) {
+    public static Pair<String, Boolean> findInstanceName(String runsUrl, String selectService) {
         String podUrl = findPodUrl(runsUrl, selectService);
 
         JsonObject resObj = HttpClientUtil.getForObjectWithToken(podUrl, null, JsonObject.class);
 
         JsonArray items = resObj.getAsJsonArray("items");
         String instanceName = "";
+        boolean previews = false;
         for (Object item : items) {
             JsonObject itemObject = (JsonObject) item;
             JsonObject statusObj = itemObject.getAsJsonObject("status");
@@ -153,11 +145,13 @@ public class KubesphereUtils {
             boolean ready2 = getReady(statusObj, "containerStatuses");
             if (ready1 && ready2) {
                 instanceName = itemObject.getAsJsonObject("metadata").get("name").getAsString();
+                previews = false;
                 break;
             }
             instanceName = itemObject.getAsJsonObject("metadata").get("name").getAsString();
+            previews = true;
         }
-        return instanceName;
+        return Pair.create(instanceName, previews);
     }
 
     public static String findPodUrl(String runsUrl, String selectService) {
