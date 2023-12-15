@@ -40,7 +40,7 @@ public class KbsMsgDialog extends DialogWrapper {
     private JButton swBtn;
     private JButton insRefreshBtn;
     private volatile boolean insRefreshOpen = false;
-    private int tailLines = 300;
+    private int tailLines = 500;
     private TextEditor textEditor;
     private final List<Editor> editorList = Lists.newArrayList();
 
@@ -76,7 +76,7 @@ public class KbsMsgDialog extends DialogWrapper {
             String tip = insRefreshOpen ? "关闭实时刷新" : "开启实时刷新";
             insRefreshBtn.setText(tip);
             refreshBtn.setEnabled(!insRefreshOpen);
-            refreshInsRunningData(project, runsUrl, selectService, newInstanceName, tailLines, KbsMsgDialog.this);
+            refreshInsRunningData(project, runsUrl, selectService, newInstanceName, 1000, KbsMsgDialog.this);
         });
 
         swBtn.addActionListener(e -> {
