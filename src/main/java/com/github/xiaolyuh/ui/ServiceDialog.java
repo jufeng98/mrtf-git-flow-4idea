@@ -10,13 +10,13 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 
-public class ConfirmAndTriggerDialog extends DialogWrapper {
+public class ServiceDialog extends DialogWrapper {
     private JPanel panel1;
     @SuppressWarnings("rawtypes")
     private JList jlist;
     private JLabel jlabel;
 
-    public ConfirmAndTriggerDialog(String txt, Project project) {
+    public ServiceDialog(String txt, Project project) {
         super(project);
         init();
         jlabel.setText(txt);
