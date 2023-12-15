@@ -130,13 +130,14 @@ public class HttpClientUtil {
         try {
             HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
             connection.setRequestMethod("GET");
-            for (Map.Entry<String, String> stringStringEntry : headers.entrySet()) {
-                connection.setRequestProperty(stringStringEntry.getKey(), stringStringEntry.getValue());
+            for (Map.Entry<String, String> entry : headers.entrySet()) {
+                connection.setRequestProperty(entry.getKey(), entry.getValue());
             }
             connection.connect();
             InputStream inputStream = connection.getInputStream();
             byte[] bytes = StreamUtil.readBytes(inputStream);
             inputStream.close();
+            connection.disconnect();
             String body = new String(bytes);
             if (clazz == String.class) {
                 //noinspection unchecked

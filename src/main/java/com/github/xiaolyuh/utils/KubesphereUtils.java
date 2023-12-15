@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+import static com.github.xiaolyuh.utils.ExecutorUtils.findNamespace;
+
 public class KubesphereUtils {
 
     public static void triggerPipeline(String selectService, Project project) {
@@ -105,20 +107,27 @@ public class KubesphereUtils {
     }
 
     public static Pair<String, String> getBuildErrorInfo(String url) {
-        String urlPush = url + "nodes/33/steps/36/log/?start=0";
-        String urlCompile = url + "log/?start=0";
-        CompletableFuture<String> futureCompile = CompletableFuture.supplyAsync(() ->
-                HttpClientUtil.getForObjectWithToken(urlCompile, null, String.class));
+        String urlCompile = url + "nodes/33/steps/36/log/?start=0";
+        String urlPush = url + "log/?start=0";
         CompletableFuture<String> futurePush = CompletableFuture.supplyAsync(() ->
                 HttpClientUtil.getForObjectWithToken(urlPush, null, String.class));
-        CompletableFuture.allOf(futureCompile, futurePush).join();
+        CompletableFuture<String> futureCompile = CompletableFuture.supplyAsync(() ->
+                HttpClientUtil.getForObjectWithToken(urlCompile, null, String.class));
+        CompletableFuture.allOf(futurePush, futureCompile).join();
         try {
-            String res1 = futureCompile.get();
-            String res2 = futurePush.get();
+            String res1 = futurePush.get();
+            String res2 = futureCompile.get();
             return Pair.create(res1, res2);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static String getContainerStartInfo(String runsUrl, String selectService, String newInstanceName, int tailLines, boolean previous) {
+        String namespace = findNamespace(runsUrl);
+        String logUrl = String.format("http://host-kslb.mh.bluemoon.com.cn/api/clusters/sim-1/v1/namespaces/%s/pods/%s/log?container=%s&tailLines=%s&timestamps=true&follow=false&previous=%s",
+                namespace, newInstanceName, selectService.toLowerCase(), tailLines, previous);
+        return HttpClientUtil.getForObjectWithTokenUseUrl(logUrl, null, String.class);
     }
 
     @SuppressWarnings({"unused", "ExtractMethodRecommender"})

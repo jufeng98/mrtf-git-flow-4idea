@@ -1,6 +1,6 @@
 package com.github.xiaolyuh.utils;
 
-import com.github.xiaolyuh.ui.KbsErrorDialog;
+import com.github.xiaolyuh.ui.KbsMsgDialog;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -18,23 +18,23 @@ import java.util.concurrent.TimeUnit;
 public class ExecutorUtils {
     public static ExecutorService executorService = Executors.newCachedThreadPool();
 
-    public static void addTask(Runnable runnable) {
+    public static void addTask(RunTask runnable) {
         executorService.submit(runnable);
     }
 
     public static void monitorBuildTask(String runsUrl, String id, String selectService, Project project) {
-        executorService.submit(() -> {
+        addTask(() -> {
             sleep(30);
             createMonitorBuildTask(runsUrl, id, selectService, project);
         });
     }
 
     private static void createMonitorBuildTask(String runsUrl, String id, String selectService, Project project) {
-        Runnable task = createMonitorBuildTaskReal(runsUrl, id, selectService, project);
-        executorService.submit(task);
+        RunTask task = createMonitorBuildTaskReal(runsUrl, id, selectService, project);
+        addTask(task);
     }
 
-    private static Runnable createMonitorBuildTaskReal(String runsUrl, String id, String selectService, Project project) {
+    private static RunTask createMonitorBuildTaskReal(String runsUrl, String id, String selectService, Project project) {
         return () -> {
             try {
                 String url = runsUrl + "/" + id + "/";
@@ -48,9 +48,11 @@ public class ExecutorUtils {
                 }
                 String result = resObj.get("result").getAsString();
                 if (!"SUCCESS".equals(result)) {
+                    String title = selectService + " id为" + id + "构建失败";
+                    NotifyUtil.notifyInfo(project, title);
                     Pair<String, String> pair = KubesphereUtils.getBuildErrorInfo(url);
                     ApplicationManager.getApplication().invokeLater(() -> {
-                        KbsErrorDialog dialog = new KbsErrorDialog(selectService + " id为" + id + "构建失败", pair, project);
+                        KbsMsgDialog dialog = new KbsMsgDialog(title, pair, project);
                         dialog.show();
                     }, ModalityState.NON_MODAL);
                     return;
@@ -67,7 +69,7 @@ public class ExecutorUtils {
     }
 
     public static void monitorStartTask(String runsUrl, String selectService, String id, Project project) {
-        executorService.submit(() -> {
+        addTask(() -> {
             sleep(10);
             String namespace = findNamespace(runsUrl);
 
@@ -85,16 +87,18 @@ public class ExecutorUtils {
             NotifyUtil.notifyInfo(project, "新实例" + newInstanceName + "启动中......");
 
             sleep(10);
-            monitorStartedTask(podUrl, selectService, project, newInstanceName);
+            monitorStartedTask(podUrl, selectService, runsUrl, project, newInstanceName);
         });
     }
 
-    public static void monitorStartedTask(String podUrl, String selectService, Project project, String newInstanceName) {
-        Runnable task = createMonitorStartTask(podUrl, selectService, project, newInstanceName);
-        executorService.submit(task);
+    public static void monitorStartedTask(String podUrl, String selectService, String runsUrl, Project project,
+                                          String newInstanceName) {
+        RunTask task = createMonitorStartTask(podUrl, selectService, runsUrl, project, newInstanceName);
+        addTask(task);
     }
 
-    public static Runnable createMonitorStartTask(String podUrl, String selectService, Project project, String newInstanceName) {
+    public static RunTask createMonitorStartTask(String podUrl, String selectService, String runsUrl, Project project,
+                                                 String newInstanceName) {
         return () -> {
             try {
                 JsonObject resObj = HttpClientUtil.getForObjectWithToken(podUrl, null, JsonObject.class);
@@ -120,25 +124,39 @@ public class ExecutorUtils {
                 JsonObject statusObj = newItemObject.getAsJsonObject("status");
                 int restartCount = getRestartCount(statusObj, "initContainerStatuses");
                 if (restartCount > 0) {
-                    NotifyUtil.notifyError(project, newInstanceName + "容器初始化失败,当前重启次数:" + restartCount);
+                    sleep(30);
+                    String title = newInstanceName + "容器初始化失败,当前重启次数:" + restartCount;
+                    NotifyUtil.notifyInfo(project, title);
+                    String error = KubesphereUtils.getContainerStartInfo(runsUrl, selectService, newInstanceName, 300, false);
+                    ApplicationManager.getApplication().invokeLater(() -> {
+                        KbsMsgDialog dialog = new KbsMsgDialog(title, error, project, selectService, runsUrl, newInstanceName, false);
+                        dialog.show();
+                    }, ModalityState.NON_MODAL);
                     return;
                 }
                 restartCount = getRestartCount(statusObj, "containerStatuses");
                 if (restartCount > 0) {
-                    NotifyUtil.notifyError(project, newInstanceName + "容器启动失败,当前重启次数:" + restartCount);
+                    sleep(30);
+                    String title = newInstanceName + "容器启动失败,当前重启次数:" + restartCount;
+                    NotifyUtil.notifyInfo(project, title);
+                    String error = KubesphereUtils.getContainerStartInfo(runsUrl, selectService, newInstanceName, 300, false);
+                    ApplicationManager.getApplication().invokeLater(() -> {
+                        KbsMsgDialog dialog = new KbsMsgDialog(title, error, project, selectService, runsUrl, newInstanceName, false);
+                        dialog.show();
+                    }, ModalityState.NON_MODAL);
                     return;
                 }
 
                 boolean ready = getReady(statusObj, "initContainerStatuses");
                 if (!ready) {
                     sleep(10);
-                    monitorStartedTask(podUrl, selectService, project, newInstanceName);
+                    monitorStartedTask(podUrl, selectService, runsUrl, project, newInstanceName);
                     return;
                 }
                 ready = getReady(statusObj, "containerStatuses");
                 if (!ready) {
                     sleep(10);
-                    monitorStartedTask(podUrl, selectService, project, newInstanceName);
+                    monitorStartedTask(podUrl, selectService, runsUrl, project, newInstanceName);
                     return;
                 }
 
@@ -201,7 +219,7 @@ public class ExecutorUtils {
         return list.stream().allMatch(it -> it);
     }
 
-    private static String findNamespace(String runsUrl) {
+    public static String findNamespace(String runsUrl) {
         int start = runsUrl.indexOf("pipelines") + "pipelines".length() + 1;
         int end = runsUrl.indexOf("branches") - 1;
         return runsUrl.substring(start, end);
