@@ -21,7 +21,7 @@ import javax.swing.*;
 import java.util.List;
 
 public class ServiceRunningShowAction extends AnAction {
-    @SuppressWarnings("DataFlowIssue")
+
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         Project project = e.getProject();
@@ -30,6 +30,9 @@ public class ServiceRunningShowAction extends AnAction {
             return;
         }
         JsonObject configObj = ConfigUtil.getProjectConfigFromFile(project);
+        if (configObj == null) {
+            return;
+        }
         String runsUrl = configObj.get("runsUrl").getAsString();
         String selectService = serviceDialog.getSelectService();
 
@@ -41,23 +44,27 @@ public class ServiceRunningShowAction extends AnAction {
                     NotifyUtil.notifyError(project, "没有任何实例!");
                     return;
                 }
-                final int[] choose = {0};
-                if (instanceVos.size() > 1) {
-                    try {
-                        SwingUtilities.invokeAndWait(() -> {
-                            String[] options = instanceVos.stream()
-                                    .map(instanceVo -> instanceVo.getName() + instanceVo.getDesc()).toArray(String[]::new);
-                            choose[0] = Messages.showDialog(project, "找到多个服务实例,请选择:", "温馨提示",
-                                    options, 0, null);
-                        });
-                    } catch (Exception ex) {
-                        throw new RuntimeException(ex);
-                    }
-                }
-                if (choose[0] == -1) {
-                    return;
-                }
-                InstanceVo instanceVo = instanceVos.get(choose[0]);
+                SwingUtilities.invokeLater(() -> showInstances(project, instanceVos, runsUrl, selectService));
+            }
+        }.queue();
+    }
+
+    public void showInstances(Project project, List<InstanceVo> instanceVos, String runsUrl, String selectService) {
+        final int[] choose = {0};
+        if (instanceVos.size() > 1) {
+            String[] options = instanceVos.stream()
+                    .map(instanceVo -> instanceVo.getName() + instanceVo.getDesc()).toArray(String[]::new);
+            choose[0] = Messages.showDialog(project, "找到多个服务实例,请选择:", "温馨提示",
+                    options, 0, null);
+        }
+        if (choose[0] == -1) {
+            return;
+        }
+        InstanceVo instanceVo = instanceVos.get(choose[0]);
+
+        new Task.Backgroundable(project, selectService + "获取信息中...", true) {
+            @Override
+            public void run(@NotNull ProgressIndicator indicator) {
                 byte[] textBytes = KubesphereUtils.getContainerStartInfo(runsUrl, selectService, instanceVo.getName(),
                         300, instanceVo.isPreviews(), false);
                 ApplicationManager.getApplication().invokeLater(() -> {

@@ -13,9 +13,8 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.ScrollType;
-import com.intellij.openapi.fileEditor.FileEditorProvider;
 import com.intellij.openapi.fileEditor.TextEditor;
-import com.intellij.openapi.fileEditor.ex.FileEditorProviderManager;
+import com.intellij.openapi.fileEditor.impl.text.TextEditorProvider;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
@@ -163,15 +162,7 @@ public class KbsMsgDialog extends DialogWrapper {
             }
             textEditor = convertTxtToEditor(project, txtBytes);
 
-            JPanel panel = new JPanel(new BorderLayout());
-            jTabbedPane.addTab("容器日志", panel);
-
-            JComponent editorComp = textEditor.getComponent();
-            panel.add(editorComp, BorderLayout.CENTER);
-
-            EditorSearchSession editorSearchSession = EditorSearchSession.start(textEditor.getEditor(), project);
-            SearchReplaceComponent findComp = editorSearchSession.getComponent();
-            panel.add(findComp, BorderLayout.NORTH);
+            jTabbedPane.addTab("容器日志", textEditor.getComponent());
         });
     }
 
@@ -179,9 +170,8 @@ public class KbsMsgDialog extends DialogWrapper {
         final TextEditor[] textEditors = new TextEditor[1];
         WriteAction.runAndWait(() -> {
             VirtualFile virtualFile = VirtualFileUtils.createVirtualFileFromText(txtBytes);
-            FileEditorProvider provider = FileEditorProviderManager.getInstance().getProviders(project, virtualFile)[0];
-            TextEditor textEditor = (TextEditor) provider.createEditor(project, virtualFile);
 
+            TextEditor textEditor = (TextEditor) TextEditorProvider.getInstance().createEditor(project, virtualFile);
             textEditor.getEditor().getDocument().setReadOnly(true);
 
             scrollToBottom(textEditor.getEditor());
