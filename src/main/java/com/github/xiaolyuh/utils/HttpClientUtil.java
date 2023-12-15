@@ -1,10 +1,10 @@
 package com.github.xiaolyuh.utils;
 
 import com.github.xiaolyuh.net.HttpException;
+import com.github.xiaolyuh.ui.KbsMsgDialog;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.intellij.openapi.util.io.StreamUtil;
 
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -16,6 +16,7 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import static com.github.xiaolyuh.utils.KubesphereUtils.loginAndSaveToken;
 
@@ -129,6 +130,16 @@ public class HttpClientUtil {
         return getForObjectUseUrl(url, headers, clazz);
     }
 
+    public static <T> void getForObjectWithTokenUseUrl(String url, Map<String, String> headers, Class<T> clazz,
+                                                       Consumer<String> consumer, KbsMsgDialog kbsMsgDialog) {
+        String kubesphereToken = ConfigUtil.getKubesphereToken();
+        if (headers == null) {
+            headers = Maps.newHashMap();
+        }
+        headers.put("Cookie", "token=" + kubesphereToken);
+        getForObjectUseUrl(url, headers, clazz, consumer, kbsMsgDialog);
+    }
+
     public static <T> T getForObjectUseUrl(String url, Map<String, String> headers, Class<T> clazz) {
         try {
             HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
@@ -143,7 +154,7 @@ public class HttpClientUtil {
                 return getForObjectWithTokenUseUrl(url, headers, clazz);
             }
             InputStream inputStream = connection.getInputStream();
-            byte[] bytes = StreamUtil.readBytes(inputStream);
+            byte[] bytes = inputStream.readAllBytes();
             inputStream.close();
             connection.disconnect();
             String body = new String(bytes);
@@ -152,6 +163,39 @@ public class HttpClientUtil {
                 return (T) body;
             }
             return gson.fromJson(body, clazz);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static <T> void getForObjectUseUrl(String url, Map<String, String> headers, Class<T> clazz,
+                                              Consumer<String> consumer, KbsMsgDialog kbsMsgDialog) {
+        try {
+            HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+            connection.setRequestMethod("GET");
+            for (Map.Entry<String, String> entry : headers.entrySet()) {
+                connection.setRequestProperty(entry.getKey(), entry.getValue());
+            }
+            connection.connect();
+            int responseCode = connection.getResponseCode();
+            if (responseCode == 401) {
+                loginAndSaveToken();
+                getForObjectWithTokenUseUrl(url, headers, clazz);
+                return;
+            }
+            InputStream inputStream = null;
+            while (kbsMsgDialog.getInsRefreshOpen()) {
+                inputStream = connection.getInputStream();
+                byte[] bytes = inputStream.readNBytes(4096);
+                if (kbsMsgDialog.getInsRefreshOpen()) {
+                    String body = new String(bytes);
+                    consumer.accept(body);
+                }
+            }
+            if (inputStream != null) {
+                inputStream.close();
+                connection.disconnect();
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

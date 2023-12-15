@@ -1,5 +1,6 @@
 package com.github.xiaolyuh.ui;
 
+import com.github.xiaolyuh.utils.ExecutorUtils;
 import com.github.xiaolyuh.utils.KubesphereUtils;
 import com.github.xiaolyuh.utils.VirtualFileUtils;
 import com.intellij.find.EditorSearchSession;
@@ -25,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 public class KbsMsgDialog extends DialogWrapper {
@@ -35,6 +36,8 @@ public class KbsMsgDialog extends DialogWrapper {
     private JButton topBtn;
     private JButton bottomBtn;
     private JButton swBtn;
+    private JButton insRefreshBtn;
+    private volatile boolean insRefreshOpen = false;
     private int tailLines = 300;
     private TextEditor textEditor;
 
@@ -43,6 +46,7 @@ public class KbsMsgDialog extends DialogWrapper {
         setTitle(title);
         init();
 
+        mainPanel.remove(insRefreshBtn);
         mainPanel.remove(swBtn);
         mainPanel.remove(topBtn);
         mainPanel.remove(refreshBtn);
@@ -63,9 +67,19 @@ public class KbsMsgDialog extends DialogWrapper {
             refreshRunningData(project, runsUrl, selectService, newInstanceName, tailLines, previews);
         });
 
+        insRefreshBtn.addActionListener(e -> {
+            insRefreshOpen = !insRefreshOpen;
+            String tip = insRefreshOpen ? "关闭实时刷新" : "开启实时刷新";
+            insRefreshBtn.setText(tip);
+            refreshBtn.setEnabled(!insRefreshOpen);
+            refreshInsRunningData(project, runsUrl, selectService, newInstanceName, tailLines, KbsMsgDialog.this);
+        });
+
         swBtn.addActionListener(e -> {
             EditorSettings settings = textEditor.getEditor().getSettings();
             boolean useSoftWraps = settings.isUseSoftWraps();
+            String tip = useSoftWraps ? "开启软换行" : "关闭软换行";
+            swBtn.setText(tip);
             settings.setUseSoftWraps(!useSoftWraps);
         });
 
@@ -73,7 +87,13 @@ public class KbsMsgDialog extends DialogWrapper {
 
         bottomBtn.addActionListener(e -> scrollToBottom(textEditor.getEditor()));
 
-        fillEditorWithRunningTxt(project, msg);
+        fillEditorWithRunningTxt(project, msg, false);
+    }
+
+    @Override
+    protected void dispose() {
+        insRefreshOpen = false;
+        super.dispose();
     }
 
     private void refreshRunningData(Project project, String runsUrl, String selectService, String newInstanceName,
@@ -84,11 +104,25 @@ public class KbsMsgDialog extends DialogWrapper {
                 String msg = KubesphereUtils.getContainerStartInfo(runsUrl, selectService, newInstanceName, tailLines,
                         previews, false);
                 ApplicationManager.getApplication().invokeLater(() -> {
-                    fillEditorWithRunningTxt(project, msg);
+                    fillEditorWithRunningTxt(project, msg, false);
                 });
             }
         };
         ProgressManager.getInstance().run(task);
+    }
+
+    private void refreshInsRunningData(Project project, String runsUrl, String selectService, String newInstanceName,
+                                       int tailLines, KbsMsgDialog kbsMsgDialog) {
+        ExecutorUtils.addTask(() -> {
+            KubesphereUtils.getContainerStartInfo(runsUrl, selectService, newInstanceName, tailLines,
+                    false, true, msg -> {
+                        SwingUtilities.invokeLater(() -> {
+                            ApplicationManager.getApplication().invokeLater(() -> {
+                                fillEditorWithRunningTxt(project, msg, true);
+                            });
+                        });
+                    }, kbsMsgDialog);
+        });
     }
 
     private void fillEditorWithErrorTxt(Project project, Pair<String, String> pair) {
@@ -110,14 +144,22 @@ public class KbsMsgDialog extends DialogWrapper {
         panel.add(findComp, BorderLayout.NORTH);
     }
 
-    private void fillEditorWithRunningTxt(Project project, String txt) {
-        WriteAction.run(() -> {
+    private void fillEditorWithRunningTxt(Project project, String txt, boolean append) {
+        ApplicationManager.getApplication().runWriteAction(() -> {
             if (textEditor != null) {
                 try {
-                    textEditor.getFile().setBinaryContent(txt.getBytes(StandardCharsets.UTF_8));
+                    if (append) {
+                        InputStream inputStream = textEditor.getFile().getInputStream();
+                        byte[] bytes = inputStream.readAllBytes();
+                        inputStream.close();
+                        String s = new String(bytes) + txt;
+                        textEditor.getFile().setBinaryContent(s.getBytes(StandardCharsets.UTF_8));
+                    } else {
+                        textEditor.getFile().setBinaryContent(txt.getBytes(StandardCharsets.UTF_8));
+                    }
                     scrollToBottom(textEditor.getEditor());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
+                } catch (Throwable ignored) {
+
                 }
                 return;
             }
@@ -142,6 +184,8 @@ public class KbsMsgDialog extends DialogWrapper {
             FileEditorProvider provider = FileEditorProviderManager.getInstance().getProviders(project, virtualFile)[0];
             TextEditor textEditor = (TextEditor) provider.createEditor(project, virtualFile);
 
+            textEditor.getEditor().getDocument().setReadOnly(true);
+
             scrollToBottom(textEditor.getEditor());
 
             textEditors[0] = textEditor;
@@ -159,6 +203,10 @@ public class KbsMsgDialog extends DialogWrapper {
         Caret caret = editor.getCaretModel().getPrimaryCaret();
         caret.moveToOffset(editor.getDocument().getTextLength());
         editor.getScrollingModel().scrollToCaret(ScrollType.RELATIVE);
+    }
+
+    public boolean getInsRefreshOpen() {
+        return insRefreshOpen;
     }
 
     @Override

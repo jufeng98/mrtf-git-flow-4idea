@@ -1,6 +1,8 @@
 package com.github.xiaolyuh.utils;
 
 import com.github.xiaolyuh.net.HttpException;
+import com.github.xiaolyuh.ui.KbsMsgDialog;
+import com.github.xiaolyuh.vo.InstanceVo;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -17,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 public class KubesphereUtils {
 
@@ -130,28 +133,29 @@ public class KubesphereUtils {
         return findInstanceName(podUrl, id, detectTimes);
     }
 
-    public static Pair<String, Boolean> findInstanceName(String runsUrl, String selectService) {
+    public static List<InstanceVo> findInstanceName(String runsUrl, String selectService) {
         String podUrl = findPodUrl(runsUrl, selectService);
 
         JsonObject resObj = HttpClientUtil.getForObjectWithToken(podUrl, null, JsonObject.class);
 
+        List<InstanceVo> instanceVos = new ArrayList<>();
         JsonArray items = resObj.getAsJsonArray("items");
-        String instanceName = "";
-        boolean previews = false;
         for (Object item : items) {
             JsonObject itemObject = (JsonObject) item;
             JsonObject statusObj = itemObject.getAsJsonObject("status");
             boolean ready1 = getReady(statusObj, "initContainerStatuses");
             boolean ready2 = getReady(statusObj, "containerStatuses");
+            String instanceName = itemObject.getAsJsonObject("metadata").get("name").getAsString();
+            InstanceVo instanceVo;
             if (ready1 && ready2) {
-                instanceName = itemObject.getAsJsonObject("metadata").get("name").getAsString();
-                previews = false;
-                break;
+                instanceVo = new InstanceVo(instanceName, "运行中", false);
+            } else {
+                instanceVo = new InstanceVo(instanceName, "未就绪", true);
             }
-            instanceName = itemObject.getAsJsonObject("metadata").get("name").getAsString();
-            previews = true;
+            instanceVos.add(instanceVo);
+
         }
-        return Pair.create(instanceName, previews);
+        return instanceVos;
     }
 
     public static String findPodUrl(String runsUrl, String selectService) {
@@ -209,8 +213,16 @@ public class KubesphereUtils {
                                                boolean previous, boolean follow) {
         String namespace = findNamespace(runsUrl);
         String logUrl = String.format("http://host-kslb.mh.bluemoon.com.cn/api/clusters/sim-1/v1/namespaces/%s/pods/%s/log?container=%s&tailLines=%s&timestamps=true&follow=%s&previous=%s",
-                namespace, newInstanceName, selectService.toLowerCase(), tailLines, previous, follow);
+                namespace, newInstanceName, selectService.toLowerCase(), tailLines, follow, previous);
         return HttpClientUtil.getForObjectWithTokenUseUrl(logUrl, null, String.class);
+    }
+
+    public static void getContainerStartInfo(String runsUrl, String selectService, String newInstanceName, int tailLines,
+                                             boolean previous, boolean follow, Consumer<String> consumer, KbsMsgDialog kbsMsgDialog) {
+        String namespace = findNamespace(runsUrl);
+        String logUrl = String.format("http://host-kslb.mh.bluemoon.com.cn/api/clusters/sim-1/v1/namespaces/%s/pods/%s/log?container=%s&tailLines=%s&timestamps=true&follow=%s&previous=%s",
+                namespace, newInstanceName, selectService.toLowerCase(), tailLines, follow, previous);
+        HttpClientUtil.getForObjectWithTokenUseUrl(logUrl, null, String.class, consumer, kbsMsgDialog);
     }
 
     @SuppressWarnings({"unused", "ExtractMethodRecommender"})

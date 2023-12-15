@@ -4,6 +4,8 @@ import com.github.xiaolyuh.ui.KbsMsgDialog;
 import com.github.xiaolyuh.ui.ServiceDialog;
 import com.github.xiaolyuh.utils.ConfigUtil;
 import com.github.xiaolyuh.utils.KubesphereUtils;
+import com.github.xiaolyuh.utils.NotifyUtil;
+import com.github.xiaolyuh.vo.InstanceVo;
 import com.google.gson.JsonObject;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -12,8 +14,11 @@ import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Pair;
+import com.intellij.openapi.ui.Messages;
 import org.jetbrains.annotations.NotNull;
+
+import javax.swing.*;
+import java.util.List;
 
 public class ServiceRunningShowAction extends AnAction {
     @SuppressWarnings("DataFlowIssue")
@@ -31,12 +36,30 @@ public class ServiceRunningShowAction extends AnAction {
         new Task.Backgroundable(project, selectService + "获取信息中...", true) {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
-                Pair<String, Boolean> pair = KubesphereUtils.findInstanceName(runsUrl, selectService);
-                String msg = KubesphereUtils.getContainerStartInfo(runsUrl, selectService, pair.getFirst(),
-                        300, pair.getSecond(),false);
+                List<InstanceVo> instanceVos = KubesphereUtils.findInstanceName(runsUrl, selectService);
+                if (instanceVos.isEmpty()) {
+                    NotifyUtil.notifyError(project, "没有任何实例!");
+                    return;
+                }
+                final int[] choose = {0};
+                if (instanceVos.size() > 1) {
+                    try {
+                        SwingUtilities.invokeAndWait(() -> {
+                            String[] options = instanceVos.stream()
+                                    .map(instanceVo -> instanceVo.getName() + instanceVo.getDesc()).toArray(String[]::new);
+                            choose[0] = Messages.showDialog(project, "找到多个服务实例,请选择:", "温馨提示",
+                                    options, 0, null);
+                        });
+                    } catch (Exception ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+                InstanceVo instanceVo = instanceVos.get(choose[0]);
+                String msg = KubesphereUtils.getContainerStartInfo(runsUrl, selectService, instanceVo.getName(),
+                        300, instanceVo.isPreviews(), false);
                 ApplicationManager.getApplication().invokeLater(() -> {
-                    KbsMsgDialog dialog = new KbsMsgDialog("容器日志", msg, project, selectService, runsUrl,
-                            pair.getFirst(), false);
+                    KbsMsgDialog dialog = new KbsMsgDialog(selectService, msg, project, selectService, runsUrl,
+                            instanceVo.getName(), false);
                     dialog.show();
                 }, ModalityState.NON_MODAL);
             }
