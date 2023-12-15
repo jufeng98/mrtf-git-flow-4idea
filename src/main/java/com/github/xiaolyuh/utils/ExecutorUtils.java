@@ -130,7 +130,8 @@ public class ExecutorUtils {
                     sleep(30);
                     String title = newInstanceName + "容器初始化失败,当前重启次数:" + restartCount;
                     NotifyUtil.notifyInfo(project, title);
-                    String error = KubesphereUtils.getContainerStartInfo(runsUrl, selectService, newInstanceName, 300, false);
+                    String error = KubesphereUtils.getContainerStartInfo(runsUrl, selectService, newInstanceName,
+                            300, false, false);
                     ApplicationManager.getApplication().invokeLater(() -> {
                         KbsMsgDialog dialog = new KbsMsgDialog(title, error, project, selectService, runsUrl,
                                 newInstanceName, false);
@@ -143,7 +144,8 @@ public class ExecutorUtils {
                     sleep(30);
                     String title = newInstanceName + "容器启动失败,当前重启次数:" + restartCount;
                     NotifyUtil.notifyInfo(project, title);
-                    String error = KubesphereUtils.getContainerStartInfo(runsUrl, selectService, newInstanceName, 300, false);
+                    String error = KubesphereUtils.getContainerStartInfo(runsUrl, selectService, newInstanceName,
+                            300, false, false);
                     ApplicationManager.getApplication().invokeLater(() -> {
                         KbsMsgDialog dialog = new KbsMsgDialog(title, error, project, selectService, runsUrl,
                                 newInstanceName, false);

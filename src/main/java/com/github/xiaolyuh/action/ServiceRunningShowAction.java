@@ -33,7 +33,7 @@ public class ServiceRunningShowAction extends AnAction {
             public void run(@NotNull ProgressIndicator indicator) {
                 Pair<String, Boolean> pair = KubesphereUtils.findInstanceName(runsUrl, selectService);
                 String msg = KubesphereUtils.getContainerStartInfo(runsUrl, selectService, pair.getFirst(),
-                        300, pair.getSecond());
+                        300, pair.getSecond(),false);
                 ApplicationManager.getApplication().invokeLater(() -> {
                     KbsMsgDialog dialog = new KbsMsgDialog("容器日志", msg, project, selectService, runsUrl,
                             pair.getFirst(), false);

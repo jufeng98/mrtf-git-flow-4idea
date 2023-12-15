@@ -81,7 +81,8 @@ public class KbsMsgDialog extends DialogWrapper {
         Task.Modal task = new Task.Modal(project, mainPanel, "Loading......", true) {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
-                String msg = KubesphereUtils.getContainerStartInfo(runsUrl, selectService, newInstanceName, tailLines, previews);
+                String msg = KubesphereUtils.getContainerStartInfo(runsUrl, selectService, newInstanceName, tailLines,
+                        previews, false);
                 ApplicationManager.getApplication().invokeLater(() -> {
                     fillEditorWithRunningTxt(project, msg);
                 });

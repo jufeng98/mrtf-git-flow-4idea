@@ -205,10 +205,11 @@ public class KubesphereUtils {
         }
     }
 
-    public static String getContainerStartInfo(String runsUrl, String selectService, String newInstanceName, int tailLines, boolean previous) {
+    public static String getContainerStartInfo(String runsUrl, String selectService, String newInstanceName, int tailLines,
+                                               boolean previous, boolean follow) {
         String namespace = findNamespace(runsUrl);
-        String logUrl = String.format("http://host-kslb.mh.bluemoon.com.cn/api/clusters/sim-1/v1/namespaces/%s/pods/%s/log?container=%s&tailLines=%s&timestamps=true&follow=false&previous=%s",
-                namespace, newInstanceName, selectService.toLowerCase(), tailLines, previous);
+        String logUrl = String.format("http://host-kslb.mh.bluemoon.com.cn/api/clusters/sim-1/v1/namespaces/%s/pods/%s/log?container=%s&tailLines=%s&timestamps=true&follow=%s&previous=%s",
+                namespace, newInstanceName, selectService.toLowerCase(), tailLines, previous, follow);
         return HttpClientUtil.getForObjectWithTokenUseUrl(logUrl, null, String.class);
     }
 
