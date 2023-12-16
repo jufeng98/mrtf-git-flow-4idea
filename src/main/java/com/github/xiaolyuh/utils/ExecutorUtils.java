@@ -1,5 +1,6 @@
 package com.github.xiaolyuh.utils;
 
+import com.github.xiaolyuh.service.RunTask;
 import com.github.xiaolyuh.ui.KbsMsgDialog;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;

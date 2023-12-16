@@ -32,6 +32,12 @@ import java.io.InputStream;
 import java.util.List;
 
 public class KbsMsgDialog extends DialogWrapper {
+    private String newInstanceName;
+    private Pair<byte[], byte[]> pair;
+    private final Project project;
+    private String selectService;
+    private String runsUrl;
+
     private JPanel mainPanel;
     private JTabbedPane jTabbedPane;
     private JButton refreshBtn;
@@ -39,13 +45,16 @@ public class KbsMsgDialog extends DialogWrapper {
     private JButton bottomBtn;
     private JButton swBtn;
     private JButton insRefreshBtn;
+
     private volatile boolean insRefreshOpen = false;
     private int tailLines = 500;
     private TextEditor textEditor;
-    private final List<Editor> editorList = Lists.newArrayList();
+    private final List<Editor> releaseEditorList = Lists.newArrayList();
 
     public KbsMsgDialog(String title, Pair<byte[], byte[]> pair, Project project) {
         super(project);
+        this.pair = pair;
+        this.project = project;
         setTitle(title);
         init();
 
@@ -55,19 +64,22 @@ public class KbsMsgDialog extends DialogWrapper {
         mainPanel.remove(refreshBtn);
         mainPanel.remove(bottomBtn);
 
-        fillEditorWithErrorTxt(project, pair);
+        fillEditorWithErrorTxt();
     }
 
     public KbsMsgDialog(String title, byte[] textBytes, Project project, String selectService, String runsUrl,
                         String newInstanceName, boolean previews) {
         super(project);
-
         setTitle(title);
+        this.newInstanceName = newInstanceName;
+        this.project = project;
+        this.selectService = selectService;
+        this.runsUrl = runsUrl;
         init();
 
         refreshBtn.addActionListener(e -> {
             tailLines += tailLines;
-            refreshRunningData(project, runsUrl, selectService, newInstanceName, tailLines, previews);
+            refreshRunningData(tailLines, previews);
         });
 
         insRefreshBtn.addActionListener(e -> {
@@ -76,7 +88,7 @@ public class KbsMsgDialog extends DialogWrapper {
             String tip = insRefreshOpen ? "关闭实时刷新" : "开启实时刷新";
             insRefreshBtn.setText(tip);
             refreshBtn.setEnabled(!insRefreshOpen);
-            refreshInsRunningData(project, runsUrl, selectService, newInstanceName, 1000, KbsMsgDialog.this);
+            refreshInsRunningData(KbsMsgDialog.this);
         });
 
         swBtn.addActionListener(e -> {
@@ -97,12 +109,11 @@ public class KbsMsgDialog extends DialogWrapper {
     @Override
     protected void dispose() {
         insRefreshOpen = false;
-        editorList.forEach(editor -> EditorFactory.getInstance().releaseEditor(editor));
+        releaseEditorList.forEach(editor -> EditorFactory.getInstance().releaseEditor(editor));
         super.dispose();
     }
 
-    private void refreshRunningData(Project project, String runsUrl, String selectService, String newInstanceName,
-                                    int tailLines, boolean previews) {
+    private void refreshRunningData(int tailLines, boolean previews) {
         Task.Modal task = new Task.Modal(project, mainPanel, "Loading......", true) {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
@@ -114,20 +125,19 @@ public class KbsMsgDialog extends DialogWrapper {
         ProgressManager.getInstance().run(task);
     }
 
-    private void refreshInsRunningData(Project project, String runsUrl, String selectService, String newInstanceName,
-                                       int tailLines, KbsMsgDialog kbsMsgDialog) {
-        ExecutorUtils.addTask(() -> KubesphereUtils.getContainerStartInfo(runsUrl, selectService, newInstanceName, tailLines,
-                false, true, body -> SwingUtilities
+    private void refreshInsRunningData(KbsMsgDialog kbsMsgDialog) {
+        ExecutorUtils.addTask(() -> KubesphereUtils.getContainerStartInfo(runsUrl, selectService, newInstanceName,
+                1000, false, true, body -> SwingUtilities
                         .invokeLater(() -> ApplicationManager.getApplication()
                                 .invokeLater(() -> fillEditorWithRunningTxt(project, body, true))), kbsMsgDialog));
     }
 
-    private void fillEditorWithErrorTxt(Project project, Pair<byte[], byte[]> pair) {
-        addTab("compile", project, pair.getSecond());
-        addTab("push", project, pair.getFirst());
+    private void fillEditorWithErrorTxt() {
+        addTab("compile", pair.getSecond());
+        addTab("push", pair.getFirst());
     }
 
-    private void addTab(String tabTitle, Project project, byte[] txtBytes) {
+    private void addTab(String tabTitle, byte[] txtBytes) {
         TextEditor textEditor = convertTxtToEditor(project, txtBytes);
 
         JPanel panel = new JPanel(new BorderLayout());
@@ -178,7 +188,7 @@ public class KbsMsgDialog extends DialogWrapper {
 
             textEditors[0] = textEditor;
 
-            editorList.add(textEditor.getEditor());
+            releaseEditorList.add(textEditor.getEditor());
         });
         return textEditors[0];
     }

@@ -31,6 +31,7 @@ public class ServiceRunningShowAction extends AnAction {
         }
         JsonObject configObj = ConfigUtil.getProjectConfigFromFile(project);
         if (configObj == null) {
+            NotifyUtil.notifyError(project, "请先更新配置");
             return;
         }
         String runsUrl = configObj.get("runsUrl").getAsString();
@@ -39,9 +40,15 @@ public class ServiceRunningShowAction extends AnAction {
         new Task.Backgroundable(project, selectService + "获取信息中...", true) {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
-                List<InstanceVo> instanceVos = KubesphereUtils.findInstanceName(runsUrl, selectService);
+                List<InstanceVo> instanceVos;
+                try {
+                    instanceVos = KubesphereUtils.findInstanceName(runsUrl, selectService);
+                } catch (Exception e) {
+                    NotifyUtil.notifyError(project, "无法连接,请检查网络后再重试,错误信息:" + e.getMessage());
+                    return;
+                }
                 if (instanceVos.isEmpty()) {
-                    NotifyUtil.notifyError(project, "没有任何实例!");
+                    NotifyUtil.notifyError(project, "没有任何服务实例!");
                     return;
                 }
                 SwingUtilities.invokeLater(() -> showInstances(project, instanceVos, runsUrl, selectService));
@@ -53,7 +60,8 @@ public class ServiceRunningShowAction extends AnAction {
         final int[] choose = {0};
         if (instanceVos.size() > 1) {
             String[] options = instanceVos.stream()
-                    .map(instanceVo -> instanceVo.getName() + instanceVo.getDesc()).toArray(String[]::new);
+                    .map(instanceVo -> instanceVo.getDesc() + ":" + instanceVo.getName())
+                    .toArray(String[]::new);
             choose[0] = Messages.showDialog(project, "找到多个服务实例,请选择:", "温馨提示",
                     options, 0, null);
         }
@@ -66,7 +74,7 @@ public class ServiceRunningShowAction extends AnAction {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 byte[] textBytes = KubesphereUtils.getContainerStartInfo(runsUrl, selectService, instanceVo.getName(),
-                        300, instanceVo.isPreviews(), false);
+                        500, instanceVo.isPreviews(), false);
                 ApplicationManager.getApplication().invokeLater(() -> {
                     KbsMsgDialog dialog = new KbsMsgDialog(selectService, textBytes, project, selectService, runsUrl,
                             instanceVo.getName(), false);

@@ -1,4 +1,4 @@
-package com.github.xiaolyuh.utils;
+package com.github.xiaolyuh.service;
 
 import com.intellij.openapi.diagnostic.Logger;
 
