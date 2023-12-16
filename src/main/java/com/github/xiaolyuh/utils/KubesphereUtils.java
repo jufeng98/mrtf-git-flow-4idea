@@ -82,7 +82,7 @@ public class KubesphereUtils {
         headers.put("Content-Type", "application/x-www-form-urlencoded");
         JsonObject jsonObject = HttpClientUtil.postForObject(LOGIN_URL, reqBody, headers, JsonObject.class);
         String accessToken = jsonObject.get("access_token").getAsString();
-        NotifyUtil.notifyInfo(ProjectUtil.getActiveProject(), "请求url:" + LOGIN_URL + "," + kubesphereUsername + ",登录结果:" + jsonObject);
+        NotifyUtil.notifyInfo(ProjectUtil.getActiveProject(), "请求url:" + LOGIN_URL + "," + kubesphereUsername + "登录结果:" + jsonObject);
         return accessToken;
     }
 
