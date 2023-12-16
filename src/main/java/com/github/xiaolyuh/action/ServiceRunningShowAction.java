@@ -53,7 +53,8 @@ public class ServiceRunningShowAction extends AnAction {
                     NotifyUtil.notifyError(project, "没有任何服务实例!");
                     return;
                 }
-                ExecutorUtils.addTask(() -> SwingUtilities.invokeLater(() -> showInstances(project, instanceVos, runsUrl, selectService)));
+                ExecutorUtils.addTask(() -> SwingUtilities
+                        .invokeLater(() -> showInstances(project, instanceVos, runsUrl, selectService)));
             }
         }.queue();
     }
@@ -92,7 +93,8 @@ public class ServiceRunningShowAction extends AnAction {
 
     public void showInstanceDialog(Project project, InstanceVo instanceVo, byte[] textBytes, String runsUrl, String selectService) {
         ApplicationManager.getApplication().invokeLater(() -> {
-            KbsMsgDialog dialog = new KbsMsgDialog(selectService, textBytes, project, selectService, runsUrl,
+            String title = instanceVo.getDesc() + ":" + instanceVo.getName();
+            KbsMsgDialog dialog = new KbsMsgDialog(title, textBytes, project, selectService, runsUrl,
                     instanceVo.getName(), false);
             dialog.show();
         }, ModalityState.NON_MODAL);
