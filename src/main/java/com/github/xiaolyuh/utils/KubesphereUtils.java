@@ -1,7 +1,5 @@
 package com.github.xiaolyuh.utils;
 
-import com.github.xiaolyuh.net.HttpException;
-import com.github.xiaolyuh.ui.KbsMsgDialog;
 import com.github.xiaolyuh.vo.InstanceVo;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonArray;
@@ -10,7 +8,7 @@ import com.google.gson.JsonObject;
 import com.intellij.ide.impl.ProjectUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.util.io.StreamUtil;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -23,7 +21,7 @@ import java.util.function.Consumer;
 
 public class KubesphereUtils {
 
-    public static void triggerPipeline(String selectService, Project project) {
+    public static void triggerPipeline(String selectService, Project project) throws Exception {
         if (StringUtils.isBlank(selectService)) {
             NotifyUtil.notifyInfo(project, "未选择服务,跳过触发流水线");
             return;
@@ -36,18 +34,7 @@ public class KubesphereUtils {
         }
 
         String crumbissuerUrl = configObj.get("crumbissuerUrl").getAsString();
-        JsonObject resObj;
-        try {
-            resObj = HttpClientUtil.getForObjectWithToken(crumbissuerUrl, null, JsonObject.class);
-        } catch (HttpException e) {
-            if (e.getCode() == 401) {
-                NotifyUtil.notifyInfo(project, "token失效,尝试重新登录");
-                loginAndSaveToken();
-                resObj = HttpClientUtil.getForObjectWithToken(crumbissuerUrl, null, JsonObject.class);
-            } else {
-                throw e;
-            }
-        }
+        JsonObject resObj = HttpClientUtil.getForObjectWithToken(crumbissuerUrl, null, JsonObject.class);
         String crumb = resObj.get("crumb").getAsString();
         NotifyUtil.notifyInfo(project, "请求url:" + crumbissuerUrl + ",结果crumb:" + crumb);
 
@@ -133,7 +120,7 @@ public class KubesphereUtils {
         return findInstanceName(podUrl, id, detectTimes);
     }
 
-    public static List<InstanceVo> findInstanceName(String runsUrl, String selectService) {
+    public static List<InstanceVo> findInstanceName(String runsUrl, String selectService) throws Exception {
         String podUrl = findPodUrl(runsUrl, selectService);
 
         JsonObject resObj = HttpClientUtil.getForObjectWithToken(podUrl, null, JsonObject.class);
@@ -193,12 +180,26 @@ public class KubesphereUtils {
     }
 
     public static Pair<byte[], byte[]> getBuildErrorInfo(String url) {
-        String urlCompile = url + "nodes/33/steps/36/log/?start=0";
         String urlPush = url + "log/?start=0";
         CompletableFuture<byte[]> futurePush = CompletableFuture.supplyAsync(() ->
-                HttpClientUtil.getForObjectWithToken(urlPush, null, byte[].class));
+        {
+            try {
+                return HttpClientUtil.getForObjectWithToken(urlPush, null, byte[].class);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }).exceptionally(e -> ExceptionUtils.getStackTrace(e).getBytes(StandardCharsets.UTF_8));
+
+        String urlCompile = url + "nodes/33/steps/36/log/?start=0";
         CompletableFuture<byte[]> futureCompile = CompletableFuture.supplyAsync(() ->
-                HttpClientUtil.getForObjectWithToken(urlCompile, null, byte[].class));
+        {
+            try {
+                return HttpClientUtil.getForObjectWithToken(urlCompile, null, byte[].class);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }).exceptionally(e -> ExceptionUtils.getStackTrace(e).getBytes(StandardCharsets.UTF_8));
+
         CompletableFuture.allOf(futurePush, futureCompile).join();
         try {
             return Pair.create(futurePush.get(), futureCompile.get());
@@ -208,7 +209,7 @@ public class KubesphereUtils {
     }
 
     public static byte[] getContainerStartInfo(String runsUrl, String selectService, String newInstanceName, int tailLines,
-                                               boolean previous, boolean follow) {
+                                               boolean previous, boolean follow) throws Exception {
         String namespace = findNamespace(runsUrl);
         String logUrl = String.format("http://host-kslb.mh.bluemoon.com.cn/api/clusters/sim-1/v1/namespaces/%s/pods/%s/log?container=%s&tailLines=%s&timestamps=true&follow=%s&previous=%s",
                 namespace, newInstanceName, selectService.toLowerCase(), tailLines, follow, previous);
@@ -216,36 +217,11 @@ public class KubesphereUtils {
     }
 
     public static void getContainerStartInfo(String runsUrl, String selectService, String newInstanceName, int tailLines,
-                                             boolean previous, boolean follow, Consumer<byte[]> consumer, KbsMsgDialog kbsMsgDialog) {
+                                             boolean previous, boolean follow, Consumer<byte[]> consumer) throws Exception {
         String namespace = findNamespace(runsUrl);
         String logUrl = String.format("http://host-kslb.mh.bluemoon.com.cn/api/clusters/sim-1/v1/namespaces/%s/pods/%s/log?container=%s&tailLines=%s&timestamps=true&follow=%s&previous=%s",
                 namespace, newInstanceName, selectService.toLowerCase(), tailLines, follow, previous);
-        HttpClientUtil.getForObjectWithTokenUseUrl(logUrl, null, byte[].class, consumer, kbsMsgDialog);
+        HttpClientUtil.getForObjectWithTokenUseUrl(logUrl, null, byte[].class, consumer);
     }
 
-    @SuppressWarnings({"unused", "ExtractMethodRecommender"})
-    public static void loginByWsl(String kubesphereUsername, String kubespherePassword, Project project) {
-        try {
-            String[] cmd;
-            String command = "wsl curl \"http://host-kslb.mh.bluemoon.com.cn/login\" -H \"Content-Type:application/json\" -H \"Accept:*/*\" -H \"Connection: close\" -d '{\"username\":\"%s\",\"encrypt\":\"%s\"}' -i";
-            command = String.format(command, kubesphereUsername, kubespherePassword);
-            cmd = new String[]{"cmd", "/C", command};
-            Runtime runtime = Runtime.getRuntime();
-            Process process = runtime.exec(cmd);
-            process.waitFor();
-            @SuppressWarnings("deprecation")
-            String res = StreamUtil.readText(process.getInputStream(), StandardCharsets.UTF_8);
-            String[] split = res.split("\r\n");
-            for (String line : split) {
-                if (line.startsWith("Set-Cookie: token=")) {
-                    String token = line.replace("Set-Cookie: token=", "").split(";")[0];
-                    ConfigUtil.saveKubesphereToken(token);
-                    NotifyUtil.notifyInfo(project, "成功登录Kubesphere,Token:" + token);
-                    break;
-                }
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 }

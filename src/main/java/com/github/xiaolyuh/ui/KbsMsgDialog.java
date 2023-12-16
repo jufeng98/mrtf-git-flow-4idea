@@ -2,6 +2,7 @@ package com.github.xiaolyuh.ui;
 
 import com.github.xiaolyuh.utils.ExecutorUtils;
 import com.github.xiaolyuh.utils.KubesphereUtils;
+import com.github.xiaolyuh.utils.NotifyUtil;
 import com.github.xiaolyuh.utils.VirtualFileUtils;
 import com.google.common.collect.Lists;
 import com.intellij.find.EditorSearchSession;
@@ -23,6 +24,7 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.ArrayUtil;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,6 +32,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.InputStream;
 import java.util.List;
+import java.util.concurrent.Future;
 
 public class KbsMsgDialog extends DialogWrapper {
     private String newInstanceName;
@@ -46,7 +49,8 @@ public class KbsMsgDialog extends DialogWrapper {
     private JButton swBtn;
     private JButton insRefreshBtn;
 
-    private volatile boolean insRefreshOpen = false;
+    private boolean insRefreshOpen = false;
+    private Future<?> insRefreshFuture;
     private int tailLines = 500;
     private TextEditor textEditor;
     private final List<Editor> releaseEditorList = Lists.newArrayList();
@@ -83,12 +87,16 @@ public class KbsMsgDialog extends DialogWrapper {
         });
 
         insRefreshBtn.addActionListener(e -> {
-            //noinspection NonAtomicOperationOnVolatileField
             insRefreshOpen = !insRefreshOpen;
             String tip = insRefreshOpen ? "关闭实时刷新" : "开启实时刷新";
             insRefreshBtn.setText(tip);
             refreshBtn.setEnabled(!insRefreshOpen);
-            refreshInsRunningData(KbsMsgDialog.this);
+            if (!insRefreshOpen) {
+                insRefreshFuture.cancel(true);
+                insRefreshFuture = null;
+                return;
+            }
+            insRefreshFuture = refreshInsRunningData();
         });
 
         swBtn.addActionListener(e -> {
@@ -109,6 +117,9 @@ public class KbsMsgDialog extends DialogWrapper {
     @Override
     protected void dispose() {
         insRefreshOpen = false;
+        if (insRefreshFuture != null) {
+            insRefreshFuture.cancel(true);
+        }
         releaseEditorList.forEach(editor -> EditorFactory.getInstance().releaseEditor(editor));
         super.dispose();
     }
@@ -117,19 +128,32 @@ public class KbsMsgDialog extends DialogWrapper {
         Task.Modal task = new Task.Modal(project, mainPanel, "Loading......", true) {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
-                byte[] textBytes = KubesphereUtils.getContainerStartInfo(runsUrl, selectService, newInstanceName, tailLines,
-                        previews, false);
+                byte[] textBytes;
+                try {
+                    textBytes = KubesphereUtils.getContainerStartInfo(runsUrl, selectService, newInstanceName, tailLines,
+                            previews, false);
+                } catch (Exception e) {
+                    NotifyUtil.notifyError(project, "出错了:" + ExceptionUtils.getStackTrace(e));
+                    return;
+                }
                 ApplicationManager.getApplication().invokeLater(() -> fillEditorWithRunningTxt(project, textBytes, false));
             }
         };
         ProgressManager.getInstance().run(task);
     }
 
-    private void refreshInsRunningData(KbsMsgDialog kbsMsgDialog) {
-        ExecutorUtils.addTask(() -> KubesphereUtils.getContainerStartInfo(runsUrl, selectService, newInstanceName,
-                1000, false, true, body -> SwingUtilities
-                        .invokeLater(() -> ApplicationManager.getApplication()
-                                .invokeLater(() -> fillEditorWithRunningTxt(project, body, true))), kbsMsgDialog));
+    private Future<?> refreshInsRunningData() {
+        return ExecutorUtils.addTask(() -> {
+            try {
+                KubesphereUtils.getContainerStartInfo(runsUrl, selectService, newInstanceName,
+                        1000, false, true, body -> SwingUtilities
+                                .invokeLater(() -> ApplicationManager.getApplication()
+                                        .invokeLater(() -> fillEditorWithRunningTxt(project, body, true))
+                                ));
+            } catch (Exception e) {
+                NotifyUtil.notifyInfo(project, "实时刷新出错了:" + ExceptionUtils.getStackTrace(e));
+            }
+        });
     }
 
     private void fillEditorWithErrorTxt() {
@@ -203,10 +227,6 @@ public class KbsMsgDialog extends DialogWrapper {
         Caret caret = editor.getCaretModel().getPrimaryCaret();
         caret.moveToOffset(editor.getDocument().getTextLength());
         editor.getScrollingModel().scrollToCaret(ScrollType.RELATIVE);
-    }
-
-    public boolean getInsRefreshOpen() {
-        return insRefreshOpen;
     }
 
     @Override

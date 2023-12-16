@@ -2,6 +2,7 @@ package com.github.xiaolyuh.action;
 
 import com.github.xiaolyuh.service.GitFlowPlus;
 import com.github.xiaolyuh.config.InitOptions;
+import com.github.xiaolyuh.utils.KubesphereUtils;
 import com.github.xiaolyuh.vo.TagOptions;
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
@@ -24,13 +25,13 @@ import com.intellij.openapi.vcs.changes.ChangeListManager;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.ReflectionUtil;
 import git4idea.repo.GitRepository;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
-import static com.github.xiaolyuh.utils.KubesphereUtils.triggerPipeline;
 
 /**
  * Merge 抽象Action
@@ -135,7 +136,11 @@ public abstract class AbstractMergeAction extends AnAction {
                 VirtualFileManager.getInstance().asyncRefresh(null);
 
                 if (isStartTest) {
-                    triggerPipeline(finalSelectService, project);
+                    try {
+                        KubesphereUtils.triggerPipeline(finalSelectService, project);
+                    } catch (Exception e) {
+                        NotifyUtil.notifyError(project, "触发流水线出错了:" + ExceptionUtils.getStackTrace(e));
+                    }
                 }
             }
         }.queue();

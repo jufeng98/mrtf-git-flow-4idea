@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import static com.github.xiaolyuh.utils.KubesphereUtils.findInstanceName;
@@ -24,8 +25,8 @@ import static com.github.xiaolyuh.utils.KubesphereUtils.getRestartCount;
 public class ExecutorUtils {
     public static ExecutorService executorService = Executors.newCachedThreadPool();
 
-    public static void addTask(RunTask runnable) {
-        executorService.submit(runnable);
+    public static Future<?> addTask(RunTask runnable) {
+        return executorService.submit(runnable);
     }
 
     public static void monitorBuildTask(String runsUrl, String id, String selectService, Project project) {
@@ -132,7 +133,7 @@ public class ExecutorUtils {
                     String title = newInstanceName + "容器初始化失败,当前重启次数:" + restartCount;
                     NotifyUtil.notifyInfo(project, title);
                     byte[] errorBytes = KubesphereUtils.getContainerStartInfo(runsUrl, selectService, newInstanceName,
-                            300, false, false);
+                            500, false, false);
                     ApplicationManager.getApplication().invokeLater(() -> {
                         KbsMsgDialog dialog = new KbsMsgDialog(title, errorBytes, project, selectService, runsUrl,
                                 newInstanceName, false);
@@ -146,7 +147,7 @@ public class ExecutorUtils {
                     String title = newInstanceName + "容器启动失败,当前重启次数:" + restartCount;
                     NotifyUtil.notifyInfo(project, title);
                     byte[] errorBytes = KubesphereUtils.getContainerStartInfo(runsUrl, selectService, newInstanceName,
-                            300, false, false);
+                            500, false, false);
                     ApplicationManager.getApplication().invokeLater(() -> {
                         KbsMsgDialog dialog = new KbsMsgDialog(title, errorBytes, project, selectService, runsUrl,
                                 newInstanceName, false);

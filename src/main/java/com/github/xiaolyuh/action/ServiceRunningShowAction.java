@@ -3,6 +3,7 @@ package com.github.xiaolyuh.action;
 import com.github.xiaolyuh.ui.KbsMsgDialog;
 import com.github.xiaolyuh.ui.ServiceDialog;
 import com.github.xiaolyuh.utils.ConfigUtil;
+import com.github.xiaolyuh.utils.ExecutorUtils;
 import com.github.xiaolyuh.utils.KubesphereUtils;
 import com.github.xiaolyuh.utils.NotifyUtil;
 import com.github.xiaolyuh.vo.InstanceVo;
@@ -44,14 +45,14 @@ public class ServiceRunningShowAction extends AnAction {
                 try {
                     instanceVos = KubesphereUtils.findInstanceName(runsUrl, selectService);
                 } catch (Exception e) {
-                    NotifyUtil.notifyError(project, "无法连接,请检查网络后再重试,错误信息:" + e.getMessage());
+                    NotifyUtil.notifyError(project, "无法连接网络,请检查后再重试,错误信息:" + e.getCause().getMessage());
                     return;
                 }
                 if (instanceVos.isEmpty()) {
                     NotifyUtil.notifyError(project, "没有任何服务实例!");
                     return;
                 }
-                SwingUtilities.invokeLater(() -> showInstances(project, instanceVos, runsUrl, selectService));
+                ExecutorUtils.addTask(() -> SwingUtilities.invokeLater(() -> showInstances(project, instanceVos, runsUrl, selectService)));
             }
         }.queue();
     }
@@ -70,17 +71,28 @@ public class ServiceRunningShowAction extends AnAction {
         }
         InstanceVo instanceVo = instanceVos.get(choose[0]);
 
-        new Task.Backgroundable(project, selectService + "获取信息中...", true) {
+        new Task.Backgroundable(project, instanceVo.getName() + "获取信息中...", true) {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
-                byte[] textBytes = KubesphereUtils.getContainerStartInfo(runsUrl, selectService, instanceVo.getName(),
-                        500, instanceVo.isPreviews(), false);
-                ApplicationManager.getApplication().invokeLater(() -> {
-                    KbsMsgDialog dialog = new KbsMsgDialog(selectService, textBytes, project, selectService, runsUrl,
-                            instanceVo.getName(), false);
-                    dialog.show();
-                }, ModalityState.NON_MODAL);
+                byte[] textBytes;
+                try {
+                    textBytes = KubesphereUtils.getContainerStartInfo(runsUrl, selectService, instanceVo.getName(),
+                            500, instanceVo.isPreviews(), false);
+                } catch (Exception e) {
+                    NotifyUtil.notifyError(project, "请求出错了,错误信息:" + e.getCause().getMessage());
+                    return;
+                }
+                ExecutorUtils.addTask(() -> SwingUtilities.invokeLater(() -> showInstanceDialog(project, instanceVo,
+                        textBytes, runsUrl, selectService)));
             }
         }.queue();
+    }
+
+    public void showInstanceDialog(Project project, InstanceVo instanceVo, byte[] textBytes, String runsUrl, String selectService) {
+        ApplicationManager.getApplication().invokeLater(() -> {
+            KbsMsgDialog dialog = new KbsMsgDialog(selectService, textBytes, project, selectService, runsUrl,
+                    instanceVo.getName(), false);
+            dialog.show();
+        }, ModalityState.NON_MODAL);
     }
 }
