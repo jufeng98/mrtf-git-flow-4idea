@@ -5,8 +5,6 @@ import com.github.xiaolyuh.utils.KubesphereUtils;
 import com.github.xiaolyuh.utils.NotifyUtil;
 import com.github.xiaolyuh.utils.VirtualFileUtils;
 import com.google.common.collect.Lists;
-import com.intellij.find.EditorSearchSession;
-import com.intellij.find.SearchReplaceComponent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.editor.Caret;
@@ -29,7 +27,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import java.awt.*;
 import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.Future;
@@ -163,16 +160,7 @@ public class KbsMsgDialog extends DialogWrapper {
 
     private void addTab(String tabTitle, byte[] txtBytes) {
         TextEditor textEditor = convertTxtToEditor(project, txtBytes);
-
-        JPanel panel = new JPanel(new BorderLayout());
-        jTabbedPane.addTab(tabTitle, panel);
-
-        JComponent editorComp = textEditor.getComponent();
-        panel.add(editorComp, BorderLayout.CENTER);
-
-        EditorSearchSession editorSearchSession = EditorSearchSession.start(textEditor.getEditor(), project);
-        SearchReplaceComponent findComp = editorSearchSession.getComponent();
-        panel.add(findComp, BorderLayout.NORTH);
+        jTabbedPane.addTab(tabTitle, textEditor.getComponent());
     }
 
     private void fillEditorWithRunningTxt(Project project, byte[] txtBytes, boolean append) {
