@@ -16,8 +16,7 @@ public class VirtualFileUtils {
         try {
             tempFile = Files.createTempFile("k8s-", ".log");
             File file = tempFile.toFile();
-            VirtualFile virtualFile = LocalFileSystem.getInstance()
-                    .refreshAndFindFileByPath(file.getAbsolutePath());
+            VirtualFile virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByPath(file.getAbsolutePath());
             virtualFile.setBinaryContent(txtBytes);
             file.deleteOnExit();
             return virtualFile;

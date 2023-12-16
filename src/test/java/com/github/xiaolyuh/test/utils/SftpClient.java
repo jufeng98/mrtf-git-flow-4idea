@@ -149,7 +149,7 @@ public class SftpClient {
             String[] dirs = directory.split("/");
             String tempPath = basePath;
             for (String dir : dirs) {
-                if (null == dir || "".equals(dir)) {
+                if (null == dir || dir.isEmpty()) {
                     continue;
                 }
                 tempPath += "/" + dir;

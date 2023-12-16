@@ -17,7 +17,6 @@ import java.time.Duration;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import static com.github.xiaolyuh.utils.KubesphereUtils.loginAndSaveToken;
 
 /**
  * HttpClient工具
@@ -96,7 +95,10 @@ public class HttpClientUtil {
             response = (HttpResponse<T>) client.send(request, HttpResponse.BodyHandlers.ofString());
         }
         if (response.statusCode() == 401) {
-            loginAndSaveToken();
+            if (request.uri().toString().equals(KubesphereUtils.LOGIN_URL)) {
+                throw new RuntimeException(response.body() + "");
+            }
+            KubesphereUtils.loginAndSaveToken();
             return getForObjectWithToken(request.uri().toString(), headers, resType);
         }
         T body = response.body();
@@ -137,7 +139,13 @@ public class HttpClientUtil {
             connection.connect();
             int responseCode = connection.getResponseCode();
             if (responseCode == 401) {
-                loginAndSaveToken();
+                if (url.equals(KubesphereUtils.LOGIN_URL)) {
+                    inputStream = connection.getInputStream();
+                    byte[] bytes = inputStream.readAllBytes();
+                    String body = new String(bytes);
+                    throw new RuntimeException(body);
+                }
+                KubesphereUtils.loginAndSaveToken();
                 return getForObjectWithTokenUseUrl(url, headers, resType);
             }
             inputStream = connection.getInputStream();
@@ -177,7 +185,13 @@ public class HttpClientUtil {
             connection.connect();
             int responseCode = connection.getResponseCode();
             if (responseCode == 401) {
-                loginAndSaveToken();
+                if (url.equals(KubesphereUtils.LOGIN_URL)) {
+                    inputStream = connection.getInputStream();
+                    byte[] bytes = inputStream.readAllBytes();
+                    String body = new String(bytes);
+                    throw new RuntimeException(body);
+                }
+                KubesphereUtils.loginAndSaveToken();
                 getForObjectWithTokenUseUrl(url, headers, resType);
                 return;
             }

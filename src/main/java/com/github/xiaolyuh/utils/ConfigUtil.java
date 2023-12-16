@@ -40,7 +40,7 @@ public class ConfigUtil {
     }
 
     public static String getKubesphereToken() {
-        return PREFERENCES.get("kubesphereToken", "");
+        return PREFERENCES.get("kubesphereToken", "abcd");
     }
 
     public static void saveKubesphereToken(String token) {

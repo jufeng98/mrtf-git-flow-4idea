@@ -33,7 +33,7 @@ public class ServiceDialog extends DialogWrapper {
             jlist.setModel(listModel);
         } else {
             DefaultListModel<String> listModel = new DefaultListModel<>();
-            listModel.addElement("缺少服务配置,无法触发流水线!请先在git-flow-project.json文件配置项目服务");
+            listModel.addElement("缺少服务配置,请先在 git-flow-project.json 文件配置项目服务!");
             jlist.setEnabled(false);
             //noinspection unchecked
             jlist.setModel(listModel);

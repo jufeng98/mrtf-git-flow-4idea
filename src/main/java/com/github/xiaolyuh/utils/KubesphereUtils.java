@@ -20,6 +20,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public class KubesphereUtils {
+    public static final String LOGIN_URL = "http://10.255.243.18:30219/oauth/token";
+
 
     public static void triggerPipeline(String selectService, Project project) throws Exception {
         if (StringUtils.isBlank(selectService)) {
@@ -63,31 +65,25 @@ public class KubesphereUtils {
         NotifyUtil.notifyInfo(project, "开始监控" + selectService + " id为" + id + "的构建情况");
     }
 
-    public static void loginAndSaveToken() {
+    public static void loginAndSaveToken() throws Exception {
         kotlin.Pair<String, String> pair = ConfigUtil.getKubesphereUser();
         String kubesphereUsername = pair.getFirst();
         if (StringUtils.isBlank(kubesphereUsername)) {
-            NotifyUtil.notifyError(ProjectUtil.getActiveProject(), "请先配置Kubesphere用户信息");
-            return;
+            throw new RuntimeException("请先在更新配置菜单配置Kubesphere用户信息");
         }
         String kubespherePassword = pair.getSecond();
         String accessToken = loginByUrl(kubesphereUsername, kubespherePassword);
         ConfigUtil.saveKubesphereToken(accessToken);
     }
 
-    public static String loginByUrl(String kubesphereUsername, String kubespherePassword) {
-        try {
-            String reqBody = String.format("grant_type=password&username=%s&password=%s", kubesphereUsername, kubespherePassword);
-            Map<String, String> headers = Maps.newHashMap();
-            headers.put("Content-Type", "application/x-www-form-urlencoded");
-            String url = "http://10.255.243.18:30219/oauth/token";
-            JsonObject jsonObject = HttpClientUtil.postForObject(url, reqBody, headers, JsonObject.class);
-            String accessToken = jsonObject.get("access_token").getAsString();
-            NotifyUtil.notifyInfo(ProjectUtil.getActiveProject(), "请求url:" + url + ",登录结果:" + jsonObject);
-            return accessToken;
-        } catch (Exception e) {
-            throw new RuntimeException(String.format("登录失败,用户名:%s,密码:%s", kubesphereUsername, kubespherePassword), e);
-        }
+    public static String loginByUrl(String kubesphereUsername, String kubespherePassword) throws Exception {
+        String reqBody = String.format("grant_type=password&username=%s&password=%s", kubesphereUsername, kubespherePassword);
+        Map<String, String> headers = Maps.newHashMap();
+        headers.put("Content-Type", "application/x-www-form-urlencoded");
+        JsonObject jsonObject = HttpClientUtil.postForObject(LOGIN_URL, reqBody, headers, JsonObject.class);
+        String accessToken = jsonObject.get("access_token").getAsString();
+        NotifyUtil.notifyInfo(ProjectUtil.getActiveProject(), "请求url:" + LOGIN_URL + "," + kubesphereUsername + ",登录结果:" + jsonObject);
+        return accessToken;
     }
 
     public static String findNamespace(String runsUrl) {

@@ -16,6 +16,7 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -45,7 +46,7 @@ public class ServiceRunningShowAction extends AnAction {
                 try {
                     instanceVos = KubesphereUtils.findInstanceName(runsUrl, selectService);
                 } catch (Exception e) {
-                    NotifyUtil.notifyError(project, "无法连接网络,请检查后再重试,错误信息:" + e.getCause().getMessage());
+                    NotifyUtil.notifyError(project, ExceptionUtils.getStackTrace(e));
                     return;
                 }
                 if (instanceVos.isEmpty()) {
@@ -57,6 +58,7 @@ public class ServiceRunningShowAction extends AnAction {
         }.queue();
     }
 
+    @SuppressWarnings("DialogTitleCapitalization")
     public void showInstances(Project project, List<InstanceVo> instanceVos, String runsUrl, String selectService) {
         final int[] choose = {0};
         if (instanceVos.size() > 1) {
@@ -79,7 +81,7 @@ public class ServiceRunningShowAction extends AnAction {
                     textBytes = KubesphereUtils.getContainerStartInfo(runsUrl, selectService, instanceVo.getName(),
                             500, instanceVo.isPreviews(), false);
                 } catch (Exception e) {
-                    NotifyUtil.notifyError(project, "请求出错了,错误信息:" + e.getCause().getMessage());
+                    NotifyUtil.notifyError(project, ExceptionUtils.getStackTrace(e));
                     return;
                 }
                 ExecutorUtils.addTask(() -> SwingUtilities.invokeLater(() -> showInstanceDialog(project, instanceVo,
