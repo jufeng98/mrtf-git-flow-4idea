@@ -3,6 +3,7 @@ package com.github.xiaolyuh.ui;
 import com.github.xiaolyuh.utils.NotifyUtil;
 import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.MessageType;
@@ -23,6 +24,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -42,6 +45,8 @@ public class SampleDialog extends DialogWrapper {
     private JButton button2;
     private JButton findBtn;
     private JButton btn3;
+    private JButton editorBtn;
+    private JButton chromeBtn;
 
     public SampleDialog(@Nullable Project project) {
         super(true);
@@ -135,6 +140,23 @@ public class SampleDialog extends DialogWrapper {
 
             ToolWindowManager.getInstance(project).notifyByBalloon(ToolWindowId.VCS,
                     MessageType.INFO, String.format("<div>%s</div>", Arrays.toString(psiClasses)));
+        });
+
+        editorBtn.addActionListener(e -> {
+            close(CLOSE_EXIT_CODE);
+            VirtualFile[] openFiles = FileEditorManager.getInstance(project).getOpenFiles();
+            if (openFiles.length == 0) {
+                return;
+            }
+
+            VirtualFile virtualFile = openFiles[0];
+            EditorDialog editorDialog = new EditorDialog(project,virtualFile);
+            editorDialog.show();
+        });
+        chromeBtn.addActionListener(e -> {
+            close(CLOSE_EXIT_CODE);
+            JcefDialog jcefDialog = new JcefDialog(project);
+            jcefDialog.show();
         });
     }
 

@@ -2,8 +2,8 @@
 <idea-plugin>
     <id>com.github.xiaolyuh.mrtf-git-flow-4idea</id>
     <name>GitFlowPlus</name>
-    <vendor email="xiaolyuh@163.com" url="https://xiaolyuh.blog.csdn.net/article/details/105150446">Author:汪雨浩;enhance
-        by:梁煜东
+    <vendor email="xiaolyuh@163.com" url="https://xiaolyuh.blog.csdn.net/article/details/105150446">
+        Author:汪雨浩, enhance by:梁煜东
     </vendor>
 
     <description>
@@ -87,6 +87,7 @@
                          level="WARNING"
                          implementationClass="com.github.xiaolyuh.inspection.FieldNameInspection"
                          displayName="字段名不能以下划线开头"/>
+
     </extensions>
 
     <projectListeners>
@@ -118,7 +119,7 @@
             <action id="GitFlowPlus.NewFeatureAction" class="com.github.xiaolyuh.action.NewFeatureAction"
                     text="新建开发分支" description="新建开发分支，并推送到远程仓库" icon="/icons/feature.svg"/>
             <action id="GitFlowPlus.NewHotFixAction" class="com.github.xiaolyuh.action.NewHotFixAction"
-                    text="新建修复分支" description="新建修复分支，并推送到远程仓库"/>
+                    text="新建修复分支" description="新建修复分支，并推送到远程仓库" icon="/actions/quickfixBulb.svg"/>
             <separator/>
 
             <group id="GitFlowPlus.RebuildBranch" popup="true" text="重建分支"
@@ -145,7 +146,7 @@
 
             <action id="GitFlowPlus.DeleteBranchAction"
                     class="com.github.xiaolyuh.action.DeleteBranchAction" text="删除分支"
-                    description="批量删除无效分支"/>
+                    description="批量删除无效分支" icon="/actions/deleteTag.svg"/>
             <separator/>
 
             <!--发布流程-->
@@ -159,7 +160,7 @@
             <separator/>
 
             <action id="GitFlowPlus.ServiceRunningShowAction" class="com.github.xiaolyuh.action.ServiceRunningShowAction"
-                    text="查看服务" description="查看Kubesphere服务的运行信息" icon="/icons/mergeToTest.svg">
+                    text="查看服务" description="查看Kubesphere服务的运行信息" icon="/actions/show.svg">
             </action>
             <separator/>
 

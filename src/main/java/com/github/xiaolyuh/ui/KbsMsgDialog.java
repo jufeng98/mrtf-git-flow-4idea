@@ -52,6 +52,11 @@ public class KbsMsgDialog extends DialogWrapper {
     private TextEditor textEditor;
     private final List<Editor> releaseEditorList = Lists.newArrayList();
 
+    {
+        setOKButtonText("关闭");
+        setModal(false);
+    }
+
     public KbsMsgDialog(String title, Pair<byte[], byte[]> pair, Project project) {
         super(project);
         this.pair = pair;
@@ -109,6 +114,11 @@ public class KbsMsgDialog extends DialogWrapper {
         bottomBtn.addActionListener(e -> scrollToBottom(textEditor.getEditor()));
 
         fillEditorWithRunningTxt(project, textBytes, false);
+    }
+
+    @Override
+    protected Action @NotNull [] createActions() {
+        return new Action[]{getOKAction()};
     }
 
     @Override
