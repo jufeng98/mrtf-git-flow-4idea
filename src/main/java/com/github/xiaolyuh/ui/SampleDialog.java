@@ -153,6 +153,7 @@ public class SampleDialog extends DialogWrapper {
             EditorDialog editorDialog = new EditorDialog(project,virtualFile);
             editorDialog.show();
         });
+
         chromeBtn.addActionListener(e -> {
             close(CLOSE_EXIT_CODE);
             JcefDialog jcefDialog = new JcefDialog(project);

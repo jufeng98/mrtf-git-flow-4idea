@@ -27,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import java.awt.event.ActionListener;
 import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.Future;
@@ -84,13 +85,13 @@ public class KbsMsgDialog extends DialogWrapper {
         init();
 
         refreshBtn.addActionListener(e -> {
-            tailLines += tailLines;
+            tailLines += 500;
             refreshRunningData(tailLines, previews);
         });
 
         insRefreshBtn.addActionListener(e -> {
             insRefreshOpen = !insRefreshOpen;
-            String tip = insRefreshOpen ? "关闭实时刷新" : "开启实时刷新";
+            String tip = insRefreshOpen ? "关闭实时日志" : "开启实时日志";
             insRefreshBtn.setText(tip);
             refreshBtn.setEnabled(!insRefreshOpen);
             if (!insRefreshOpen) {
@@ -119,6 +120,11 @@ public class KbsMsgDialog extends DialogWrapper {
     @Override
     protected Action @NotNull [] createActions() {
         return new Action[]{getOKAction()};
+    }
+
+    @Override
+    protected @Nullable ActionListener createCancelAction() {
+        return null;
     }
 
     @Override

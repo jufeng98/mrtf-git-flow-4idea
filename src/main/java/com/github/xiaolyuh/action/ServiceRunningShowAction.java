@@ -6,6 +6,7 @@ import com.github.xiaolyuh.utils.ConfigUtil;
 import com.github.xiaolyuh.utils.ExecutorUtils;
 import com.github.xiaolyuh.utils.KubesphereUtils;
 import com.github.xiaolyuh.utils.NotifyUtil;
+import com.github.xiaolyuh.utils.StringUtils;
 import com.github.xiaolyuh.vo.InstanceVo;
 import com.google.gson.JsonObject;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -28,6 +29,7 @@ public class ServiceRunningShowAction extends AnAction {
     public void actionPerformed(@NotNull AnActionEvent e) {
         Project project = e.getProject();
         ServiceDialog serviceDialog = new ServiceDialog("选择需要查看的服务", project);
+        serviceDialog.selectLastChoose();
         if (!serviceDialog.showAndGet()) {
             return;
         }
@@ -38,6 +40,9 @@ public class ServiceRunningShowAction extends AnAction {
         }
         String runsUrl = configObj.get("runsUrl").getAsString();
         String selectService = serviceDialog.getSelectService();
+        if (StringUtils.isBlank(selectService)) {
+            return;
+        }
 
         new Task.Backgroundable(project, selectService + "获取信息中...", true) {
             @Override

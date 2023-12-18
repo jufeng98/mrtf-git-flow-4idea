@@ -15,6 +15,7 @@ public class ServiceDialog extends DialogWrapper {
     @SuppressWarnings("rawtypes")
     private JList jlist;
     private JLabel jlabel;
+    private static Integer lastChoose = 0;
 
     public ServiceDialog(String txt, Project project) {
         super(project);
@@ -42,10 +43,20 @@ public class ServiceDialog extends DialogWrapper {
     }
 
     public String getSelectService() {
+        if (jlist.getSelectedIndex() != -1) {
+            lastChoose = jlist.getSelectedIndex();
+        }
         if (jlist.isEnabled()) {
             return (String) jlist.getSelectedValue();
         }
         return "";
+    }
+
+    public void selectLastChoose() {
+        if (!jlist.isEnabled()) {
+            return;
+        }
+        jlist.setSelectedIndex(lastChoose);
     }
 
     @Override
