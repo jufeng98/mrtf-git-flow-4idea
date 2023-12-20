@@ -20,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.concurrent.TimeUnit;
 
@@ -31,6 +32,7 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
     private JButton errorBtn;
     private JButton infoBtn;
     private JButton closeBtn;
+    private JButton watchBtn;
 
     public JcefK8sConsoleDialog(InstanceVo instanceVo, String runsUrl, @Nullable Project project, String selectService) {
         super(project);
@@ -48,13 +50,18 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
         Pair<Pair<String, String>, Pair<String, String>> pair = getLogPath(namespace, selectService);
         String logPath = pair.getFirst().getFirst();
 
-        logBtn.addActionListener(e -> executeCommand("cd " + logPath, cefBrowser, url));
-        debugBtn.addActionListener(e -> executeCommand("less " + logPath + "/" + pair.getFirst().getSecond(), cefBrowser, url));
-        errorBtn.addActionListener(e -> executeCommand("less " + logPath + "/" + pair.getSecond().getFirst(), cefBrowser, url));
-        infoBtn.addActionListener(e -> executeCommand("less " + logPath + "/" + pair.getSecond().getSecond(), cefBrowser, url));
+        logBtn.addActionListener(e -> executeCommand("cd " + logPath + "\n", cefBrowser, url));
+        debugBtn.addActionListener(e -> executeCommand("less " + logPath + "/" + pair.getFirst().getSecond() + "\n", cefBrowser, url));
+        errorBtn.addActionListener(e -> executeCommand("less " + logPath + "/" + pair.getSecond().getFirst() + "\n", cefBrowser, url));
+        infoBtn.addActionListener(e -> executeCommand("less " + logPath + "/" + pair.getSecond().getSecond() + "\n", cefBrowser, url));
         closeBtn.addActionListener(e -> JcefK8sConsoleDialog.this.close(CLOSE_EXIT_CODE, true));
 
         contentPanel.add(jbCefBrowser.getComponent(), BorderLayout.CENTER);
+        watchBtn.addActionListener(e -> {
+            executeCommand("cd " + logPath + "\n", cefBrowser, url);
+            executeCommand("ls" + "\n", cefBrowser, url);
+            executeCommand("tail -f -n 600 \t", cefBrowser, url);
+        });
     }
 
     public static String getUrl(String runsUrl, InstanceVo instanceVo, String selectService) {
@@ -160,15 +167,22 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
         char[] charArray = command.toCharArray();
         String data = "window.lastWsObj.send(JSON.stringify({'Op':'stdin','Data':'%s'}))";
         for (char c : charArray) {
-            String tmp = String.format(data, c);
-            cefBrowser.executeJavaScript(tmp, url, 1);
+            if (c == '\t') {
+                String tmp = String.format(data, "\\t");
+                cefBrowser.executeJavaScript(tmp, url, 1);
+            } else if (c == '\n') {
+                String tmp = String.format(data, "\\n");
+                cefBrowser.executeJavaScript(tmp, url, 1);
+            } else {
+                String tmp = String.format(data, c);
+                cefBrowser.executeJavaScript(tmp, url, 1);
+            }
             try {
                 TimeUnit.MILLISECONDS.sleep(5);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }
-        cefBrowser.executeJavaScript(String.format(data, "\\r"), url, 1);
     }
 
     @Override
