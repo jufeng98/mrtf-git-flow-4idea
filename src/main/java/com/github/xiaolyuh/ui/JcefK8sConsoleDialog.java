@@ -116,7 +116,7 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
     }
 
     private Pair<Pair<String, String>, Pair<String, String>> getLogPath(String namespace, String selectService) {
-        String logPath = "/home/appadm/logs";
+        String logPath = "/home/appadm/logs/" + selectService;
         String debugFile;
         String errorFile;
         String infoFile;
