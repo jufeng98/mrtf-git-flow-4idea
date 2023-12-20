@@ -165,6 +165,9 @@
             </action>
             <separator/>
 
+            <action id="GitFlowPlus.ServiceConsoleAction" class="com.github.xiaolyuh.action.ServiceConsoleAction"
+                    text="服务控制台" description="连接Kubesphere服务的控制台" icon="/actions/show.svg">
+            </action>
             <action id="GitFlowPlus.ServiceRunningShowAction" class="com.github.xiaolyuh.action.ServiceRunningShowAction"
                     text="查看服务" description="查看Kubesphere服务的运行信息" icon="/actions/show.svg">
             </action>

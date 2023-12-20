@@ -24,8 +24,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -150,14 +148,12 @@ public class SampleDialog extends DialogWrapper {
             }
 
             VirtualFile virtualFile = openFiles[0];
-            EditorDialog editorDialog = new EditorDialog(project,virtualFile);
+            EditorDialog editorDialog = new EditorDialog(project, virtualFile);
             editorDialog.show();
         });
 
         chromeBtn.addActionListener(e -> {
             close(CLOSE_EXIT_CODE);
-            JcefDialog jcefDialog = new JcefDialog(project);
-            jcefDialog.show();
         });
     }
 

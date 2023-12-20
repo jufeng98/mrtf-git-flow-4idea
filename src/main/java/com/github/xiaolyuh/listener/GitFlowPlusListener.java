@@ -17,6 +17,10 @@ public class GitFlowPlusListener implements ProjectManagerListener {
         ConfigUtil.tryInitConfig(project);
 
         StatusBar statusBar = WindowManager.getInstance().getStatusBar(project);
+        if (statusBar == null) {
+            return;
+        }
+
         StatusBarWidget widget = statusBar.getWidget(GitFlowPlusWidget.class.getName());
         if (widget != null) {
             return;

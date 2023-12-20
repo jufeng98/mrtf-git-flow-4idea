@@ -56,6 +56,9 @@ public class ServiceDialog extends DialogWrapper {
         if (!jlist.isEnabled()) {
             return;
         }
+        if (lastChoose >= jlist.getModel().getSize()) {
+            lastChoose = 0;
+        }
         jlist.setSelectedIndex(lastChoose);
     }
 
