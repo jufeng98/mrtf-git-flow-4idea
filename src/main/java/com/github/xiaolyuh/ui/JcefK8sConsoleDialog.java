@@ -120,26 +120,36 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
         String debugFile;
         String errorFile;
         String infoFile;
-        if (namespace.equals("washingservice-parent")) {
-            if (selectService.equals("washingservicemana")) {
-                logPath = "/data/server/website/bluemoonMana/logs";
-            } else if (selectService.equals("washingservice-controller")) {
-                logPath = "/data/server/website/bluemoon-control/logs";
-            } else {
-                logPath = "/data/server/website";
-            }
-            debugFile = "sql.log";
-            errorFile = "err.log";
-            infoFile = "out.log";
-        } else if (namespace.equals("hotelwash")) {
-            logPath = "/opt/webapp/tmp/logs";
-            debugFile = selectService + ".log";
-            errorFile = debugFile;
-            infoFile = debugFile;
-        } else {
-            debugFile = selectService + "-debug.log";
-            errorFile = selectService + "-error.log";
-            infoFile = selectService + ".log";
+        switch (namespace) {
+            case "washingservice-parent":
+                if (selectService.equals("washingservicemana")) {
+                    logPath = "/data/server/website/bluemoonMana/logs";
+                } else if (selectService.equals("washingservice-controller")) {
+                    logPath = "/data/server/website/bluemoon-control/logs";
+                } else {
+                    logPath = "/data/server/website";
+                }
+                debugFile = "sql.log";
+                errorFile = "err.log";
+                infoFile = "out.log";
+                break;
+            case "bluemoon-base":
+                logPath = "/opt/webapp/log";
+                debugFile = selectService + "-debug.log";
+                errorFile = selectService + "-error.log";
+                infoFile = selectService + ".log";
+                break;
+            case "hotelwash":
+                logPath = "/opt/webapp/tmp/logs";
+                debugFile = selectService + ".log";
+                errorFile = debugFile;
+                infoFile = debugFile;
+                break;
+            default:
+                debugFile = selectService + "-debug.log";
+                errorFile = selectService + "-error.log";
+                infoFile = selectService + ".log";
+                break;
         }
         Pair<String, String> p1 = Pair.create(logPath, debugFile);
         Pair<String, String> p2 = Pair.create(errorFile, infoFile);
