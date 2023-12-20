@@ -40,14 +40,33 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
         setTitle(instanceVo.getDesc() + ":" + instanceVo.getName());
         init();
 
+        String url = getUrl(runsUrl, instanceVo, selectService);
+
+        JBCefBrowser jbCefBrowser = initJcef(url);
+        CefBrowser cefBrowser = jbCefBrowser.getCefBrowser();
+
         String namespace = KubesphereUtils.findNamespace(runsUrl);
+        Pair<Pair<String, String>, Pair<String, String>> pair = getLogPath(namespace, selectService);
+        String logPath = pair.getFirst().getFirst();
 
+        logBtn.addActionListener(e -> executeCommand("cd " + logPath, cefBrowser, url));
+        debugBtn.addActionListener(e -> executeCommand("less " + logPath + "/" + pair.getFirst().getSecond(), cefBrowser, url));
+        errorBtn.addActionListener(e -> executeCommand("less " + logPath + "/" + pair.getSecond().getFirst(), cefBrowser, url));
+        infoBtn.addActionListener(e -> executeCommand("less " + logPath + "/" + pair.getSecond().getSecond(), cefBrowser, url));
+        closeBtn.addActionListener(e -> JcefK8sConsoleDialog.this.close(CLOSE_EXIT_CODE, true));
+
+        contentPanel.add(jbCefBrowser.getComponent(), BorderLayout.CENTER);
+    }
+
+    public static String getUrl(String runsUrl, InstanceVo instanceVo, String selectService) {
+        String namespace = KubesphereUtils.findNamespace(runsUrl);
         String urlTemplate = "http://host-kslb.mh.bluemoon.com.cn/terminal/cluster/sim-1/projects/%s/pods/%s/containers/%s";
-        String url = String.format(urlTemplate, namespace, instanceVo.getName(), selectService);
+        return String.format(urlTemplate, namespace, instanceVo.getName(), selectService);
+    }
 
+    public static JBCefBrowser initJcef(String url) {
         JBCefBrowser jbCefBrowser = new JBCefBrowser();
         JBCefClient jbCefClient = jbCefBrowser.getJBCefClient();
-        CefCookieManager cefCookieManager = jbCefBrowser.getJBCefCookieManager().getCefCookieManager();
         CefBrowser cefBrowser = jbCefBrowser.getCefBrowser();
 
         jbCefClient.addLoadHandler(new CefLoadHandlerAdapter() {
@@ -65,6 +84,7 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
             }
 
         }, cefBrowser);
+
         jbCefClient.addRequestHandler(new CefRequestHandlerAdapter() {
             @Override
             public boolean onBeforeBrowse(CefBrowser browser, CefFrame frame, CefRequest request, boolean user_gesture,
@@ -74,27 +94,16 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
                         "host-kslb.mh.bluemoon.com.cn", "/", false, true,
                         null, null, false, null);
 
-                cefCookieManager.setCookie(url, cefCookie);
-
+                jbCefBrowser.getJBCefCookieManager().getCefCookieManager().setCookie(url, cefCookie);
                 return false;
             }
         }, cefBrowser);
 
         jbCefBrowser.loadURL(url);
-
-        Pair<Pair<String, String>, Pair<String, String>> pair = getLogPath(namespace, selectService);
-        String logPath = pair.getFirst().getFirst();
-
-        logBtn.addActionListener(e -> executeCommand("cd " + logPath, cefBrowser, url));
-        debugBtn.addActionListener(e -> executeCommand("less " + logPath + "/" + pair.getFirst().getSecond(), cefBrowser, url));
-        errorBtn.addActionListener(e -> executeCommand("less " + logPath + "/" + pair.getSecond().getFirst(), cefBrowser, url));
-        infoBtn.addActionListener(e -> executeCommand("less " + logPath + "/" + pair.getSecond().getSecond(), cefBrowser, url));
-        closeBtn.addActionListener(e -> JcefK8sConsoleDialog.this.close(CLOSE_EXIT_CODE, true));
-
-        contentPanel.add(jbCefBrowser.getComponent(), BorderLayout.CENTER);
+        return jbCefBrowser;
     }
 
-    private String interceptWs() {
+    private static String interceptWs() {
         return "     let accessor = Object.getOwnPropertyDescriptor(WebSocket.prototype, 'onopen');\n" +
                 "    Object.defineProperty(WebSocket.prototype, 'onopen', {\n" +
                 "        get: function () {\n" +
