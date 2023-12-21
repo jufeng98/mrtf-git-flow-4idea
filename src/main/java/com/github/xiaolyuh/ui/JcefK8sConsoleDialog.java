@@ -23,6 +23,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.im.InputContext;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 public class JcefK8sConsoleDialog extends DialogWrapper {
@@ -112,7 +114,7 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
                     browser.executeJavaScript("document.getElementsByClassName('_1L_vmkiDzIokO_PY6QgCyV')[0].style.top='5px';", url, 1);
                     browser.executeJavaScript("window.resizeBy(5,5);", url, 1);
 
-                    switchToEnglishInput();
+                    InputContext.getInstance().selectInputMethod(Locale.ENGLISH);
                 });
             }
 
@@ -141,20 +143,6 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
                 "host-kslb.mh.bluemoon.com.cn", "/", false, true,
                 null, null, false, null);
         jbCefBrowser.getJBCefCookieManager().getCefCookieManager().setCookie(url, cefCookie);
-    }
-
-    private void switchToEnglishInput() {
-        try {
-            Robot robot = new Robot();
-            robot.keyPress(KeyEvent.VK_CONTROL);
-            robot.keyPress(KeyEvent.VK_SPACE);
-            robot.keyRelease(KeyEvent.VK_SPACE);
-            robot.keyRelease(KeyEvent.VK_CONTROL);
-            // 延时，使得输入法可以切换成功
-            Thread.sleep(500);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private String interceptWs() {
