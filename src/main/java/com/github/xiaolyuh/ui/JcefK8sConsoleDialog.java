@@ -70,10 +70,11 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
 
     private void sendKeyEvents(String string, CefBrowser cefBrowser) {
         char[] charArray = string.toCharArray();
+        KeyEvent keyEvent = new KeyEvent(contentPanel.getComponent(0), KeyEvent.KEY_TYPED,
+                10, 0, KeyEvent.VK_UNDEFINED, 'A');
         for (char c : charArray) {
-            int numericValue = Character.getNumericValue(c);
-            cefBrowser.sendKeyEvent(new KeyEvent(contentPanel.getComponent(0), KeyEvent.KEY_TYPED,
-                    10, 0, numericValue, c));
+            keyEvent.setKeyChar(c);
+            cefBrowser.sendKeyEvent(keyEvent);
         }
         cefBrowser.setFocus(true);
     }
