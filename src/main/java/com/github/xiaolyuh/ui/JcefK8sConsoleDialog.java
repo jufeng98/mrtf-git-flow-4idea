@@ -55,8 +55,14 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
         Pair<Pair<String, String>, Pair<String, String>> pair = getLogPath(namespace, selectService);
         String logPath = pair.getFirst().getFirst();
 
-        copyBtn.addActionListener(e -> cefBrowser.getMainFrame().copy());
-        pasteBtn.addActionListener(e -> cefBrowser.getMainFrame().paste());
+        copyBtn.addActionListener(e -> {
+            cefBrowser.getMainFrame().copy();
+            cefBrowser.setFocus(true);
+        });
+        pasteBtn.addActionListener(e -> {
+            cefBrowser.getMainFrame().paste();
+            cefBrowser.setFocus(true);
+        });
 
         watchBtn.addActionListener(e -> {
             sendKeyEvents("cd " + logPath + "\n", cefBrowser);
