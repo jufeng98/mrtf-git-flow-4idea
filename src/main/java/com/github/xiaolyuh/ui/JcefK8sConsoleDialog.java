@@ -95,7 +95,9 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
             public void onLoadEnd(CefBrowser browser, CefFrame frame, int httpStatusCode) {
                 browser.executeJavaScript(interceptWs(), url, 1);
                 ExecutorUtils.addTask(() -> {
-                    TimeUnit.MILLISECONDS.sleep(100);
+                    while (browser.isLoading()) {
+                        TimeUnit.MILLISECONDS.sleep(100);
+                    }
                     browser.executeJavaScript("document.getElementsByClassName('_1jhjCgxv3S5BKvppnuJpUJ')[0].style.display='none';", url, 1);
                     browser.executeJavaScript("document.getElementsByClassName('_2s7aowlSdhOYMXS2Jm7vG6')[0].style.display='none';", url, 1);
                     browser.executeJavaScript("document.getElementsByClassName('_1L_vmkiDzIokO_PY6QgCyV')[0].style.top='5px';", url, 1);
