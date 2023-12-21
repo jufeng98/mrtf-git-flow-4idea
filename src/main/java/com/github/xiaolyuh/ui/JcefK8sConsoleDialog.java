@@ -21,6 +21,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.util.concurrent.TimeUnit;
@@ -34,6 +35,8 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
     private JButton infoBtn;
     private JButton closeBtn;
     private JButton watchBtn;
+    private JButton copyBtn;
+    private JButton pasteBtn;
 
     public JcefK8sConsoleDialog(InstanceVo instanceVo, String runsUrl, @Nullable Project project, String selectService) {
         super(project);
@@ -50,6 +53,9 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
         String namespace = KubesphereUtils.findNamespace(runsUrl);
         Pair<Pair<String, String>, Pair<String, String>> pair = getLogPath(namespace, selectService);
         String logPath = pair.getFirst().getFirst();
+
+        copyBtn.addActionListener(e -> cefBrowser.getMainFrame().copy());
+        pasteBtn.addActionListener(e -> cefBrowser.getMainFrame().paste());
 
         watchBtn.addActionListener(e -> {
             sendKeyEvents("cd " + logPath + "\n", cefBrowser);
