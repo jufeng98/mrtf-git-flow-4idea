@@ -6,6 +6,7 @@ import com.github.xiaolyuh.utils.KubesphereUtils;
 import com.github.xiaolyuh.vo.InstanceVo;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.Pair;
 import com.intellij.ui.jcef.JBCefBrowser;
 import com.intellij.ui.jcef.JBCefClient;
@@ -20,7 +21,6 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.concurrent.TimeUnit;
 
@@ -64,13 +64,13 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
         });
     }
 
-    public static String getUrl(String runsUrl, InstanceVo instanceVo, String selectService) {
+    private String getUrl(String runsUrl, InstanceVo instanceVo, String selectService) {
         String namespace = KubesphereUtils.findNamespace(runsUrl);
         String urlTemplate = "http://host-kslb.mh.bluemoon.com.cn/terminal/cluster/sim-1/projects/%s/pods/%s/containers/%s";
         return String.format(urlTemplate, namespace, instanceVo.getName(), selectService);
     }
 
-    public static JBCefBrowser initJcef(String url) {
+    private JBCefBrowser initJcef(String url) {
         JBCefBrowser jbCefBrowser = new JBCefBrowser();
         JBCefClient jbCefClient = jbCefBrowser.getJBCefClient();
         CefBrowser cefBrowser = jbCefBrowser.getCefBrowser();
@@ -106,10 +106,14 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
         }, cefBrowser);
 
         jbCefBrowser.loadURL(url);
+
+        Disposer.register(getDisposable(), jbCefClient);
+        Disposer.register(getDisposable(), jbCefBrowser);
+
         return jbCefBrowser;
     }
 
-    private static String interceptWs() {
+    private String interceptWs() {
         return "     let accessor = Object.getOwnPropertyDescriptor(WebSocket.prototype, 'onopen');\n" +
                 "    Object.defineProperty(WebSocket.prototype, 'onopen', {\n" +
                 "        get: function () {\n" +
