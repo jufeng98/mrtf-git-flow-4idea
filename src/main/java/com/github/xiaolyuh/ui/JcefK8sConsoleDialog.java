@@ -56,9 +56,7 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
             sendKeyEvents("ls" + "\n", cefBrowser);
             sendKeyEvents("tail -f -n 600 \t", cefBrowser);
         });
-        logBtn.addActionListener(e -> {
-            sendKeyEvents("cd " + logPath + "\n", cefBrowser);
-        });
+        logBtn.addActionListener(e -> sendKeyEvents("cd " + logPath + "\n", cefBrowser));
 
         debugBtn.addActionListener(e -> executeCommand("less " + logPath + "/" + pair.getFirst().getSecond() + "\n", cefBrowser, url));
         errorBtn.addActionListener(e -> executeCommand("less " + logPath + "/" + pair.getSecond().getFirst() + "\n", cefBrowser, url));
@@ -93,6 +91,11 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
         jbCefClient.addLoadHandler(new CefLoadHandlerAdapter() {
 
             @Override
+            public void onLoadStart(CefBrowser browser, CefFrame frame, CefRequest.TransitionType transitionType) {
+                setTokenCookie(jbCefBrowser, url);
+            }
+
+            @Override
             public void onLoadEnd(CefBrowser browser, CefFrame frame, int httpStatusCode) {
                 browser.executeJavaScript(interceptWs(), url, 1);
                 ExecutorUtils.addTask(() -> {
@@ -112,12 +115,7 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
             @Override
             public boolean onBeforeBrowse(CefBrowser browser, CefFrame frame, CefRequest request, boolean user_gesture,
                                           boolean is_redirect) {
-                String kubesphereToken = ConfigUtil.getKubesphereToken();
-                CefCookie cefCookie = new CefCookie("token", kubesphereToken,
-                        "host-kslb.mh.bluemoon.com.cn", "/", false, true,
-                        null, null, false, null);
-
-                jbCefBrowser.getJBCefCookieManager().getCefCookieManager().setCookie(url, cefCookie);
+                setTokenCookie(jbCefBrowser, url);
                 return false;
             }
         }, cefBrowser);
@@ -128,6 +126,14 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
         Disposer.register(getDisposable(), jbCefBrowser);
 
         return jbCefBrowser;
+    }
+
+    private void setTokenCookie(JBCefBrowser jbCefBrowser, String url) {
+        String kubesphereToken = ConfigUtil.getKubesphereToken();
+        CefCookie cefCookie = new CefCookie("token", kubesphereToken,
+                "host-kslb.mh.bluemoon.com.cn", "/", false, true,
+                null, null, false, null);
+        jbCefBrowser.getJBCefCookieManager().getCefCookieManager().setCookie(url, cefCookie);
     }
 
     private String interceptWs() {
