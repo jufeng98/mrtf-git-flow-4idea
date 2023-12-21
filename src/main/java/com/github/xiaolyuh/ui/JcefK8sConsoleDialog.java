@@ -22,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.util.concurrent.TimeUnit;
 
 public class JcefK8sConsoleDialog extends DialogWrapper {
@@ -50,18 +51,31 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
         Pair<Pair<String, String>, Pair<String, String>> pair = getLogPath(namespace, selectService);
         String logPath = pair.getFirst().getFirst();
 
-        logBtn.addActionListener(e -> executeCommand("cd " + logPath + "\n", cefBrowser, url));
+        watchBtn.addActionListener(e -> {
+            sendKeyEvents("cd " + logPath + "\n", cefBrowser);
+            sendKeyEvents("ls" + "\n", cefBrowser);
+            sendKeyEvents("tail -f -n 600 \t", cefBrowser);
+        });
+        logBtn.addActionListener(e -> {
+            sendKeyEvents("cd " + logPath + "\n", cefBrowser);
+        });
+
         debugBtn.addActionListener(e -> executeCommand("less " + logPath + "/" + pair.getFirst().getSecond() + "\n", cefBrowser, url));
         errorBtn.addActionListener(e -> executeCommand("less " + logPath + "/" + pair.getSecond().getFirst() + "\n", cefBrowser, url));
         infoBtn.addActionListener(e -> executeCommand("less " + logPath + "/" + pair.getSecond().getSecond() + "\n", cefBrowser, url));
         closeBtn.addActionListener(e -> JcefK8sConsoleDialog.this.close(CLOSE_EXIT_CODE, true));
 
         contentPanel.add(jbCefBrowser.getComponent(), BorderLayout.CENTER);
-        watchBtn.addActionListener(e -> {
-            executeCommand("cd " + logPath + "\n", cefBrowser, url);
-            executeCommand("ls" + "\n", cefBrowser, url);
-            executeCommand("tail -f -n 600 \t", cefBrowser, url);
-        });
+    }
+
+    private void sendKeyEvents(String string, CefBrowser cefBrowser) {
+        char[] charArray = string.toCharArray();
+        for (char c : charArray) {
+            int numericValue = Character.getNumericValue(c);
+            cefBrowser.sendKeyEvent(new KeyEvent(contentPanel.getComponent(0), KeyEvent.KEY_TYPED,
+                    10, 0, numericValue, c));
+        }
+        cefBrowser.setFocus(true);
     }
 
     private String getUrl(String runsUrl, InstanceVo instanceVo, String selectService) {
@@ -181,12 +195,8 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
                 String tmp = String.format(data, c);
                 cefBrowser.executeJavaScript(tmp, url, 1);
             }
-            try {
-                TimeUnit.MILLISECONDS.sleep(5);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
         }
+        cefBrowser.setFocus(true);
     }
 
     @Override
