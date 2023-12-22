@@ -58,37 +58,22 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
         copyBtn.addActionListener(e -> {
             cefBrowser.getMainFrame().copy();
             cefBrowser.setFocus(true);
-            InputContext.getInstance().selectInputMethod(Locale.ENGLISH);
         });
         pasteBtn.addActionListener(e -> {
             cefBrowser.getMainFrame().paste();
             cefBrowser.setFocus(true);
-            InputContext.getInstance().selectInputMethod(Locale.ENGLISH);
         });
 
         watchBtn.addActionListener(e -> {
             sendKeyEvents("cd " + logPath + "\n", cefBrowser);
             sendKeyEvents("ls" + "\n", cefBrowser);
             sendKeyEvents("tail -f -n 600 \t", cefBrowser);
-            InputContext.getInstance().selectInputMethod(Locale.ENGLISH);
         });
-        logBtn.addActionListener(e -> {
-            sendKeyEvents("cd " + logPath + "\n", cefBrowser);
-            InputContext.getInstance().selectInputMethod(Locale.ENGLISH);
-        });
+        logBtn.addActionListener(e -> sendKeyEvents("cd " + logPath + "\n", cefBrowser));
 
-        debugBtn.addActionListener(e -> {
-            executeCommand("less " + logPath + "/" + pair.getFirst().getSecond() + "\n", cefBrowser, url);
-            InputContext.getInstance().selectInputMethod(Locale.ENGLISH);
-        });
-        errorBtn.addActionListener(e -> {
-            executeCommand("less " + logPath + "/" + pair.getSecond().getFirst() + "\n", cefBrowser, url);
-            InputContext.getInstance().selectInputMethod(Locale.ENGLISH);
-        });
-        infoBtn.addActionListener(e -> {
-            executeCommand("less " + logPath + "/" + pair.getSecond().getSecond() + "\n", cefBrowser, url);
-            InputContext.getInstance().selectInputMethod(Locale.ENGLISH);
-        });
+        debugBtn.addActionListener(e -> executeCommand("less " + logPath + "/" + pair.getFirst().getSecond() + "\n", cefBrowser, url));
+        errorBtn.addActionListener(e -> executeCommand("less " + logPath + "/" + pair.getSecond().getFirst() + "\n", cefBrowser, url));
+        infoBtn.addActionListener(e -> executeCommand("less " + logPath + "/" + pair.getSecond().getSecond() + "\n", cefBrowser, url));
 
         closeBtn.addActionListener(e -> JcefK8sConsoleDialog.this.close(CLOSE_EXIT_CODE, true));
 
