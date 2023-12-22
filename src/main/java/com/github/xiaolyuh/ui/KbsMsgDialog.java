@@ -11,6 +11,9 @@ import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.ScrollType;
+import com.intellij.openapi.editor.ex.DocumentEx;
+import com.intellij.openapi.editor.ex.util.EmptyEditorHighlighter;
+import com.intellij.openapi.editor.impl.EditorImpl;
 import com.intellij.openapi.fileEditor.TextEditor;
 import com.intellij.openapi.fileEditor.impl.text.TextEditorProvider;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -132,6 +135,7 @@ public class KbsMsgDialog extends DialogWrapper {
 
     @Override
     protected void dispose() {
+        super.dispose();
         insRefreshOpen = false;
         if (insRefreshFuture != null) {
             insRefreshFuture.cancel(true);
@@ -145,7 +149,6 @@ public class KbsMsgDialog extends DialogWrapper {
                 throw new RuntimeException(e);
             }
         });
-        super.dispose();
     }
 
     private void refreshRunningData(int tailLines, boolean previews) {
@@ -186,7 +189,7 @@ public class KbsMsgDialog extends DialogWrapper {
     }
 
     private void addTab(String tabTitle, byte[] txtBytes) {
-        TextEditor textEditor = convertTxtToEditor(project, txtBytes);
+        TextEditor textEditor = createTextEditorAndSetText(project, txtBytes);
         jTabbedPane.addTab(tabTitle, textEditor.getComponent());
     }
 
@@ -209,21 +212,23 @@ public class KbsMsgDialog extends DialogWrapper {
                 }
                 return;
             }
-            textEditor = convertTxtToEditor(project, txtBytes);
+            textEditor = createTextEditorAndSetText(project, txtBytes);
 
             jTabbedPane.addTab("容器日志", textEditor.getComponent());
         });
     }
 
-    private TextEditor convertTxtToEditor(Project project, byte[] txtBytes) {
+    private TextEditor createTextEditorAndSetText(Project project, byte[] txtBytes) {
         final TextEditor[] textEditors = new TextEditor[1];
         WriteAction.runAndWait(() -> {
             VirtualFile virtualFile = VirtualFileUtils.createVirtualFileFromText(txtBytes);
 
             TextEditor textEditor = (TextEditor) TextEditorProvider.getInstance().createEditor(project, virtualFile);
-            textEditor.getEditor().getDocument().setReadOnly(true);
+            Editor editor = textEditor.getEditor();
 
-            scrollToBottom(textEditor.getEditor());
+            editor.getDocument().setReadOnly(true);
+
+            scrollToBottom(editor);
 
             textEditors[0] = textEditor;
 
