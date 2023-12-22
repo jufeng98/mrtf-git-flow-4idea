@@ -9,7 +9,6 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.ScrollType;
 import com.intellij.openapi.fileEditor.TextEditor;
@@ -19,6 +18,7 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.ArrayUtil;
@@ -28,7 +28,10 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.Future;
 
@@ -51,7 +54,7 @@ public class KbsMsgDialog extends DialogWrapper {
     private Future<?> insRefreshFuture;
     private int tailLines = 500;
     private TextEditor textEditor;
-    private final List<Editor> releaseEditorList = Lists.newArrayList();
+    private final List<TextEditor> releaseEditorList = Lists.newArrayList();
 
     {
         setOKButtonText("关闭");
@@ -133,7 +136,15 @@ public class KbsMsgDialog extends DialogWrapper {
         if (insRefreshFuture != null) {
             insRefreshFuture.cancel(true);
         }
-        releaseEditorList.forEach(editor -> EditorFactory.getInstance().releaseEditor(editor));
+        releaseEditorList.forEach(editor -> {
+            String filePath = editor.getFile().getPath();
+            Disposer.dispose(editor);
+            try {
+                Files.delete(Path.of(filePath));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
         super.dispose();
     }
 
@@ -216,7 +227,7 @@ public class KbsMsgDialog extends DialogWrapper {
 
             textEditors[0] = textEditor;
 
-            releaseEditorList.add(textEditor.getEditor());
+            releaseEditorList.add(textEditor);
         });
         return textEditors[0];
     }

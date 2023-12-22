@@ -18,7 +18,6 @@ public class VirtualFileUtils {
             File file = tempFile.toFile();
             VirtualFile virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByPath(file.getAbsolutePath());
             virtualFile.setBinaryContent(txtBytes);
-            file.deleteOnExit();
             return virtualFile;
         } catch (IOException e) {
             throw new RuntimeException(e);

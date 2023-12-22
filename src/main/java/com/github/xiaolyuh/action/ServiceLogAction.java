@@ -23,7 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.util.List;
 
-public class ServiceRunningShowAction extends AnAction {
+public class ServiceLogAction extends AnAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
