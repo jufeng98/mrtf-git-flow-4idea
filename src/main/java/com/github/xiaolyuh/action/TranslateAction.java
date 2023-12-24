@@ -49,7 +49,7 @@ public class TranslateAction extends AnAction {
         // 取得编辑器的文档对象
         Document document = editor.getDocument();
 
-        translateDialog.setReplaceResultListener(replaceVal -> {
+        translateDialog.addReplaceResultListener(replaceVal -> {
             // 使用翻译后的文本替换选中的文本
             WriteCommandAction.runWriteCommandAction(project, () ->
                     document.replaceString(start, end, replaceVal)

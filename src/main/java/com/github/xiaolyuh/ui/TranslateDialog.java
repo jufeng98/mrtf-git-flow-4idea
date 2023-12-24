@@ -10,12 +10,7 @@ import com.google.gson.JsonObject;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.ui.components.JBLoadingPanel;
-import com.intellij.util.io.DigestUtil;
 import kotlin.Pair;
-import org.apache.commons.codec.digest.Md5Crypt;
-import org.apache.commons.lang3.StringUtils;
-import org.bouncycastle.crypto.digests.MD5Digest;
-import org.bouncycastle.jcajce.provider.digest.MD5;
 
 import javax.swing.*;
 import java.awt.*;
@@ -110,7 +105,7 @@ public class TranslateDialog {
         return res.get("dst").getAsString();
     }
 
-    public void setReplaceResultListener(Consumer<String> consumer) {
+    public void addReplaceResultListener(Consumer<String> consumer) {
         replaceResult = consumer;
     }
 
