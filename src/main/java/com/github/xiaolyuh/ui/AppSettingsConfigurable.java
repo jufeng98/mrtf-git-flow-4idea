@@ -16,12 +16,18 @@ public class AppSettingsConfigurable implements Configurable {
         return GitFlowPlus.class.getName();
     }
 
+    /**
+     * 创建用于显示设置的界面
+     */
     @Override
     public @Nullable JComponent createComponent() {
         configDialog = new ConfigDialog();
         return configDialog.createCenterPanel();
     }
 
+    /**
+     * 判断当前页面配置是否发生了变化
+     */
     @Override
     public boolean isModified() {
         Pair<String, String> pair = ConfigUtil.getBaiduConfig();
@@ -29,11 +35,17 @@ public class AppSettingsConfigurable implements Configurable {
         return !pair.equals(curPair);
     }
 
+    /**
+     * 重置配置
+     */
     @Override
     public void reset() {
         configDialog.resetConfig();
     }
 
+    /**
+     * 保存配置
+     */
     @Override
     public void apply() {
         configDialog.saveCurrentConfig();
