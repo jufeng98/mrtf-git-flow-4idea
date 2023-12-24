@@ -63,13 +63,11 @@ public class TranslateDialog {
 
     public void translate() {
         loadingPanel.startLoading();
-        // 请求网络等耗时工作绝不能在UI线程进行,放到线程池执行
+        // 请求网络等耗时工作绝不能在UI线程进行(否则会导致IDEA界面卡住,无法响应任何操作),放到线程池执行
         ExecutorUtils.addTask(() -> {
-
             // 调用百度翻译api得到翻译结果
             String translateRes = translateUseBaidu();
-
-            // 回到UI线程
+            // 回到UI线程,因为要操作UI组件
             ApplicationManager.getApplication().invokeLater(() -> {
                 setTargetLangVal(translateRes);
                 loadingPanel.stopLoading();
@@ -84,12 +82,14 @@ public class TranslateDialog {
 
         String sourceText = sourceTextField.getText();
         Pair<String, String> pair = ConfigUtil.getBaiduConfig();
+        String appId = pair.getFirst();
+        String appKey = pair.getSecond();
         long salt = System.currentTimeMillis();
-        String s = pair.getFirst() + sourceText + salt + pair.getSecond();
+        String s = appId + sourceText + salt + appKey;
         String sign = DigestUtils.md5DigestAsHex(s.getBytes(StandardCharsets.UTF_8));
 
         String query = String.format("q=%s&from=%s&to=%s&appid=%s&salt=%s&sign=%s", sourceText, "en", "zh",
-                pair.getFirst(), salt, sign);
+                appId, salt, sign);
 
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .POST(HttpRequest.BodyPublishers.ofString(query, StandardCharsets.UTF_8))

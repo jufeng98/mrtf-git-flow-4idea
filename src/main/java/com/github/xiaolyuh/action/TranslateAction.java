@@ -21,7 +21,7 @@ public class TranslateAction extends AnAction {
         Project project = event.getProject();
         Editor editor = event.getData(CommonDataKeys.EDITOR);
 
-        // 只有打开了编辑器且有选中内容时才显示Action
+        // 只有打开了编辑器且有选中内容时才显示 TranslateAction 菜单
         boolean showAction = project != null && editor != null && editor.getSelectionModel().hasSelection();
         event.getPresentation().setEnabledAndVisible(showAction);
     }
@@ -39,8 +39,10 @@ public class TranslateAction extends AnAction {
 
 
         TranslateDialog translateDialog = new TranslateDialog(selectedText);
+        // 将搭好的窗体 TranslateDialog 传入 JBPopupFactory
         JBPopup popup = JBPopupFactory.getInstance()
                 .createComponentPopupBuilder(translateDialog.createCenterPanel(), null).createPopup();
+        // 由 JBPopup 决定窗体显示的最合适位置
         popup.showInBestPositionFor(editor);
         Disposer.register(Disposer.newDisposable(), popup);
 
