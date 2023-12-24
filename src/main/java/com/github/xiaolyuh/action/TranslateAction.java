@@ -18,41 +18,41 @@ public class TranslateAction extends AnAction {
 
     @Override
     public void update(@NotNull AnActionEvent event) {
-        // Get required data keys
         Project project = event.getProject();
         Editor editor = event.getData(CommonDataKeys.EDITOR);
 
-        // Set visibility only in the case of
-        // existing project editor, and selection
-        event.getPresentation().setEnabledAndVisible(project != null && editor != null
-                && editor.getSelectionModel().hasSelection());
+        // 只有打开了编辑器且有选中内容时才显示Action
+        boolean showAction = project != null && editor != null && editor.getSelectionModel().hasSelection();
+        event.getPresentation().setEnabledAndVisible(showAction);
     }
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
-        // Get all the required data from data keys
-        Editor editor = event.getRequiredData(CommonDataKeys.EDITOR);
         Project project = event.getRequiredData(CommonDataKeys.PROJECT);
-        Document document = editor.getDocument();
+        Editor editor = event.getRequiredData(CommonDataKeys.EDITOR);
 
-        // Work off of the primary caret to get the selection info
+        // 取得选中的内容文本
         Caret primaryCaret = editor.getCaretModel().getPrimaryCaret();
         int start = primaryCaret.getSelectionStart();
         int end = primaryCaret.getSelectionEnd();
+        String selectedText = primaryCaret.getSelectedText();
 
-        TranslateDialog translateDialog = new TranslateDialog(primaryCaret.getSelectedText());
-        JBPopup popup = JBPopupFactory.getInstance().createComponentPopupBuilder(translateDialog.getMainPanel(),
-                null).createPopup();
-        Disposer.register(Disposer.newDisposable(), popup);
+
+        TranslateDialog translateDialog = new TranslateDialog(selectedText);
+        JBPopup popup = JBPopupFactory.getInstance()
+                .createComponentPopupBuilder(translateDialog.createCenterPanel(), null).createPopup();
         popup.showInBestPositionFor(editor);
+        Disposer.register(Disposer.newDisposable(), popup);
+
+        // 取得编辑器的文档对象
+        Document document = editor.getDocument();
 
         translateDialog.setReplaceResultListener(replaceVal -> {
-            // Replace the selection with a fixed string.
-            // Must do this document change in a write action context.
+            // 使用翻译后的文本替换选中的文本
             WriteCommandAction.runWriteCommandAction(project, () ->
                     document.replaceString(start, end, replaceVal)
             );
-            // De-select the text range that was just replaced
+            // 取消文本选中
             primaryCaret.removeSelection();
             popup.closeOk(null);
         });

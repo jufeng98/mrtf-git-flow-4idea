@@ -15,9 +15,9 @@ public class GitFlowToolWindow implements ToolWindowFactory {
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
         ContentManager contentManager = toolWindow.getContentManager();
-        GitFlowToolWindowDialog comp = new GitFlowToolWindowDialog(project, toolWindow);
+        GitFlowToolWindowDialog dialog = new GitFlowToolWindowDialog(project, toolWindow);
 
-        contentManager.getComponent().add(comp.getMainPanel());
+        contentManager.getComponent().add(dialog.createCenterPanel());
 
 //        Content tab1 = contentManager.getFactory()
 //                .createContent(comp.getMainPanel(), "Tab1", false);

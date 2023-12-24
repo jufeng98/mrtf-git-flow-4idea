@@ -1,17 +1,32 @@
 package com.github.xiaolyuh.ui;
 
+import com.github.xiaolyuh.utils.ConfigUtil;
+import com.github.xiaolyuh.utils.DigestUtils;
 import com.github.xiaolyuh.utils.ExecutorUtils;
+import com.github.xiaolyuh.utils.HttpClientUtil;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.ui.components.JBLoadingPanel;
+import com.intellij.util.io.DigestUtil;
+import kotlin.Pair;
+import org.apache.commons.codec.digest.Md5Crypt;
+import org.apache.commons.lang3.StringUtils;
+import org.bouncycastle.crypto.digests.MD5Digest;
+import org.bouncycastle.jcajce.provider.digest.MD5;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
-import java.util.concurrent.Future;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.function.Consumer;
-
-import static com.github.xiaolyuh.utils.ExecutorUtils.sleep;
 
 public class TranslateDialog {
     private JPanel mainPanel;
@@ -25,41 +40,74 @@ public class TranslateDialog {
     private Consumer<String> replaceResult = val -> {
     };
 
-    public TranslateDialog(String source) {
-        setSourceLangVal(source);
+    public TranslateDialog(String text) {
+        setSourceLangVal(text);
 
         mainPanel.remove(contentPanel);
-
         loadingPanel = new JBLoadingPanel(new FlowLayout(), Disposer.newDisposable());
         loadingPanel.add(contentPanel);
         loadingPanel.setLoadingText("Loading......");
 
         mainPanel.add(loadingPanel);
 
-        ActionListener listener = evt -> {
-            translate();
-        };
+        ActionListener listener = evt -> translate();
 
         sourceLangComboBox.addActionListener(listener);
 
         targetLangComboBox.addActionListener(listener);
 
-        replaceBtn.addActionListener((e) -> {
-            replaceResult.accept(targetTextField.getText());
-        });
+        replaceBtn.addActionListener((e) -> replaceResult.accept(targetTextField.getText()));
 
         translate();
     }
 
-    private void translate() {
+    public void translate() {
         loadingPanel.startLoading();
+        // 请求网络等耗时工作绝不能在UI线程进行,放到线程池执行
         ExecutorUtils.addTask(() -> {
-            sleep(3);
+
+            // 调用百度翻译api得到翻译结果
+            String translateRes = translateUseBaidu();
+
+            // 回到UI线程
             ApplicationManager.getApplication().invokeLater(() -> {
-                setTargetLangVal("模拟翻译的结果");
+                setTargetLangVal(translateRes);
                 loadingPanel.stopLoading();
             });
         });
+    }
+
+    private String translateUseBaidu() throws Exception {
+        HttpClient client = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(6))
+                .build();
+
+        String sourceText = sourceTextField.getText();
+        Pair<String, String> pair = ConfigUtil.getBaiduConfig();
+        long salt = System.currentTimeMillis();
+        String s = pair.getFirst() + sourceText + salt + pair.getSecond();
+        String sign = DigestUtils.md5DigestAsHex(s.getBytes(StandardCharsets.UTF_8));
+
+        String query = String.format("q=%s&from=%s&to=%s&appid=%s&salt=%s&sign=%s", sourceText, "en", "zh",
+                pair.getFirst(), salt, sign);
+
+        HttpRequest.Builder builder = HttpRequest.newBuilder()
+                .POST(HttpRequest.BodyPublishers.ofString(query, StandardCharsets.UTF_8))
+                .header("Content-Type", "application/x-www-form-urlencoded")
+                .uri(URI.create("http://api.fanyi.baidu.com/api/trans/vip/translate"));
+
+        HttpRequest request = builder.build();
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        String body = response.body();
+        JsonObject resObj = HttpClientUtil.gson.fromJson(body, JsonObject.class);
+        JsonElement errorMsgEle = resObj.get("error_msg");
+        if (errorMsgEle != null) {
+            String errorMsg = errorMsgEle.getAsString();
+            throw new RuntimeException(errorMsg);
+        }
+        JsonArray transResult = resObj.getAsJsonArray("trans_result");
+        JsonObject res = (JsonObject) transResult.get(0);
+        return res.get("dst").getAsString();
     }
 
     public void setReplaceResultListener(Consumer<String> consumer) {
@@ -74,7 +122,7 @@ public class TranslateDialog {
         targetTextField.setText(val);
     }
 
-    public JPanel getMainPanel() {
+    public JPanel createCenterPanel() {
         return mainPanel;
     }
 

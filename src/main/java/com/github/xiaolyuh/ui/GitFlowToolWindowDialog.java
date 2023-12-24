@@ -10,32 +10,34 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
-public class GitFlowToolWindowDialog extends JComponent {
-    private JTextField usernameField;
-    private JPasswordField passwordField;
+public class GitFlowToolWindowDialog  {
+    private JTextField appIdField;
+    private JPasswordField appKeyField;
     private JPanel mainPanel;
     private JButton hideBtn;
-    private JButton availableBtn;
-    private JButton button1;
+    private JButton removeBtn;
+    private JButton saveBtn;
 
+    @SuppressWarnings("DialogTitleCapitalization")
     public GitFlowToolWindowDialog(@NotNull Project project, ToolWindow toolWindow) {
-        Pair<String, String> pair = ConfigUtil.getKubesphereUser();
-        usernameField.setText(pair.getFirst());
-        passwordField.setText(pair.getSecond());
+        Pair<String, String> pair = ConfigUtil.getBaiduConfig();
+        appIdField.setText(pair.getFirst());
+        appKeyField.setText(pair.getSecond());
 
         if (toolWindow == null) {
             return;
         }
 
         hideBtn.addActionListener(e -> toolWindow.hide());
-        availableBtn.addActionListener(e -> toolWindow.setAvailable(false));
-        button1.addActionListener(e -> {
+        removeBtn.addActionListener(e -> toolWindow.setAvailable(false));
+        saveBtn.addActionListener(e -> {
+            ConfigUtil.saveBaiduConfig(appIdField.getText(), new String(appKeyField.getPassword()));
             ToolWindowManager.getInstance(project).notifyByBalloon("GitflowPlus.toolWindow",
-                    MessageType.INFO, "<h1>hello world</h1>");
+                    MessageType.INFO, "<h3>配置保存成功!</h3>");
         });
     }
 
-    public JPanel getMainPanel() {
+    public JComponent createCenterPanel() {
         return mainPanel;
     }
 }

@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 
 public class AppSettingsConfigurable implements Configurable {
-    private KubesphereDialog kubesphereDialog;
+    private ConfigDialog configDialog;
 
     @Override
     public String getDisplayName() {
@@ -18,25 +18,24 @@ public class AppSettingsConfigurable implements Configurable {
 
     @Override
     public @Nullable JComponent createComponent() {
-        kubesphereDialog = new KubesphereDialog();
-        return kubesphereDialog.getMainPanel();
+        configDialog = new ConfigDialog();
+        return configDialog.createCenterPanel();
     }
 
     @Override
     public boolean isModified() {
-        Pair<String, String> pair = ConfigUtil.getKubesphereUser();
-        Pair<String, String> curPair = kubesphereDialog.getCurKubesphereUser();
+        Pair<String, String> pair = ConfigUtil.getBaiduConfig();
+        Pair<String, String> curPair = configDialog.getCurrentConfig();
         return !pair.equals(curPair);
     }
 
     @Override
     public void reset() {
-        kubesphereDialog.fillCurKubesphereUser();
+        configDialog.resetConfig();
     }
 
     @Override
     public void apply() {
-        Pair<String, String> curPair = kubesphereDialog.getCurKubesphereUser();
-        ConfigUtil.saveKubesphereUser(curPair.getFirst(), curPair.getSecond());
+        configDialog.saveCurrentConfig();
     }
 }

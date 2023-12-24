@@ -1,7 +1,7 @@
 package com.github.xiaolyuh.utils;
 
-import com.github.xiaolyuh.consts.Constants;
 import com.github.xiaolyuh.config.InitOptions;
+import com.github.xiaolyuh.consts.Constants;
 import com.google.gson.JsonObject;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.diagnostic.Logger;
@@ -29,6 +29,15 @@ public class ConfigUtil {
     private static final Logger LOG = Logger.getInstance(ConfigUtil.class);
     private static final Preferences PREFERENCES = Preferences.userRoot().node("com.github.xiaolyuh");
     private static final Map<String, InitOptions> map = new ConcurrentHashMap<>();
+
+    public static Pair<String, String> getBaiduConfig() {
+        return new Pair<>(PREFERENCES.get("baiduAppId", ""), PREFERENCES.get("baiduAppKey", ""));
+    }
+
+    public static void saveBaiduConfig(String appId, String appKey) {
+        PREFERENCES.put("baiduAppId", appId);
+        PREFERENCES.put("baiduAppKey", appKey);
+    }
 
     public static Pair<String, String> getKubesphereUser() {
         return new Pair<>(PREFERENCES.get("kubesphereUsername", ""), PREFERENCES.get("kubespherePassword", ""));
