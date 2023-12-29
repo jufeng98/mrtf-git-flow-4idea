@@ -133,7 +133,7 @@ public class KubesphereUtils {
             if (ready1 && ready2) {
                 instanceVo = new InstanceVo(instanceName, "运行中", false);
             } else {
-                instanceVo = new InstanceVo(instanceName, "未就绪", true);
+                instanceVo = new InstanceVo(instanceName, "未就绪", false);
             }
             instanceVos.add(instanceVo);
 

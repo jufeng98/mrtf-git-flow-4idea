@@ -7,6 +7,7 @@ import com.intellij.openapi.project.ProjectManagerListener;
 import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.StatusBarWidget;
 import com.intellij.openapi.wm.WindowManager;
+import org.cef.network.CefCookieManager;
 import org.jetbrains.annotations.NotNull;
 
 public class GitFlowPlusListener implements ProjectManagerListener {
@@ -27,6 +28,8 @@ public class GitFlowPlusListener implements ProjectManagerListener {
         }
         GitFlowPlusWidget gitFlowPlusWidget = new GitFlowPlusWidget(project);
         statusBar.addWidget(gitFlowPlusWidget, "last", statusBar);
+
+        CefCookieManager.getGlobalManager();
     }
 
 }
