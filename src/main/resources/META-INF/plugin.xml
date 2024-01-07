@@ -166,10 +166,10 @@
             <separator/>
 
             <action id="GitFlowPlus.ServiceConsoleAction" class="com.github.xiaolyuh.action.ServiceConsoleAction"
-                    text="服务控制台" description="连接Kubesphere服务的控制台" icon="/actions/show.svg">
+                    text="连接服务控制台" description="连接 Kubesphere 服务的控制台" icon="/actions/show.svg">
             </action>
             <action id="GitFlowPlus.ServiceRunningShowAction" class="com.github.xiaolyuh.action.ServiceLogAction"
-                    text="查看服务" description="查看Kubesphere服务的运行信息" icon="/actions/show.svg">
+                    text="查看服务日志" description="查看 Kubesphere 服务的运行信息" icon="/actions/show.svg">
             </action>
             <separator/>
 

@@ -86,7 +86,13 @@ public class ServiceConsoleAction extends AnAction {
 
     public void showInstanceDialog(Project project, InstanceVo instanceVo, String runsUrl, String selectService) {
         ApplicationManager.getApplication().invokeLater(() -> {
-            JcefK8sConsoleDialog jcefK8sConsoleDialog = new JcefK8sConsoleDialog(instanceVo, runsUrl, project, selectService);
+            JcefK8sConsoleDialog jcefK8sConsoleDialog;
+            try {
+                jcefK8sConsoleDialog = new JcefK8sConsoleDialog(instanceVo, runsUrl, project, selectService);
+            } catch(Exception e) {
+                NotifyUtil.notifyError(project, e.getMessage());
+                return;
+            }
             jcefK8sConsoleDialog.show();
         }, ModalityState.NON_MODAL);
     }

@@ -13,9 +13,8 @@ import com.intellij.ui.jcef.JBCefClient;
 import org.cef.browser.CefBrowser;
 import org.cef.browser.CefFrame;
 import org.cef.handler.CefLoadHandlerAdapter;
-import org.cef.handler.CefRequestHandlerAdapter;
 import org.cef.network.CefCookie;
-import org.cef.network.CefRequest;
+import org.cef.network.CefCookieManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -102,12 +101,14 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
         JBCefClient jbCefClient = jbCefBrowser.getJBCefClient();
         CefBrowser cefBrowser = jbCefBrowser.getCefBrowser();
 
-        jbCefClient.addLoadHandler(new CefLoadHandlerAdapter() {
+        CefCookieManager globalManager = CefCookieManager.getGlobalManager();
+        if (globalManager == null) {
+            throw new RuntimeException("cookie管理器尚未完成初始化,请重试!");
+        }
 
-            @Override
-            public void onLoadStart(CefBrowser browser, CefFrame frame, CefRequest.TransitionType transitionType) {
-                setTokenCookie(jbCefBrowser, url);
-            }
+        setTokenCookie(jbCefBrowser, url);
+
+        jbCefClient.addLoadHandler(new CefLoadHandlerAdapter() {
 
             @Override
             public void onLoadEnd(CefBrowser browser, CefFrame frame, int httpStatusCode) {
@@ -125,15 +126,6 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
                 });
             }
 
-        }, cefBrowser);
-
-        jbCefClient.addRequestHandler(new CefRequestHandlerAdapter() {
-            @Override
-            public boolean onBeforeBrowse(CefBrowser browser, CefFrame frame, CefRequest request, boolean user_gesture,
-                                          boolean is_redirect) {
-                setTokenCookie(jbCefBrowser, url);
-                return false;
-            }
         }, cefBrowser);
 
         jbCefBrowser.loadURL(url);
