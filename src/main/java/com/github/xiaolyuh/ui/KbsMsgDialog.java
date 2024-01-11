@@ -44,11 +44,12 @@ public class KbsMsgDialog extends DialogWrapper {
 
     private JPanel mainPanel;
     private JTabbedPane jTabbedPane;
-    private JButton refreshBtn;
+    private JButton loadMoreBtn;
     private JButton topBtn;
     private JButton bottomBtn;
     private JButton swBtn;
     private JButton insRefreshBtn;
+    private JButton refreshButton;
 
     private boolean insRefreshOpen = false;
     private Future<?> insRefreshFuture;
@@ -71,8 +72,9 @@ public class KbsMsgDialog extends DialogWrapper {
         mainPanel.remove(insRefreshBtn);
         mainPanel.remove(swBtn);
         mainPanel.remove(topBtn);
-        mainPanel.remove(refreshBtn);
+        mainPanel.remove(loadMoreBtn);
         mainPanel.remove(bottomBtn);
+        mainPanel.remove(refreshButton);
 
         fillEditorWithErrorTxt();
     }
@@ -87,16 +89,19 @@ public class KbsMsgDialog extends DialogWrapper {
         this.runsUrl = runsUrl;
         init();
 
-        refreshBtn.addActionListener(e -> {
+        loadMoreBtn.addActionListener(e -> {
             tailLines += 500;
             refreshRunningData(tailLines, previews);
         });
+
+        refreshButton.addActionListener(e -> refreshRunningData(tailLines, previews));
 
         insRefreshBtn.addActionListener(e -> {
             insRefreshOpen = !insRefreshOpen;
             String tip = insRefreshOpen ? "关闭实时日志" : "开启实时日志";
             insRefreshBtn.setText(tip);
-            refreshBtn.setEnabled(!insRefreshOpen);
+            loadMoreBtn.setEnabled(!insRefreshOpen);
+            refreshButton.setEnabled(!insRefreshOpen);
             if (!insRefreshOpen) {
                 insRefreshFuture.cancel(true);
                 insRefreshFuture = null;

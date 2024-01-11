@@ -103,7 +103,7 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
 
         CefCookieManager globalManager = CefCookieManager.getGlobalManager();
         if (globalManager == null) {
-            throw new RuntimeException("cookie管理器尚未完成初始化,请重试!");
+            throw new RuntimeException("cookie管理器已完成初始化,请重新打开!");
         }
 
         setTokenCookie(jbCefBrowser, url);
