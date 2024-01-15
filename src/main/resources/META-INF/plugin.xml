@@ -46,7 +46,7 @@
     <depends>Git4Idea</depends>
     <depends>com.intellij.java</depends>
 
-    <idea-version since-build="212.*" until-build="232.*"/>
+    <idea-version since-build="212.*" until-build="233.*"/>
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
