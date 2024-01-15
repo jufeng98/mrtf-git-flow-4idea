@@ -1,9 +1,9 @@
 package com.github.xiaolyuh.ui;
 
-import com.github.xiaolyuh.vo.MergeRequestOptions;
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
 import com.github.xiaolyuh.utils.StringUtils;
+import com.github.xiaolyuh.vo.MergeRequestOptions;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
@@ -21,11 +21,8 @@ public class MergeRequestDialog extends DialogWrapper {
     private JTextField titleTextField;
     private JTextArea messageTextArea;
 
-    private Project project;
-
     public MergeRequestDialog(@Nullable Project project,String title, String message) {
         super(project);
-        this.project = project;
         setTitle(I18n.getContent(I18nKey.MERGE_REQUEST_DIALOG$TITLE));
         init();
 
@@ -40,7 +37,7 @@ public class MergeRequestDialog extends DialogWrapper {
         return tagOptions;
     }
 
-    @javax.annotation.Nullable
+    @Nullable
     @Override
     protected ValidationInfo doValidate() {
         if (StringUtils.isBlank(titleTextField.getText())) {

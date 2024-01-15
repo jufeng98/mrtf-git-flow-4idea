@@ -1,11 +1,11 @@
 package com.github.xiaolyuh.ui;
 
-import com.github.xiaolyuh.service.GitFlowPlus;
-import com.github.xiaolyuh.vo.TagOptions;
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
+import com.github.xiaolyuh.service.GitFlowPlus;
 import com.github.xiaolyuh.utils.GitBranchUtil;
 import com.github.xiaolyuh.utils.StringUtils;
+import com.github.xiaolyuh.vo.TagOptions;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
@@ -27,7 +27,7 @@ public class TagDialog extends DialogWrapper {
     private JTextField titleTextField;
     private JTextArea messageTextArea;
 
-    private Project project;
+    private final Project project;
 
     public TagDialog(@Nullable Project project) {
         super(project);
@@ -47,7 +47,7 @@ public class TagDialog extends DialogWrapper {
         return tagOptions;
     }
 
-    @javax.annotation.Nullable
+    @Nullable
     @Override
     protected ValidationInfo doValidate() {
         if (StringUtils.isBlank(titleTextField.getText())) {

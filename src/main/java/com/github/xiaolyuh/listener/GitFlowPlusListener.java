@@ -4,6 +4,7 @@ import com.github.xiaolyuh.ui.GitFlowPlusWidget;
 import com.github.xiaolyuh.utils.ConfigUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManagerListener;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.StatusBarWidget;
 import com.intellij.openapi.wm.WindowManager;
@@ -11,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class GitFlowPlusListener implements ProjectManagerListener {
 
-    @SuppressWarnings("UnstableApiUsage")
+    @SuppressWarnings({"UnstableApiUsage", "removal"})
     @Override
     public void projectOpened(@NotNull Project project) {
         ConfigUtil.tryInitConfig(project);
@@ -26,7 +27,7 @@ public class GitFlowPlusListener implements ProjectManagerListener {
             return;
         }
         GitFlowPlusWidget gitFlowPlusWidget = new GitFlowPlusWidget(project);
-        statusBar.addWidget(gitFlowPlusWidget, "last", statusBar);
+        statusBar.addWidget(gitFlowPlusWidget, "last", Disposer.newDisposable());
     }
 
 }
