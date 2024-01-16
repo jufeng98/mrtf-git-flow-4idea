@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class GitFlowPlusListener implements ProjectManagerListener {
 
-    @SuppressWarnings({"UnstableApiUsage", "removal"})
+    @SuppressWarnings({"UnstableApiUsage"})
     @Override
     public void projectOpened(@NotNull Project project) {
         ConfigUtil.tryInitConfig(project);

@@ -70,7 +70,7 @@ public class GitFlowPlusWidget extends EditorBasedWidget implements StatusBarWid
     }
 
     @Override
-    public StatusBarWidget copy() {
+    public @NotNull StatusBarWidget copy() {
         return new GitFlowPlusWidget(project);
     }
 
