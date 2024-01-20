@@ -15,6 +15,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
+import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -23,7 +24,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.util.List;
 
-public class ServiceConsoleAction extends AnAction {
+public class ServiceConsoleAction extends AnAction implements DumbAware {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
@@ -86,14 +87,11 @@ public class ServiceConsoleAction extends AnAction {
 
     public void showInstanceDialog(Project project, InstanceVo instanceVo, String runsUrl, String selectService) {
         ApplicationManager.getApplication().invokeLater(() -> {
-            JcefK8sConsoleDialog jcefK8sConsoleDialog;
             try {
-                jcefK8sConsoleDialog = new JcefK8sConsoleDialog(instanceVo, runsUrl, project, selectService);
-            } catch(Exception e) {
+                new JcefK8sConsoleDialog(instanceVo, runsUrl, project, selectService);
+            } catch (Exception e) {
                 NotifyUtil.notifyError(project, e.getMessage());
-                return;
             }
-            jcefK8sConsoleDialog.show();
         }, ModalityState.NON_MODAL);
     }
 }

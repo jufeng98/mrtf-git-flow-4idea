@@ -30,16 +30,17 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
+@SuppressWarnings("DialogTitleCapitalization")
 public class SampleDialog extends DialogWrapper {
 
-    private JPanel panel1;
+    private JPanel mainPanel;
     private JButton chooseFileBtn;
     private JButton openPopupBtn;
     private JButton openNotificationBtn;
     private JButton activeToolWindowBtn;
     private JButton toolWindowBalloonBtn;
     private JButton projectBtn;
-    private JButton button1;
+    private JButton msgBtn;
     private JButton button2;
     private JButton findBtn;
     private JButton btn3;
@@ -113,7 +114,7 @@ public class SampleDialog extends DialogWrapper {
                     MessageType.INFO, String.format("<div>%s</div>", String.join("<br/>", strings)));
         });
 
-        button1.addActionListener(e -> Messages.showInfoMessage(project, "这是说明啊", "标题"));
+        msgBtn.addActionListener(e -> Messages.showInfoMessage(project, "这是说明啊", "标题"));
 
         button2.addActionListener(e -> {
             Collection<VirtualFile> files = FilenameIndex.getVirtualFilesByName("git-flow-project.json",
@@ -126,6 +127,7 @@ public class SampleDialog extends DialogWrapper {
             PsiClass aClass = JavaPsiFacade.getInstance(project).findClass("java.util.LinkedList",
                     GlobalSearchScope.everythingScope(project));
 
+            @SuppressWarnings("DataFlowIssue")
             Query<PsiClass> search = ClassInheritorsSearch.search(aClass);
             PsiClass[] array = search.toArray(new PsiClass[0]);
             ToolWindowManager.getInstance(project).notifyByBalloon(ToolWindowId.VCS,
@@ -152,13 +154,11 @@ public class SampleDialog extends DialogWrapper {
             editorDialog.show();
         });
 
-        chromeBtn.addActionListener(e -> {
-            close(CLOSE_EXIT_CODE);
-        });
+        chromeBtn.addActionListener(e -> close(CLOSE_EXIT_CODE));
     }
 
     @Override
     protected @Nullable JComponent createCenterPanel() {
-        return panel1;
+        return mainPanel;
     }
 }

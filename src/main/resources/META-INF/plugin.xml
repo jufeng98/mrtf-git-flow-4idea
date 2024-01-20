@@ -49,6 +49,9 @@
     <idea-version since-build="212.*" until-build="233.*"/>
 
     <extensions defaultExtensionNs="com.intellij">
+        <statusBarWidgetFactory implementation="com.github.xiaolyuh.ui.GitFlowPlusStatusBarWidgetFactory"
+                                id="GitFlowPlusStatusBarWidgetFactory" order="last"/>
+
         <!-- Add your extensions here -->
         <applicationService serviceInterface="com.github.xiaolyuh.service.GitFlowPlus"
                             serviceImplementation="com.github.xiaolyuh.service.impl.GitFlowPlusImpl"/>
@@ -88,6 +91,8 @@
                          implementationClass="com.github.xiaolyuh.inspection.FieldNameInspection"
                          displayName="字段名不能以下划线开头"/>
 
+        <codeInsight.lineMarkerProvider language="JAVA"
+                                        implementationClass="com.github.xiaolyuh.gutter.InjectLineMarkerProvider"/>
     </extensions>
 
     <projectListeners>

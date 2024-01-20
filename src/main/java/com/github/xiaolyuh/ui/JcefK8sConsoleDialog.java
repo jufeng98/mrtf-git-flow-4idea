@@ -3,18 +3,22 @@ package com.github.xiaolyuh.ui;
 import com.github.xiaolyuh.utils.ConfigUtil;
 import com.github.xiaolyuh.utils.ExecutorUtils;
 import com.github.xiaolyuh.utils.KubesphereUtils;
+import com.github.xiaolyuh.utils.NotifyUtil;
 import com.github.xiaolyuh.vo.InstanceVo;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.Pair;
+import com.intellij.ui.jcef.JBCefApp;
 import com.intellij.ui.jcef.JBCefBrowser;
+import com.intellij.ui.jcef.JBCefBrowserBuilder;
 import com.intellij.ui.jcef.JBCefClient;
+import org.cef.CefApp;
 import org.cef.browser.CefBrowser;
 import org.cef.browser.CefFrame;
+import org.cef.handler.CefAppHandlerAdapter;
 import org.cef.handler.CefLoadHandlerAdapter;
 import org.cef.network.CefCookie;
-import org.cef.network.CefCookieManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,6 +29,7 @@ import java.awt.event.KeyEvent;
 import java.awt.im.InputContext;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 public class JcefK8sConsoleDialog extends DialogWrapper {
     private JPanel contentPanel;
@@ -47,36 +52,45 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
 
         String url = getUrl(runsUrl, instanceVo, selectService);
 
-        JBCefBrowser jbCefBrowser = initJcef(url);
-        CefBrowser cefBrowser = jbCefBrowser.getCefBrowser();
+        String finalSelectService = selectService;
+        initJcef(url, jbCefBrowser -> {
+            if (jbCefBrowser == null) {
+                NotifyUtil.notifySuccess(project, "JCEF已完成初始化,重新打开菜单即可");
+                return;
+            }
 
-        String namespace = KubesphereUtils.findNamespace(runsUrl);
-        Pair<Pair<String, String>, Pair<String, String>> pair = getLogPath(namespace, selectService);
-        String logPath = pair.getFirst().getFirst();
+            CefBrowser cefBrowser = jbCefBrowser.getCefBrowser();
 
-        copyBtn.addActionListener(e -> {
-            cefBrowser.getMainFrame().copy();
-            cefBrowser.setFocus(true);
+            String namespace = KubesphereUtils.findNamespace(runsUrl);
+            Pair<Pair<String, String>, Pair<String, String>> pair = getLogPath(namespace, finalSelectService);
+            String logPath = pair.getFirst().getFirst();
+
+            copyBtn.addActionListener(e -> {
+                cefBrowser.getMainFrame().copy();
+                cefBrowser.setFocus(true);
+            });
+            pasteBtn.addActionListener(e -> {
+                cefBrowser.getMainFrame().paste();
+                cefBrowser.setFocus(true);
+            });
+
+            watchBtn.addActionListener(e -> {
+                sendKeyEvents("cd " + logPath + "\n", cefBrowser);
+                sendKeyEvents("ls" + "\n", cefBrowser);
+                sendKeyEvents("tail -f -n 600 \t", cefBrowser);
+            });
+            logBtn.addActionListener(e -> sendKeyEvents("cd " + logPath + "\n", cefBrowser));
+
+            debugBtn.addActionListener(e -> executeCommand("less " + logPath + "/" + pair.getFirst().getSecond() + "\n", cefBrowser, url));
+            errorBtn.addActionListener(e -> executeCommand("less " + logPath + "/" + pair.getSecond().getFirst() + "\n", cefBrowser, url));
+            infoBtn.addActionListener(e -> executeCommand("less " + logPath + "/" + pair.getSecond().getSecond() + "\n", cefBrowser, url));
+
+            closeBtn.addActionListener(e -> JcefK8sConsoleDialog.this.close(CLOSE_EXIT_CODE, true));
+
+            contentPanel.add(jbCefBrowser.getComponent(), BorderLayout.CENTER);
+
+            show();
         });
-        pasteBtn.addActionListener(e -> {
-            cefBrowser.getMainFrame().paste();
-            cefBrowser.setFocus(true);
-        });
-
-        watchBtn.addActionListener(e -> {
-            sendKeyEvents("cd " + logPath + "\n", cefBrowser);
-            sendKeyEvents("ls" + "\n", cefBrowser);
-            sendKeyEvents("tail -f -n 600 \t", cefBrowser);
-        });
-        logBtn.addActionListener(e -> sendKeyEvents("cd " + logPath + "\n", cefBrowser));
-
-        debugBtn.addActionListener(e -> executeCommand("less " + logPath + "/" + pair.getFirst().getSecond() + "\n", cefBrowser, url));
-        errorBtn.addActionListener(e -> executeCommand("less " + logPath + "/" + pair.getSecond().getFirst() + "\n", cefBrowser, url));
-        infoBtn.addActionListener(e -> executeCommand("less " + logPath + "/" + pair.getSecond().getSecond() + "\n", cefBrowser, url));
-
-        closeBtn.addActionListener(e -> JcefK8sConsoleDialog.this.close(CLOSE_EXIT_CODE, true));
-
-        contentPanel.add(jbCefBrowser.getComponent(), BorderLayout.CENTER);
     }
 
     private void sendKeyEvents(String string, CefBrowser cefBrowser) {
@@ -96,15 +110,39 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
         return String.format(urlTemplate, namespace, instanceVo.getName(), selectService);
     }
 
-    private JBCefBrowser initJcef(String url) {
-        JBCefBrowser jbCefBrowser = new JBCefBrowser();
-        JBCefClient jbCefClient = jbCefBrowser.getJBCefClient();
-        CefBrowser cefBrowser = jbCefBrowser.getCefBrowser();
+    private void initJcef(String url, Consumer<JBCefBrowser> consumer) {
+        JBCefApp jbCefApp = JBCefApp.getInstance();
+        JBCefClient[] jbCefClient = new JBCefClient[1];
 
-        CefCookieManager globalManager = CefCookieManager.getGlobalManager();
-        if (globalManager == null) {
-            throw new RuntimeException("cookie管理器已完成初始化,请重新打开!");
+        if (CefApp.getState() == CefApp.CefAppState.INITIALIZED) {
+            jbCefClient[0] = jbCefApp.createClient();
+            JBCefBrowser jbCefBrowser = initJBCefBrowser(url, jbCefClient[0]);
+            consumer.accept(jbCefBrowser);
+            return;
         }
+
+        CefApp.addAppHandler(new CefAppHandlerAdapter(null) {
+            @Override
+            public void stateHasChanged(CefApp.CefAppState state) {
+                if (state != CefApp.CefAppState.INITIALIZED) {
+                    return;
+                }
+                consumer.accept(null);
+            }
+        });
+
+        jbCefClient[0] = jbCefApp.createClient();
+    }
+
+    private JBCefBrowser initJBCefBrowser(String url, JBCefClient jbCefClient) {
+        JBCefBrowserBuilder jbCefBrowserBuilder = new JBCefBrowserBuilder()
+                .setClient(jbCefClient)
+                .setUrl(url)
+                .setCreateImmediately(true);
+        JBCefBrowser jbCefBrowser = JBCefBrowser.create(jbCefBrowserBuilder);
+
+
+        CefBrowser cefBrowser = jbCefBrowser.getCefBrowser();
 
         setTokenCookie(jbCefBrowser, url);
 
