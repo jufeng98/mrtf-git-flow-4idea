@@ -117,7 +117,7 @@ public class SampleDialog extends DialogWrapper {
         msgBtn.addActionListener(e -> Messages.showInfoMessage(project, "这是说明啊", "标题"));
 
         button2.addActionListener(e -> {
-            Collection<VirtualFile> files = FilenameIndex.getVirtualFilesByName("git-flow-project.json",
+            Collection<VirtualFile> files = FilenameIndex.getVirtualFilesByName("git-flow-k8s.json",
                     GlobalSearchScope.projectScope(project));
 
             ToolWindowManager.getInstance(project).notifyByBalloon(ToolWindowId.VCS,

@@ -8,7 +8,6 @@ import com.github.xiaolyuh.utils.KubesphereUtils;
 import com.github.xiaolyuh.utils.NotifyUtil;
 import com.github.xiaolyuh.utils.StringUtils;
 import com.github.xiaolyuh.vo.InstanceVo;
-import com.google.gson.JsonObject;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
@@ -34,14 +33,14 @@ public class ServiceConsoleAction extends AnAction implements DumbAware {
         if (!serviceDialog.showAndGet()) {
             return;
         }
-        JsonObject configObj = ConfigUtil.getProjectConfigFromFile(project);
-        if (configObj == null) {
-            NotifyUtil.notifyError(project, "请先更新配置");
-            return;
-        }
-        String runsUrl = configObj.get("runsUrl").getAsString();
+
         String selectService = serviceDialog.getSelectService();
         if (StringUtils.isBlank(selectService)) {
+            return;
+        }
+
+        if (ConfigUtil.notExistsK8sOptions(project)) {
+            NotifyUtil.notifyError(project, "缺少k8s配置");
             return;
         }
 
@@ -50,7 +49,7 @@ public class ServiceConsoleAction extends AnAction implements DumbAware {
             public void run(@NotNull ProgressIndicator indicator) {
                 List<InstanceVo> instanceVos;
                 try {
-                    instanceVos = KubesphereUtils.findInstanceName(runsUrl, selectService);
+                    instanceVos = KubesphereUtils.findInstanceName(project, selectService);
                 } catch (Exception e) {
                     NotifyUtil.notifyError(project, ExceptionUtils.getStackTrace(e));
                     return;
@@ -60,13 +59,13 @@ public class ServiceConsoleAction extends AnAction implements DumbAware {
                     return;
                 }
                 ExecutorUtils.addTask(() -> SwingUtilities
-                        .invokeLater(() -> showInstances(project, instanceVos, runsUrl, selectService)));
+                        .invokeLater(() -> showInstances(project, instanceVos, selectService)));
             }
         }.queue();
     }
 
     @SuppressWarnings("DialogTitleCapitalization")
-    public void showInstances(Project project, List<InstanceVo> instanceVos, String runsUrl, String selectService) {
+    public void showInstances(Project project, List<InstanceVo> instanceVos, String selectService) {
         final int[] choose = {0};
         if (instanceVos.size() > 1) {
             String[] options = instanceVos.stream()
@@ -80,15 +79,14 @@ public class ServiceConsoleAction extends AnAction implements DumbAware {
         }
         InstanceVo instanceVo = instanceVos.get(choose[0]);
 
-        ExecutorUtils.addTask(() -> SwingUtilities.invokeLater(() ->
-                showInstanceDialog(project, instanceVo, runsUrl, selectService)));
+        ExecutorUtils.addTask(() -> SwingUtilities.invokeLater(() -> showInstanceDialog(project, instanceVo, selectService)));
 
     }
 
-    public void showInstanceDialog(Project project, InstanceVo instanceVo, String runsUrl, String selectService) {
+    public void showInstanceDialog(Project project, InstanceVo instanceVo, String selectService) {
         ApplicationManager.getApplication().invokeLater(() -> {
             try {
-                new JcefK8sConsoleDialog(instanceVo, runsUrl, project, selectService);
+                new JcefK8sConsoleDialog(instanceVo, project, selectService);
             } catch (Exception e) {
                 NotifyUtil.notifyError(project, e.getMessage());
             }

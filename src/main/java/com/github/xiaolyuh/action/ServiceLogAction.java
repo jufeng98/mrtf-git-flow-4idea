@@ -8,7 +8,6 @@ import com.github.xiaolyuh.utils.KubesphereUtils;
 import com.github.xiaolyuh.utils.NotifyUtil;
 import com.github.xiaolyuh.utils.StringUtils;
 import com.github.xiaolyuh.vo.InstanceVo;
-import com.google.gson.JsonObject;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
@@ -34,12 +33,10 @@ public class ServiceLogAction extends AnAction implements DumbAware {
         if (!serviceDialog.showAndGet()) {
             return;
         }
-        JsonObject configObj = ConfigUtil.getProjectConfigFromFile(project);
-        if (configObj == null) {
-            NotifyUtil.notifyError(project, "请先更新配置");
+        if (ConfigUtil.notExistsK8sOptions(project)) {
+            NotifyUtil.notifyError(project, "缺少k8s配置");
             return;
         }
-        String runsUrl = configObj.get("runsUrl").getAsString();
         String selectService = serviceDialog.getSelectService();
         if (StringUtils.isBlank(selectService)) {
             return;
@@ -50,7 +47,7 @@ public class ServiceLogAction extends AnAction implements DumbAware {
             public void run(@NotNull ProgressIndicator indicator) {
                 List<InstanceVo> instanceVos;
                 try {
-                    instanceVos = KubesphereUtils.findInstanceName(runsUrl, selectService);
+                    instanceVos = KubesphereUtils.findInstanceName(project, selectService);
                 } catch (Exception e) {
                     NotifyUtil.notifyError(project, ExceptionUtils.getStackTrace(e));
                     return;
@@ -60,13 +57,13 @@ public class ServiceLogAction extends AnAction implements DumbAware {
                     return;
                 }
                 ExecutorUtils.addTask(() -> SwingUtilities
-                        .invokeLater(() -> showInstances(project, instanceVos, runsUrl, selectService)));
+                        .invokeLater(() -> showInstances(project, instanceVos, selectService)));
             }
         }.queue();
     }
 
     @SuppressWarnings("DialogTitleCapitalization")
-    public void showInstances(Project project, List<InstanceVo> instanceVos, String runsUrl, String selectService) {
+    public void showInstances(Project project, List<InstanceVo> instanceVos, String selectService) {
         final int[] choose = {0};
         if (instanceVos.size() > 1) {
             String[] options = instanceVos.stream()
@@ -85,23 +82,22 @@ public class ServiceLogAction extends AnAction implements DumbAware {
             public void run(@NotNull ProgressIndicator indicator) {
                 byte[] textBytes;
                 try {
-                    textBytes = KubesphereUtils.getContainerStartInfo(runsUrl, selectService, instanceVo.getName(),
+                    textBytes = KubesphereUtils.getContainerStartInfo(project, selectService, instanceVo.getName(),
                             500, instanceVo.isPreviews(), false);
                 } catch (Exception e) {
                     NotifyUtil.notifyError(project, ExceptionUtils.getStackTrace(e));
                     return;
                 }
                 ExecutorUtils.addTask(() -> SwingUtilities.invokeLater(() -> showInstanceDialog(project, instanceVo,
-                        textBytes, runsUrl, selectService)));
+                        textBytes, selectService)));
             }
         }.queue();
     }
 
-    public void showInstanceDialog(Project project, InstanceVo instanceVo, byte[] textBytes, String runsUrl, String selectService) {
+    public void showInstanceDialog(Project project, InstanceVo instanceVo, byte[] textBytes, String selectService) {
         ApplicationManager.getApplication().invokeLater(() -> {
             String title = instanceVo.getDesc() + ":" + instanceVo.getName();
-            KbsMsgDialog dialog = new KbsMsgDialog(title, textBytes, project, selectService, runsUrl,
-                    instanceVo.getName(), false);
+            KbsMsgDialog dialog = new KbsMsgDialog(title, textBytes, project, selectService, instanceVo.getName(), false);
             dialog.show();
         }, ModalityState.NON_MODAL);
     }

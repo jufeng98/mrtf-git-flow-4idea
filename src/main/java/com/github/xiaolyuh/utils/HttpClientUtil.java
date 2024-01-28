@@ -95,7 +95,7 @@ public class HttpClientUtil {
             response = (HttpResponse<T>) client.send(request, HttpResponse.BodyHandlers.ofString());
         }
         if (response.statusCode() == 401) {
-            if (request.uri().toString().equals(KubesphereUtils.LOGIN_URL)) {
+            if (request.uri().toString().equals(ConfigUtil.getK8sOptions(null).getLoginUrl())) {
                 throw new RuntimeException(response.body() + "");
             }
             KubesphereUtils.loginAndSaveToken();
@@ -139,7 +139,7 @@ public class HttpClientUtil {
             connection.connect();
             int responseCode = connection.getResponseCode();
             if (responseCode == 401) {
-                if (url.equals(KubesphereUtils.LOGIN_URL)) {
+                if (url.equals(ConfigUtil.getK8sOptions(null).getLoginUrl())) {
                     inputStream = connection.getInputStream();
                     byte[] bytes = inputStream.readAllBytes();
                     String body = new String(bytes);
@@ -185,7 +185,7 @@ public class HttpClientUtil {
             connection.connect();
             int responseCode = connection.getResponseCode();
             if (responseCode == 401) {
-                if (url.equals(KubesphereUtils.LOGIN_URL)) {
+                if (url.equals(ConfigUtil.getK8sOptions(null).getLoginUrl())) {
                     inputStream = connection.getInputStream();
                     byte[] bytes = inputStream.readAllBytes();
                     String body = new String(bytes);

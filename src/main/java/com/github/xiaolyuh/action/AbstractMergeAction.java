@@ -2,6 +2,7 @@ package com.github.xiaolyuh.action;
 
 import com.github.xiaolyuh.service.GitFlowPlus;
 import com.github.xiaolyuh.config.InitOptions;
+import com.github.xiaolyuh.utils.ExecutorUtils;
 import com.github.xiaolyuh.utils.KubesphereUtils;
 import com.github.xiaolyuh.vo.TagOptions;
 import com.github.xiaolyuh.i18n.I18n;
@@ -14,6 +15,7 @@ import com.github.xiaolyuh.utils.StringUtils;
 import com.github.xiaolyuh.valve.merge.Valve;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
@@ -39,6 +41,7 @@ import java.util.Objects;
  * @author yuhao.wang3
  */
 public abstract class AbstractMergeAction extends AnAction {
+    private static final Logger LOG = Logger.getInstance(ExecutorUtils.class);
     protected GitFlowPlus gitFlowPlus = GitFlowPlus.getInstance();
 
     @Override
@@ -139,6 +142,7 @@ public abstract class AbstractMergeAction extends AnAction {
                     try {
                         KubesphereUtils.triggerPipeline(finalSelectService, project);
                     } catch (Exception e) {
+                        LOG.warn(e);
                         NotifyUtil.notifyError(project, "触发流水线出错了:" + ExceptionUtils.getStackTrace(e));
                     }
                 }

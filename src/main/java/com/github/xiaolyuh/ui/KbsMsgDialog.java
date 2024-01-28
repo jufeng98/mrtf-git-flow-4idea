@@ -40,7 +40,6 @@ public class KbsMsgDialog extends DialogWrapper {
     private Pair<byte[], byte[]> pair;
     private final Project project;
     private String selectService;
-    private String runsUrl;
 
     private JPanel mainPanel;
     private JTabbedPane jTabbedPane;
@@ -79,14 +78,13 @@ public class KbsMsgDialog extends DialogWrapper {
         fillEditorWithErrorTxt();
     }
 
-    public KbsMsgDialog(String title, byte[] textBytes, Project project, String selectService, String runsUrl,
+    public KbsMsgDialog(String title, byte[] textBytes, Project project, String selectService,
                         String newInstanceName, boolean previews) {
         super(project);
         setTitle(title);
         this.newInstanceName = newInstanceName;
         this.project = project;
         this.selectService = selectService;
-        this.runsUrl = runsUrl;
         init();
 
         loadMoreBtn.addActionListener(e -> {
@@ -159,7 +157,7 @@ public class KbsMsgDialog extends DialogWrapper {
             public void run(@NotNull ProgressIndicator indicator) {
                 byte[] textBytes;
                 try {
-                    textBytes = KubesphereUtils.getContainerStartInfo(runsUrl, selectService, newInstanceName, tailLines,
+                    textBytes = KubesphereUtils.getContainerStartInfo(project, selectService, newInstanceName, tailLines,
                             previews, false);
                 } catch (Exception e) {
                     NotifyUtil.notifyError(project, "出错了:" + ExceptionUtils.getStackTrace(e));
@@ -174,7 +172,7 @@ public class KbsMsgDialog extends DialogWrapper {
     private Future<?> refreshInsRunningData() {
         return ExecutorUtils.addTask(() -> {
             try {
-                KubesphereUtils.getContainerStartInfo(runsUrl, selectService, newInstanceName,
+                KubesphereUtils.getContainerStartInfo(project, selectService, newInstanceName,
                         1000, false, true, body -> SwingUtilities
                                 .invokeLater(() -> ApplicationManager.getApplication()
                                         .invokeLater(() -> fillEditorWithRunningTxt(project, body, true))

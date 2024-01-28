@@ -1,8 +1,8 @@
 package com.github.xiaolyuh.ui;
 
+import com.github.xiaolyuh.config.K8sOptions;
 import com.github.xiaolyuh.utils.ConfigUtil;
 import com.github.xiaolyuh.utils.ExecutorUtils;
-import com.github.xiaolyuh.utils.KubesphereUtils;
 import com.github.xiaolyuh.utils.NotifyUtil;
 import com.github.xiaolyuh.vo.InstanceVo;
 import com.intellij.openapi.project.Project;
@@ -27,6 +27,7 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.im.InputContext;
+import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -43,14 +44,14 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
     private JButton copyBtn;
     private JButton pasteBtn;
 
-    public JcefK8sConsoleDialog(InstanceVo instanceVo, String runsUrl, @Nullable Project project, String selectService) {
+    public JcefK8sConsoleDialog(InstanceVo instanceVo, @Nullable Project project, String selectService) {
         super(project);
         setModal(false);
         selectService = selectService.toLowerCase();
         setTitle(instanceVo.getDesc() + ":" + instanceVo.getName());
         init();
 
-        String url = getUrl(runsUrl, instanceVo, selectService);
+        String url = ConfigUtil.getConsoleUrl(project, selectService, instanceVo.getName());
 
         String finalSelectService = selectService;
         initJcef(url, jbCefBrowser -> {
@@ -61,9 +62,8 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
 
             CefBrowser cefBrowser = jbCefBrowser.getCefBrowser();
 
-            String namespace = KubesphereUtils.findNamespace(runsUrl);
-            Pair<Pair<String, String>, Pair<String, String>> pair = getLogPath(namespace, finalSelectService);
-            String logPath = pair.getFirst().getFirst();
+            Pair<Pair<String, String>, Pair<String, String>> pair = getLogPath(project, finalSelectService);
+            String logDir = pair.getFirst().getFirst();
 
             copyBtn.addActionListener(e -> {
                 cefBrowser.getMainFrame().copy();
@@ -75,15 +75,15 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
             });
 
             watchBtn.addActionListener(e -> {
-                sendKeyEvents("cd " + logPath + "\n", cefBrowser);
+                sendKeyEvents("cd " + logDir + "\n", cefBrowser);
                 sendKeyEvents("ls" + "\n", cefBrowser);
                 sendKeyEvents("tail -f -n 600 \t", cefBrowser);
             });
-            logBtn.addActionListener(e -> sendKeyEvents("cd " + logPath + "\n", cefBrowser));
+            logBtn.addActionListener(e -> sendKeyEvents("cd " + logDir + "\n", cefBrowser));
 
-            debugBtn.addActionListener(e -> executeCommand("less " + logPath + "/" + pair.getFirst().getSecond() + "\n", cefBrowser, url));
-            errorBtn.addActionListener(e -> executeCommand("less " + logPath + "/" + pair.getSecond().getFirst() + "\n", cefBrowser, url));
-            infoBtn.addActionListener(e -> executeCommand("less " + logPath + "/" + pair.getSecond().getSecond() + "\n", cefBrowser, url));
+            debugBtn.addActionListener(e -> executeCommand("less " + logDir + "/" + pair.getFirst().getSecond() + "\n", cefBrowser, url));
+            errorBtn.addActionListener(e -> executeCommand("less " + logDir + "/" + pair.getSecond().getFirst() + "\n", cefBrowser, url));
+            infoBtn.addActionListener(e -> executeCommand("less " + logDir + "/" + pair.getSecond().getSecond() + "\n", cefBrowser, url));
 
             closeBtn.addActionListener(e -> JcefK8sConsoleDialog.this.close(CLOSE_EXIT_CODE, true));
 
@@ -102,12 +102,6 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
             cefBrowser.sendKeyEvent(keyEvent);
         }
         cefBrowser.setFocus(true);
-    }
-
-    private String getUrl(String runsUrl, InstanceVo instanceVo, String selectService) {
-        String namespace = KubesphereUtils.findNamespace(runsUrl);
-        String urlTemplate = "http://host-kslb.mh.bluemoon.com.cn/terminal/cluster/sim-1/projects/%s/pods/%s/containers/%s";
-        return String.format(urlTemplate, namespace, instanceVo.getName(), selectService);
     }
 
     private void initJcef(String url, Consumer<JBCefBrowser> consumer) {
@@ -195,43 +189,13 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
                 "    });";
     }
 
-    private Pair<Pair<String, String>, Pair<String, String>> getLogPath(String namespace, String selectService) {
-        String logPath = "/home/appadm/logs/" + selectService;
-        String debugFile;
-        String errorFile;
-        String infoFile;
-        switch (namespace) {
-            case "washingservice-parent":
-                if (selectService.equals("washingservicemana")) {
-                    logPath = "/data/server/website/bluemoonMana/logs";
-                } else if (selectService.equals("washingservice-controller")) {
-                    logPath = "/data/server/website/bluemoon-control/logs";
-                } else {
-                    logPath = "/data/server/website";
-                }
-                debugFile = "sql.log";
-                errorFile = "err.log";
-                infoFile = "out.log";
-                break;
-            case "bluemoon-base":
-                logPath = "/opt/webapp/log";
-                debugFile = selectService + "-debug.log";
-                errorFile = selectService + "-error.log";
-                infoFile = selectService + ".log";
-                break;
-            case "hotelwash":
-                logPath = "/opt/webapp/tmp/logs";
-                debugFile = selectService + ".log";
-                errorFile = debugFile;
-                infoFile = debugFile;
-                break;
-            default:
-                debugFile = selectService + "-debug.log";
-                errorFile = selectService + "-error.log";
-                infoFile = selectService + ".log";
-                break;
-        }
-        Pair<String, String> p1 = Pair.create(logPath, debugFile);
+    private Pair<Pair<String, String>, Pair<String, String>> getLogPath(@Nullable Project project, String selectService) {
+        K8sOptions k8sOptions = ConfigUtil.getK8sOptions(project);
+        String logDir = k8sOptions.getLogDir();
+        String debugFile = MessageFormat.format(k8sOptions.getLogDebugFile(), selectService);
+        String errorFile = MessageFormat.format(k8sOptions.getLogErrorFile(), selectService);
+        String infoFile = MessageFormat.format(k8sOptions.getLogInfoFile(), selectService);
+        Pair<String, String> p1 = Pair.create(logDir, debugFile);
         Pair<String, String> p2 = Pair.create(errorFile, infoFile);
         return Pair.create(p1, p2);
     }

@@ -1,18 +1,21 @@
 package com.github.xiaolyuh.utils;
 
 import com.github.xiaolyuh.config.InitOptions;
+import com.github.xiaolyuh.config.K8sOptions;
 import com.github.xiaolyuh.consts.Constants;
-import com.google.gson.JsonObject;
+import com.intellij.ide.impl.ProjectUtil;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import kotlin.Pair;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.text.MessageFormat;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -28,7 +31,8 @@ import java.util.prefs.Preferences;
 public class ConfigUtil {
     private static final Logger LOG = Logger.getInstance(ConfigUtil.class);
     private static final Preferences PREFERENCES = Preferences.userRoot().node("com.github.xiaolyuh");
-    private static final Map<String, InitOptions> map = new ConcurrentHashMap<>();
+    private static final Map<String, InitOptions> CONFIG_MAP = new ConcurrentHashMap<>();
+    private static final Map<String, K8sOptions> K8S_MAP = new ConcurrentHashMap<>();
 
     public static Pair<String, String> getBaiduConfig() {
         return new Pair<>(PREFERENCES.get("baiduAppId", ""), PREFERENCES.get("baiduAppKey", ""));
@@ -66,7 +70,7 @@ public class ConfigUtil {
         // 存储到本地项目空间
         PropertiesComponent component = PropertiesComponent.getInstance(project);
         component.setValue(Constants.KEY_PREFIX + project.getName(), configJson);
-        map.remove(project.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME);
+        CONFIG_MAP.remove(project.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME);
     }
 
     /**
@@ -83,7 +87,7 @@ public class ConfigUtil {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        map.remove(project.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME);
+        CONFIG_MAP.remove(project.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME);
     }
 
     /**
@@ -109,12 +113,17 @@ public class ConfigUtil {
             Pair<String, String> pair = getKubesphereUser();
             options.setKubesphereUsername(pair.getFirst());
             options.setKubespherePassword(pair.getSecond());
-            map.put(project.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME, options);
+            CONFIG_MAP.put(project.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME, options);
+        }
+
+        K8sOptions k8sOptions = getFromProjectK8sFile(project);
+        if (k8sOptions != null) {
+            K8S_MAP.put(project.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME_PROJECT, k8sOptions);
         }
     }
 
     public static @NotNull InitOptions getInitOptions(Project project) {
-        return map.get(project.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME);
+        return CONFIG_MAP.get(project.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME);
     }
 
     /**
@@ -124,7 +133,7 @@ public class ConfigUtil {
      * @return InitOptions
      */
     public static Optional<InitOptions> getConfig(@NotNull Project project) {
-        InitOptions initOptions = map.get(project.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME);
+        InitOptions initOptions = CONFIG_MAP.get(project.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME);
         return Optional.ofNullable(initOptions);
     }
 
@@ -156,26 +165,79 @@ public class ConfigUtil {
         try {
             File file = new File(filePath);
             if (!file.exists()) {
+                LOG.info(filePath + "不存在");
                 return null;
             }
             String config = FileUtils.readFileToString(file, StandardCharsets.UTF_8.name());
             LOG.info("完成读取配置文件:" + filePath);
             return HttpClientUtil.gson.fromJson(config, InitOptions.class);
         } catch (Exception e) {
-            NotifyUtil.notifyError(project, "读取" + filePath + "错误:" + e.getClass().getSimpleName() + "," + e.getMessage());
-            return null;
+            throw new RuntimeException(e);
         }
     }
 
-    public static JsonObject getProjectConfigFromFile(Project project) {
+    public static boolean existsK8sOptions(Project project) {
+        if (project == null) {
+            LOG.warn("project为null");
+            return false;
+        }
+        K8sOptions k8sOptions = getK8sOptions(project);
+        return k8sOptions != null;
+    }
+
+    public static boolean notExistsK8sOptions(Project project) {
+        return !existsK8sOptions(project);
+    }
+
+    public static String getConsoleUrl(@Nullable Project project, String serviceName, String instanceName) {
+        K8sOptions k8sOptions = getK8sOptions(project);
+        String consoleUrl = k8sOptions.getHost() + k8sOptions.getConsolePath();
+        return MessageFormat.format(consoleUrl, k8sOptions.getCluster(), k8sOptions.getNamespace(), instanceName, serviceName);
+    }
+
+    public static String getRunsUrl(Project project) {
+        K8sOptions k8sOptions = getK8sOptions(project);
+        String runsUrl = k8sOptions.getHost() + k8sOptions.getRunsPath();
+        return MessageFormat.format(runsUrl, k8sOptions.getCluster(), k8sOptions.getNamespace());
+    }
+
+    public static String getPodsUrl(Project project, String serviceName) {
+        K8sOptions k8sOptions = getK8sOptions(project);
+        String podsUrl = k8sOptions.getHost() + k8sOptions.getPodsPath();
+        return MessageFormat.format(podsUrl, k8sOptions.getCluster(), k8sOptions.getNamespace(), serviceName);
+    }
+
+    public static String getLogsUrl(Project project, String serviceName, String instanceName, int tailLines,
+                                    boolean previous, boolean follow) {
+        K8sOptions k8sOptions = getK8sOptions(project);
+        String logsUrl = k8sOptions.getHost() + k8sOptions.getLogsPath();
+        return MessageFormat.format(logsUrl, k8sOptions.getCluster(), k8sOptions.getNamespace(), instanceName,
+                serviceName.toLowerCase(), tailLines + "", follow, previous);
+    }
+
+    public static String getCrumbissuerUrl(Project project) {
+        K8sOptions k8sOptions = getK8sOptions(project);
+        String podsUrl = k8sOptions.getHost() + k8sOptions.getCrumbissuerPath();
+        return MessageFormat.format(podsUrl, k8sOptions.getCluster());
+    }
+
+    public static K8sOptions getK8sOptions(@Nullable Project project) {
+        if (project == null) {
+            project = ProjectUtil.getActiveProject();
+        }
+        return K8S_MAP.get(Objects.requireNonNull(project).getBasePath() + File.separator + Constants.CONFIG_FILE_NAME_PROJECT);
+    }
+
+    private static K8sOptions getFromProjectK8sFile(Project project) {
         try {
             String filePath = project.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME_PROJECT;
             File file = new File(filePath);
             if (!file.exists()) {
+                LOG.info(filePath + "不存在");
                 return null;
             }
             String config = FileUtils.readFileToString(file, StandardCharsets.UTF_8.name());
-            return HttpClientUtil.gson.fromJson(config, JsonObject.class);
+            return HttpClientUtil.gson.fromJson(config, K8sOptions.class);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

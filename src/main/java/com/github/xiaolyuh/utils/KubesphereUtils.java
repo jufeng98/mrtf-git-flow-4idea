@@ -12,7 +12,6 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -20,8 +19,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public class KubesphereUtils {
-    public static final String LOGIN_URL = "http://10.255.243.18:30219/oauth/token";
-
 
     public static void triggerPipeline(String selectService, Project project) throws Exception {
         if (StringUtils.isBlank(selectService)) {
@@ -29,18 +26,20 @@ public class KubesphereUtils {
             return;
         }
 
-        JsonObject configObj = ConfigUtil.getProjectConfigFromFile(project);
-        if (configObj == null) {
-            NotifyUtil.notifyInfo(project, "缺少配置文件,跳过触发流水线");
+        if (ConfigUtil.notExistsK8sOptions(project)) {
+            NotifyUtil.notifyInfo(project, "缺少k8s配置文件,跳过触发流水线");
             return;
         }
 
-        String crumbissuerUrl = configObj.get("crumbissuerUrl").getAsString();
+        String crumbissuerUrl = ConfigUtil.getCrumbissuerUrl(project);
         JsonObject resObj = HttpClientUtil.getForObjectWithToken(crumbissuerUrl, null, JsonObject.class);
         String crumb = resObj.get("crumb").getAsString();
         NotifyUtil.notifyInfo(project, "请求url:" + crumbissuerUrl + ",结果crumb:" + crumb);
+        if (StringUtils.isBlank(crumb)) {
+            throw new RuntimeException(crumbissuerUrl + "配置有误:" + resObj);
+        }
 
-        boolean isFrontProject = configObj.get("isFrontProject").getAsBoolean();
+        boolean isFrontProject = ConfigUtil.getK8sOptions(project).isFrontProject();
         String reqBody;
         if (isFrontProject) {
             reqBody = "{\"parameters\":[]}";
@@ -48,10 +47,13 @@ public class KubesphereUtils {
             reqBody = String.format("{\"parameters\":[{\"name\":\"MDL_NAME\",\"value\":\"%s\"}]}", selectService);
         }
 
-        String runsUrl = configObj.get("runsUrl").getAsString();
-        Map<String, String> headers = new HashMap<>();
+        String runsUrl = ConfigUtil.getRunsUrl(project);
+        Map<String, String> headers = Maps.newHashMap();
         headers.put("Jenkins-Crumb", crumb);
         resObj = HttpClientUtil.postJsonForObjectWithToken(runsUrl, reqBody, headers, JsonObject.class);
+        if (!resObj.has("id")) {
+            throw new RuntimeException(runsUrl + "配置有误:" + resObj);
+        }
 
         String id = resObj.get("id").getAsString();
         String msg = String.format("请求url:%s,结果id:%s,queueId:%s,state:%s", runsUrl, id,
@@ -60,7 +62,7 @@ public class KubesphereUtils {
 
         NotifyUtil.notifyInfo(project, selectService + "触发流水线成功!");
 
-        ExecutorUtils.monitorBuildTask(runsUrl, id, selectService, project);
+        ExecutorUtils.monitorBuildTask(id, selectService, project);
 
         NotifyUtil.notifyInfo(project, "开始监控" + selectService + " id为" + id + "的构建情况");
     }
@@ -77,19 +79,14 @@ public class KubesphereUtils {
     }
 
     public static String loginByUrl(String kubesphereUsername, String kubespherePassword) throws Exception {
+        String loginUrl = ConfigUtil.getK8sOptions(null).getLoginUrl();
         String reqBody = String.format("grant_type=password&username=%s&password=%s", kubesphereUsername, kubespherePassword);
         Map<String, String> headers = Maps.newHashMap();
         headers.put("Content-Type", "application/x-www-form-urlencoded");
-        JsonObject jsonObject = HttpClientUtil.postForObject(LOGIN_URL, reqBody, headers, JsonObject.class);
+        JsonObject jsonObject = HttpClientUtil.postForObject(loginUrl, reqBody, headers, JsonObject.class);
         String accessToken = jsonObject.get("access_token").getAsString();
-        NotifyUtil.notifyInfo(ProjectUtil.getActiveProject(), "请求url:" + LOGIN_URL + "," + kubesphereUsername + "登录结果:" + jsonObject);
+        NotifyUtil.notifyInfo(ProjectUtil.getActiveProject(), "请求url:" + loginUrl + "," + kubesphereUsername + "登录结果:" + jsonObject);
         return accessToken;
-    }
-
-    public static String findNamespace(String runsUrl) {
-        int start = runsUrl.indexOf("pipelines") + "pipelines".length() + 1;
-        int end = runsUrl.indexOf("branches") - 1;
-        return runsUrl.substring(start, end);
     }
 
     public static String findInstanceName(String podUrl, String id, int detectTimes) throws Exception {
@@ -116,10 +113,9 @@ public class KubesphereUtils {
         return findInstanceName(podUrl, id, detectTimes);
     }
 
-    public static List<InstanceVo> findInstanceName(String runsUrl, String selectService) throws Exception {
-        String podUrl = findPodUrl(runsUrl, selectService);
-
-        JsonObject resObj = HttpClientUtil.getForObjectWithToken(podUrl, null, JsonObject.class);
+    public static List<InstanceVo> findInstanceName(Project project, String serviceName) throws Exception {
+        String podsUrl = ConfigUtil.getPodsUrl(project, serviceName);
+        JsonObject resObj = HttpClientUtil.getForObjectWithToken(podsUrl, null, JsonObject.class);
 
         List<InstanceVo> instanceVos = new ArrayList<>();
         JsonArray items = resObj.getAsJsonArray("items");
@@ -139,13 +135,6 @@ public class KubesphereUtils {
 
         }
         return instanceVos;
-    }
-
-    public static String findPodUrl(String runsUrl, String selectService) {
-        String namespace = findNamespace(runsUrl);
-
-        return String.format("http://host-kslb.mh.bluemoon.com.cn/kapis/clusters/sim-1/resources.kubesphere.io/v1alpha3/namespaces/%s/pods?name=%s&sortBy=startTime&limit=10",
-                namespace, selectService.toLowerCase());
     }
 
     public static int getRestartCount(JsonObject statusObj, String key) {
@@ -204,20 +193,16 @@ public class KubesphereUtils {
         }
     }
 
-    public static byte[] getContainerStartInfo(String runsUrl, String selectService, String newInstanceName, int tailLines,
+    public static byte[] getContainerStartInfo(Project project, String selectService, String newInstanceName, int tailLines,
                                                boolean previous, boolean follow) throws Exception {
-        String namespace = findNamespace(runsUrl);
-        String logUrl = String.format("http://host-kslb.mh.bluemoon.com.cn/api/clusters/sim-1/v1/namespaces/%s/pods/%s/log?container=%s&tailLines=%s&timestamps=true&follow=%s&previous=%s",
-                namespace, newInstanceName, selectService.toLowerCase(), tailLines, follow, previous);
-        return HttpClientUtil.getForObjectWithTokenUseUrl(logUrl, null, byte[].class);
+        String logsUrl = ConfigUtil.getLogsUrl(project, selectService, newInstanceName, tailLines, previous, follow);
+        return HttpClientUtil.getForObjectWithTokenUseUrl(logsUrl, null, byte[].class);
     }
 
-    public static void getContainerStartInfo(String runsUrl, String selectService, String newInstanceName, int tailLines,
+    public static void getContainerStartInfo(Project project, String selectService, String newInstanceName, int tailLines,
                                              boolean previous, boolean follow, Consumer<byte[]> consumer) throws Exception {
-        String namespace = findNamespace(runsUrl);
-        String logUrl = String.format("http://host-kslb.mh.bluemoon.com.cn/api/clusters/sim-1/v1/namespaces/%s/pods/%s/log?container=%s&tailLines=%s&timestamps=true&follow=%s&previous=%s",
-                namespace, newInstanceName, selectService.toLowerCase(), tailLines, follow, previous);
-        HttpClientUtil.getForObjectWithTokenUseUrl(logUrl, null, byte[].class, consumer);
+        String logsUrl = ConfigUtil.getLogsUrl(project, selectService, newInstanceName, tailLines, previous, follow);
+        HttpClientUtil.getForObjectWithTokenUseUrl(logsUrl, null, byte[].class, consumer);
     }
 
 }

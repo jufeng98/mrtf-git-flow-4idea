@@ -1,17 +1,15 @@
 package com.github.xiaolyuh.ui;
 
 import com.github.xiaolyuh.utils.ConfigUtil;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import java.util.List;
 
 public class ServiceDialog extends DialogWrapper {
-    private JPanel panel1;
+    private JPanel mainPanel;
     @SuppressWarnings("rawtypes")
     private JList jlist;
     private JLabel jlabel;
@@ -22,19 +20,17 @@ public class ServiceDialog extends DialogWrapper {
         init();
         jlabel.setText(txt);
 
-        JsonObject jsonObject = ConfigUtil.getProjectConfigFromFile(project);
-        if (jsonObject != null) {
-            JsonArray services = jsonObject.getAsJsonArray("services");
+        if (ConfigUtil.existsK8sOptions(project)) {
+            List<String> services = ConfigUtil.getK8sOptions(project).getServices();
             DefaultListModel<String> listModel = new DefaultListModel<>();
-            for (Object service : services) {
-                JsonPrimitive jsonPrimitive = (JsonPrimitive) service;
-                listModel.addElement(jsonPrimitive.getAsString());
+            for (String service : services) {
+                listModel.addElement(service);
             }
             //noinspection unchecked
             jlist.setModel(listModel);
         } else {
             DefaultListModel<String> listModel = new DefaultListModel<>();
-            listModel.addElement("缺少服务配置,请先在 git-flow-project.json 文件配置项目服务!");
+            listModel.addElement("缺少服务配置,请先在 git-flow-k8s.json 文件配置项目服务!");
             jlist.setEnabled(false);
             //noinspection unchecked
             jlist.setModel(listModel);
@@ -64,6 +60,6 @@ public class ServiceDialog extends DialogWrapper {
 
     @Override
     protected @Nullable JComponent createCenterPanel() {
-        return panel1;
+        return mainPanel;
     }
 }
