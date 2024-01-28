@@ -195,6 +195,15 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
         String debugFile = MessageFormat.format(k8sOptions.getLogDebugFile(), selectService);
         String errorFile = MessageFormat.format(k8sOptions.getLogErrorFile(), selectService);
         String infoFile = MessageFormat.format(k8sOptions.getLogInfoFile(), selectService);
+
+        if (selectService.equals("washingservicemana")) {
+            logDir = MessageFormat.format(logDir, "bluemoonMana");
+        } else if (selectService.equals("washingservice-controller")) {
+            logDir = MessageFormat.format(logDir, "bluemoon-control");
+        } else {
+            logDir = MessageFormat.format(logDir, selectService);
+        }
+
         Pair<String, String> p1 = Pair.create(logDir, debugFile);
         Pair<String, String> p2 = Pair.create(errorFile, infoFile);
         return Pair.create(p1, p2);

@@ -204,7 +204,7 @@ public class ConfigUtil {
     public static String getPodsUrl(Project project, String serviceName) {
         K8sOptions k8sOptions = getK8sOptions(project);
         String podsUrl = k8sOptions.getHost() + k8sOptions.getPodsPath();
-        return MessageFormat.format(podsUrl, k8sOptions.getCluster(), k8sOptions.getNamespace(), serviceName);
+        return MessageFormat.format(podsUrl, k8sOptions.getCluster(), k8sOptions.getNamespace(), serviceName.toLowerCase());
     }
 
     public static String getLogsUrl(Project project, String serviceName, String instanceName, int tailLines,
