@@ -88,7 +88,7 @@ public class ServiceConsoleAction extends AnAction implements DumbAware {
             try {
                 new JcefK8sConsoleDialog(instanceVo, project, selectService);
             } catch (Exception e) {
-                NotifyUtil.notifyError(project, e.getMessage());
+                NotifyUtil.notifyError(project, ExceptionUtils.getStackTrace(e));
             }
         }, ModalityState.NON_MODAL);
     }

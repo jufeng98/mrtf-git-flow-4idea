@@ -10,6 +10,7 @@ import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Pair;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,7 +73,7 @@ public class ExecutorUtils {
                 NotifyUtil.notifyInfo(project, "开始监控" + selectService + " id为" + id + "启动情况");
             } catch (Exception e) {
                 LOG.warn(e);
-                NotifyUtil.notifyError(project, "检测" + selectService + " id为" + id + "的构建情况出错,原因:" + e.getMessage());
+                NotifyUtil.notifyError(project, "检测" + selectService + " id为" + id + "的构建情况出错,原因:" + ExceptionUtils.getStackTrace(e));
             }
         };
     }
@@ -88,7 +89,7 @@ public class ExecutorUtils {
                 newInstanceName = findInstanceName(podUrl, id, 0);
             } catch (Exception e) {
                 NotifyUtil.notifyError(project, "检测" + selectService + " id为" + id +
-                        "的启动情况出错啦,原因:" + e.getMessage());
+                        "的启动情况出错啦,原因:" + ExceptionUtils.getStackTrace(e));
                 return;
             }
             NotifyUtil.notifyInfo(project, "新实例" + newInstanceName + "启动中......");
@@ -174,7 +175,7 @@ public class ExecutorUtils {
                 sleep(10);
                 NotifyUtil.notifySuccess(project, newInstanceName + "新实例启动成功");
             } catch (Exception e) {
-                NotifyUtil.notifyError(project, "检测" + newInstanceName + "启动情况出错,原因:" + e.getMessage());
+                NotifyUtil.notifyError(project, "检测" + newInstanceName + "启动情况出错,原因:" + ExceptionUtils.getStackTrace(e));
             }
         };
     }
