@@ -88,6 +88,8 @@ public class ConfigUtil {
             throw new RuntimeException(e);
         }
         CONFIG_MAP.remove(project.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME);
+
+        K8S_MAP.remove(project.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME_PROJECT);
     }
 
     /**
