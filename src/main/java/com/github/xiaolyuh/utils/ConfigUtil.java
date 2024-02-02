@@ -225,9 +225,16 @@ public class ConfigUtil {
 
     public static K8sOptions getK8sOptions(@Nullable Project project) {
         if (project == null) {
-            project = ProjectUtil.getActiveProject();
+            LOG.error("project为null");
+            return new K8sOptions();
         }
-        return K8S_MAP.get(Objects.requireNonNull(project).getBasePath() + File.separator + Constants.CONFIG_FILE_NAME_PROJECT);
+        return K8S_MAP.get(project.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME_PROJECT);
+    }
+
+    public static String getLoginUrl() {
+        Project openProject = ProjectUtil.getOpenProjects()[0];
+        K8sOptions k8sOptions = K8S_MAP.get(openProject.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME_PROJECT);
+        return k8sOptions.getLoginUrl();
     }
 
     private static K8sOptions getFromProjectK8sFile(Project project) {

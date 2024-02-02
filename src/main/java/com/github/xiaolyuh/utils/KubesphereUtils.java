@@ -79,7 +79,7 @@ public class KubesphereUtils {
     }
 
     public static String loginByUrl(String kubesphereUsername, String kubespherePassword) throws Exception {
-        String loginUrl = ConfigUtil.getK8sOptions(null).getLoginUrl();
+        String loginUrl = ConfigUtil.getLoginUrl();
         String reqBody = String.format("grant_type=password&username=%s&password=%s", kubesphereUsername, kubespherePassword);
         Map<String, String> headers = Maps.newHashMap();
         headers.put("Content-Type", "application/x-www-form-urlencoded");
