@@ -62,7 +62,9 @@ public class InjectLineMarkerProvider implements LineMarkerProvider {
         PsiType psiType = psiField.getType();
         PsiClass psiClass = PsiTypesUtil.getPsiClass(psiType);
         List<PsiClass> psiClasses = Lists.newArrayList();
-        //noinspection DataFlowIssue
+        if (psiClass == null) {
+            return psiClasses;
+        }
         if (psiClass.isInterface()) {
             // 找到所有接口的实现类
             Query<PsiClass> query = ClassInheritorsSearch.search(psiClass);
