@@ -19,10 +19,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import static com.github.xiaolyuh.utils.KubesphereUtils.findInstanceName;
-import static com.github.xiaolyuh.utils.KubesphereUtils.getReady;
-import static com.github.xiaolyuh.utils.KubesphereUtils.getRestartCount;
-
 public class ExecutorUtils {
     private static final Logger LOG = Logger.getInstance(ExecutorUtils.class);
     public static ExecutorService executorService = Executors.newCachedThreadPool();
@@ -47,7 +43,7 @@ public class ExecutorUtils {
         return () -> {
             try {
                 String url = ConfigUtil.getRunsUrl(project) + "/" + id + "/";
-                JsonObject resObj = HttpClientUtil.getForObjectWithToken(url, null, JsonObject.class);
+                JsonObject resObj = HttpClientUtil.getForObjectWithToken(url, null, JsonObject.class, project);
                 String state = resObj.get("state").getAsString();
                 if (!"FINISHED".equals(state)) {
                     sleep(10);
@@ -59,7 +55,7 @@ public class ExecutorUtils {
                 if (!"SUCCESS".equals(result)) {
                     String title = selectService + " id为" + id + "构建失败";
                     NotifyUtil.notifyInfo(project, title);
-                    Pair<byte[], byte[]> pair = KubesphereUtils.getBuildErrorInfo(url);
+                    Pair<byte[], byte[]> pair = KubesphereUtils.getBuildErrorInfo(url, project);
                     ApplicationManager.getApplication().invokeLater(() -> {
                         KbsMsgDialog dialog = new KbsMsgDialog(title, pair, project);
                         dialog.show();
@@ -86,7 +82,7 @@ public class ExecutorUtils {
 
             String newInstanceName;
             try {
-                newInstanceName = findInstanceName(podUrl, id, 0);
+                newInstanceName = KubesphereUtils.findInstanceName(podUrl, id, 0, project);
             } catch (Exception e) {
                 NotifyUtil.notifyError(project, "检测" + selectService + " id为" + id +
                         "的启动情况出错啦,原因:" + ExceptionUtils.getStackTrace(e));
@@ -109,7 +105,7 @@ public class ExecutorUtils {
                                                  String newInstanceName) {
         return () -> {
             try {
-                JsonObject resObj = HttpClientUtil.getForObjectWithToken(podUrl, null, JsonObject.class);
+                JsonObject resObj = HttpClientUtil.getForObjectWithToken(podUrl, null, JsonObject.class, project);
                 JsonArray items = resObj.getAsJsonArray("items");
 
                 List<JsonObject> list = new ArrayList<>();
@@ -130,7 +126,7 @@ public class ExecutorUtils {
 
                 JsonObject newItemObject = list.get(0);
                 JsonObject statusObj = newItemObject.getAsJsonObject("status");
-                int restartCount = getRestartCount(statusObj, "initContainerStatuses");
+                int restartCount = KubesphereUtils.getRestartCount(statusObj, "initContainerStatuses");
                 if (restartCount > 0) {
                     sleep(30);
                     String title = newInstanceName + "容器初始化失败,当前重启次数:" + restartCount;
@@ -144,7 +140,7 @@ public class ExecutorUtils {
                     }, ModalityState.NON_MODAL);
                     return;
                 }
-                restartCount = getRestartCount(statusObj, "containerStatuses");
+                restartCount = KubesphereUtils.getRestartCount(statusObj, "containerStatuses");
                 if (restartCount > 0) {
                     sleep(30);
                     String title = newInstanceName + "容器启动失败,当前重启次数:" + restartCount;
@@ -159,13 +155,13 @@ public class ExecutorUtils {
                     return;
                 }
 
-                boolean ready = getReady(statusObj, "initContainerStatuses");
+                boolean ready = KubesphereUtils.getReady(statusObj, "initContainerStatuses");
                 if (!ready) {
                     sleep(10);
                     monitorStartedTask(podUrl, selectService, project, newInstanceName);
                     return;
                 }
-                ready = getReady(statusObj, "containerStatuses");
+                ready = KubesphereUtils.getReady(statusObj, "containerStatuses");
                 if (!ready) {
                     sleep(10);
                     monitorStartedTask(podUrl, selectService, project, newInstanceName);

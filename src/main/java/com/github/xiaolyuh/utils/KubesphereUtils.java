@@ -32,7 +32,7 @@ public class KubesphereUtils {
         }
 
         String crumbissuerUrl = ConfigUtil.getCrumbissuerUrl(project);
-        JsonObject resObj = HttpClientUtil.getForObjectWithToken(crumbissuerUrl, null, JsonObject.class);
+        JsonObject resObj = HttpClientUtil.getForObjectWithToken(crumbissuerUrl, null, JsonObject.class, project);
         String crumb = resObj.get("crumb").getAsString();
         NotifyUtil.notifyInfo(project, "请求url:" + crumbissuerUrl + ",结果crumb:" + crumb);
         if (StringUtils.isBlank(crumb)) {
@@ -50,7 +50,7 @@ public class KubesphereUtils {
         String runsUrl = ConfigUtil.getRunsUrl(project);
         Map<String, String> headers = Maps.newHashMap();
         headers.put("Jenkins-Crumb", crumb);
-        resObj = HttpClientUtil.postJsonForObjectWithToken(runsUrl, reqBody, headers, JsonObject.class);
+        resObj = HttpClientUtil.postJsonForObjectWithToken(runsUrl, reqBody, headers, JsonObject.class, project);
         if (!resObj.has("id")) {
             throw new RuntimeException(runsUrl + "配置有误:" + resObj);
         }
@@ -67,30 +67,30 @@ public class KubesphereUtils {
         NotifyUtil.notifyInfo(project, "开始监控" + selectService + " id为" + id + "的构建情况");
     }
 
-    public static void loginAndSaveToken() throws Exception {
+    public static void loginAndSaveToken(Project project) throws Exception {
         kotlin.Pair<String, String> pair = ConfigUtil.getKubesphereUser();
         String kubesphereUsername = pair.getFirst();
         if (StringUtils.isBlank(kubesphereUsername)) {
             throw new RuntimeException("请先在更新配置菜单配置Kubesphere用户信息");
         }
         String kubespherePassword = pair.getSecond();
-        String accessToken = loginByUrl(kubesphereUsername, kubespherePassword);
+        String accessToken = loginByUrl(kubesphereUsername, kubespherePassword, project);
         ConfigUtil.saveKubesphereToken(accessToken);
     }
 
-    public static String loginByUrl(String kubesphereUsername, String kubespherePassword) throws Exception {
-        String loginUrl = ConfigUtil.getLoginUrl();
+    public static String loginByUrl(String kubesphereUsername, String kubespherePassword, Project project) throws Exception {
+        String loginUrl = ConfigUtil.getLoginUrl(project);
         String reqBody = String.format("grant_type=password&username=%s&password=%s", kubesphereUsername, kubespherePassword);
         Map<String, String> headers = Maps.newHashMap();
         headers.put("Content-Type", "application/x-www-form-urlencoded");
-        JsonObject jsonObject = HttpClientUtil.postForObject(loginUrl, reqBody, headers, JsonObject.class);
+        JsonObject jsonObject = HttpClientUtil.postForObject(loginUrl, reqBody, headers, JsonObject.class, project);
         String accessToken = jsonObject.get("access_token").getAsString();
         NotifyUtil.notifyInfo(ProjectUtil.getActiveProject(), "请求url:" + loginUrl + "," + kubesphereUsername + "登录结果:" + jsonObject);
         return accessToken;
     }
 
-    public static String findInstanceName(String podUrl, String id, int detectTimes) throws Exception {
-        JsonObject resObj = HttpClientUtil.getForObjectWithToken(podUrl, null, JsonObject.class);
+    public static String findInstanceName(String podUrl, String id, int detectTimes, Project project) throws Exception {
+        JsonObject resObj = HttpClientUtil.getForObjectWithToken(podUrl, null, JsonObject.class, project);
 
         JsonArray items = resObj.getAsJsonArray("items");
         for (Object item : items) {
@@ -110,12 +110,12 @@ public class KubesphereUtils {
             throw new RuntimeException("当前url:" + podUrl + ",返回结果:" + resObj);
         }
         TimeUnit.SECONDS.sleep(10);
-        return findInstanceName(podUrl, id, detectTimes);
+        return findInstanceName(podUrl, id, detectTimes, project);
     }
 
     public static List<InstanceVo> findInstanceName(Project project, String serviceName) throws Exception {
         String podsUrl = ConfigUtil.getPodsUrl(project, serviceName);
-        JsonObject resObj = HttpClientUtil.getForObjectWithToken(podsUrl, null, JsonObject.class);
+        JsonObject resObj = HttpClientUtil.getForObjectWithToken(podsUrl, null, JsonObject.class, project);
 
         List<InstanceVo> instanceVos = new ArrayList<>();
         JsonArray items = resObj.getAsJsonArray("items");
@@ -164,12 +164,12 @@ public class KubesphereUtils {
         return list.stream().allMatch(it -> it);
     }
 
-    public static Pair<byte[], byte[]> getBuildErrorInfo(String url) {
+    public static Pair<byte[], byte[]> getBuildErrorInfo(String url, Project project) {
         String urlPush = url + "log/?start=0";
         CompletableFuture<byte[]> futurePush = CompletableFuture.supplyAsync(() ->
         {
             try {
-                return HttpClientUtil.getForObjectWithToken(urlPush, null, byte[].class);
+                return HttpClientUtil.getForObjectWithToken(urlPush, null, byte[].class, project);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -179,7 +179,7 @@ public class KubesphereUtils {
         CompletableFuture<byte[]> futureCompile = CompletableFuture.supplyAsync(() ->
         {
             try {
-                return HttpClientUtil.getForObjectWithToken(urlCompile, null, byte[].class);
+                return HttpClientUtil.getForObjectWithToken(urlCompile, null, byte[].class, project);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -196,13 +196,13 @@ public class KubesphereUtils {
     public static byte[] getContainerStartInfo(Project project, String selectService, String newInstanceName, int tailLines,
                                                boolean previous, boolean follow) throws Exception {
         String logsUrl = ConfigUtil.getLogsUrl(project, selectService, newInstanceName, tailLines, previous, follow);
-        return HttpClientUtil.getForObjectWithTokenUseUrl(logsUrl, null, byte[].class);
+        return HttpClientUtil.getForObjectWithTokenUseUrl(logsUrl, null, byte[].class, project);
     }
 
     public static void getContainerStartInfo(Project project, String selectService, String newInstanceName, int tailLines,
                                              boolean previous, boolean follow, Consumer<byte[]> consumer) throws Exception {
         String logsUrl = ConfigUtil.getLogsUrl(project, selectService, newInstanceName, tailLines, previous, follow);
-        HttpClientUtil.getForObjectWithTokenUseUrl(logsUrl, null, byte[].class, consumer);
+        HttpClientUtil.getForObjectWithTokenUseUrl(logsUrl, null, byte[].class, consumer, project);
     }
 
 }

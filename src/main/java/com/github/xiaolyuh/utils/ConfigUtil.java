@@ -3,7 +3,6 @@ package com.github.xiaolyuh.utils;
 import com.github.xiaolyuh.config.InitOptions;
 import com.github.xiaolyuh.config.K8sOptions;
 import com.github.xiaolyuh.consts.Constants;
-import com.intellij.ide.impl.ProjectUtil;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
@@ -231,9 +230,8 @@ public class ConfigUtil {
         return K8S_MAP.get(project.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME_PROJECT);
     }
 
-    public static String getLoginUrl() {
-        Project openProject = ProjectUtil.getOpenProjects()[0];
-        K8sOptions k8sOptions = K8S_MAP.get(openProject.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME_PROJECT);
+    public static String getLoginUrl(Project project) {
+        K8sOptions k8sOptions = K8S_MAP.get(project.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME_PROJECT);
         return k8sOptions.getLoginUrl();
     }
 

@@ -3,6 +3,7 @@ package com.github.xiaolyuh.utils;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.intellij.openapi.project.Project;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,52 +36,58 @@ public class HttpClientUtil {
      * @param url   地址
      * @param param 参数
      */
-    public static <T> void postApplicationJson(String url, Object param, Class<T> resType) throws Exception {
+    public static <T> void postApplicationJson(String url, Object param, Class<T> resType, Project project) throws Exception {
         Map<String, String> headers = Maps.newHashMap();
         headers.put("Content-Type", "application/json");
         headers.put("Accept", "application/json");
-        postForObject(url, gson.toJson(param), headers, resType);
+        postForObject(url, gson.toJson(param), headers, resType, project);
     }
 
-    public static <T> T postJsonForObjectWithToken(String url, String reqBody, Map<String, String> headers, Class<T> resType) throws Exception {
+    public static <T> T postJsonForObjectWithToken(String url, String reqBody, Map<String, String> headers,
+                                                   Class<T> resType, Project project) throws Exception {
         headers.put("Content-Type", "application/json");
         headers.put("Accept", "application/json");
-        return postForObjectWithToken(url, reqBody, headers, resType);
+        return postForObjectWithToken(url, reqBody, headers, resType, project);
     }
 
-    public static <T> T postForObjectWithToken(String url, String reqBody, Map<String, String> headers, Class<T> resType) throws Exception {
+    public static <T> T postForObjectWithToken(String url, String reqBody, Map<String, String> headers,
+                                               Class<T> resType, Project project) throws Exception {
         String kubesphereToken = ConfigUtil.getKubesphereToken();
         if (headers == null) {
             headers = Maps.newHashMap();
         }
         headers.put("Cookie", "token=" + kubesphereToken);
-        return postForObject(url, reqBody, headers, resType);
+        return postForObject(url, reqBody, headers, resType, project);
     }
 
-    public static <T> T postForObject(String url, String reqBody, Map<String, String> headers, Class<T> resType) throws Exception {
+    public static <T> T postForObject(String url, String reqBody, Map<String, String> headers,
+                                      Class<T> resType, Project project) throws Exception {
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .POST(HttpRequest.BodyPublishers.ofString(reqBody, StandardCharsets.UTF_8))
                 .uri(URI.create(url));
-        return reqForObject(builder, headers, resType);
+        return reqForObject(builder, headers, resType, project);
     }
 
-    public static <T> T getForObjectWithToken(String url, Map<String, String> headers, Class<T> resType) throws Exception {
+    public static <T> T getForObjectWithToken(String url, Map<String, String> headers,
+                                              Class<T> resType, Project project) throws Exception {
         String kubesphereToken = ConfigUtil.getKubesphereToken();
         if (headers == null) {
             headers = Maps.newHashMap();
         }
         headers.put("Cookie", "token=" + kubesphereToken);
-        return getForObject(url, headers, resType);
+        return getForObject(url, headers, resType, project);
     }
 
-    public static <T> T getForObject(String url, Map<String, String> headers, Class<T> resType) throws Exception {
+    public static <T> T getForObject(String url, Map<String, String> headers, Class<T> resType,
+                                     Project project) throws Exception {
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(url));
-        return reqForObject(builder, headers, resType);
+        return reqForObject(builder, headers, resType, project);
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> T reqForObject(HttpRequest.Builder builder, Map<String, String> headers, Class<T> resType) throws Exception {
+    public static <T> T reqForObject(HttpRequest.Builder builder, Map<String, String> headers,
+                                     Class<T> resType, Project project) throws Exception {
         HttpClient client = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(6))
                 .build();
@@ -95,11 +102,11 @@ public class HttpClientUtil {
             response = (HttpResponse<T>) client.send(request, HttpResponse.BodyHandlers.ofString());
         }
         if (response.statusCode() == 401) {
-            if (request.uri().toString().equals(ConfigUtil.getLoginUrl())) {
+            if (request.uri().toString().equals(ConfigUtil.getLoginUrl(project))) {
                 throw new RuntimeException(response.body() + "");
             }
-            KubesphereUtils.loginAndSaveToken();
-            return getForObjectWithToken(request.uri().toString(), headers, resType);
+            KubesphereUtils.loginAndSaveToken(project);
+            return getForObjectWithToken(request.uri().toString(), headers, resType, project);
         }
         T body = response.body();
         if (resType == String.class || resType == byte[].class) {
@@ -108,26 +115,28 @@ public class HttpClientUtil {
         return gson.fromJson((String) body, resType);
     }
 
-    public static <T> T getForObjectWithTokenUseUrl(String url, Map<String, String> headers, Class<T> resType) throws Exception {
+    public static <T> T getForObjectWithTokenUseUrl(String url, Map<String, String> headers,
+                                                    Class<T> resType, Project project) throws Exception {
         String kubesphereToken = ConfigUtil.getKubesphereToken();
         if (headers == null) {
             headers = Maps.newHashMap();
         }
         headers.put("Cookie", "token=" + kubesphereToken);
-        return getForObjectUseUrl(url, headers, resType);
+        return getForObjectUseUrl(url, headers, resType, project);
     }
 
     public static <T> void getForObjectWithTokenUseUrl(String url, Map<String, String> headers, Class<T> resType,
-                                                       Consumer<T> consumer) throws Exception {
+                                                       Consumer<T> consumer, Project project) throws Exception {
         String kubesphereToken = ConfigUtil.getKubesphereToken();
         if (headers == null) {
             headers = Maps.newHashMap();
         }
         headers.put("Cookie", "token=" + kubesphereToken);
-        getForObjectUseUrl(url, headers, resType, consumer);
+        getForObjectUseUrl(url, headers, resType, consumer, project);
     }
 
-    public static <T> T getForObjectUseUrl(String url, Map<String, String> headers, Class<T> resType) throws Exception {
+    public static <T> T getForObjectUseUrl(String url, Map<String, String> headers,
+                                           Class<T> resType, Project project) throws Exception {
         HttpURLConnection connection = null;
         InputStream inputStream = null;
         try {
@@ -139,14 +148,14 @@ public class HttpClientUtil {
             connection.connect();
             int responseCode = connection.getResponseCode();
             if (responseCode == 401) {
-                if (url.equals(ConfigUtil.getLoginUrl())) {
+                if (url.equals(ConfigUtil.getLoginUrl(project))) {
                     inputStream = connection.getInputStream();
                     byte[] bytes = inputStream.readAllBytes();
                     String body = new String(bytes);
                     throw new RuntimeException(body);
                 }
-                KubesphereUtils.loginAndSaveToken();
-                return getForObjectWithTokenUseUrl(url, headers, resType);
+                KubesphereUtils.loginAndSaveToken(project);
+                return getForObjectWithTokenUseUrl(url, headers, resType, project);
             }
             inputStream = connection.getInputStream();
             byte[] bytes = inputStream.readAllBytes();
@@ -173,7 +182,7 @@ public class HttpClientUtil {
     }
 
     public static <T> void getForObjectUseUrl(String url, Map<String, String> headers, Class<T> resType,
-                                              Consumer<T> consumer) throws Exception {
+                                              Consumer<T> consumer, Project project) throws Exception {
         HttpURLConnection connection = null;
         InputStream inputStream = null;
         try {
@@ -185,14 +194,14 @@ public class HttpClientUtil {
             connection.connect();
             int responseCode = connection.getResponseCode();
             if (responseCode == 401) {
-                if (url.equals(ConfigUtil.getLoginUrl())) {
+                if (url.equals(ConfigUtil.getLoginUrl(project))) {
                     inputStream = connection.getInputStream();
                     byte[] bytes = inputStream.readAllBytes();
                     String body = new String(bytes);
                     throw new RuntimeException(body);
                 }
-                KubesphereUtils.loginAndSaveToken();
-                getForObjectWithTokenUseUrl(url, headers, resType);
+                KubesphereUtils.loginAndSaveToken(project);
+                getForObjectWithTokenUseUrl(url, headers, resType, project);
                 return;
             }
             while (!Thread.currentThread().isInterrupted()) {

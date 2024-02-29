@@ -1,7 +1,7 @@
 package com.github.xiaolyuh.service.impl;
 
-import com.github.xiaolyuh.consts.Constants;
 import com.github.xiaolyuh.config.InitOptions;
+import com.github.xiaolyuh.consts.Constants;
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
 import com.github.xiaolyuh.service.Git;
@@ -9,8 +9,8 @@ import com.github.xiaolyuh.service.GitFlowPlus;
 import com.github.xiaolyuh.utils.CollectionUtils;
 import com.github.xiaolyuh.utils.ConfigUtil;
 import com.github.xiaolyuh.utils.GitBranchUtil;
-import com.github.xiaolyuh.utils.NotifyUtil;
 import com.github.xiaolyuh.utils.HttpClientUtil;
+import com.github.xiaolyuh.utils.NotifyUtil;
 import com.github.xiaolyuh.utils.StringUtils;
 import com.github.xiaolyuh.vo.BranchVo;
 import com.github.xiaolyuh.vo.DingtalkMessage;
@@ -297,13 +297,14 @@ public class GitFlowPlusImpl implements GitFlowPlus {
     @Override
     public void thirdPartyNotify(GitRepository repository) {
         try {
-            String dingtalkToken = ConfigUtil.getInitOptions(repository.getProject()).getDingtalkToken();
+            Project project = repository.getProject();
+            String dingtalkToken = ConfigUtil.getInitOptions(project).getDingtalkToken();
             if (StringUtils.isNotBlank(dingtalkToken)) {
                 String url = String.format("https://oapi.dingtalk.com/robot/send?access_token=%s", dingtalkToken);
                 String msg = getRemoteLastCommit(repository, Constants.LOCK_BRANCH_NAME);
 
-                msg = I18n.getContent(I18nKey.THIRD_PARTY_NOTIFY, repository.getProject().getName(), msg);
-                HttpClientUtil.postApplicationJson(url, new DingtalkMessage(msg), String.class);
+                msg = I18n.getContent(I18nKey.THIRD_PARTY_NOTIFY, project.getName(), msg);
+                HttpClientUtil.postApplicationJson(url, new DingtalkMessage(msg), String.class, project);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
