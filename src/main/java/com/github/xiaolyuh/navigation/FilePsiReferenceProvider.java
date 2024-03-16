@@ -12,13 +12,13 @@ import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ProcessingContext;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
+
 public class FilePsiReferenceProvider extends PsiReferenceProvider {
     @Override
     public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement psiElement,
                                                            @NotNull ProcessingContext processingContext) {
-        if (!(psiElement instanceof PsiLiteralExpression)) {
-            return PsiReference.EMPTY_ARRAY;
-        }
+        PsiLiteralExpression psiLiteralExpression = (PsiLiteralExpression) psiElement;
         PsiNewExpression psiNewExpression = PsiTreeUtil.getParentOfType(psiElement, PsiNewExpression.class);
         if (psiNewExpression == null) {
             return PsiReference.EMPTY_ARRAY;
@@ -32,9 +32,9 @@ public class FilePsiReferenceProvider extends PsiReferenceProvider {
             return PsiReference.EMPTY_ARRAY;
         }
         String className = psiClass.getQualifiedName();
-        if (!"java.io.File".equals(className)) {
+        if (!File.class.getName().equals(className)) {
             return PsiReference.EMPTY_ARRAY;
         }
-        return new FilePsiReference[]{new FilePsiReference((PsiLiteralExpression) psiElement, true)};
+        return new FilePsiReference[]{new FilePsiReference(psiLiteralExpression, true)};
     }
 }
