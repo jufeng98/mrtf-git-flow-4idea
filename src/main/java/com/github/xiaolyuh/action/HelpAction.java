@@ -27,7 +27,7 @@ public class HelpAction extends AnAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
         if (event.getModifiers() == (InputEvent.ALT_MASK | InputEvent.BUTTON1_MASK)) {
-            SampleDialog sampleDialog = new SampleDialog(event.getProject());
+            SampleDialog sampleDialog = new SampleDialog(event);
             sampleDialog.show();
             return;
         }

@@ -29,17 +29,17 @@ public class EditorDialog extends DialogWrapper {
         TextEditor editor = (TextEditor) FileEditorManager.getInstance(project).getEditors(virtualFile)[0];
 
         PsiFile psiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.getEditor().getDocument());
+        if (psiFile == null) {
+            return;
+        }
         PsiElement element = psiFile.findElementAt(editor.getEditor().getCaretModel().getOffset());
 
-        PsiExpressionCodeFragment code =
-                JavaCodeFragmentFactory.getInstance(project)
-                        .createExpressionCodeFragment("", element, null, true);
+        PsiExpressionCodeFragment code = JavaCodeFragmentFactory.getInstance(project)
+                .createExpressionCodeFragment("", element, null, true);
 
-        Document document =
-                PsiDocumentManager.getInstance(project).getDocument(code);
+        Document document = PsiDocumentManager.getInstance(project).getDocument(code);
 
-        EditorTextField editorTextField =
-                new EditorTextField(document, project, JavaFileType.INSTANCE);
+        EditorTextField editorTextField = new EditorTextField(document, project, JavaFileType.INSTANCE);
         contentPanel.add(editorTextField, BorderLayout.CENTER);
 
     }
