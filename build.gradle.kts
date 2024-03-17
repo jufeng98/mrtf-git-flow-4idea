@@ -19,6 +19,8 @@ dependencies {
     testImplementation("junit:junit:4.13.1")
 }
 
+sourceSets["main"].java.srcDirs("src/main/gen")
+
 intellij {
     version.set("2022.1.2")
     type.set("IC")

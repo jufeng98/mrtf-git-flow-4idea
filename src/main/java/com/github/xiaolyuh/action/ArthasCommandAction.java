@@ -69,6 +69,8 @@ public class ArthasCommandAction extends AnAction {
             return;
         }
 
+//        Query<PsiMethod> psiMethods = OverridingMethodsSearch.search(psiMethod);
+
 //        PsiClass psiClass = PsiTreeUtil.getParentOfType(psiMethod, PsiClass.class);
         PsiClass psiClass = psiMethod.getContainingClass();
         if (psiClass == null) {

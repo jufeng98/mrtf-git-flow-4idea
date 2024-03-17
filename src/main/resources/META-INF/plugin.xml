@@ -99,6 +99,62 @@
                                 implementationClass="com.github.xiaolyuh.completion.GitFlowCompletionContributor"/>
 
         <psi.referenceContributor language="JAVA" implementation="com.github.xiaolyuh.navigation.FilePsiReferenceContributor"/>
+
+        <fileType
+                name="Simple File"
+                implementationClass="com.github.xiaolyuh.cls.step2.SimpleFileType"
+                fieldName="INSTANCE"
+                language="Simple"
+                extensions="simple"/>
+        <lang.parserDefinition
+                language="Simple"
+                implementationClass="com.github.xiaolyuh.cls.step4.SimpleParserDefinition"/>
+        <lang.syntaxHighlighterFactory
+                language="Simple"
+                implementationClass="com.github.xiaolyuh.cls.step5.SimpleSyntaxHighlighterFactory"/>
+        <colorSettingsPage
+                implementation="com.github.xiaolyuh.cls.step5.SimpleColorSettingsPage"/>
+        <annotator
+                language="JAVA"
+                implementationClass="com.github.xiaolyuh.cls.step7.SimpleAnnotator"/>
+        <codeInsight.lineMarkerProvider
+                language="JAVA"
+                implementationClass="com.github.xiaolyuh.cls.step8.SimpleLineMarkerProvider"/>
+        <completion.contributor
+                language="Simple"
+                implementationClass="com.github.xiaolyuh.cls.step9.SimpleCompletionContributor"/>
+        <psi.referenceContributor language="JAVA"
+                                  implementation="com.github.xiaolyuh.cls.step10.SimpleReferenceContributor"/>
+        <lang.refactoringSupport
+                language="Simple"
+                implementationClass="com.github.xiaolyuh.cls.step10.SimpleRefactoringSupportProvider"/>
+        <lang.findUsagesProvider
+                language="Simple"
+                implementationClass="com.github.xiaolyuh.cls.step11.SimpleFindUsagesProvider"/>
+        <lang.foldingBuilder
+                language="JAVA"
+                implementationClass="com.github.xiaolyuh.cls.step12.SimpleFoldingBuilder"/>
+        <gotoSymbolContributor
+                implementation="com.github.xiaolyuh.cls.step13.SimpleChooseByNameContributor"/>
+        <lang.psiStructureViewFactory
+                language="Simple"
+                implementationClass="com.github.xiaolyuh.cls.step14.SimpleStructureViewFactory"/>
+        <navbar implementation="com.github.xiaolyuh.cls.step15.SimpleStructureAwareNavbar"/>
+        <lang.formatter
+                language="Simple"
+                implementationClass="com.github.xiaolyuh.cls.step16.SimpleFormattingModelBuilder"/>
+        <codeStyleSettingsProvider
+                implementation="com.github.xiaolyuh.cls.step17.SimpleCodeStyleSettingsProvider"/>
+        <langCodeStyleSettingsProvider
+                implementation="com.github.xiaolyuh.cls.step17.SimpleLanguageCodeStyleSettingsProvider"/>
+        <lang.commenter
+                language="Simple"
+                implementationClass="com.github.xiaolyuh.cls.step18.SimpleCommenter"/>
+        <lang.documentationProvider
+                language="Simple"
+                implementationClass="com.github.xiaolyuh.cls.step20.SimpleDocumentationProvider"/>
+        <spellchecker.support language="Simple"
+                              implementationClass="com.github.xiaolyuh.cls.step21.SimpleSpellcheckingStrategy"/>
     </extensions>
 
     <projectListeners>

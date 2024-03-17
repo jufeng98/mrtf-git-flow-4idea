@@ -32,6 +32,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiManager;
+import com.intellij.psi.PsiPackage;
 import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.PsiShortNamesCache;
@@ -111,13 +112,18 @@ public class SampleDialog extends DialogWrapper {
 
             showVcsBalloon(project, String.format("<div>%s</div>", String.join("<br/>", files.toString())));
         });
+
         findBtn.addActionListener(e -> {
-            // 寻找类的所有实现
-            PsiClass aClass = JavaPsiFacade.getInstance(project)
+            // 根据全限定名寻找class
+            PsiClass psiClass = JavaPsiFacade.getInstance(project)
                     .findClass("java.util.LinkedList", GlobalSearchScope.everythingScope(project));
 
-            @SuppressWarnings("DataFlowIssue")
-            Query<PsiClass> search = ClassInheritorsSearch.search(aClass);
+            PsiJavaFile javaFile = (PsiJavaFile) psiClass.getContainingFile();
+            PsiPackage psiPackage = JavaPsiFacade.getInstance(project).findPackage(javaFile.getPackageName());
+            System.out.println(psiPackage);
+
+            // 寻找类的所有实现
+            Query<PsiClass> search = ClassInheritorsSearch.search(psiClass);
             PsiClass[] array = search.toArray(new PsiClass[0]);
 
             showVcsBalloon(project, String.format("<div>LinkedList的所有实现类</div><div>%s</div>", Arrays.toString(array)));
@@ -151,6 +157,7 @@ public class SampleDialog extends DialogWrapper {
     }
 
     private void getDoc(AnActionEvent e) {
+
         Document document = e.getData(CommonDataKeys.EDITOR).getDocument();
         System.out.println(document);
 
@@ -173,6 +180,7 @@ public class SampleDialog extends DialogWrapper {
         boolean validOffset = DocumentUtil.isValidOffset(1, document1);
         System.out.println(validOffset);
     }
+
     private void getVfs(AnActionEvent e) {
         Project project = e.getRequiredData(CommonDataKeys.PROJECT);
         Editor editor = e.getRequiredData(CommonDataKeys.EDITOR);
