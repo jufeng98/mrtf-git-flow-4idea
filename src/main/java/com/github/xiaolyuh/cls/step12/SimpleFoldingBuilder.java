@@ -40,21 +40,23 @@ final class SimpleFoldingBuilder extends FoldingBuilderEx implements DumbAware {
                 super.visitLiteralExpression(literalExpression);
 
                 String value = PsiLiteralUtil.getStringLiteralContent(literalExpression);
-                if (value != null && value.startsWith(SimpleAnnotator.SIMPLE_PREFIX_STR + SimpleAnnotator.SIMPLE_SEPARATOR_STR)) {
-                    Project project = literalExpression.getProject();
-                    String key = value.substring(
-                            SimpleAnnotator.SIMPLE_PREFIX_STR.length() + SimpleAnnotator.SIMPLE_SEPARATOR_STR.length()
-                    );
-                    // find SimpleProperty for the given key in the project
-                    SimpleProperty simpleProperty = ContainerUtil.getOnlyItem(SimpleUtil.findProperties(project, key));
-                    if (simpleProperty != null) {
-                        // Add a folding descriptor for the literal expression at this node.
-                        descriptors.add(new FoldingDescriptor(literalExpression.getNode(),
-                                new TextRange(literalExpression.getTextRange().getStartOffset() + 1,
-                                        literalExpression.getTextRange().getEndOffset() - 1),
-                                group, Collections.singleton(simpleProperty)));
-                    }
+                if (value == null || !value.startsWith(SimpleAnnotator.SIMPLE_PREFIX_STR + SimpleAnnotator.SIMPLE_SEPARATOR_STR)) {
+                    return;
                 }
+                Project project = literalExpression.getProject();
+                String key = value.substring(
+                        SimpleAnnotator.SIMPLE_PREFIX_STR.length() + SimpleAnnotator.SIMPLE_SEPARATOR_STR.length()
+                );
+                // find SimpleProperty for the given key in the project
+                SimpleProperty simpleProperty = ContainerUtil.getOnlyItem(SimpleUtil.findProperties(project, key));
+                if (simpleProperty == null) {
+                    return;
+                }
+                // Add a folding descriptor for the literal expression at this node.
+                descriptors.add(new FoldingDescriptor(literalExpression.getNode(),
+                        new TextRange(literalExpression.getTextRange().getStartOffset() + 1,
+                                literalExpression.getTextRange().getEndOffset() - 1),
+                        group, Collections.singleton(simpleProperty)));
             }
         });
 
@@ -71,35 +73,34 @@ final class SimpleFoldingBuilder extends FoldingBuilderEx implements DumbAware {
     @Nullable
     @Override
     public String getPlaceholderText(@NotNull ASTNode node) {
-        if (node.getPsi() instanceof PsiLiteralExpression) {
-            PsiLiteralExpression psiLiteralExpression = (PsiLiteralExpression) node.getPsi();
-            String text = PsiLiteralUtil.getStringLiteralContent(psiLiteralExpression);
-            if (text == null) {
-                return null;
-            }
-
-            String key = text.substring(SimpleAnnotator.SIMPLE_PREFIX_STR.length() +
-                    SimpleAnnotator.SIMPLE_SEPARATOR_STR.length());
-
-            SimpleProperty simpleProperty = ContainerUtil.getOnlyItem(
-                    SimpleUtil.findProperties(psiLiteralExpression.getProject(), key)
-            );
-            if (simpleProperty == null) {
-                return StringUtil.THREE_DOTS;
-            }
-
-            String propertyValue = simpleProperty.getValue();
-            // IMPORTANT: keys can come with no values, so a test for null is needed
-            // IMPORTANT: Convert embedded \n to backslash n, so that the string will look
-            // like it has LF embedded in it and embedded " to escaped "
-            if (propertyValue == null) {
-                return StringUtil.THREE_DOTS;
-            }
-
-            return propertyValue.replaceAll("\n", "n").replaceAll("\"", "\\\\\"");
+        if (!(node.getPsi() instanceof PsiLiteralExpression)) {
+            return null;
         }
 
-        return null;
+        PsiLiteralExpression psiLiteralExpression = (PsiLiteralExpression) node.getPsi();
+        String text = PsiLiteralUtil.getStringLiteralContent(psiLiteralExpression);
+        if (text == null) {
+            return null;
+        }
+
+        String key = text.substring(SimpleAnnotator.SIMPLE_PREFIX_STR.length() +
+                SimpleAnnotator.SIMPLE_SEPARATOR_STR.length());
+
+        SimpleProperty simpleProperty = ContainerUtil.getOnlyItem(SimpleUtil.findProperties(psiLiteralExpression.getProject(), key)
+        );
+        if (simpleProperty == null) {
+            return StringUtil.THREE_DOTS;
+        }
+
+        String propertyValue = simpleProperty.getValue();
+        // IMPORTANT: keys can come with no values, so a test for null is needed
+        // IMPORTANT: Convert embedded \n to backslash n, so that the string will look
+        // like it has LF embedded in it and embedded " to escaped "
+        if (propertyValue == null) {
+            return StringUtil.THREE_DOTS;
+        }
+
+        return propertyValue.replaceAll("\n", "n").replaceAll("\"", "\\\\\"");
     }
 
     @Override

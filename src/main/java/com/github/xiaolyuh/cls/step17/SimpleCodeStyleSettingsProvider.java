@@ -9,7 +9,6 @@ import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CodeStyleSettingsProvider;
 import com.intellij.psi.codeStyle.CustomCodeStyleSettings;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 final class SimpleCodeStyleSettingsProvider extends CodeStyleSettingsProvider {
 
@@ -18,9 +17,8 @@ final class SimpleCodeStyleSettingsProvider extends CodeStyleSettingsProvider {
         return new SimpleCodeStyleSettings(settings);
     }
 
-    @Nullable
     @Override
-    public String getConfigurableDisplayName() {
+    public @NotNull String getConfigurableDisplayName() {
         return "Simple";
     }
 

@@ -2,7 +2,6 @@ package com.github.xiaolyuh.cls.step2;
 
 import com.intellij.openapi.fileTypes.LanguageFileType;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 
@@ -32,9 +31,8 @@ public final class SimpleFileType extends LanguageFileType {
         return "simple";
     }
 
-    @Nullable
     @Override
-    public Icon getIcon() {
+    public @NotNull Icon getIcon() {
         return SimpleIcons.FILE;
     }
 

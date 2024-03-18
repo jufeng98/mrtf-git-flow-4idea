@@ -23,8 +23,7 @@ final class SimpleChooseByNameContributor implements ChooseByNameContributorEx {
                              @NotNull GlobalSearchScope scope,
                              @Nullable IdFilter filter) {
         Project project = Objects.requireNonNull(scope.getProject());
-        List<String> propertyKeys = ContainerUtil.map(
-                SimpleUtil.findProperties(project), SimpleProperty::getKey);
+        List<String> propertyKeys = ContainerUtil.map(SimpleUtil.findProperties(project), SimpleProperty::getKey);
         ContainerUtil.process(propertyKeys, processor);
     }
 

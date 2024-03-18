@@ -59,8 +59,7 @@ final class SimpleSpellcheckingStrategy extends SpellcheckingStrategy {
                 final String text = key.getText();
                 //For keys, use a splitter for identifiers
                 //Note we set "useRename" to true so that keys will be properly refactored (renamed)
-                consumer.consumeToken(keyPsi, text, true, 0,
-                        TextRange.allOf(text), IdentifierSplitter.getInstance());
+                consumer.consumeToken(keyPsi, text, true, 0, TextRange.allOf(text), IdentifierSplitter.getInstance());
             }
 
             final ASTNode value = element.getNode().findChildByType(SimpleTypes.VALUE);
@@ -68,8 +67,7 @@ final class SimpleSpellcheckingStrategy extends SpellcheckingStrategy {
                 final PsiElement valuePsi = value.getPsi();
                 final String text = valuePsi.getText();
                 //For values, use a splitter for plain text
-                consumer.consumeToken(valuePsi, text, false, 0,
-                        TextRange.allOf(text), PlainTextSplitter.getInstance());
+                consumer.consumeToken(valuePsi, text, false, 0, TextRange.allOf(text), PlainTextSplitter.getInstance());
             }
         }
 
