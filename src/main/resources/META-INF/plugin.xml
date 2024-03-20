@@ -100,6 +100,9 @@
 
         <psi.referenceContributor language="JAVA" implementation="com.github.xiaolyuh.navigation.FilePsiReferenceContributor"/>
 
+        <psi.referenceContributor language="JAVA"
+                                  implementation="com.github.xiaolyuh.spring.ValueAnnotationReferenceContributor"/>
+
         <fileType
                 name="Simple File"
                 implementationClass="com.github.xiaolyuh.cls.step2.SimpleFileType"

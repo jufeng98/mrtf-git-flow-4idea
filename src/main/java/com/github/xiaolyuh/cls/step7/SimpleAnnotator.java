@@ -53,7 +53,7 @@ public final class SimpleAnnotator implements Annotator {
         String key = value.substring(SIMPLE_PREFIX_STR.length() + SIMPLE_SEPARATOR_STR.length());
         List<SimpleProperty> properties = SimpleUtil.findProperties(element.getProject(), key);
         if (properties.isEmpty()) {
-            holder.newAnnotation(HighlightSeverity.ERROR, "Unresolved property")
+            holder.newAnnotation(HighlightSeverity.WARNING, "Unresolved property")
                     .range(keyRange)
                     .highlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
                     // ** Tutorial step 19. - Add a quick fix for the string containing possible properties
