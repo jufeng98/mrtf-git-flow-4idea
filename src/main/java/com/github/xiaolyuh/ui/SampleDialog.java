@@ -13,6 +13,7 @@ import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.ui.Messages;
@@ -31,6 +32,7 @@ import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
 import com.intellij.psi.PsiJavaFile;
+import com.intellij.psi.PsiJavaParserFacade;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiPackage;
 import com.intellij.psi.search.FilenameIndex;
@@ -168,6 +170,8 @@ public class SampleDialog extends DialogWrapper {
                 .createFileFromText(Language.findLanguageByID("json"), "{}");
         System.out.println(psiFile1);
 
+
+        
         Document document1 = PsiDocumentManager.getInstance(e.getProject()).getDocument(psiFile);
         System.out.println(document1);
 

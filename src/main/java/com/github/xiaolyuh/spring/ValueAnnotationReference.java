@@ -1,10 +1,17 @@
 package com.github.xiaolyuh.spring;
 
+import com.intellij.ide.util.RunOnceUtil;
+import com.intellij.openapi.application.ApplicationInfo;
+import com.intellij.openapi.application.PathManager;
+import com.intellij.openapi.diagnostic.ErrorReportSubmitter;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
+import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.util.PropertiesUtil;
 import com.intellij.openapi.util.TextRange;
+import com.intellij.openapi.vfs.AsyncFileListener;
 import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementResolveResult;

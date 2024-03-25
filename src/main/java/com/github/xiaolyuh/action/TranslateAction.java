@@ -4,10 +4,13 @@ import com.github.xiaolyuh.ui.TranslateDialog;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.openapi.actionSystem.IdeActions;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
+import com.intellij.openapi.editor.actionSystem.EditorActionManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
@@ -37,6 +40,12 @@ public class TranslateAction extends AnAction {
         int end = primaryCaret.getSelectionEnd();
         String selectedText = primaryCaret.getSelectedText();
 
+//        EditorActionManager actionManager = EditorActionManager.getInstance();
+//        EditorActionHandler actionHandler = actionManager.getActionHandler(IdeActions.ACTION_EDITOR_CLONE_CARET_BELOW);
+//        actionHandler.execute(editor, primaryCaret, event.getDataContext());
+//        if (true) {
+//            return;
+//        }
 
         TranslateDialog translateDialog = new TranslateDialog(selectedText);
         // 将搭好的窗体 TranslateDialog 传入 JBPopupFactory
