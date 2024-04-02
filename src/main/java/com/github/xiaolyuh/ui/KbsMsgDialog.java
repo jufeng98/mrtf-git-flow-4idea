@@ -27,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.InputStream;
@@ -68,6 +69,8 @@ public class KbsMsgDialog extends DialogWrapper {
         setTitle(title);
         init();
 
+        fitScreen();
+
         mainPanel.remove(insRefreshBtn);
         mainPanel.remove(swBtn);
         mainPanel.remove(topBtn);
@@ -86,6 +89,8 @@ public class KbsMsgDialog extends DialogWrapper {
         this.project = project;
         this.selectService = selectService;
         init();
+
+        fitScreen();
 
         loadMoreBtn.addActionListener(e -> {
             tailLines += 500;
@@ -121,6 +126,12 @@ public class KbsMsgDialog extends DialogWrapper {
         bottomBtn.addActionListener(e -> scrollToBottom(textEditor.getEditor()));
 
         fillEditorWithRunningTxt(project, textBytes, false);
+    }
+
+    private void fitScreen() {
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        Dimension dimension = new Dimension(screenSize.width - 60, 600);
+        mainPanel.setPreferredSize(dimension);
     }
 
     @Override
