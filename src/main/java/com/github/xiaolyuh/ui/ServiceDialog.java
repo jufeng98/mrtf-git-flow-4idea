@@ -6,12 +6,12 @@ import com.intellij.openapi.ui.DialogWrapper;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import java.util.Collections;
 import java.util.List;
 
 public class ServiceDialog extends DialogWrapper {
     private JPanel mainPanel;
-    @SuppressWarnings("rawtypes")
-    private JList jlist;
+    private JList<String> jlist;
     private JLabel jlabel;
     private static Integer lastChoose = 0;
 
@@ -19,23 +19,19 @@ public class ServiceDialog extends DialogWrapper {
         super(project);
         init();
         jlabel.setText(txt);
+        jlist.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
+        DefaultListModel<String> listModel = new DefaultListModel<>();
         if (ConfigUtil.existsK8sOptions(project)) {
             List<String> services = ConfigUtil.getK8sOptions(project).getServices();
-            DefaultListModel<String> listModel = new DefaultListModel<>();
             for (String service : services) {
                 listModel.addElement(service);
             }
-            //noinspection unchecked
-            jlist.setModel(listModel);
         } else {
-            DefaultListModel<String> listModel = new DefaultListModel<>();
             listModel.addElement("缺少服务配置,请先在 git-flow-k8s.json 文件配置项目服务!");
             jlist.setEnabled(false);
-            //noinspection unchecked
-            jlist.setModel(listModel);
         }
-
+        jlist.setModel(listModel);
     }
 
     public String getSelectService() {
@@ -43,9 +39,19 @@ public class ServiceDialog extends DialogWrapper {
             lastChoose = jlist.getSelectedIndex();
         }
         if (jlist.isEnabled()) {
-            return (String) jlist.getSelectedValue();
+            return jlist.getSelectedValue();
         }
         return "";
+    }
+
+    public List<String> getSelectServices() {
+        if (jlist.getSelectedIndex() != -1) {
+            lastChoose = jlist.getSelectedIndex();
+        }
+        if (jlist.isEnabled()) {
+            return jlist.getSelectedValuesList();
+        }
+        return Collections.emptyList();
     }
 
     public void selectLastChoose() {
@@ -56,6 +62,10 @@ public class ServiceDialog extends DialogWrapper {
             lastChoose = 0;
         }
         jlist.setSelectedIndex(lastChoose);
+    }
+
+    public void setSelectionMode(int selectionMode) {
+        jlist.setSelectionMode(selectionMode);
     }
 
     @Override

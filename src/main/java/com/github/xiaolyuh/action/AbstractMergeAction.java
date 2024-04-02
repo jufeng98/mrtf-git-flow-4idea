@@ -1,18 +1,19 @@
 package com.github.xiaolyuh.action;
 
-import com.github.xiaolyuh.service.GitFlowPlus;
 import com.github.xiaolyuh.config.InitOptions;
-import com.github.xiaolyuh.utils.ExecutorUtils;
-import com.github.xiaolyuh.utils.KubesphereUtils;
-import com.github.xiaolyuh.vo.TagOptions;
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
+import com.github.xiaolyuh.service.GitFlowPlus;
 import com.github.xiaolyuh.ui.ServiceDialog;
 import com.github.xiaolyuh.utils.ConfigUtil;
+import com.github.xiaolyuh.utils.ExecutorUtils;
 import com.github.xiaolyuh.utils.GitBranchUtil;
+import com.github.xiaolyuh.utils.KubesphereUtils;
 import com.github.xiaolyuh.utils.NotifyUtil;
 import com.github.xiaolyuh.utils.StringUtils;
 import com.github.xiaolyuh.valve.merge.Valve;
+import com.github.xiaolyuh.vo.TagOptions;
+import com.google.common.collect.Lists;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.diagnostic.Logger;
@@ -30,6 +31,7 @@ import git4idea.repo.GitRepository;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.*;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -105,12 +107,13 @@ public abstract class AbstractMergeAction extends AnAction {
         }
 
         boolean clickOk;
-        String selectService = "";
+        List<String> selectServices = Lists.newArrayList();
         if (isStartTest) {
             ServiceDialog serviceDialog = new ServiceDialog(getDialogContent(project, true), project);
+            serviceDialog.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
             serviceDialog.show();
             clickOk = serviceDialog.isOK();
-            selectService = serviceDialog.getSelectService();
+            selectServices = serviceDialog.getSelectServices();
         } else {
             int flag = Messages.showOkCancelDialog(project, getDialogContent(project, false),
                     getDialogTitle(project), I18n.getContent(I18nKey.OK_TEXT), I18n.getContent(I18nKey.CANCEL_TEXT),
@@ -120,7 +123,7 @@ public abstract class AbstractMergeAction extends AnAction {
         if (!clickOk) {
             return;
         }
-        String finalSelectService = selectService;
+        List<String> finalSelectServices = selectServices;
         new Task.Backgroundable(project, getTaskTitle(project), false) {
             @SuppressWarnings("ConstantConditions")
             @Override
@@ -139,12 +142,14 @@ public abstract class AbstractMergeAction extends AnAction {
                 VirtualFileManager.getInstance().asyncRefresh(null);
 
                 if (isStartTest) {
-                    try {
-                        KubesphereUtils.triggerPipeline(finalSelectService, project);
-                    } catch (Exception e) {
-                        LOG.warn(e);
-                        NotifyUtil.notifyError(project, "触发流水线出错了:" + ExceptionUtils.getStackTrace(e));
-                    }
+                    finalSelectServices.forEach(serviceName -> {
+                        try {
+                            KubesphereUtils.triggerPipeline(serviceName, project);
+                        } catch (Exception e) {
+                            LOG.warn(e);
+                            NotifyUtil.notifyError(project, serviceName + "触发流水线出错了:" + ExceptionUtils.getStackTrace(e));
+                        }
+                    });
                 }
             }
         }.queue();
