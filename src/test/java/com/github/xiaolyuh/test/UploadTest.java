@@ -16,7 +16,7 @@ public class UploadTest {
 
     @Test
     public void uploadPlugin() throws Exception {
-        File file = new File("build/distributions/git-flow-plus-4idea-1.2.1.zip");
+        File file = new File("build/distributions/git-flow-plus-4idea-1.3.8.zip");
         String configJsonStr = FileUtils.readFileToString(new File("C:\\Users\\Admin\\Documents\\java-config.json"),
                 StandardCharsets.UTF_8.name());
         System.out.println("config:" + configJsonStr);
