@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class GitFlowPlusListener implements ProjectManagerListener {
 
+    @SuppressWarnings("removal")
     @Override
     public void projectOpened(@NotNull Project project) {
         ConfigUtil.tryInitConfig(project);

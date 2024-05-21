@@ -1,8 +1,10 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.net.URI
 
 plugins {
     id("java")
-    id("org.jetbrains.intellij") version "1.5.2"
+    id("org.jetbrains.kotlin.jvm") version "1.9.21"
+    id("org.jetbrains.intellij") version "1.16.1"
 }
 
 group = "com.github.xiaolyuh"
@@ -22,7 +24,7 @@ dependencies {
 sourceSets["main"].java.srcDirs("src/main/gen")
 
 intellij {
-    version.set("2022.1.2")
+    version.set("2023.3.2")
     type.set("IC")
     plugins.set(listOf("Git4Idea", "tasks", "com.intellij.java"))
     intellij.updateSinceUntilBuild.set(false)
@@ -31,9 +33,12 @@ intellij {
 tasks {
     // Set the JVM compatibility versions
     withType<JavaCompile> {
-        sourceCompatibility = "11"
-        targetCompatibility = "11"
+        sourceCompatibility = "17"
+        targetCompatibility = "17"
         options.encoding = "UTF-8"
+    }
+    withType<KotlinCompile> {
+        kotlinOptions.jvmTarget = "17"
     }
 
     patchPluginXml {
