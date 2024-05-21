@@ -38,8 +38,7 @@ final class ValueFoldingBuilder extends FoldingBuilderEx {
                     return;
                 }
 
-                TextRange literalTextRange = psiLiteralExpression.getTextRange();
-                TextRange textRange = new TextRange(literalTextRange.getStartOffset() + 1, literalTextRange.getEndOffset() - 1);
+                TextRange textRange = psiLiteralExpression.getTextRange();
                 PsiElement psiElement = triple.getRight();
 
                 descriptors.add(new FoldingDescriptor(psiLiteralExpression.getNode(), textRange, group, Collections.singleton(psiElement)));
