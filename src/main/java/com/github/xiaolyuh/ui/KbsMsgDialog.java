@@ -50,6 +50,7 @@ public class KbsMsgDialog extends DialogWrapper {
     private JButton swBtn;
     private JButton insRefreshBtn;
     private JButton refreshButton;
+    private JPanel btnPanel;
 
     private boolean insRefreshOpen = false;
     private Future<?> insRefreshFuture;
@@ -71,12 +72,12 @@ public class KbsMsgDialog extends DialogWrapper {
 
         fitScreen();
 
-        mainPanel.remove(insRefreshBtn);
-        mainPanel.remove(swBtn);
-        mainPanel.remove(topBtn);
-        mainPanel.remove(loadMoreBtn);
-        mainPanel.remove(bottomBtn);
-        mainPanel.remove(refreshButton);
+        btnPanel.remove(insRefreshBtn);
+        btnPanel.remove(swBtn);
+        btnPanel.remove(topBtn);
+        btnPanel.remove(loadMoreBtn);
+        btnPanel.remove(bottomBtn);
+        btnPanel.remove(refreshButton);
 
         fillEditorWithErrorTxt();
     }
@@ -132,6 +133,9 @@ public class KbsMsgDialog extends DialogWrapper {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         Dimension dimension = new Dimension(screenSize.width - 60, 600);
         mainPanel.setPreferredSize(dimension);
+
+        Dimension minDimension = new Dimension(screenSize.width - 60, 200);
+        mainPanel.setMinimumSize(minDimension);
     }
 
     @Override

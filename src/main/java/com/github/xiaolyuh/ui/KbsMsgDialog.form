@@ -1,76 +1,90 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.github.xiaolyuh.ui.KbsMsgDialog">
-  <grid id="27dc6" binding="mainPanel" default-binding="true" layout-manager="GridLayoutManager" row-count="2" column-count="8" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+  <grid id="27dc6" binding="mainPanel" default-binding="true" layout-manager="GridLayoutManager" row-count="2" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="20" width="1292" height="639"/>
+      <xy x="20" y="20" width="1292" height="659"/>
     </constraints>
     <properties/>
     <border type="none"/>
     <children>
       <tabbedpane id="ffb48" binding="jTabbedPane">
         <constraints>
-          <grid row="0" column="0" row-span="1" col-span="8" vsize-policy="0" hsize-policy="0" anchor="0" fill="3" indent="0" use-parent-layout="false">
-            <preferred-size width="1200" height="600"/>
+          <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="7" hsize-policy="0" anchor="0" fill="3" indent="0" use-parent-layout="false">
+            <preferred-size width="900" height="600"/>
           </grid>
         </constraints>
         <properties/>
         <border type="none"/>
         <children/>
       </tabbedpane>
-      <component id="f21dc" class="javax.swing.JButton" binding="loadMoreBtn">
-        <constraints>
-          <grid row="1" column="6" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="加载更多"/>
-        </properties>
-      </component>
-      <component id="78c28" class="javax.swing.JButton" binding="topBtn">
-        <constraints>
-          <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="滚到顶部"/>
-        </properties>
-      </component>
       <hspacer id="10586">
         <constraints>
           <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
       </hspacer>
-      <component id="f086c" class="javax.swing.JButton" binding="bottomBtn">
+      <grid id="fd163" binding="btnPanel" layout-manager="GridLayoutManager" row-count="1" column-count="6" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+        <margin top="0" left="0" bottom="0" right="0"/>
         <constraints>
-          <grid row="1" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="3" indent="0" use-parent-layout="true">
+            <minimum-size width="-1" height="30"/>
+            <preferred-size width="-1" height="30"/>
+            <maximum-size width="-1" height="30"/>
+          </grid>
         </constraints>
-        <properties>
-          <text value="滚到底部"/>
-        </properties>
-      </component>
-      <component id="1768f" class="javax.swing.JButton" binding="swBtn">
-        <constraints>
-          <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="开启软换行"/>
-        </properties>
-      </component>
-      <component id="a69e8" class="javax.swing.JButton" binding="insRefreshBtn">
-        <constraints>
-          <grid row="1" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="开启实时日志"/>
-        </properties>
-      </component>
-      <component id="b1714" class="javax.swing.JButton" binding="refreshButton">
-        <constraints>
-          <grid row="1" column="5" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="刷新日志"/>
-        </properties>
-      </component>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="1768f" class="javax.swing.JButton" binding="swBtn">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="开启软换行"/>
+            </properties>
+          </component>
+          <component id="78c28" class="javax.swing.JButton" binding="topBtn">
+            <constraints>
+              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="滚到顶部"/>
+            </properties>
+          </component>
+          <component id="f086c" class="javax.swing.JButton" binding="bottomBtn">
+            <constraints>
+              <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="滚到底部"/>
+            </properties>
+          </component>
+          <component id="a69e8" class="javax.swing.JButton" binding="insRefreshBtn">
+            <constraints>
+              <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="开启实时日志"/>
+            </properties>
+          </component>
+          <component id="b1714" class="javax.swing.JButton" binding="refreshButton">
+            <constraints>
+              <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="刷新日志"/>
+            </properties>
+          </component>
+          <component id="f21dc" class="javax.swing.JButton" binding="loadMoreBtn">
+            <constraints>
+              <grid row="0" column="5" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="加载更多"/>
+            </properties>
+          </component>
+        </children>
+      </grid>
     </children>
   </grid>
 </form>
