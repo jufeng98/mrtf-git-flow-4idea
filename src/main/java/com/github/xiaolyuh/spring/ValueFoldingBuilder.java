@@ -59,7 +59,9 @@ final class ValueFoldingBuilder extends FoldingBuilderEx {
 
         PsiElement targetElement = triple.getRight();
 
-        return getPropVal(targetElement);
+        return getPropVal(targetElement)
+                .replaceAll("\n", "\\n")
+                .replaceAll("\"", "\\\\\"");
     }
 
     private String getPropVal(PsiElement targetElement) {
