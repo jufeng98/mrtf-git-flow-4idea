@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collection;
 
 
-final class ValueLineMarkerProvider extends RelatedItemLineMarkerProvider {
+final class ValueAnnotationLineMarkerProvider extends RelatedItemLineMarkerProvider {
 
     @Override
     protected void collectNavigationMarkers(@NotNull PsiElement element,

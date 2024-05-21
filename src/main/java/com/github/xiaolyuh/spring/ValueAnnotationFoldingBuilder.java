@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.List;
 
 
-final class ValueFoldingBuilder extends FoldingBuilderEx {
+final class ValueAnnotationFoldingBuilder extends FoldingBuilderEx {
 
     @Override
     public FoldingDescriptor @NotNull [] buildFoldRegions(@NotNull PsiElement root, @NotNull Document document, boolean quick) {

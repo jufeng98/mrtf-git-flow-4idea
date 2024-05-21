@@ -105,11 +105,11 @@
 
         <lang.foldingBuilder
                 language="JAVA"
-                implementationClass="com.github.xiaolyuh.spring.ValueFoldingBuilder"/>
+                implementationClass="com.github.xiaolyuh.spring.ValueAnnotationFoldingBuilder"/>
 
         <codeInsight.lineMarkerProvider
                 language="JAVA"
-                implementationClass="com.github.xiaolyuh.spring.ValueLineMarkerProvider"/>
+                implementationClass="com.github.xiaolyuh.spring.ValueAnnotationLineMarkerProvider"/>
 
         <fileType
                 name="Simple File"
