@@ -1,17 +1,10 @@
 package com.github.xiaolyuh.spring;
 
-import com.intellij.ide.util.RunOnceUtil;
-import com.intellij.openapi.application.ApplicationInfo;
-import com.intellij.openapi.application.PathManager;
-import com.intellij.openapi.diagnostic.ErrorReportSubmitter;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
-import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.util.PropertiesUtil;
 import com.intellij.openapi.util.TextRange;
-import com.intellij.openapi.vfs.AsyncFileListener;
 import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementResolveResult;
@@ -29,11 +22,11 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 public final class ValueAnnotationReference extends PsiReferenceBase<PsiElement> implements PsiPolyVariantReference {
@@ -107,26 +100,34 @@ public final class ValueAnnotationReference extends PsiReferenceBase<PsiElement>
         if (childFiles == null) {
             return null;
         }
+
         for (File childFile : childFiles) {
             if (!childFile.getName().startsWith(appId + "+kubesphere_test+")) {
                 continue;
             }
-            String content = FileUtils.readFileToString(childFile, StandardCharsets.UTF_8.name());
-            int idx = content.indexOf(key);
-            if (idx == -1) {
-                continue;
-            }
+
             VirtualFile virtualFile = LocalFileSystem.getInstance().findFileByIoFile(childFile);
             if (virtualFile == null) {
                 continue;
             }
+
             try {
+                // 不知道如何引入 com.intellij.lang.properties.psi.PropertiesFile 接口,只能用反射了
                 PsiFile psiFile = PsiManager.getInstance(myElement.getProject()).findFile(virtualFile);
                 if (psiFile == null) {
                     continue;
                 }
-                PsiElement psiElement = psiFile.findElementAt(idx);
-                return Objects.requireNonNullElse(psiElement, psiFile);
+
+                Method method = psiFile.getClass().getDeclaredMethod("findPropertyByKey", String.class);
+                method.setAccessible(true);
+                Object prop = method.invoke(psiFile, key);
+                if (prop == null) {
+                    continue;
+                }
+
+                method = prop.getClass().getDeclaredMethod("getPsiElement");
+                method.setAccessible(true);
+                return (PsiElement) method.invoke(prop);
             } catch (Exception ignored) {
             }
         }

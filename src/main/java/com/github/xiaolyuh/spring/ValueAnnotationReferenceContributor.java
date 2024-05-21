@@ -21,6 +21,8 @@ public class ValueAnnotationReferenceContributor extends PsiReferenceContributor
             "org.springframework.beans.factory.annotation.Value",
             "com.ctrip.framework.apollo.spring.annotation.ApolloJsonValue"
     );
+    private static final String DOLLAR_START = "${";
+    private static final String DOLLAR_END = "}";
 
     @Override
     public void registerReferenceProviders(@NotNull PsiReferenceRegistrar registrar) {
@@ -45,12 +47,11 @@ public class ValueAnnotationReferenceContributor extends PsiReferenceContributor
                             return PsiReference.EMPTY_ARRAY;
                         }
 
-                        int startIdx = value.indexOf("${");
+                        int startIdx = value.indexOf(DOLLAR_START);
                         if (startIdx != -1) {
                             return handleDollarPlaceHolder(value, startIdx, psiLiteralExpression);
                         }
 
-                        // TODO
                         return PsiReference.EMPTY_ARRAY;
                     }
                 });
@@ -60,11 +61,12 @@ public class ValueAnnotationReferenceContributor extends PsiReferenceContributor
         int endIdx;
         int separatorIndex = value.indexOf(":");
         if (separatorIndex != -1) {
-            endIdx = separatorIndex + 1;
+            endIdx = separatorIndex + DOLLAR_END.length();
         } else {
-            endIdx = value.length();
+            endIdx = value.indexOf(DOLLAR_END, startIdx) + DOLLAR_END.length();
         }
-        TextRange textRange = new TextRange(startIdx + 3, endIdx);
+
+        TextRange textRange = new TextRange(startIdx + DOLLAR_START.length() + 1, endIdx);
         return new PsiReference[]{new ValueAnnotationReference(psiLiteralExpression, textRange)};
     }
 }
