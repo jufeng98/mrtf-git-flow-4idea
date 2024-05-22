@@ -12,6 +12,7 @@ import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
+import java.util.List;
 
 
 final class ValueAnnotationLineMarkerProvider extends RelatedItemLineMarkerProvider {
@@ -19,17 +20,18 @@ final class ValueAnnotationLineMarkerProvider extends RelatedItemLineMarkerProvi
     @Override
     protected void collectNavigationMarkers(@NotNull PsiElement element,
                                             @NotNull Collection<? super RelatedItemLineMarkerInfo<?>> result) {
-        Triple<String, TextRange, PsiElement> triple = ValueUtils.findApolloConfig(element);
+        Triple<String, TextRange, List<PsiElement>> triple = ValueUtils.findApolloConfig(element);
         if (triple == null) {
             return;
         }
 
-        PsiElement psiElement = triple.getRight();
-
+        List<PsiElement> psiElements = triple.getRight();
         @SuppressWarnings("DialogTitleCapitalization")
+        String text = psiElements.size() == 1 ? "导航到本地缓存的Apollo配置" : "找到多个本地缓存的Apollo配置,默认显示第一个";
+
         NavigationGutterIconBuilder<PsiElement> builder = NavigationGutterIconBuilder.create(SimpleIcons.FILE)
-                .setTargets(psiElement)
-                .setTooltipText("导航到本地缓存的Apollo配置");
+                .setTargets(psiElements)
+                .setTooltipText(text);
 
         PsiLiteralExpression psiLiteralExpression = (PsiLiteralExpression) element;
         result.add(builder.createLineMarkerInfo(psiLiteralExpression.getFirstChild()));

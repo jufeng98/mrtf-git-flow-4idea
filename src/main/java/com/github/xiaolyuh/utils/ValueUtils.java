@@ -1,6 +1,8 @@
 package com.github.xiaolyuh.utils;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.intellij.openapi.module.JavaModuleType;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
@@ -27,6 +29,7 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -41,7 +44,7 @@ public class ValueUtils {
     /**
      * @return Triple(Apollo key, key文本范围, Apollo value的PsiElement)
      */
-    public static @Nullable Triple<String, TextRange, PsiElement> findApolloConfig(PsiElement element) {
+    public static @Nullable Triple<String, TextRange, List<PsiElement>> findApolloConfig(PsiElement element) {
         if (!(element instanceof PsiLiteralExpression)) {
             return null;
         }
@@ -63,22 +66,45 @@ public class ValueUtils {
         }
 
         TextRange textRange = createExpressionTextRange(value, startIdx);
-
         String key = value.substring(textRange.getStartOffset() - 1, textRange.getEndOffset() - 1);
 
+        Project project = psiLiteralExpression.getProject();
         Module module = ModuleUtil.findModuleForFile(psiLiteralExpression.getContainingFile());
 
-        String appId = getApolloAppId(module);
+        // 优先从当前模块寻找
+        PsiElement psiElement = findApolloConfigFromModule(module, project, key);
+        if (psiElement != null) {
+            return Triple.of(key, textRange, Lists.newArrayList(psiElement));
+        }
+
+        // 当前模块找不到,在到项目中寻找
+        List<PsiElement> psiElements = findApolloConfigFromProject(project, module, key);
+        if (psiElements != null) {
+            return Triple.of(key, textRange, psiElements);
+        }
+
+        return null;
+    }
+
+    private static PsiElement findApolloConfigFromModule(Module module, Project project, String key) {
+        String appId = findApolloAppId(module);
         if (appId == null) {
             return null;
         }
 
-        PsiElement psiElement = getApolloConfig(appId, psiLiteralExpression.getProject(), key);
-        if (psiElement == null) {
+        return findApolloConfig(appId, project, key);
+    }
+
+    private static List<PsiElement> findApolloConfigFromProject(Project project, Module excludeModule, String key) {
+        List<String> apolloAppIds = findApolloAppIds(project, excludeModule);
+
+        List<PsiElement> psiElements = findApolloConfigs(apolloAppIds, project, key);
+
+        if (CollectionUtils.isEmpty(psiElements)) {
             return null;
         }
 
-        return Triple.of(key, textRange, psiElement);
+        return psiElements;
     }
 
     private static boolean noValueAnnotation(PsiLiteralExpression psiLiteralExpression) {
@@ -102,7 +128,7 @@ public class ValueUtils {
         return new TextRange(startIdx + DOLLAR_START.length() + 1, endIdx);
     }
 
-    private static String getApolloAppId(Module module) {
+    private static String findApolloAppId(Module module) {
         Collection<VirtualFile> files = FilenameIndex.getVirtualFilesByName("app.properties",
                 GlobalSearchScope.moduleScope(module));
         if (files.isEmpty()) {
@@ -115,7 +141,7 @@ public class ValueUtils {
                     return path.contains("main");
                 })
                 .collect(Collectors.toList());
-        if (files.isEmpty()) {
+        if (virtualFiles.isEmpty()) {
             return null;
         }
 
@@ -135,7 +161,7 @@ public class ValueUtils {
         return map.get("app.id");
     }
 
-    private static @Nullable PsiElement getApolloConfig(String appId, Project project, String key) {
+    private static @Nullable PsiElement findApolloConfig(String appId, Project project, String key) {
         File path = new File("C:\\opt\\data\\" + appId + "\\config-cache");
         File[] childFiles = path.listFiles();
         if (childFiles == null) {
@@ -174,5 +200,21 @@ public class ValueUtils {
         }
 
         return null;
+    }
+
+    public static List<String> findApolloAppIds(Project project, Module excludeModule) {
+        Collection<Module> modules = ModuleUtil.getModulesOfType(project, JavaModuleType.getModuleType());
+        return modules.stream()
+                .filter(it -> it != excludeModule)
+                .map(ValueUtils::findApolloAppId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+    public static List<PsiElement> findApolloConfigs(List<String> appIds, Project project, String key) {
+        return appIds.stream()
+                .map(it -> findApolloConfig(it, project, key))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 }

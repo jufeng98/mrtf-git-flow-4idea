@@ -18,9 +18,10 @@ import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+
 
 public class ValueAnnotationReferenceContributor extends PsiReferenceContributor {
-
 
     @Override
     public void registerReferenceProviders(@NotNull PsiReferenceRegistrar registrar) {
@@ -29,30 +30,32 @@ public class ValueAnnotationReferenceContributor extends PsiReferenceContributor
                     @Override
                     public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement element,
                                                                            @NotNull ProcessingContext context) {
-                        Triple<String, TextRange, PsiElement> triple = ValueUtils.findApolloConfig(element);
+                        Triple<String, TextRange, List<PsiElement>> triple = ValueUtils.findApolloConfig(element);
                         if (triple == null) {
                             return PsiReference.EMPTY_ARRAY;
                         }
 
                         TextRange textRange = triple.getMiddle();
-                        PsiElement psiElement = triple.getRight();
+                        List<PsiElement> psiElements = triple.getRight();
 
-                        return new PsiReference[]{new ValueAnnotationReference(element, textRange, psiElement)};
+                        return new PsiReference[]{new ValueAnnotationReference(element, textRange, psiElements)};
                     }
                 });
     }
 
     public static final class ValueAnnotationReference extends PsiReferenceBase<PsiElement> implements PsiPolyVariantReference {
-        private final PsiElement targetPsiElement;
+        private final List<PsiElement> targetPsiElements;
 
-        public ValueAnnotationReference(@NotNull PsiElement element, TextRange textRange, PsiElement targetPsiElement) {
+        public ValueAnnotationReference(@NotNull PsiElement element, TextRange textRange, List<PsiElement> targetPsiElements) {
             super(element, textRange);
-            this.targetPsiElement = targetPsiElement;
+            this.targetPsiElements = targetPsiElements;
         }
 
         @Override
         public ResolveResult @NotNull [] multiResolve(boolean incompleteCode) {
-            return new ResolveResult[]{new PsiElementResolveResult(targetPsiElement)};
+            return targetPsiElements.stream()
+                    .map(PsiElementResolveResult::new)
+                    .toArray(ResolveResult[]::new);
         }
 
         @Nullable

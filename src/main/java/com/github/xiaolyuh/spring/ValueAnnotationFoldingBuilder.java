@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 
@@ -32,16 +32,16 @@ final class ValueAnnotationFoldingBuilder extends FoldingBuilderEx {
             public void visitLiteralExpression(@NotNull PsiLiteralExpression psiLiteralExpression) {
                 super.visitLiteralExpression(psiLiteralExpression);
 
-                Triple<String, TextRange, PsiElement> triple = ValueUtils.findApolloConfig(psiLiteralExpression);
+                Triple<String, TextRange, List<PsiElement>> triple = ValueUtils.findApolloConfig(psiLiteralExpression);
                 if (triple == null) {
                     return;
                 }
 
                 TextRange literalTextRange = psiLiteralExpression.getTextRange();
                 TextRange textRange = new TextRange(literalTextRange.getStartOffset() + 1, literalTextRange.getEndOffset() - 1);
-                PsiElement psiElement = triple.getRight();
+                List<PsiElement> psiElements = triple.getRight();
 
-                descriptors.add(new FoldingDescriptor(psiLiteralExpression.getNode(), textRange, group, Collections.singleton(psiElement)));
+                descriptors.add(new FoldingDescriptor(psiLiteralExpression.getNode(), textRange, group, new HashSet<>(psiElements)));
             }
         });
 
@@ -52,12 +52,12 @@ final class ValueAnnotationFoldingBuilder extends FoldingBuilderEx {
     public String getPlaceholderText(@NotNull ASTNode node) {
         PsiElement psiElement = node.getPsi();
 
-        Triple<String, TextRange, PsiElement> triple = ValueUtils.findApolloConfig(psiElement);
+        Triple<String, TextRange, List<PsiElement>> triple = ValueUtils.findApolloConfig(psiElement);
 
         @SuppressWarnings("DataFlowIssue")
-        PsiElement targetElement = triple.getRight();
+        List<PsiElement> targetElements = triple.getRight();
 
-        return getPropVal(targetElement);
+        return getPropVal(targetElements.get(0));
     }
 
     private String getPropVal(PsiElement targetElement) {
