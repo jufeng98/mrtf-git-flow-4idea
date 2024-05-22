@@ -235,6 +235,11 @@ public class ConfigUtil {
         return k8sOptions.getLoginUrl();
     }
 
+    public static String getApolloUrl(Project project) {
+        K8sOptions k8sOptions = K8S_MAP.get(project.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME_PROJECT);
+        return k8sOptions.getApolloUrl();
+    }
+
     private static K8sOptions getFromProjectK8sFile(Project project) {
         try {
             String filePath = project.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME_PROJECT;

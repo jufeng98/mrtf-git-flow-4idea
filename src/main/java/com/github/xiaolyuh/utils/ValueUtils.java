@@ -19,6 +19,7 @@ import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiLiteralUtil;
 import com.intellij.psi.util.PsiTreeUtil;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,9 +43,9 @@ public class ValueUtils {
     public static final String DOLLAR_END = "}";
 
     /**
-     * @return Triple(Apollo key, key文本范围, Apollo value的PsiElement)
+     * @return Triple(AppId, key文本范围, Apollo value的PsiElement)
      */
-    public static @Nullable Triple<String, TextRange, List<PsiElement>> findApolloConfig(PsiElement element) {
+    public static @Nullable Triple<List<String>, TextRange, List<PsiElement>> findApolloConfig(PsiElement element) {
         if (!(element instanceof PsiLiteralExpression)) {
             return null;
         }
@@ -72,39 +73,47 @@ public class ValueUtils {
         Module module = ModuleUtil.findModuleForFile(psiLiteralExpression.getContainingFile());
 
         // 优先从当前模块寻找
-        PsiElement psiElement = findApolloConfigFromModule(module, project, key);
-        if (psiElement != null) {
-            return Triple.of(key, textRange, Lists.newArrayList(psiElement));
+        Pair<String, PsiElement> pairModule = findApolloConfigFromModule(module, project, key);
+        if (pairModule != null) {
+            return Triple.of(Lists.newArrayList(pairModule.getLeft()), textRange, Lists.newArrayList(pairModule.getRight()));
         }
 
         // 当前模块找不到,在到项目中寻找
-        List<PsiElement> psiElements = findApolloConfigFromProject(project, module, key);
-        if (psiElements != null) {
-            return Triple.of(key, textRange, psiElements);
+        Pair<List<String>, List<PsiElement>> pairProject = findApolloConfigFromProject(project, module, key);
+        if (pairProject != null) {
+            return Triple.of(pairProject.getLeft(), textRange, pairProject.getRight());
         }
 
         return null;
     }
 
-    private static PsiElement findApolloConfigFromModule(Module module, Project project, String key) {
+    private static Pair<String, PsiElement> findApolloConfigFromModule(Module module, Project project, String key) {
         String appId = findApolloAppId(module);
         if (appId == null) {
             return null;
         }
 
-        return findApolloConfig(appId, project, key);
+        PsiElement psiElement = findApolloConfig(appId, project, key);
+        if (psiElement == null) {
+            return null;
+        }
+
+        return Pair.of(appId, psiElement);
     }
 
-    private static List<PsiElement> findApolloConfigFromProject(Project project, Module excludeModule, String key) {
+    private static Pair<List<String>, List<PsiElement>> findApolloConfigFromProject(Project project, Module excludeModule,
+                                                                                    String key) {
         List<String> apolloAppIds = findApolloAppIds(project, excludeModule);
+        if (CollectionUtils.isEmpty(apolloAppIds)) {
+            return null;
+        }
 
         List<PsiElement> psiElements = findApolloConfigs(apolloAppIds, project, key);
-
         if (CollectionUtils.isEmpty(psiElements)) {
             return null;
         }
 
-        return psiElements;
+        return Pair.of(apolloAppIds, psiElements);
     }
 
     private static boolean noValueAnnotation(PsiLiteralExpression psiLiteralExpression) {

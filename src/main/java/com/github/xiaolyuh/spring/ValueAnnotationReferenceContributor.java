@@ -25,22 +25,23 @@ public class ValueAnnotationReferenceContributor extends PsiReferenceContributor
 
     @Override
     public void registerReferenceProviders(@NotNull PsiReferenceRegistrar registrar) {
-        registrar.registerReferenceProvider(StandardPatterns.instanceOf(PsiLiteralExpression.class),
-                new PsiReferenceProvider() {
-                    @Override
-                    public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement element,
-                                                                           @NotNull ProcessingContext context) {
-                        Triple<String, TextRange, List<PsiElement>> triple = ValueUtils.findApolloConfig(element);
-                        if (triple == null) {
-                            return PsiReference.EMPTY_ARRAY;
-                        }
+        registrar.registerReferenceProvider(StandardPatterns.instanceOf(PsiLiteralExpression.class), new ValuePsiReferenceProvider());
+    }
 
-                        TextRange textRange = triple.getMiddle();
-                        List<PsiElement> psiElements = triple.getRight();
+    public static class ValuePsiReferenceProvider extends PsiReferenceProvider {
+        @Override
+        public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement element,
+                                                               @NotNull ProcessingContext context) {
+            Triple<List<String>, TextRange, List<PsiElement>> triple = ValueUtils.findApolloConfig(element);
+            if (triple == null) {
+                return PsiReference.EMPTY_ARRAY;
+            }
 
-                        return new PsiReference[]{new ValueAnnotationReference(element, textRange, psiElements)};
-                    }
-                });
+            TextRange textRange = triple.getMiddle();
+            List<PsiElement> psiElements = triple.getRight();
+
+            return new PsiReference[]{new ValueAnnotationReference(element, textRange, psiElements)};
+        }
     }
 
     public static final class ValueAnnotationReference extends PsiReferenceBase<PsiElement> implements PsiPolyVariantReference {

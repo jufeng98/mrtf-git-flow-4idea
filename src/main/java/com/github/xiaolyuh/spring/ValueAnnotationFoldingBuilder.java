@@ -32,7 +32,7 @@ final class ValueAnnotationFoldingBuilder extends FoldingBuilderEx {
             public void visitLiteralExpression(@NotNull PsiLiteralExpression psiLiteralExpression) {
                 super.visitLiteralExpression(psiLiteralExpression);
 
-                Triple<String, TextRange, List<PsiElement>> triple = ValueUtils.findApolloConfig(psiLiteralExpression);
+                Triple<List<String>, TextRange, List<PsiElement>> triple = ValueUtils.findApolloConfig(psiLiteralExpression);
                 if (triple == null) {
                     return;
                 }
@@ -52,7 +52,7 @@ final class ValueAnnotationFoldingBuilder extends FoldingBuilderEx {
     public String getPlaceholderText(@NotNull ASTNode node) {
         PsiElement psiElement = node.getPsi();
 
-        Triple<String, TextRange, List<PsiElement>> triple = ValueUtils.findApolloConfig(psiElement);
+        Triple<List<String>, TextRange, List<PsiElement>> triple = ValueUtils.findApolloConfig(psiElement);
 
         @SuppressWarnings("DataFlowIssue")
         List<PsiElement> targetElements = triple.getRight();

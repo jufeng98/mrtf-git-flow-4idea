@@ -4,6 +4,7 @@ import java.util.List;
 
 @SuppressWarnings("unused")
 public class K8sOptions {
+    private String apolloUrl;
     private String loginUrl;
     private String host;
     private String namespace;
@@ -19,6 +20,10 @@ public class K8sOptions {
     private String consolePath;
     private boolean isFrontProject;
     private List<String> services;
+
+    public String getApolloUrl() {
+        return apolloUrl;
+    }
 
     public String getLoginUrl() {
         return loginUrl;
