@@ -7,6 +7,7 @@ import com.intellij.codeInsight.daemon.RelatedItemLineMarkerProvider;
 import com.intellij.codeInsight.navigation.NavigationGutterIconBuilder;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiLiteralExpression;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,7 +31,8 @@ final class ValueAnnotationLineMarkerProvider extends RelatedItemLineMarkerProvi
                 .setTargets(psiElement)
                 .setTooltipText("导航到本地缓存的Apollo配置");
 
-        result.add(builder.createLineMarkerInfo(element));
+        PsiLiteralExpression psiLiteralExpression = (PsiLiteralExpression) element;
+        result.add(builder.createLineMarkerInfo(psiLiteralExpression.getFirstChild()));
     }
 
 }

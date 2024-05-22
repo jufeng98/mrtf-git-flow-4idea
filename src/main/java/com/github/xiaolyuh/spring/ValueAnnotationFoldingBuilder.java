@@ -7,7 +7,6 @@ import com.intellij.lang.folding.FoldingDescriptor;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.FoldingGroup;
 import com.intellij.openapi.util.TextRange;
-import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.JavaRecursiveElementWalkingVisitor;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiLiteralExpression;
@@ -53,15 +52,11 @@ final class ValueAnnotationFoldingBuilder extends FoldingBuilderEx {
         PsiElement psiElement = node.getPsi();
 
         Triple<String, TextRange, PsiElement> triple = ValueUtils.findApolloConfig(psiElement);
-        if (triple == null) {
-            return StringUtil.THREE_DOTS;
-        }
 
+        @SuppressWarnings("DataFlowIssue")
         PsiElement targetElement = triple.getRight();
 
-        return getPropVal(targetElement)
-                .replaceAll("\n", "\\n")
-                .replaceAll("\"", "\\\\\"");
+        return getPropVal(targetElement);
     }
 
     private String getPropVal(PsiElement targetElement) {
