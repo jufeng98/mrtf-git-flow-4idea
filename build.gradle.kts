@@ -24,7 +24,12 @@ sourceSets["main"].java.srcDirs("src/main/gen")
 intellij {
     version.set("2022.1.2")
     type.set("IC")
-    plugins.set(listOf("Git4Idea", "tasks", "com.intellij.java"))
+    plugins.set(listOf(
+        "Git4Idea",
+        "tasks",
+        "com.intellij.java",
+        "com.intellij.properties"
+    ))
     intellij.updateSinceUntilBuild.set(false)
 }
 

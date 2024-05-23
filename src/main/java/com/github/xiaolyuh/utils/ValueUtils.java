@@ -2,6 +2,8 @@ package com.github.xiaolyuh.utils;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.intellij.lang.properties.IProperty;
+import com.intellij.lang.properties.psi.PropertiesFile;
 import com.intellij.openapi.module.JavaModuleType;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
@@ -26,7 +28,6 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
-import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -138,6 +139,10 @@ public class ValueUtils {
     }
 
     private static String findApolloAppId(Module module) {
+        if (module == null) {
+            return null;
+        }
+
         Collection<VirtualFile> files = FilenameIndex.getVirtualFilesByName("app.properties",
                 GlobalSearchScope.moduleScope(module));
         if (files.isEmpty()) {
@@ -188,22 +193,17 @@ public class ValueUtils {
             }
 
             try {
-                // 不知道如何引入 com.intellij.lang.properties.psi.PropertiesFile 接口,只能用反射了
-                PsiFile psiFile = PsiManager.getInstance(project).findFile(virtualFile);
-                if (psiFile == null) {
+                PropertiesFile propertiesFile = (PropertiesFile) PsiManager.getInstance(project).findFile(virtualFile);
+                if (propertiesFile == null) {
                     continue;
                 }
 
-                Method method = psiFile.getClass().getDeclaredMethod("findPropertyByKey", String.class);
-                method.setAccessible(true);
-                Object prop = method.invoke(psiFile, key);
+                IProperty prop = propertiesFile.findPropertyByKey(key);
                 if (prop == null) {
                     continue;
                 }
 
-                method = prop.getClass().getDeclaredMethod("getPsiElement");
-                method.setAccessible(true);
-                return (PsiElement) method.invoke(prop);
+                return prop.getPsiElement();
             } catch (Exception ignored) {
             }
         }

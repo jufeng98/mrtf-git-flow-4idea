@@ -4,6 +4,7 @@ import com.github.xiaolyuh.utils.ValueUtils;
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.folding.FoldingBuilderEx;
 import com.intellij.lang.folding.FoldingDescriptor;
+import com.intellij.lang.properties.IProperty;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.FoldingGroup;
 import com.intellij.openapi.util.TextRange;
@@ -13,7 +14,6 @@ import com.intellij.psi.PsiLiteralExpression;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -57,17 +57,8 @@ final class ValueAnnotationFoldingBuilder extends FoldingBuilderEx {
         @SuppressWarnings("DataFlowIssue")
         List<PsiElement> targetElements = triple.getRight();
 
-        return getPropVal(targetElements.get(0));
-    }
-
-    private String getPropVal(PsiElement targetElement) {
-        try {
-            Method method = targetElement.getClass().getDeclaredMethod("getValue");
-            method.setAccessible(true);
-            return (String) method.invoke(targetElement);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        IProperty prop = (IProperty) targetElements.get(0);
+        return prop.getValue();
     }
 
     @Override

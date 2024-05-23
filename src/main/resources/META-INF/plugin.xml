@@ -45,6 +45,7 @@
     <depends>com.intellij.tasks</depends>
     <depends>Git4Idea</depends>
     <depends>com.intellij.java</depends>
+    <depends>com.intellij.properties</depends>
 
     <idea-version since-build="212.*" until-build="233.*"/>
 
