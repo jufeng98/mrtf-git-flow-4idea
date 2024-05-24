@@ -2,6 +2,7 @@ import java.net.URI
 
 plugins {
     id("java")
+    id("org.jetbrains.kotlin.jvm") version "1.6.20"
     id("org.jetbrains.intellij") version "1.5.2"
 }
 
@@ -39,6 +40,9 @@ tasks {
         sourceCompatibility = "11"
         targetCompatibility = "11"
         options.encoding = "UTF-8"
+    }
+    withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+        kotlinOptions.jvmTarget = "11"
     }
 
     patchPluginXml {
