@@ -30,6 +30,10 @@ public class InjectLineMarkerProvider implements LineMarkerProvider {
 
     @Override
     public LineMarkerInfo<?> getLineMarkerInfo(@NotNull PsiElement psiElement) {
+        if (true) {
+            return null;
+        }
+
         if (!(psiElement instanceof PsiField)) {
             return null;
         }
