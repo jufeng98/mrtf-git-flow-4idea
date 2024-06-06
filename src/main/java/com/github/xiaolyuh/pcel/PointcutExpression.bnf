@@ -1,0 +1,33 @@
+{
+  parserClass="com.github.xiaolyuh.pcel.parser.PointcutExpressionParser"
+  parserUtilClass="com.github.xiaolyuh.pcel.parser.PointcutExpressionParserUtil"
+
+  extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+
+  psiClassPrefix="PointcutExpression"
+  psiImplClassSuffix="Impl"
+  psiPackage="com.github.xiaolyuh.pcel.psi"
+  psiImplPackage="com.github.xiaolyuh.pcel.psi.impl"
+
+  elementTypeHolderClass="com.github.xiaolyuh.pcel.psi.PointcutExpressionTypes"
+  elementTypeClass="com.github.xiaolyuh.pcel.psi.PointcutExpressionElementType"
+  tokenTypeClass="com.github.xiaolyuh.pcel.psi.PointcutExpressionTokenType"
+  psiImplUtilClass="com.github.xiaolyuh.pcel.psi.impl.PointcutExpressionPsiImplUtil"
+
+  tokens=[
+    LP='('
+    RP=')'
+    ANNOTATION='@annotation'
+    TARGET='@target'
+    ALPHA='regexp:\p{Alpha}\w*'
+  ]
+}
+
+pointcutExpressionFile ::= item_*
+
+private item_ ::= (kind LP expr RP) {  pin=1   }
+
+kind ::= ANNOTATION | TARGET
+
+expr ::= (ALPHA | '.')*
+

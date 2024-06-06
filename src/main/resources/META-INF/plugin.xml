@@ -174,6 +174,17 @@
                 language="JSON"/>
 <!--        <multiHostInjector-->
 <!--                implementation="com.github.xiaolyuh.cls.SimpleLanguageInjectionContributor"/>-->
+
+
+        <fileType
+                name="Pointcut Expression"
+                implementationClass="com.github.xiaolyuh.pcel.PointcutExpressionFileType"
+                fieldName="INSTANCE"
+                language="PointcutExpression"
+                extensions="pcel"/>
+        <lang.parserDefinition
+                language="PointcutExpression"
+                implementationClass="com.github.xiaolyuh.pcel.psi.PointcutExpressionParserDefinition"/>
     </extensions>
 
     <projectListeners>
