@@ -62,6 +62,12 @@ public class ValueUtils {
             return null;
         }
 
+        return findApolloConfig(value, psiLiteralExpression.getProject(), psiLiteralExpression.getContainingFile());
+    }
+
+    public static @Nullable Triple<List<String>, TextRange, List<PsiElement>> findApolloConfig(String value,
+                                                                                               Project project,
+                                                                                               PsiFile psiFile) {
         int startIdx = value.indexOf(DOLLAR_START);
         if (startIdx == -1) {
             return null;
@@ -70,8 +76,7 @@ public class ValueUtils {
         TextRange textRange = createExpressionTextRange(value, startIdx);
         String key = value.substring(textRange.getStartOffset() - 1, textRange.getEndOffset() - 1);
 
-        Project project = psiLiteralExpression.getProject();
-        Module module = ModuleUtil.findModuleForFile(psiLiteralExpression.getContainingFile());
+        Module module = ModuleUtil.findModuleForFile(psiFile);
 
         // 优先从当前模块寻找
         Pair<String, PsiElement> pairModule = findApolloConfigFromModule(module, project, key);

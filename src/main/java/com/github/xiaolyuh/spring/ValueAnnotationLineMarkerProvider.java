@@ -34,7 +34,7 @@ import java.util.Collection;
 import java.util.List;
 
 
-final class ValueAnnotationLineMarkerProvider extends RelatedItemLineMarkerProvider {
+public final class ValueAnnotationLineMarkerProvider extends RelatedItemLineMarkerProvider {
 
     @Override
     protected void collectNavigationMarkers(@NotNull PsiElement element,

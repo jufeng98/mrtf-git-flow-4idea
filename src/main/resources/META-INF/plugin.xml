@@ -104,6 +104,9 @@
         <psi.referenceContributor language="JAVA"
                                   implementation="com.github.xiaolyuh.spring.ValueAnnotationReferenceContributor"/>
 
+        <psi.referenceContributor language="XML"
+                                  implementation="com.github.xiaolyuh.spring.XmlReferenceContributor"/>
+
         <lang.foldingBuilder
                 language="JAVA"
                 implementationClass="com.github.xiaolyuh.spring.ValueAnnotationFoldingBuilder"/>
@@ -111,6 +114,9 @@
         <codeInsight.lineMarkerProvider
                 language="JAVA"
                 implementationClass="com.github.xiaolyuh.spring.ValueAnnotationLineMarkerProvider"/>
+        <codeInsight.lineMarkerProvider
+                language="Properties"
+                implementationClass="com.github.xiaolyuh.apollo.ApolloLineMarkerProvider"/>
 
         <fileType
                 name="Simple File"
