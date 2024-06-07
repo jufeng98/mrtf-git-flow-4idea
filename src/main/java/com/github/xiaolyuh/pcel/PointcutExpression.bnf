@@ -28,10 +28,11 @@
 }
 
 pointcutExpressionFile ::= item_*
-private item_ ::= aop_kind aop_expr | reference  {
+private item_ ::= aop_pointcut
+aop_pointcut ::= aop_kind aop_expr | aop_method_reference  {
     pin = 1
 }
 aop_kind ::= ANNOTATION | ANNO_TARGET | EXECUTION | BEAN
 aop_expr ::= EXPR
-reference ::= METHOD_REFERENCE
+aop_method_reference ::= METHOD_REFERENCE
 

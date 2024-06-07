@@ -11,14 +11,14 @@ import static com.github.xiaolyuh.pcel.psi.PointcutExpressionTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.github.xiaolyuh.pcel.psi.*;
 
-public class PointcutExpressionReferenceImpl extends ASTWrapperPsiElement implements PointcutExpressionReference {
+public class PointcutExpressionAopPointcutImpl extends ASTWrapperPsiElement implements PointcutExpressionAopPointcut {
 
-  public PointcutExpressionReferenceImpl(@NotNull ASTNode node) {
+  public PointcutExpressionAopPointcutImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull PointcutExpressionVisitor visitor) {
-    visitor.visitReference(this);
+    visitor.visitAopPointcut(this);
   }
 
   @Override
@@ -28,9 +28,21 @@ public class PointcutExpressionReferenceImpl extends ASTWrapperPsiElement implem
   }
 
   @Override
-  @NotNull
-  public PsiElement getMethodReference() {
-    return findNotNullChildByType(METHOD_REFERENCE);
+  @Nullable
+  public PointcutExpressionAopExpr getAopExpr() {
+    return findChildByClass(PointcutExpressionAopExpr.class);
+  }
+
+  @Override
+  @Nullable
+  public PointcutExpressionAopKind getAopKind() {
+    return findChildByClass(PointcutExpressionAopKind.class);
+  }
+
+  @Override
+  @Nullable
+  public PointcutExpressionAopMethodReference getAopMethodReference() {
+    return findChildByClass(PointcutExpressionAopMethodReference.class);
   }
 
 }

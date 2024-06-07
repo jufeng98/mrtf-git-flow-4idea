@@ -5,7 +5,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface PointcutExpressionReference extends PsiElement {
+public interface PointcutExpressionAopMethodReference extends PsiElement {
 
   @NotNull
   PsiElement getMethodReference();

@@ -10,7 +10,8 @@ public interface PointcutExpressionTypes {
 
   IElementType AOP_EXPR = new PointcutExpressionElementType("AOP_EXPR");
   IElementType AOP_KIND = new PointcutExpressionElementType("AOP_KIND");
-  IElementType REFERENCE = new PointcutExpressionElementType("REFERENCE");
+  IElementType AOP_METHOD_REFERENCE = new PointcutExpressionElementType("AOP_METHOD_REFERENCE");
+  IElementType AOP_POINTCUT = new PointcutExpressionElementType("AOP_POINTCUT");
 
   IElementType ANNOTATION = new PointcutExpressionTokenType("@annotation");
   IElementType ANNO_TARGET = new PointcutExpressionTokenType("@target");
@@ -28,8 +29,11 @@ public interface PointcutExpressionTypes {
       else if (type == AOP_KIND) {
         return new PointcutExpressionAopKindImpl(node);
       }
-      else if (type == REFERENCE) {
-        return new PointcutExpressionReferenceImpl(node);
+      else if (type == AOP_METHOD_REFERENCE) {
+        return new PointcutExpressionAopMethodReferenceImpl(node);
+      }
+      else if (type == AOP_POINTCUT) {
+        return new PointcutExpressionAopPointcutImpl(node);
       }
       throw new AssertionError("Unknown element type: " + type);
     }

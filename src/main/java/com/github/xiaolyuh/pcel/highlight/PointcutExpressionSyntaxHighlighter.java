@@ -51,12 +51,15 @@ public class PointcutExpressionSyntaxHighlighter extends SyntaxHighlighterBase {
         if (tokenType.equals(PointcutExpressionTypes.METHOD_REFERENCE)) {
             return AOP_KIND_KEYS;
         }
+
         if (tokenType.equals(PointcutExpressionTypes.EXPR)) {
             return AOP_EXPR_KEYS;
         }
+
         if (tokenType.equals(TokenType.BAD_CHARACTER)) {
             return BAD_CHAR_KEYS;
         }
+
         return EMPTY_KEYS;
     }
 
