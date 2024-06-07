@@ -22,7 +22,7 @@
     ANNO_TARGET='@target'
     EXECUTION='execution'
     BEAN='bean'
-    EXPR="regexp:\([\w*!/+.\s()]+\)"
+    EXPR="regexp:\([\w*!+.\s()]+\)"
     METHOD_REFERENCE="regexp:\p{Alpha}\w*\(\)"
     OR_OPERATOR="regexp:\s*\|\|\s*"
     AND_OPERATOR="regexp:\s*&&\s*"
@@ -34,7 +34,8 @@ private item_ ::= aop_pointcut
 aop_pointcut ::= aop_content aop_parallel_pointcut? {
     pin = 1
 }
-aop_content ::= aop_kind aop_expr | aop_method_reference
+aop_content ::= aop_real | aop_method_reference
+aop_real ::= aop_kind aop_expr
 aop_kind ::= ANNOTATION | ANNO_TARGET | EXECUTION | BEAN
 aop_expr ::= EXPR
 aop_method_reference ::= METHOD_REFERENCE

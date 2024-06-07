@@ -36,25 +36,14 @@ public class PointcutExpressionParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // aop_kind aop_expr | aop_method_reference
+  // aop_real | aop_method_reference
   public static boolean aop_content(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "aop_content")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, AOP_CONTENT, "<aop content>");
-    r = aop_content_0(b, l + 1);
+    r = aop_real(b, l + 1);
     if (!r) r = aop_method_reference(b, l + 1);
     exit_section_(b, l, m, r, false, null);
-    return r;
-  }
-
-  // aop_kind aop_expr
-  private static boolean aop_content_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "aop_content_0")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = aop_kind(b, l + 1);
-    r = r && aop_expr(b, l + 1);
-    exit_section_(b, m, null, r);
     return r;
   }
 
@@ -136,6 +125,18 @@ public class PointcutExpressionParser implements PsiParser, LightPsiParser {
     if (!recursion_guard_(b, l, "aop_pointcut_1")) return false;
     aop_parallel_pointcut(b, l + 1);
     return true;
+  }
+
+  /* ********************************************************** */
+  // aop_kind aop_expr
+  public static boolean aop_real(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "aop_real")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NONE_, AOP_REAL, "<aop real>");
+    r = aop_kind(b, l + 1);
+    r = r && aop_expr(b, l + 1);
+    exit_section_(b, l, m, r, false, null);
+    return r;
   }
 
   /* ********************************************************** */

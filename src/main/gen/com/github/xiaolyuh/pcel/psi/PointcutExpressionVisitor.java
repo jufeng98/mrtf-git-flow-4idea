@@ -31,6 +31,10 @@ public class PointcutExpressionVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitAopReal(@NotNull PointcutExpressionAopReal o) {
+    visitPsiElement(o);
+  }
+
   public void visitPsiElement(@NotNull PsiElement o) {
     visitElement(o);
   }

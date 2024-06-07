@@ -25,7 +25,7 @@ import static com.github.xiaolyuh.pcel.psi.PointcutExpressionTypes.*;
 EOL=\R
 WHITE_SPACE=\s+
 
-EXPR=\([\w*!/+.\s()]+\)
+EXPR=\([\w*!+.\s()]+\)
 METHOD_REFERENCE=[:letter:][a-zA-Z_0-9]*\(\)
 OR_OPERATOR=[ \t\n\x0B\f\r]*\|\|[ \t\n\x0B\f\r]*
 AND_OPERATOR=[ \t\n\x0B\f\r]*&&[ \t\n\x0B\f\r]*

@@ -5,12 +5,12 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface PointcutExpressionAopContent extends PsiElement {
+public interface PointcutExpressionAopReal extends PsiElement {
 
-  @Nullable
-  PointcutExpressionAopMethodReference getAopMethodReference();
+  @NotNull
+  PointcutExpressionAopExpr getAopExpr();
 
-  @Nullable
-  PointcutExpressionAopReal getAopReal();
+  @NotNull
+  PointcutExpressionAopKind getAopKind();
 
 }
