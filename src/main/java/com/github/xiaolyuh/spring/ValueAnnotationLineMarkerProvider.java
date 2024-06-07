@@ -58,8 +58,8 @@ public final class ValueAnnotationLineMarkerProvider extends RelatedItemLineMark
         result.add(lineMarkerInfo);
 
         RelatedItemLineMarkerInfo<PsiElement> lineMarkerInfo1 = new RelatedItemLineMarkerInfo<>(
-                element,
-                element.getTextRange(),
+                psiLiteralExpression.getFirstChild(),
+                psiLiteralExpression.getTextRange(),
                 IconLoader.getIcon("/icons/apollo.svg", getClass()),
                 new ConstantFunction<>("浏览器打开Apollo管理页面"),
                 new ValueGutterIconNavigationHandler(triple.getLeft()),

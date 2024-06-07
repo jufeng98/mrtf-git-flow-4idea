@@ -22,7 +22,7 @@
     ANNO_TARGET='@target'
     EXECUTION='execution'
     BEAN='bean'
-    EXPR="regexp:\([\w*!/&+.\s()]+\)"
+    EXPR="regexp:\([\w*!/&+.\s()|]+\)"
     METHOD_REFERENCE="regexp:\p{Alpha}\w*\(\)"
   ]
 }
