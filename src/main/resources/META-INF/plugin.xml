@@ -199,6 +199,8 @@
         <languageInjectionContributor
                 implementationClass="com.github.xiaolyuh.pcel.inject.PointcutExpressionInjectionContributor"
                 language="JAVA"/>
+        <psi.referenceContributor language="PointcutExpression"
+                                  implementation="com.github.xiaolyuh.spring.AopReferenceContributor"/>
     </extensions>
 
     <projectListeners>
