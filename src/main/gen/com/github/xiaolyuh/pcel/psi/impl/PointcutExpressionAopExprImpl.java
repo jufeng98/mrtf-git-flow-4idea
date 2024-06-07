@@ -11,20 +11,26 @@ import static com.github.xiaolyuh.pcel.psi.PointcutExpressionTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.github.xiaolyuh.pcel.psi.*;
 
-public class PointcutExpressionExprImpl extends ASTWrapperPsiElement implements PointcutExpressionExpr {
+public class PointcutExpressionAopExprImpl extends ASTWrapperPsiElement implements PointcutExpressionAopExpr {
 
-  public PointcutExpressionExprImpl(@NotNull ASTNode node) {
+  public PointcutExpressionAopExprImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull PointcutExpressionVisitor visitor) {
-    visitor.visitExpr(this);
+    visitor.visitAopExpr(this);
   }
 
   @Override
   public void accept(@NotNull PsiElementVisitor visitor) {
     if (visitor instanceof PointcutExpressionVisitor) accept((PointcutExpressionVisitor)visitor);
     else super.accept(visitor);
+  }
+
+  @Override
+  @NotNull
+  public PsiElement getExpr() {
+    return findNotNullChildByType(EXPR);
   }
 
 }

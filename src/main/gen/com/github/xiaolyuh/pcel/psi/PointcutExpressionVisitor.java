@@ -7,11 +7,11 @@ import com.intellij.psi.PsiElement;
 
 public class PointcutExpressionVisitor extends PsiElementVisitor {
 
-  public void visitExpr(@NotNull PointcutExpressionExpr o) {
+  public void visitAopExpr(@NotNull PointcutExpressionAopExpr o) {
     visitPsiElement(o);
   }
 
-  public void visitKind(@NotNull PointcutExpressionKind o) {
+  public void visitAopKind(@NotNull PointcutExpressionAopKind o) {
     visitPsiElement(o);
   }
 

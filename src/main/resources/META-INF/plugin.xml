@@ -190,7 +190,12 @@
                 extensions="pcel"/>
         <lang.parserDefinition
                 language="PointcutExpression"
-                implementationClass="com.github.xiaolyuh.pcel.psi.PointcutExpressionParserDefinition"/>
+                implementationClass="com.github.xiaolyuh.pcel.parser.PointcutExpressionParserDefinition"/>
+        <lang.syntaxHighlighterFactory
+                language="PointcutExpression"
+                implementationClass="com.github.xiaolyuh.pcel.highlight.PointcutExpressionSyntaxHighlighterFactory"/>
+        <colorSettingsPage
+                implementation="com.github.xiaolyuh.pcel.highlight.PointcutExpressionColorSettingsPage"/>
     </extensions>
 
     <projectListeners>

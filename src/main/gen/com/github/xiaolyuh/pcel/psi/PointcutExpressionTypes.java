@@ -8,23 +8,22 @@ import com.github.xiaolyuh.pcel.psi.impl.*;
 
 public interface PointcutExpressionTypes {
 
-  IElementType EXPR = new PointcutExpressionElementType("EXPR");
-  IElementType KIND = new PointcutExpressionElementType("KIND");
+  IElementType AOP_EXPR = new PointcutExpressionElementType("AOP_EXPR");
+  IElementType AOP_KIND = new PointcutExpressionElementType("AOP_KIND");
 
-  IElementType ALPHA = new PointcutExpressionTokenType("ALPHA");
   IElementType ANNOTATION = new PointcutExpressionTokenType("@annotation");
-  IElementType LP = new PointcutExpressionTokenType("(");
-  IElementType RP = new PointcutExpressionTokenType(")");
-  IElementType TARGET = new PointcutExpressionTokenType("@target");
+  IElementType ANNO_TARGET = new PointcutExpressionTokenType("@target");
+  IElementType EXECUTION = new PointcutExpressionTokenType("execution");
+  IElementType EXPR = new PointcutExpressionTokenType("EXPR");
 
   class Factory {
     public static PsiElement createElement(ASTNode node) {
       IElementType type = node.getElementType();
-      if (type == EXPR) {
-        return new PointcutExpressionExprImpl(node);
+      if (type == AOP_EXPR) {
+        return new PointcutExpressionAopExprImpl(node);
       }
-      else if (type == KIND) {
-        return new PointcutExpressionKindImpl(node);
+      else if (type == AOP_KIND) {
+        return new PointcutExpressionAopKindImpl(node);
       }
       throw new AssertionError("Unknown element type: " + type);
     }

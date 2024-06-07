@@ -5,6 +5,9 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
+/**
+ * 第三步:定义文件类型,并在plugin.xml里注册
+ */
 public class PointcutExpressionFileType extends LanguageFileType {
 
     public static final PointcutExpressionFileType INSTANCE = new PointcutExpressionFileType();

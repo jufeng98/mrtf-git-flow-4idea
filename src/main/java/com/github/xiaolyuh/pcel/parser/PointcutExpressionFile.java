@@ -1,7 +1,5 @@
-package com.github.xiaolyuh.pcel.psi;
+package com.github.xiaolyuh.pcel.parser;
 
-import com.github.xiaolyuh.cls.step2.SimpleFileType;
-import com.github.xiaolyuh.cls.step2.SimpleLanguage;
 import com.github.xiaolyuh.pcel.PointcutExpressionFileType;
 import com.github.xiaolyuh.pcel.PointcutExpressionLanguage;
 import com.intellij.extapi.psi.PsiFileBase;
@@ -9,6 +7,9 @@ import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.psi.FileViewProvider;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * 第十一步:定义根文件
+ */
 public class PointcutExpressionFile extends PsiFileBase {
 
     public PointcutExpressionFile(@NotNull FileViewProvider viewProvider) {
@@ -23,7 +24,7 @@ public class PointcutExpressionFile extends PsiFileBase {
 
     @Override
     public String toString() {
-        return "Pointcut Expression";
+        return "PointcutExpression File";
     }
 
 }

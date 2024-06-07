@@ -11,14 +11,14 @@ import static com.github.xiaolyuh.pcel.psi.PointcutExpressionTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.github.xiaolyuh.pcel.psi.*;
 
-public class PointcutExpressionKindImpl extends ASTWrapperPsiElement implements PointcutExpressionKind {
+public class PointcutExpressionAopKindImpl extends ASTWrapperPsiElement implements PointcutExpressionAopKind {
 
-  public PointcutExpressionKindImpl(@NotNull ASTNode node) {
+  public PointcutExpressionAopKindImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull PointcutExpressionVisitor visitor) {
-    visitor.visitKind(this);
+    visitor.visitAopKind(this);
   }
 
   @Override

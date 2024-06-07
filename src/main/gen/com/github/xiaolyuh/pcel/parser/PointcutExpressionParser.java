@@ -36,55 +36,41 @@ public class PointcutExpressionParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // (ALPHA | '.')*
-  public static boolean expr(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "expr")) return false;
-    Marker m = enter_section_(b, l, _NONE_, EXPR, "<expr>");
-    while (true) {
-      int c = current_position_(b);
-      if (!expr_0(b, l + 1)) break;
-      if (!empty_element_parsed_guard_(b, "expr", c)) break;
-    }
-    exit_section_(b, l, m, true, false, null);
-    return true;
-  }
-
-  // ALPHA | '.'
-  private static boolean expr_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "expr_0")) return false;
+  // EXPR
+  public static boolean aop_expr(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "aop_expr")) return false;
+    if (!nextTokenIs(b, EXPR)) return false;
     boolean r;
-    r = consumeToken(b, ALPHA);
-    if (!r) r = consumeToken(b, ".");
+    Marker m = enter_section_(b);
+    r = consumeToken(b, EXPR);
+    exit_section_(b, m, AOP_EXPR, r);
     return r;
   }
 
   /* ********************************************************** */
-  // kind LP expr RP
-  static boolean item_(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "item_")) return false;
-    if (!nextTokenIs(b, "", ANNOTATION, TARGET)) return false;
-    boolean r, p;
-    Marker m = enter_section_(b, l, _NONE_);
-    r = kind(b, l + 1);
-    p = r; // pin = 1
-    r = r && report_error_(b, consumeToken(b, LP));
-    r = p && report_error_(b, expr(b, l + 1)) && r;
-    r = p && consumeToken(b, RP) && r;
-    exit_section_(b, l, m, r, p, null);
-    return r || p;
-  }
-
-  /* ********************************************************** */
-  // ANNOTATION | TARGET
-  public static boolean kind(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "kind")) return false;
-    if (!nextTokenIs(b, "<kind>", ANNOTATION, TARGET)) return false;
+  // ANNOTATION | ANNO_TARGET | EXECUTION
+  public static boolean aop_kind(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "aop_kind")) return false;
     boolean r;
-    Marker m = enter_section_(b, l, _NONE_, KIND, "<kind>");
+    Marker m = enter_section_(b, l, _NONE_, AOP_KIND, "<aop kind>");
     r = consumeToken(b, ANNOTATION);
-    if (!r) r = consumeToken(b, TARGET);
+    if (!r) r = consumeToken(b, ANNO_TARGET);
+    if (!r) r = consumeToken(b, EXECUTION);
     exit_section_(b, l, m, r, false, null);
     return r;
+  }
+
+  /* ********************************************************** */
+  // aop_kind aop_expr
+  static boolean item_(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "item_")) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_);
+    r = aop_kind(b, l + 1);
+    p = r; // pin = 1
+    r = r && aop_expr(b, l + 1);
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   /* ********************************************************** */

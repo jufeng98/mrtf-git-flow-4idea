@@ -1,3 +1,6 @@
+// 第七步:定义bnf语法
+// 第八步:右键生成parse code
+// 第九步:右键生成flex文件
 {
   parserClass="com.github.xiaolyuh.pcel.parser.PointcutExpressionParser"
   parserUtilClass="com.github.xiaolyuh.pcel.parser.PointcutExpressionParserUtil"
@@ -15,19 +18,17 @@
   psiImplUtilClass="com.github.xiaolyuh.pcel.psi.impl.PointcutExpressionPsiImplUtil"
 
   tokens=[
-    LP='('
-    RP=')'
     ANNOTATION='@annotation'
-    TARGET='@target'
-    ALPHA='regexp:\p{Alpha}\w*'
+    ANNO_TARGET='@target'
+    EXECUTION='execution'
+    EXPR="regexp:\([\w*!/&+.\s()]+\)"
   ]
 }
 
 pointcutExpressionFile ::= item_*
-
-private item_ ::= (kind LP expr RP) {  pin=1   }
-
-kind ::= ANNOTATION | TARGET
-
-expr ::= (ALPHA | '.')*
+private item_ ::= aop_kind aop_expr {
+    pin = 1
+}
+aop_kind ::= ANNOTATION | ANNO_TARGET | EXECUTION
+aop_expr ::= EXPR
 
