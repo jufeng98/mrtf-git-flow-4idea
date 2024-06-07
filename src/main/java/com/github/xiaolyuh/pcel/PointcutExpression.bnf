@@ -31,9 +31,10 @@
 
 pointcutExpressionFile ::= item_*
 private item_ ::= aop_pointcut
-aop_pointcut ::= (aop_kind aop_expr | aop_method_reference) aop_parallel_pointcut? {
+aop_pointcut ::= aop_content aop_parallel_pointcut? {
     pin = 1
 }
+aop_content ::= aop_kind aop_expr | aop_method_reference
 aop_kind ::= ANNOTATION | ANNO_TARGET | EXECUTION | BEAN
 aop_expr ::= EXPR
 aop_method_reference ::= METHOD_REFERENCE

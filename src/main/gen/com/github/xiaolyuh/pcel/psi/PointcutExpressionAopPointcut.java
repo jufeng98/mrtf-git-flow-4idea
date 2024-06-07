@@ -7,14 +7,8 @@ import com.intellij.psi.PsiElement;
 
 public interface PointcutExpressionAopPointcut extends PsiElement {
 
-  @Nullable
-  PointcutExpressionAopExpr getAopExpr();
-
-  @Nullable
-  PointcutExpressionAopKind getAopKind();
-
-  @Nullable
-  PointcutExpressionAopMethodReference getAopMethodReference();
+  @NotNull
+  PointcutExpressionAopContent getAopContent();
 
   @Nullable
   PointcutExpressionAopParallelPointcut getAopParallelPointcut();

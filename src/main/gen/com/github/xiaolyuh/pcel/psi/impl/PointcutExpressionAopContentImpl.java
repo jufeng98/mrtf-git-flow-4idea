@@ -11,14 +11,14 @@ import static com.github.xiaolyuh.pcel.psi.PointcutExpressionTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.github.xiaolyuh.pcel.psi.*;
 
-public class PointcutExpressionAopPointcutImpl extends ASTWrapperPsiElement implements PointcutExpressionAopPointcut {
+public class PointcutExpressionAopContentImpl extends ASTWrapperPsiElement implements PointcutExpressionAopContent {
 
-  public PointcutExpressionAopPointcutImpl(@NotNull ASTNode node) {
+  public PointcutExpressionAopContentImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull PointcutExpressionVisitor visitor) {
-    visitor.visitAopPointcut(this);
+    visitor.visitAopContent(this);
   }
 
   @Override
@@ -28,15 +28,21 @@ public class PointcutExpressionAopPointcutImpl extends ASTWrapperPsiElement impl
   }
 
   @Override
-  @NotNull
-  public PointcutExpressionAopContent getAopContent() {
-    return findNotNullChildByClass(PointcutExpressionAopContent.class);
+  @Nullable
+  public PointcutExpressionAopExpr getAopExpr() {
+    return findChildByClass(PointcutExpressionAopExpr.class);
   }
 
   @Override
   @Nullable
-  public PointcutExpressionAopParallelPointcut getAopParallelPointcut() {
-    return findChildByClass(PointcutExpressionAopParallelPointcut.class);
+  public PointcutExpressionAopKind getAopKind() {
+    return findChildByClass(PointcutExpressionAopKind.class);
+  }
+
+  @Override
+  @Nullable
+  public PointcutExpressionAopMethodReference getAopMethodReference() {
+    return findChildByClass(PointcutExpressionAopMethodReference.class);
   }
 
 }

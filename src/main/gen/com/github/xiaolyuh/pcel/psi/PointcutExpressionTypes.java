@@ -8,6 +8,7 @@ import com.github.xiaolyuh.pcel.psi.impl.*;
 
 public interface PointcutExpressionTypes {
 
+  IElementType AOP_CONTENT = new PointcutExpressionElementType("AOP_CONTENT");
   IElementType AOP_EXPR = new PointcutExpressionElementType("AOP_EXPR");
   IElementType AOP_KIND = new PointcutExpressionElementType("AOP_KIND");
   IElementType AOP_METHOD_REFERENCE = new PointcutExpressionElementType("AOP_METHOD_REFERENCE");
@@ -26,7 +27,10 @@ public interface PointcutExpressionTypes {
   class Factory {
     public static PsiElement createElement(ASTNode node) {
       IElementType type = node.getElementType();
-      if (type == AOP_EXPR) {
+      if (type == AOP_CONTENT) {
+        return new PointcutExpressionAopContentImpl(node);
+      }
+      else if (type == AOP_EXPR) {
         return new PointcutExpressionAopExprImpl(node);
       }
       else if (type == AOP_KIND) {
