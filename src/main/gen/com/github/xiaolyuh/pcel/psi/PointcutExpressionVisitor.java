@@ -19,6 +19,10 @@ public class PointcutExpressionVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitAopParallelPointcut(@NotNull PointcutExpressionAopParallelPointcut o) {
+    visitPsiElement(o);
+  }
+
   public void visitAopPointcut(@NotNull PointcutExpressionAopPointcut o) {
     visitPsiElement(o);
   }

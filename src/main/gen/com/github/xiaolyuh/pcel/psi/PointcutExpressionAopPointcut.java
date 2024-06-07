@@ -16,4 +16,7 @@ public interface PointcutExpressionAopPointcut extends PsiElement {
   @Nullable
   PointcutExpressionAopMethodReference getAopMethodReference();
 
+  @Nullable
+  PointcutExpressionAopParallelPointcut getAopParallelPointcut();
+
 }
