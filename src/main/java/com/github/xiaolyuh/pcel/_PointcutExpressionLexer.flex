@@ -26,16 +26,19 @@ EOL=\R
 WHITE_SPACE=\s+
 
 EXPR=\([\w*!/&+.\s()]+\)
+METHOD_REFERENCE=[:letter:][a-zA-Z_0-9]*\(\)
 
 %%
 <YYINITIAL> {
-  {WHITE_SPACE}       { return WHITE_SPACE; }
+  {WHITE_SPACE}            { return WHITE_SPACE; }
 
-  "@annotation"       { return ANNOTATION; }
-  "@target"           { return ANNO_TARGET; }
-  "execution"         { return EXECUTION; }
+  "@annotation"            { return ANNOTATION; }
+  "@target"                { return ANNO_TARGET; }
+  "execution"              { return EXECUTION; }
+  "bean"                   { return BEAN; }
 
-  {EXPR}              { return EXPR; }
+  {EXPR}                   { return EXPR; }
+  {METHOD_REFERENCE}       { return METHOD_REFERENCE; }
 
 }
 

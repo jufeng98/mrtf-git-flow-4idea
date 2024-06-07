@@ -196,6 +196,9 @@
                 implementationClass="com.github.xiaolyuh.pcel.highlight.PointcutExpressionSyntaxHighlighterFactory"/>
         <colorSettingsPage
                 implementation="com.github.xiaolyuh.pcel.highlight.PointcutExpressionColorSettingsPage"/>
+        <languageInjectionContributor
+                implementationClass="com.github.xiaolyuh.pcel.inject.PointcutExpressionInjectionContributor"
+                language="JAVA"/>
     </extensions>
 
     <projectListeners>

@@ -48,7 +48,7 @@ public class PointcutExpressionParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // ANNOTATION | ANNO_TARGET | EXECUTION
+  // ANNOTATION | ANNO_TARGET | EXECUTION | BEAN
   public static boolean aop_kind(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "aop_kind")) return false;
     boolean r;
@@ -56,21 +56,32 @@ public class PointcutExpressionParser implements PsiParser, LightPsiParser {
     r = consumeToken(b, ANNOTATION);
     if (!r) r = consumeToken(b, ANNO_TARGET);
     if (!r) r = consumeToken(b, EXECUTION);
+    if (!r) r = consumeToken(b, BEAN);
     exit_section_(b, l, m, r, false, null);
     return r;
   }
 
   /* ********************************************************** */
-  // aop_kind aop_expr
+  // aop_kind aop_expr | reference
   static boolean item_(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "item_")) return false;
-    boolean r, p;
-    Marker m = enter_section_(b, l, _NONE_);
+    boolean r;
+    Marker m = enter_section_(b);
+    r = item__0(b, l + 1);
+    if (!r) r = reference(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // aop_kind aop_expr
+  private static boolean item__0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "item__0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
     r = aop_kind(b, l + 1);
-    p = r; // pin = 1
     r = r && aop_expr(b, l + 1);
-    exit_section_(b, l, m, r, p, null);
-    return r || p;
+    exit_section_(b, m, null, r);
+    return r;
   }
 
   /* ********************************************************** */
@@ -83,6 +94,18 @@ public class PointcutExpressionParser implements PsiParser, LightPsiParser {
       if (!empty_element_parsed_guard_(b, "pointcutExpressionFile", c)) break;
     }
     return true;
+  }
+
+  /* ********************************************************** */
+  // METHOD_REFERENCE
+  public static boolean reference(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "reference")) return false;
+    if (!nextTokenIs(b, METHOD_REFERENCE)) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, METHOD_REFERENCE);
+    exit_section_(b, m, REFERENCE, r);
+    return r;
   }
 
 }
