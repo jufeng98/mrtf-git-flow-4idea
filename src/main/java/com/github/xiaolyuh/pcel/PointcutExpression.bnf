@@ -37,7 +37,11 @@ aop_pointcut ::= aop_content aop_parallel_pointcut? {
 aop_content ::= aop_real | aop_method_reference
 aop_real ::= aop_kind aop_expr
 aop_kind ::= ANNOTATION | ANNO_TARGET | EXECUTION | BEAN
-aop_expr ::= EXPR
+aop_expr ::= EXPR {
+    methods=[
+        getReferences
+    ]
+}
 aop_method_reference ::= METHOD_REFERENCE
 aop_parallel_pointcut ::= (OR_OPERATOR | AND_OPERATOR) aop_pointcut
 
