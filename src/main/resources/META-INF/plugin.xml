@@ -204,6 +204,14 @@
         <codeInsight.lineMarkerProvider
                 language="UAST"
                 implementationClass="com.github.xiaolyuh.spring.AopLineMarkerProvider"/>
+
+
+        <fileType
+                name="SpEL"
+                implementationClass="com.github.xiaolyuh.spel.SpelFileType"
+                fieldName="INSTANCE"
+                language="SpEL"
+                extensions="spel"/>
     </extensions>
 
     <projectListeners>

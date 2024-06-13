@@ -1,0 +1,30 @@
+// 第七步:定义bnf语法
+// 第八步:右键生成parse code
+// 第九步:右键生成flex文件
+{
+  parserClass="com.github.xiaolyuh.spel.parser.PointcutExpressionParser"
+  parserUtilClass="com.github.xiaolyuh.spel.parser.PointcutExpressionParserUtil"
+
+  extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+
+  psiClassPrefix="Spel"
+  psiImplClassSuffix="Impl"
+  psiPackage="com.github.xiaolyuh.spel.psi"
+  psiImplPackage="com.github.xiaolyuh.spel.psi.impl"
+
+  elementTypeHolderClass="com.github.xiaolyuh.spel.psi.SpelTypes"
+  elementTypeClass="com.github.xiaolyuh.spel.psi.SpelElementType"
+  tokenTypeClass="com.github.xiaolyuh.spel.psi.SpelTokenType"
+  psiImplUtilClass="com.github.xiaolyuh.spel.psi.impl.SpelPsiImplUtil"
+
+  tokens=[
+    SINGLE_QUOTED_STRING="regexp:'([^\\\'\r\n]|\\[^\r\n])*'"
+  ]
+}
+
+spelFile ::= item_*
+private item_ ::= spel
+
+string_literal ::= SINGLE_QUOTED_STRING
+
+spel ::= string_literal
