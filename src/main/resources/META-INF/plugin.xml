@@ -201,6 +201,9 @@
                 language="JAVA"/>
         <psi.referenceContributor language="PointcutExpression"
                                   implementation="com.github.xiaolyuh.spring.AopReferenceContributor"/>
+        <codeInsight.lineMarkerProvider
+                language="UAST"
+                implementationClass="com.github.xiaolyuh.spring.AopLineMarkerProvider"/>
     </extensions>
 
     <projectListeners>

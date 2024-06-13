@@ -45,6 +45,10 @@ tasks {
         kotlinOptions.jvmTarget = "11"
     }
 
+    runIde {
+        jvmArgs("-Xmx1024m", "-XX:ReservedCodeCacheSize=512m", "-Xms1024m")
+    }
+
     patchPluginXml {
         changeNotes.set(
             """
