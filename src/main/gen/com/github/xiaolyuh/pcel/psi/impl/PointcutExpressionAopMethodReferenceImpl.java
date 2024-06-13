@@ -10,6 +10,7 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static com.github.xiaolyuh.pcel.psi.PointcutExpressionTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.github.xiaolyuh.pcel.psi.*;
+import com.intellij.psi.PsiReference;
 
 public class PointcutExpressionAopMethodReferenceImpl extends ASTWrapperPsiElement implements PointcutExpressionAopMethodReference {
 
@@ -31,6 +32,11 @@ public class PointcutExpressionAopMethodReferenceImpl extends ASTWrapperPsiEleme
   @NotNull
   public PsiElement getMethodReference() {
     return findNotNullChildByType(METHOD_REFERENCE);
+  }
+
+  @Override
+  public PsiReference @NotNull [] getReferences() {
+    return PointcutExpressionPsiImplUtil.getReferences(this);
   }
 
 }

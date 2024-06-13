@@ -10,4 +10,7 @@ public class PointcutExpressionPsiImplUtil {
         return ReferenceProvidersRegistry.getReferencesFromProviders(aopExpr);
     }
 
+    public static PsiReference @NotNull [] getReferences(PointcutExpressionAopMethodReferenceImpl aopExpr) {
+        return ReferenceProvidersRegistry.getReferencesFromProviders(aopExpr);
+    }
 }

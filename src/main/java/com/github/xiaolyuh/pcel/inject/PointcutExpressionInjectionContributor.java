@@ -9,11 +9,13 @@ import com.intellij.lang.injection.general.LanguageInjectionContributor;
 import com.intellij.lang.injection.general.SimpleInjection;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiAnnotation;
+import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiLanguageInjectionHost;
 import com.intellij.psi.PsiLiteralExpression;
 import com.intellij.psi.PsiNameValuePair;
 import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.psi.util.PsiUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,6 +28,8 @@ public class PointcutExpressionInjectionContributor implements LanguageInjection
             "org.aspectj.lang.annotation.Pointcut",
             "org.aspectj.lang.annotation.AfterThrowing"
     );
+    public static final String ASPECT_CLASS_NAME = "org.aspectj.lang.annotation.Aspect";
+
 
     @Override
     public @Nullable Injection getInjection(@NotNull PsiElement context) {
@@ -40,7 +44,7 @@ public class PointcutExpressionInjectionContributor implements LanguageInjection
     public void getLanguagesToInject(@NotNull MultiHostRegistrar registrar,
                                      @NotNull PsiElement context) {
         if (shouldNotInject(context)) {
-            return ;
+            return;
         }
 
         PsiLiteralExpression psiLiteralExpression = (PsiLiteralExpression) context;
@@ -76,7 +80,17 @@ public class PointcutExpressionInjectionContributor implements LanguageInjection
         }
 
         PsiNameValuePair psiNameValuePair = (PsiNameValuePair) psiLiteralExpression.getParent();
-        return !"value".equals(psiNameValuePair.getAttributeName()) && !"pointcut".equals(psiNameValuePair.getAttributeName());
+        if (!"value".equals(psiNameValuePair.getAttributeName()) && !"pointcut".equals(psiNameValuePair.getAttributeName())) {
+            return true;
+        }
+
+        PsiClass psiClass = PsiUtil.getTopLevelClass(psiAnnotation);
+        if (psiClass == null) {
+            return true;
+        }
+
+        PsiAnnotation aspectAnnotation = psiClass.getAnnotation(ASPECT_CLASS_NAME);
+        return aspectAnnotation == null;
     }
 
     @Override
