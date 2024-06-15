@@ -212,6 +212,19 @@
                 fieldName="INSTANCE"
                 language="SpEL"
                 extensions="spel"/>
+        <lang.parserDefinition
+                language="SpEL"
+                implementationClass="com.github.xiaolyuh.spel.parser.SpelParserDefinition"/>
+        <lang.syntaxHighlighterFactory
+                language="SpEL"
+                implementationClass="com.github.xiaolyuh.spel.highlight.SpelSyntaxHighlighterFactory"/>
+        <colorSettingsPage
+                implementation="com.github.xiaolyuh.spel.highlight.SpelColorSettingsPage"/>
+        <languageInjectionContributor
+                implementationClass="com.github.xiaolyuh.spel.inject.SpelInjectionContributor"
+                language="JAVA"/>
+        <psi.referenceContributor language="SpEL"
+                                  implementation="com.github.xiaolyuh.spring.SpelReferenceContributor"/>
     </extensions>
 
     <projectListeners>

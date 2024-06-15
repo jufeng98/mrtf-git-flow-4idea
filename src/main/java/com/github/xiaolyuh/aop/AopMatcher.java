@@ -4,6 +4,7 @@ import com.github.xiaolyuh.pcel.psi.PointcutExpressionAopContent;
 import com.github.xiaolyuh.pcel.psi.PointcutExpressionAopKind;
 import com.github.xiaolyuh.pcel.psi.PointcutExpressionAopPointcut;
 import com.github.xiaolyuh.pcel.psi.PointcutExpressionAopReal;
+import com.github.xiaolyuh.pcel.psi.PointcutExpressionTypes;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
 import org.jetbrains.annotations.Nullable;
@@ -18,7 +19,7 @@ public interface AopMatcher {
         }
 
         PointcutExpressionAopKind aopKind = aopReal.getAopKind();
-        if (aopKind.getText().equals("@annotation")) {
+        if (aopKind.getFirstChild().getNode().getElementType() == PointcutExpressionTypes.ANNOTATION) {
             return new AnnotationAopMatcher(aopReal);
         }
 

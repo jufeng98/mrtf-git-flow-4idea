@@ -4,6 +4,7 @@ import com.github.xiaolyuh.pcel.psi.PointcutExpressionAopExpr;
 import com.github.xiaolyuh.pcel.psi.PointcutExpressionAopKind;
 import com.github.xiaolyuh.pcel.psi.PointcutExpressionAopMethodReference;
 import com.github.xiaolyuh.pcel.psi.PointcutExpressionAopReal;
+import com.github.xiaolyuh.pcel.psi.PointcutExpressionTypes;
 import com.google.common.collect.Lists;
 import com.intellij.lang.injection.InjectedLanguageManager;
 import com.intellij.openapi.util.TextRange;
@@ -55,7 +56,7 @@ public class AopReferenceContributor extends PsiReferenceContributor {
             PointcutExpressionAopReal aopReal = (PointcutExpressionAopReal) aopExpr.getParent();
 
             PointcutExpressionAopKind aopKind = aopReal.getAopKind();
-            if (aopKind.getText().equals("@annotation")) {
+            if (aopKind.getFirstChild().getNode().getElementType() == PointcutExpressionTypes.ANNOTATION) {
                 return handleAnnoReference(aopExpr);
             }
 
