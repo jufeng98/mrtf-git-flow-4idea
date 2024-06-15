@@ -2,19 +2,30 @@
 // 第八步:右键生成parse code
 // 第九步:右键生成flex文件
 {
+  // 语言解析器,由Grammar-Kit插件根据bnf语法文件自动生成
   parserClass="com.github.xiaolyuh.pcel.parser.PointcutExpressionParser"
+  // 定义辅助类,供 PointcutExpressionParser 类使用
   parserUtilClass="com.github.xiaolyuh.pcel.parser.PointcutExpressionParserUtil"
 
+  // 指定生成的PsiElement子类需要继承的父类
   extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
 
+  // 指定所有生成的PsiElement类的类名前缀
   psiClassPrefix="PointcutExpression"
+  // 指定所有生成的PsiElement实现类的类名后缀
   psiImplClassSuffix="Impl"
+  // 指定所有生成的PsiElement类的包位置
   psiPackage="com.github.xiaolyuh.pcel.psi"
+  // 指定所有生成的PsiElement实现类的包位置
   psiImplPackage="com.github.xiaolyuh.pcel.psi.impl"
 
+  // 指定ElementType所在的类,由Grammar-Kit自动生成
   elementTypeHolderClass="com.github.xiaolyuh.pcel.psi.PointcutExpressionTypes"
+  // 定义elementType类型,供 PointcutExpressionTypes 类使用
   elementTypeClass="com.github.xiaolyuh.pcel.psi.PointcutExpressionElementType"
+  // 定义tokenType类型,供 PointcutExpressionTypes 类使用
   tokenTypeClass="com.github.xiaolyuh.pcel.psi.PointcutExpressionTokenType"
+  // 定义工具类,供所有PsiElement实现类使用
   psiImplUtilClass="com.github.xiaolyuh.pcel.psi.impl.PointcutExpressionPsiImplUtil"
 
   tokens=[
