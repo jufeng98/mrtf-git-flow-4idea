@@ -19,19 +19,52 @@
 
   tokens=[
     SINGLE_QUOTED_STRING="regexp:'([^\\\'\r\n]|\\[^\r\n])*'"
-    VARIBLE_NAME="regexp:#[a-zA-Z][\w_\\$]*"
-    FIELD_OR_METHOD_NAME_STR="regexp:[a-zA-Z][\w_\\$]*"
+    IDENTIFIER="regexp:[a-zA-Z][\w_\\$]*"
+    PLUS="regexp:\s*\+\s*"
+    NUMBER='regexp:-?(0|[1-9]\d*)(\.\d+)?([eE][+-]?\d*)?'
+    COMMA="regexp:\s*,\s*"
+    EXPR="regexp:[\w=']+"
+    SHARP="#"
+    DOT="."
+    PROJECTION=".!["
+    SELECTION=".?["
+    L_BRACKET="["
+    R_BRACKET="]"
   ]
 }
 
 spelFile ::= item_*
-private item_ ::= spel
+private item_ ::= spel (PLUS spel)*
 
 string_literal ::= SINGLE_QUOTED_STRING
-variable ::= VARIBLE_NAME
-field_or_method_name ::= FIELD_OR_METHOD_NAME_STR
-method_param ::= spel
-method_params ::= method_param (',' method_param)*
-method_call ::= '(' method_params? ')'
-field_or_method ::= field_or_method_name method_call?
-spel ::= (string_literal | variable) ('.' field_or_method)*
+number_literal ::= NUMBER
+field_name ::= IDENTIFIER {
+    methods=[
+        getReferences
+    ]
+}
+field_or_method_name ::= IDENTIFIER {
+   methods=[
+       getReferences
+   ]
+}
+method_param ::= spel {
+     methods=[
+         getReferences
+     ]
+}
+method_params ::= method_param (COMMA method_param)*
+method_call ::= '(' method_params? ')' {
+    pin=1
+}
+selection_expression ::= EXPR
+field_or_method ::= DOT field_or_method_name method_call?
+field_recursive_call ::= SHARP? field_name field_or_method*
+collection_projection ::= PROJECTION field_recursive_call R_BRACKET
+collection_selection ::= SELECTION selection_expression R_BRACKET
+map_selection ::= L_BRACKET field_name R_BRACKET
+spel ::= (string_literal | number_literal | SHARP field_or_method_name) (field_or_method | method_call | map_selection | collection_projection | collection_selection)* {
+    methods=[
+        getReferences
+    ]
+}

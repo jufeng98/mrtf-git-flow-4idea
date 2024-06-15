@@ -9,6 +9,6 @@ import javax.swing.*;
  */
 public class SpelIcons {
 
-    public static final Icon FILE = IconLoader.getIcon("/icons/exception.svg", SpelIcons.class);
+    public static final Icon FILE = IconLoader.getIcon("/icons/outgoing.svg", SpelIcons.class);
 
 }

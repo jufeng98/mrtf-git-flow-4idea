@@ -1,4 +1,6 @@
 package com.github.xiaolyuh.spel.parser;
 
-public class SpelParserUtil {
+import com.intellij.lang.parser.GeneratedParserUtilBase;
+
+public class SpelParserUtil extends GeneratedParserUtilBase {
 }
