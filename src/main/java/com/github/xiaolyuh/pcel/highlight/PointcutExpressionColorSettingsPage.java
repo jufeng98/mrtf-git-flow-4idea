@@ -19,9 +19,9 @@ import java.util.Map;
 public class PointcutExpressionColorSettingsPage implements ColorSettingsPage {
 
     private static final AttributesDescriptor[] DESCRIPTORS = new AttributesDescriptor[]{
-            new AttributesDescriptor("Aop类型", PointcutExpressionSyntaxHighlighter.AOP_KIND),
+            new AttributesDescriptor("Aop类型", PointcutExpressionSyntaxHighlighter.AOP_KEYWORD),
             new AttributesDescriptor("Aop表达式", PointcutExpressionSyntaxHighlighter.AOP_EXPR),
-            new AttributesDescriptor("Aop方法引用", PointcutExpressionSyntaxHighlighter.AOP_KIND),
+            new AttributesDescriptor("Aop方法引用", PointcutExpressionSyntaxHighlighter.AOP_KEYWORD),
             new AttributesDescriptor("Bad value", SimpleSyntaxHighlighter.BAD_CHARACTER)
     };
 

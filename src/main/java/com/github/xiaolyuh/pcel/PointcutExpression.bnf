@@ -33,13 +33,18 @@
     ANNO_TARGET='@target'
     EXECUTION='execution'
     BEAN='bean'
+    // 匹配切面表达式的 (...) 部分,例如 @annotation(org.javamaster.annos.AopLock)里的 (org.javamaster.annos.AopLock) 这部分
     EXPR="regexp:\([\w*!+.\s()]+\)"
+    // 匹配方法引用
     METHOD_REFERENCE="regexp:\p{Alpha}\w*\(\)"
+    // 匹配 ||
     OR_OPERATOR="regexp:\s*\|\|\s*"
+    // 匹配 &&
     AND_OPERATOR="regexp:\s*&&\s*"
   ]
 }
-
+// 下面的 ::= 符号可以理解为Java的 = ,即赋值的意思. 左边是变量,右边是变量的定义. * 号代表定义可以出现任意次, ? 号代表定义可以
+// 出现0次或1次. | 符号表示或
 pointcutExpressionFile ::= item_*
 private item_ ::= aop_pointcut
 aop_pointcut ::= aop_content aop_parallel_pointcut? {
