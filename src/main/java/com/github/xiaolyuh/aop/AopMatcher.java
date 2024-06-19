@@ -19,7 +19,7 @@ public interface AopMatcher {
         }
 
         PointcutExpressionAopKind aopKind = aopReal.getAopKind();
-        if (aopKind.getFirstChild().getNode().getElementType() == PointcutExpressionTypes.ANNOTATION) {
+        if (aopKind.getFirstChild().getNode().getElementType() == PointcutExpressionTypes.AT_ANNOTATION) {
             return new AnnotationAopMatcher(aopReal);
         }
 

@@ -60,13 +60,13 @@ public class PointcutExpressionParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // ANNOTATION | ANNO_TARGET | EXECUTION | BEAN
+  // AT_ANNOTATION | AT_TARGET | EXECUTION | BEAN
   public static boolean aop_kind(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "aop_kind")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, AOP_KIND, "<aop kind>");
-    r = consumeToken(b, ANNOTATION);
-    if (!r) r = consumeToken(b, ANNO_TARGET);
+    r = consumeToken(b, AT_ANNOTATION);
+    if (!r) r = consumeToken(b, AT_TARGET);
     if (!r) r = consumeToken(b, EXECUTION);
     if (!r) r = consumeToken(b, BEAN);
     exit_section_(b, l, m, r, false, null);

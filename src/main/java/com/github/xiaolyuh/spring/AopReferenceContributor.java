@@ -59,7 +59,7 @@ public class AopReferenceContributor extends PsiReferenceContributor {
             PointcutExpressionAopReal aopReal = (PointcutExpressionAopReal) aopExpr.getParent();
 
             PointcutExpressionAopKind aopKind = aopReal.getAopKind();
-            if (aopKind.getFirstChild().getNode().getElementType() == PointcutExpressionTypes.ANNOTATION) {
+            if (aopKind.getFirstChild().getNode().getElementType() == PointcutExpressionTypes.AT_ANNOTATION) {
                 return handleAnnoReference(aopExpr);
             }
 

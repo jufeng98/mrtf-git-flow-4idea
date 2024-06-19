@@ -17,8 +17,8 @@ public interface PointcutExpressionTypes {
   IElementType AOP_REAL = new PointcutExpressionElementType("AOP_REAL");
 
   IElementType AND_OPERATOR = new PointcutExpressionTokenType("AND_OPERATOR");
-  IElementType ANNOTATION = new PointcutExpressionTokenType("@annotation");
-  IElementType ANNO_TARGET = new PointcutExpressionTokenType("@target");
+  IElementType AT_ANNOTATION = new PointcutExpressionTokenType("@annotation");
+  IElementType AT_TARGET = new PointcutExpressionTokenType("@target");
   IElementType BEAN = new PointcutExpressionTokenType("bean");
   IElementType EXECUTION = new PointcutExpressionTokenType("execution");
   IElementType EXPR = new PointcutExpressionTokenType("EXPR");

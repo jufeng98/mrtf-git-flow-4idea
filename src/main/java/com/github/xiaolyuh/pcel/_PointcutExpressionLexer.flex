@@ -34,8 +34,8 @@ AND_OPERATOR=[ \t\n\x0B\f\r]*&&[ \t\n\x0B\f\r]*
 <YYINITIAL> {
   {WHITE_SPACE}            { return WHITE_SPACE; }
 
-  "@annotation"            { return ANNOTATION; }
-  "@target"                { return ANNO_TARGET; }
+  "@annotation"            { return AT_ANNOTATION; }
+  "@target"                { return AT_TARGET; }
   "execution"              { return EXECUTION; }
   "bean"                   { return BEAN; }
 

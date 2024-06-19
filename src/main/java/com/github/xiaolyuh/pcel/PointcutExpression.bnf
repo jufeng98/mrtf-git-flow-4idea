@@ -29,8 +29,8 @@
   psiImplUtilClass="com.github.xiaolyuh.pcel.psi.impl.PointcutExpressionPsiImplUtil"
 
   tokens=[
-    ANNOTATION='@annotation'
-    ANNO_TARGET='@target'
+    AT_ANNOTATION='@annotation'
+    AT_TARGET='@target'
     EXECUTION='execution'
     BEAN='bean'
     // 匹配切面表达式的 (...) 部分,例如 @annotation(org.javamaster.annos.AopLock)里的 (org.javamaster.annos.AopLock) 这部分
@@ -52,7 +52,7 @@ aop_pointcut ::= aop_content aop_parallel_pointcut? {
 }
 aop_content ::= aop_real | aop_method_reference
 aop_real ::= aop_kind aop_expr
-aop_kind ::= ANNOTATION | ANNO_TARGET | EXECUTION | BEAN
+aop_kind ::= AT_ANNOTATION | AT_TARGET | EXECUTION | BEAN
 aop_expr ::= EXPR {
     methods = [
         getReferences

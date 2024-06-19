@@ -36,7 +36,7 @@ public class AopAnnotator implements Annotator {
         PointcutExpressionAopReal aopReal = (PointcutExpressionAopReal) aopExpr.getParent();
 
         PointcutExpressionAopKind aopKind = aopReal.getAopKind();
-        if (aopKind.getFirstChild().getNode().getElementType() == PointcutExpressionTypes.ANNOTATION) {
+        if (aopKind.getFirstChild().getNode().getElementType() == PointcutExpressionTypes.AT_ANNOTATION) {
             handleAnnoAnnotator(aopExpr, holder);
         }
     }

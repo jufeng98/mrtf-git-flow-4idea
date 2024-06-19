@@ -39,9 +39,9 @@ public class PointcutExpressionSyntaxHighlighter extends SyntaxHighlighterBase {
 
     @Override
     public TextAttributesKey @NotNull [] getTokenHighlights(IElementType tokenType) {
-        if (tokenType.equals(PointcutExpressionTypes.ANNOTATION)
+        if (tokenType.equals(PointcutExpressionTypes.AT_ANNOTATION)
                 || tokenType.equals(PointcutExpressionTypes.BEAN)
-                || tokenType.equals(PointcutExpressionTypes.ANNO_TARGET)
+                || tokenType.equals(PointcutExpressionTypes.AT_TARGET)
                 || tokenType.equals(PointcutExpressionTypes.METHOD_REFERENCE)
                 || tokenType.equals(PointcutExpressionTypes.EXECUTION)) {
             return AOP_KEYWORD_KEYS;
