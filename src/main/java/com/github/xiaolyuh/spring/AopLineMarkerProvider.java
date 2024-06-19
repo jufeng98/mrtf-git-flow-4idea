@@ -81,8 +81,6 @@ public final class AopLineMarkerProvider extends LineMarkerProviderDescriptor {
                 annotateMethod(element, result, aspectPsiClasses);
             }
         }
-
-
     }
 
     private Set<PsiClass> collectAdvisedClassesAndCache(Module module) {
@@ -112,6 +110,9 @@ public final class AopLineMarkerProvider extends LineMarkerProviderDescriptor {
         return psiClasses;
     }
 
+    /**
+     * 为切面类方法添加行标记,点击后能显示所有匹配的方法并跳转
+     */
     private void handleAdvisedClasses(PsiClass aspectPsiClass, Collection<? super LineMarkerInfo<?>> result, Module module) {
         Set<Pair<PsiMethod, PointcutExpressionAopPointcut>> pairSet = AopUtils.collectAspectMethods(aspectPsiClass);
         if (pairSet.isEmpty()) {
@@ -153,6 +154,9 @@ public final class AopLineMarkerProvider extends LineMarkerProviderDescriptor {
         return psiMethods;
     }
 
+    /**
+     * 为匹配类方法添加行标记,点击后能跳转到对应的切面
+     */
     private void annotateMethod(PsiElement psiElement, Collection<? super LineMarkerInfo<?>> result, Set<PsiClass> aspectPsiClasses) {
         UElement uParent = UastUtils.getUParentForIdentifier(psiElement);
         if (uParent == null) {
