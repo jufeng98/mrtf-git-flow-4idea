@@ -199,11 +199,17 @@
         <languageInjectionContributor
                 implementationClass="com.github.xiaolyuh.pcel.inject.PointcutExpressionInjectionContributor"
                 language="JAVA"/>
-        <psi.referenceContributor language="PointcutExpression"
-                                  implementation="com.github.xiaolyuh.spring.AopReferenceContributor"/>
         <codeInsight.lineMarkerProvider
                 language="UAST"
                 implementationClass="com.github.xiaolyuh.spring.AopLineMarkerProvider"/>
+        <annotator
+                language="PointcutExpression"
+                implementationClass="com.github.xiaolyuh.spring.AopAnnotator"/>
+        <completion.contributor
+                language="PointcutExpression"
+                implementationClass="com.github.xiaolyuh.spring.AopCompletionContributor"/>
+        <psi.referenceContributor language="PointcutExpression"
+                                  implementation="com.github.xiaolyuh.spring.AopReferenceContributor"/>
 
 
         <fileType
