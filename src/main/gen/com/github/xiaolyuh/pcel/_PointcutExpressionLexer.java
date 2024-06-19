@@ -792,7 +792,7 @@ public class _PointcutExpressionLexer implements FlexLexer {
           // fall through
           case 14: break;
           case 5:
-            { return EXPR;
+            { return EXPR_PATTERN;
             }
           // fall through
           case 15: break;

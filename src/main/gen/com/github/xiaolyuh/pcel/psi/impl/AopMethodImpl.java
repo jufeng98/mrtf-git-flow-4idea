@@ -12,26 +12,26 @@ import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.github.xiaolyuh.pcel.psi.*;
 import com.intellij.psi.PsiReference;
 
-public class PointcutExpressionAopExprImpl extends ASTWrapperPsiElement implements PointcutExpressionAopExpr {
+public class AopMethodImpl extends ASTWrapperPsiElement implements AopMethod {
 
-  public PointcutExpressionAopExprImpl(@NotNull ASTNode node) {
+  public AopMethodImpl(@NotNull ASTNode node) {
     super(node);
   }
 
-  public void accept(@NotNull PointcutExpressionVisitor visitor) {
-    visitor.visitAopExpr(this);
+  public void accept(@NotNull AopVisitor visitor) {
+    visitor.visitMethod(this);
   }
 
   @Override
   public void accept(@NotNull PsiElementVisitor visitor) {
-    if (visitor instanceof PointcutExpressionVisitor) accept((PointcutExpressionVisitor)visitor);
+    if (visitor instanceof AopVisitor) accept((AopVisitor)visitor);
     else super.accept(visitor);
   }
 
   @Override
   @NotNull
-  public PsiElement getExpr() {
-    return findNotNullChildByType(EXPR);
+  public PsiElement getMethodReference() {
+    return findNotNullChildByType(METHOD_REFERENCE);
   }
 
   @Override

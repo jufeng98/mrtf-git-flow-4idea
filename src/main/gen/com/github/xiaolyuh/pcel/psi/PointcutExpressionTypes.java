@@ -8,46 +8,46 @@ import com.github.xiaolyuh.pcel.psi.impl.*;
 
 public interface PointcutExpressionTypes {
 
-  IElementType AOP_CONTENT = new PointcutExpressionElementType("AOP_CONTENT");
-  IElementType AOP_EXPR = new PointcutExpressionElementType("AOP_EXPR");
-  IElementType AOP_KIND = new PointcutExpressionElementType("AOP_KIND");
-  IElementType AOP_METHOD_REFERENCE = new PointcutExpressionElementType("AOP_METHOD_REFERENCE");
-  IElementType AOP_PARALLEL_POINTCUT = new PointcutExpressionElementType("AOP_PARALLEL_POINTCUT");
-  IElementType AOP_POINTCUT = new PointcutExpressionElementType("AOP_POINTCUT");
-  IElementType AOP_REAL = new PointcutExpressionElementType("AOP_REAL");
+  IElementType CONTENT = new PointcutExpressionElementType("CONTENT");
+  IElementType EXPR = new PointcutExpressionElementType("EXPR");
+  IElementType KIND = new PointcutExpressionElementType("KIND");
+  IElementType METHOD = new PointcutExpressionElementType("METHOD");
+  IElementType POINTCUT = new PointcutExpressionElementType("POINTCUT");
+  IElementType POINTCUT_COMBINATION = new PointcutExpressionElementType("POINTCUT_COMBINATION");
+  IElementType VALUE = new PointcutExpressionElementType("VALUE");
 
   IElementType AND_OPERATOR = new PointcutExpressionTokenType("AND_OPERATOR");
   IElementType AT_ANNOTATION = new PointcutExpressionTokenType("@annotation");
   IElementType AT_TARGET = new PointcutExpressionTokenType("@target");
   IElementType BEAN = new PointcutExpressionTokenType("bean");
   IElementType EXECUTION = new PointcutExpressionTokenType("execution");
-  IElementType EXPR = new PointcutExpressionTokenType("EXPR");
+  IElementType EXPR_PATTERN = new PointcutExpressionTokenType("EXPR_PATTERN");
   IElementType METHOD_REFERENCE = new PointcutExpressionTokenType("METHOD_REFERENCE");
   IElementType OR_OPERATOR = new PointcutExpressionTokenType("OR_OPERATOR");
 
   class Factory {
     public static PsiElement createElement(ASTNode node) {
       IElementType type = node.getElementType();
-      if (type == AOP_CONTENT) {
-        return new PointcutExpressionAopContentImpl(node);
+      if (type == CONTENT) {
+        return new AopContentImpl(node);
       }
-      else if (type == AOP_EXPR) {
-        return new PointcutExpressionAopExprImpl(node);
+      else if (type == EXPR) {
+        return new AopExprImpl(node);
       }
-      else if (type == AOP_KIND) {
-        return new PointcutExpressionAopKindImpl(node);
+      else if (type == KIND) {
+        return new AopKindImpl(node);
       }
-      else if (type == AOP_METHOD_REFERENCE) {
-        return new PointcutExpressionAopMethodReferenceImpl(node);
+      else if (type == METHOD) {
+        return new AopMethodImpl(node);
       }
-      else if (type == AOP_PARALLEL_POINTCUT) {
-        return new PointcutExpressionAopParallelPointcutImpl(node);
+      else if (type == POINTCUT) {
+        return new AopPointcutImpl(node);
       }
-      else if (type == AOP_POINTCUT) {
-        return new PointcutExpressionAopPointcutImpl(node);
+      else if (type == POINTCUT_COMBINATION) {
+        return new AopPointcutCombinationImpl(node);
       }
-      else if (type == AOP_REAL) {
-        return new PointcutExpressionAopRealImpl(node);
+      else if (type == VALUE) {
+        return new AopValueImpl(node);
       }
       throw new AssertionError("Unknown element type: " + type);
     }

@@ -11,32 +11,38 @@ import static com.github.xiaolyuh.pcel.psi.PointcutExpressionTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.github.xiaolyuh.pcel.psi.*;
 
-public class PointcutExpressionAopContentImpl extends ASTWrapperPsiElement implements PointcutExpressionAopContent {
+public class AopPointcutCombinationImpl extends ASTWrapperPsiElement implements AopPointcutCombination {
 
-  public PointcutExpressionAopContentImpl(@NotNull ASTNode node) {
+  public AopPointcutCombinationImpl(@NotNull ASTNode node) {
     super(node);
   }
 
-  public void accept(@NotNull PointcutExpressionVisitor visitor) {
-    visitor.visitAopContent(this);
+  public void accept(@NotNull AopVisitor visitor) {
+    visitor.visitPointcutCombination(this);
   }
 
   @Override
   public void accept(@NotNull PsiElementVisitor visitor) {
-    if (visitor instanceof PointcutExpressionVisitor) accept((PointcutExpressionVisitor)visitor);
+    if (visitor instanceof AopVisitor) accept((AopVisitor)visitor);
     else super.accept(visitor);
   }
 
   @Override
-  @Nullable
-  public PointcutExpressionAopMethodReference getAopMethodReference() {
-    return findChildByClass(PointcutExpressionAopMethodReference.class);
+  @NotNull
+  public AopPointcut getPointcut() {
+    return findNotNullChildByClass(AopPointcut.class);
   }
 
   @Override
   @Nullable
-  public PointcutExpressionAopReal getAopReal() {
-    return findChildByClass(PointcutExpressionAopReal.class);
+  public PsiElement getAndOperator() {
+    return findChildByType(AND_OPERATOR);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getOrOperator() {
+    return findChildByType(OR_OPERATOR);
   }
 
 }

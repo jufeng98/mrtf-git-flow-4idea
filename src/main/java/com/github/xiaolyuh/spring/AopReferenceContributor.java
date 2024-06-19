@@ -1,9 +1,9 @@
 package com.github.xiaolyuh.spring;
 
-import com.github.xiaolyuh.pcel.psi.PointcutExpressionAopExpr;
-import com.github.xiaolyuh.pcel.psi.PointcutExpressionAopKind;
-import com.github.xiaolyuh.pcel.psi.PointcutExpressionAopMethodReference;
-import com.github.xiaolyuh.pcel.psi.PointcutExpressionAopReal;
+import com.github.xiaolyuh.pcel.psi.AopExpr;
+import com.github.xiaolyuh.pcel.psi.AopKind;
+import com.github.xiaolyuh.pcel.psi.AopMethod;
+import com.github.xiaolyuh.pcel.psi.AopValue;
 import com.github.xiaolyuh.pcel.psi.PointcutExpressionTypes;
 import com.google.common.collect.Lists;
 import com.intellij.lang.injection.InjectedLanguageManager;
@@ -42,8 +42,8 @@ public class AopReferenceContributor extends PsiReferenceContributor {
 
     @Override
     public void registerReferenceProviders(@NotNull PsiReferenceRegistrar registrar) {
-        registrar.registerReferenceProvider(PlatformPatterns.psiElement(PointcutExpressionAopExpr.class), new AopPsiReferenceProvider());
-        registrar.registerReferenceProvider(PlatformPatterns.psiElement(PointcutExpressionAopMethodReference.class), new AopMethodPsiReferenceProvider());
+        registrar.registerReferenceProvider(PlatformPatterns.psiElement(AopExpr.class), new AopPsiReferenceProvider());
+        registrar.registerReferenceProvider(PlatformPatterns.psiElement(AopMethod.class), new AopMethodPsiReferenceProvider());
     }
 
     /**
@@ -55,10 +55,10 @@ public class AopReferenceContributor extends PsiReferenceContributor {
         @Override
         public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement element,
                                                                @NotNull ProcessingContext context) {
-            PointcutExpressionAopExpr aopExpr = (PointcutExpressionAopExpr) element;
-            PointcutExpressionAopReal aopReal = (PointcutExpressionAopReal) aopExpr.getParent();
+            AopExpr aopExpr = (AopExpr) element;
+            AopValue aopValue = (AopValue) aopExpr.getParent();
 
-            PointcutExpressionAopKind aopKind = aopReal.getAopKind();
+            AopKind aopKind = aopValue.getKind();
             if (aopKind.getFirstChild().getNode().getElementType() == PointcutExpressionTypes.AT_ANNOTATION) {
                 return handleAnnoReference(aopExpr);
             }
@@ -66,7 +66,7 @@ public class AopReferenceContributor extends PsiReferenceContributor {
             return PsiReference.EMPTY_ARRAY;
         }
 
-        private PsiReference[] handleAnnoReference(PointcutExpressionAopExpr aopExpr) {
+        private PsiReference[] handleAnnoReference(AopExpr aopExpr) {
             List<AopAnnotationClsReference> references = Lists.newArrayList();
             String exprText = aopExpr.getText();
             String fullQualifierName = exprText.substring(1, exprText.length() - 1);
@@ -143,7 +143,7 @@ public class AopReferenceContributor extends PsiReferenceContributor {
 
         @Override
         public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement element, @NotNull ProcessingContext context) {
-            PointcutExpressionAopMethodReference aopMethodReference = (PointcutExpressionAopMethodReference) element;
+            AopMethod aopMethodReference = (AopMethod) element;
             String text = aopMethodReference.getText();
 
             int idx = text.indexOf("(");

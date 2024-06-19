@@ -2,7 +2,7 @@ package com.github.xiaolyuh.utils;
 
 import com.github.xiaolyuh.aop.AopMatcher;
 import com.github.xiaolyuh.pcel.inject.PointcutExpressionInjectionContributor;
-import com.github.xiaolyuh.pcel.psi.PointcutExpressionAopPointcut;
+import com.github.xiaolyuh.pcel.psi.AopPointcut;
 import com.google.common.collect.Sets;
 import com.intellij.lang.injection.InjectedLanguageManager;
 import com.intellij.openapi.util.Pair;
@@ -31,8 +31,8 @@ public class AopUtils {
         Set<PsiMethod> aspectMethodMatchedSet = Sets.newHashSet();
 
         for (PsiClass aspectPsiClass : aspectPsiClasses) {
-            Set<Pair<PsiMethod, PointcutExpressionAopPointcut>> pairSet = AopUtils.collectAspectMethods(aspectPsiClass);
-            for (Pair<PsiMethod, PointcutExpressionAopPointcut> pair : pairSet) {
+            Set<Pair<PsiMethod, AopPointcut>> pairSet = AopUtils.collectAspectMethods(aspectPsiClass);
+            for (Pair<PsiMethod, AopPointcut> pair : pairSet) {
                 AopMatcher matcher = AopMatcher.getMatcher(pair.second);
                 if (matcher == null) {
                     continue;
@@ -51,8 +51,8 @@ public class AopUtils {
         return psiClass.getAnnotation(PointcutExpressionInjectionContributor.ASPECT_CLASS_NAME) != null;
     }
 
-    public static Set<Pair<PsiMethod, PointcutExpressionAopPointcut>> collectAspectMethods(PsiClass aspectPsiClass) {
-        Set<Pair<PsiMethod, PointcutExpressionAopPointcut>> set = Sets.newHashSet();
+    public static Set<Pair<PsiMethod, AopPointcut>> collectAspectMethods(PsiClass aspectPsiClass) {
+        Set<Pair<PsiMethod, AopPointcut>> set = Sets.newHashSet();
 
         PsiMethod[] methods = aspectPsiClass.getMethods();
         for (PsiMethod psiMethod : methods) {
@@ -76,7 +76,7 @@ public class AopUtils {
                 Pair<PsiElement, TextRange> pair = injectedPsiFiles.get(0);
                 PsiElement first = pair.getFirst();
 
-                PointcutExpressionAopPointcut aopPointcut = PsiTreeUtil.findChildOfType(first, PointcutExpressionAopPointcut.class);
+                AopPointcut aopPointcut = PsiTreeUtil.findChildOfType(first, AopPointcut.class);
                 if (aopPointcut == null) {
                     continue;
                 }

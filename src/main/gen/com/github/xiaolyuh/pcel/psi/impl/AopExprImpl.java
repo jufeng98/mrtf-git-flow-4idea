@@ -10,33 +10,33 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static com.github.xiaolyuh.pcel.psi.PointcutExpressionTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.github.xiaolyuh.pcel.psi.*;
+import com.intellij.psi.PsiReference;
 
-public class PointcutExpressionAopRealImpl extends ASTWrapperPsiElement implements PointcutExpressionAopReal {
+public class AopExprImpl extends ASTWrapperPsiElement implements AopExpr {
 
-  public PointcutExpressionAopRealImpl(@NotNull ASTNode node) {
+  public AopExprImpl(@NotNull ASTNode node) {
     super(node);
   }
 
-  public void accept(@NotNull PointcutExpressionVisitor visitor) {
-    visitor.visitAopReal(this);
+  public void accept(@NotNull AopVisitor visitor) {
+    visitor.visitExpr(this);
   }
 
   @Override
   public void accept(@NotNull PsiElementVisitor visitor) {
-    if (visitor instanceof PointcutExpressionVisitor) accept((PointcutExpressionVisitor)visitor);
+    if (visitor instanceof AopVisitor) accept((AopVisitor)visitor);
     else super.accept(visitor);
   }
 
   @Override
   @NotNull
-  public PointcutExpressionAopExpr getAopExpr() {
-    return findNotNullChildByClass(PointcutExpressionAopExpr.class);
+  public PsiElement getExprPattern() {
+    return findNotNullChildByType(EXPR_PATTERN);
   }
 
   @Override
-  @NotNull
-  public PointcutExpressionAopKind getAopKind() {
-    return findNotNullChildByClass(PointcutExpressionAopKind.class);
+  public PsiReference @NotNull [] getReferences() {
+    return PointcutExpressionPsiImplUtil.getReferences(this);
   }
 
 }

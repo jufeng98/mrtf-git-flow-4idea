@@ -2,7 +2,7 @@ package com.github.xiaolyuh.spring;
 
 import com.github.xiaolyuh.aop.AopMatcher;
 import com.github.xiaolyuh.pcel.inject.PointcutExpressionInjectionContributor;
-import com.github.xiaolyuh.pcel.psi.PointcutExpressionAopPointcut;
+import com.github.xiaolyuh.pcel.psi.AopPointcut;
 import com.github.xiaolyuh.utils.AopUtils;
 import com.google.common.collect.Sets;
 import com.intellij.codeInsight.daemon.GutterName;
@@ -114,12 +114,12 @@ public final class AopLineMarkerProvider extends LineMarkerProviderDescriptor {
      * 为切面类方法添加行标记,点击后能显示所有匹配的方法并跳转
      */
     private void handleAdvisedClasses(PsiClass aspectPsiClass, Collection<? super LineMarkerInfo<?>> result, Module module) {
-        Set<Pair<PsiMethod, PointcutExpressionAopPointcut>> pairSet = AopUtils.collectAspectMethods(aspectPsiClass);
+        Set<Pair<PsiMethod, AopPointcut>> pairSet = AopUtils.collectAspectMethods(aspectPsiClass);
         if (pairSet.isEmpty()) {
             return;
         }
 
-        for (Pair<PsiMethod, PointcutExpressionAopPointcut> pair : pairSet) {
+        for (Pair<PsiMethod, AopPointcut> pair : pairSet) {
             @SuppressWarnings({"DialogTitleCapitalization", "DataFlowIssue"})
             RelatedItemLineMarkerInfo<PsiElement> lineMarkerInfo = NavigationGutterIconBuilder
                     .create(IconLoader.getIcon("/icons/pointcut.svg", getClass()))
@@ -132,7 +132,7 @@ public final class AopLineMarkerProvider extends LineMarkerProviderDescriptor {
         }
     }
 
-    private Set<PsiMethod> findAdvisedMatchedMethods(Module module, PointcutExpressionAopPointcut aopPointcut) {
+    private Set<PsiMethod> findAdvisedMatchedMethods(Module module, AopPointcut aopPointcut) {
         Set<PsiMethod> psiMethods = Sets.newHashSet();
 
         AopMatcher matcher = AopMatcher.getMatcher(aopPointcut);

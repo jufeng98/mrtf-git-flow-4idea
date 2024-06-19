@@ -1,15 +1,15 @@
 package com.github.xiaolyuh.aop;
 
-import com.github.xiaolyuh.pcel.psi.PointcutExpressionAopExpr;
-import com.github.xiaolyuh.pcel.psi.PointcutExpressionAopReal;
+import com.github.xiaolyuh.pcel.psi.AopExpr;
+import com.github.xiaolyuh.pcel.psi.AopValue;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
 
 public class AnnotationAopMatcher implements AopMatcher {
     private final String className;
 
-    public AnnotationAopMatcher(PointcutExpressionAopReal aopReal) {
-        PointcutExpressionAopExpr aopExpr = aopReal.getAopExpr();
+    public AnnotationAopMatcher(AopValue aopReal) {
+        AopExpr aopExpr = aopReal.getExpr();
         String exprText = aopExpr.getText();
         className = exprText.substring(1, exprText.length() - 1);
     }

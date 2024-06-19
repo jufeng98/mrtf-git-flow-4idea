@@ -5,12 +5,15 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface PointcutExpressionAopPointcut extends PsiElement {
+public interface AopPointcutCombination extends PsiElement {
 
   @NotNull
-  PointcutExpressionAopContent getAopContent();
+  AopPointcut getPointcut();
 
   @Nullable
-  PointcutExpressionAopParallelPointcut getAopParallelPointcut();
+  PsiElement getAndOperator();
+
+  @Nullable
+  PsiElement getOrOperator();
 
 }

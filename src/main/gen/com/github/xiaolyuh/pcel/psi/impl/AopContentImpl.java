@@ -11,20 +11,32 @@ import static com.github.xiaolyuh.pcel.psi.PointcutExpressionTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.github.xiaolyuh.pcel.psi.*;
 
-public class PointcutExpressionAopKindImpl extends ASTWrapperPsiElement implements PointcutExpressionAopKind {
+public class AopContentImpl extends ASTWrapperPsiElement implements AopContent {
 
-  public PointcutExpressionAopKindImpl(@NotNull ASTNode node) {
+  public AopContentImpl(@NotNull ASTNode node) {
     super(node);
   }
 
-  public void accept(@NotNull PointcutExpressionVisitor visitor) {
-    visitor.visitAopKind(this);
+  public void accept(@NotNull AopVisitor visitor) {
+    visitor.visitContent(this);
   }
 
   @Override
   public void accept(@NotNull PsiElementVisitor visitor) {
-    if (visitor instanceof PointcutExpressionVisitor) accept((PointcutExpressionVisitor)visitor);
+    if (visitor instanceof AopVisitor) accept((AopVisitor)visitor);
     else super.accept(visitor);
+  }
+
+  @Override
+  @Nullable
+  public AopMethod getMethod() {
+    return findChildByClass(AopMethod.class);
+  }
+
+  @Override
+  @Nullable
+  public AopValue getValue() {
+    return findChildByClass(AopValue.class);
   }
 
 }

@@ -6,11 +6,11 @@ import org.jetbrains.annotations.NotNull;
 
 public class PointcutExpressionPsiImplUtil {
 
-    public static PsiReference @NotNull [] getReferences(PointcutExpressionAopExprImpl aopExpr) {
+    public static PsiReference @NotNull [] getReferences(AopExprImpl aopExpr) {
         return ReferenceProvidersRegistry.getReferencesFromProviders(aopExpr);
     }
 
-    public static PsiReference @NotNull [] getReferences(PointcutExpressionAopMethodReferenceImpl aopExpr) {
+    public static PsiReference @NotNull [] getReferences(AopMethodImpl aopExpr) {
         return ReferenceProvidersRegistry.getReferencesFromProviders(aopExpr);
     }
 }

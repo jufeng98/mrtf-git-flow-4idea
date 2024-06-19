@@ -4,13 +4,13 @@ package com.github.xiaolyuh.pcel.psi;
 import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiReference;
 
-public interface PointcutExpressionAopMethodReference extends PsiElement {
+public interface AopPointcut extends PsiElement {
 
   @NotNull
-  PsiElement getMethodReference();
+  AopContent getContent();
 
-  PsiReference @NotNull [] getReferences();
+  @Nullable
+  AopPointcutCombination getPointcutCombination();
 
 }
