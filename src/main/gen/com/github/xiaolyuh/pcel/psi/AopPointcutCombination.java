@@ -7,7 +7,7 @@ import com.intellij.psi.PsiElement;
 
 public interface AopPointcutCombination extends PsiElement {
 
-  @NotNull
+  @Nullable
   AopPointcut getPointcut();
 
   @Nullable

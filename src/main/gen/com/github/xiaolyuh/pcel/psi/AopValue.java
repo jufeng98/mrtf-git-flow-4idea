@@ -7,7 +7,7 @@ import com.intellij.psi.PsiElement;
 
 public interface AopValue extends PsiElement {
 
-  @NotNull
+  @Nullable
   AopExpr getExpr();
 
   @NotNull

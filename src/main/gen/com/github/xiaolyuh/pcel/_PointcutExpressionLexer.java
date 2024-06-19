@@ -328,12 +328,14 @@ public class _PointcutExpressionLexer implements FlexLexer {
   private static final int [] ZZ_ACTION = zzUnpackAction();
 
   private static final String ZZ_ACTION_PACKED_0 =
-    "\1\0\1\1\1\2\7\1\1\2\2\0\1\3\7\0"+
-    "\1\4\1\5\2\0\1\6\4\0\1\7\10\0\1\10"+
-    "\4\0\1\11\1\0\1\12";
+    "\1\0\1\1\1\2\2\1\1\3\1\1\3\3\1\1"+
+    "\1\2\1\1\2\0\1\4\4\0\2\3\1\5\1\0"+
+    "\1\6\2\0\1\7\2\3\2\0\1\10\1\3\2\0"+
+    "\1\3\2\0\1\3\1\0\1\11\1\3\1\0\1\3"+
+    "\1\0\1\12\1\0\1\13";
 
   private static int [] zzUnpackAction() {
-    int [] result = new int[47];
+    int [] result = new int[49];
     int offset = 0;
     offset = zzUnpackAction(ZZ_ACTION_PACKED_0, offset, result);
     return result;
@@ -359,14 +361,15 @@ public class _PointcutExpressionLexer implements FlexLexer {
 
   private static final String ZZ_ROWMAP_PACKED_0 =
     "\0\0\0\30\0\60\0\110\0\140\0\170\0\220\0\250"+
-    "\0\300\0\330\0\360\0\110\0\330\0\u0108\0\u0120\0\u0138"+
-    "\0\u0150\0\u0168\0\220\0\u0180\0\u0198\0\u01b0\0\u0120\0\u01c8"+
-    "\0\u01e0\0\30\0\u01f8\0\u0210\0\u0228\0\u0240\0\220\0\u0258"+
-    "\0\u0270\0\u0288\0\u02a0\0\u02b8\0\u02d0\0\u02e8\0\u0300\0\30"+
-    "\0\u0318\0\u0330\0\u0348\0\u0360\0\220\0\u0378\0\30";
+    "\0\300\0\330\0\360\0\u0108\0\u0120\0\110\0\360\0\u0138"+
+    "\0\u0150\0\u0168\0\u0180\0\u0198\0\u01b0\0\u01c8\0\u01e0\0\u0120"+
+    "\0\u0150\0\u01f8\0\u0210\0\30\0\u0228\0\u0240\0\u0258\0\u0270"+
+    "\0\250\0\u0288\0\u02a0\0\u02b8\0\u02d0\0\u02e8\0\u0300\0\u0318"+
+    "\0\u0330\0\30\0\u0348\0\u0360\0\u0378\0\u0390\0\250\0\u03a8"+
+    "\0\30";
 
   private static int [] zzUnpackRowMap() {
-    int [] result = new int[47];
+    int [] result = new int[49];
     int offset = 0;
     offset = zzUnpackRowMap(ZZ_ROWMAP_PACKED_0, offset, result);
     return result;
@@ -389,32 +392,33 @@ public class _PointcutExpressionLexer implements FlexLexer {
   private static final int [] ZZ_TRANS = zzUnpacktrans();
 
   private static final String ZZ_TRANS_PACKED_0 =
-    "\1\2\1\3\1\2\1\4\1\5\2\2\1\6\2\7"+
-    "\1\10\1\7\1\11\10\7\1\12\1\13\1\7\31\0"+
-    "\1\3\1\0\1\14\21\0\1\15\1\13\4\0\1\16"+
-    "\25\0\2\17\1\0\3\17\1\0\15\17\1\0\2\17"+
-    "\11\0\1\20\10\0\1\21\11\0\1\22\1\0\1\23"+
-    "\1\0\15\23\7\0\1\22\1\0\1\23\1\0\4\23"+
-    "\1\24\10\23\7\0\1\22\1\0\1\23\1\0\14\23"+
-    "\1\25\30\0\1\26\3\0\1\13\24\0\1\13\2\0"+
-    "\1\16\27\0\2\17\1\0\1\17\1\27\1\17\1\0"+
-    "\15\17\1\0\2\17\17\0\1\30\21\0\1\31\23\0"+
-    "\1\32\26\0\1\22\1\0\1\23\1\0\1\23\1\33"+
-    "\13\23\7\0\1\22\1\0\1\23\1\0\4\23\1\34"+
-    "\10\23\4\0\1\26\45\0\1\35\31\0\1\36\12\0"+
-    "\1\22\1\0\1\23\1\0\7\23\1\37\5\23\7\0"+
-    "\1\22\1\0\1\23\1\0\3\23\1\40\11\23\23\0"+
-    "\1\41\24\0\1\42\16\0\1\22\1\0\1\23\1\0"+
-    "\13\23\1\43\1\23\25\0\1\44\21\0\1\45\17\0"+
-    "\1\22\1\0\1\23\1\0\12\23\1\46\2\23\14\0"+
-    "\1\47\40\0\1\50\11\0\1\22\1\0\1\23\1\0"+
-    "\6\23\1\51\6\23\25\0\1\52\11\0\1\22\1\0"+
-    "\1\23\1\0\10\23\1\53\4\23\21\0\1\54\15\0"+
-    "\1\22\1\0\1\23\1\0\7\23\1\55\5\23\23\0"+
-    "\1\56\26\0\1\57\10\0";
+    "\1\2\1\3\1\2\1\4\1\5\1\2\1\6\1\7"+
+    "\2\10\1\11\1\10\1\12\10\10\1\13\1\14\1\15"+
+    "\31\0\1\3\1\0\1\16\21\0\1\17\1\14\4\0"+
+    "\1\20\25\0\2\21\1\0\3\21\1\0\15\21\1\0"+
+    "\2\21\6\0\1\6\1\0\15\6\14\0\1\22\10\0"+
+    "\1\23\11\0\1\24\1\0\1\10\1\0\15\10\7\0"+
+    "\1\24\1\0\1\10\1\0\4\10\1\25\10\10\7\0"+
+    "\1\24\1\0\1\10\1\0\14\10\1\26\30\0\1\27"+
+    "\3\0\1\14\24\0\1\14\5\0\1\24\1\0\1\30"+
+    "\1\0\15\30\4\0\1\20\27\0\2\21\1\0\1\21"+
+    "\1\31\1\21\1\0\15\21\1\0\2\21\17\0\1\32"+
+    "\21\0\1\33\23\0\1\34\26\0\1\24\1\0\1\10"+
+    "\1\0\1\10\1\35\13\10\7\0\1\24\1\0\1\10"+
+    "\1\0\4\10\1\36\10\10\4\0\1\27\45\0\1\37"+
+    "\31\0\1\40\12\0\1\24\1\0\1\10\1\0\7\10"+
+    "\1\41\5\10\7\0\1\24\1\0\1\10\1\0\3\10"+
+    "\1\42\11\10\23\0\1\43\24\0\1\44\16\0\1\24"+
+    "\1\0\1\10\1\0\13\10\1\45\1\10\25\0\1\46"+
+    "\21\0\1\47\17\0\1\24\1\0\1\10\1\0\12\10"+
+    "\1\50\2\10\14\0\1\51\40\0\1\52\11\0\1\24"+
+    "\1\0\1\10\1\0\6\10\1\53\6\10\25\0\1\54"+
+    "\11\0\1\24\1\0\1\10\1\0\10\10\1\55\4\10"+
+    "\21\0\1\56\15\0\1\24\1\0\1\10\1\0\7\10"+
+    "\1\57\5\10\23\0\1\60\26\0\1\61\10\0";
 
   private static int [] zzUnpacktrans() {
-    int [] result = new int[912];
+    int [] result = new int[960];
     int offset = 0;
     offset = zzUnpacktrans(ZZ_TRANS_PACKED_0, offset, result);
     return result;
@@ -452,12 +456,13 @@ public class _PointcutExpressionLexer implements FlexLexer {
   private static final int [] ZZ_ATTRIBUTE = zzUnpackAttribute();
 
   private static final String ZZ_ATTRIBUTE_PACKED_0 =
-    "\1\0\1\11\11\1\2\0\1\1\7\0\2\1\2\0"+
-    "\1\11\4\0\1\1\10\0\1\11\4\0\1\1\1\0"+
-    "\1\11";
+    "\1\0\1\11\13\1\2\0\1\1\4\0\3\1\1\0"+
+    "\1\1\2\0\1\11\2\1\2\0\2\1\2\0\1\1"+
+    "\2\0\1\1\1\0\1\11\1\1\1\0\1\1\1\0"+
+    "\1\1\1\0\1\11";
 
   private static int [] zzUnpackAttribute() {
-    int [] result = new int[47];
+    int [] result = new int[49];
     int offset = 0;
     offset = zzUnpackAttribute(ZZ_ATTRIBUTE_PACKED_0, offset, result);
     return result;
@@ -775,52 +780,57 @@ public class _PointcutExpressionLexer implements FlexLexer {
             { return BAD_CHARACTER;
             }
           // fall through
-          case 11: break;
+          case 12: break;
           case 2:
             { return WHITE_SPACE;
             }
           // fall through
-          case 12: break;
-          case 3:
-            { return AND_OPERATOR;
-            }
-          // fall through
           case 13: break;
-          case 4:
-            { return OR_OPERATOR;
+          case 3:
+            { return WORD;
             }
           // fall through
           case 14: break;
-          case 5:
-            { return EXPR_PATTERN;
+          case 4:
+            { return AND_OPERATOR;
             }
           // fall through
           case 15: break;
-          case 6:
-            { return METHOD_REFERENCE;
+          case 5:
+            { return OR_OPERATOR;
             }
           // fall through
           case 16: break;
-          case 7:
-            { return BEAN;
+          case 6:
+            { return EXPR_PATTERN;
             }
           // fall through
           case 17: break;
-          case 8:
-            { return AT_TARGET;
+          case 7:
+            { return METHOD_REFERENCE;
             }
           // fall through
           case 18: break;
-          case 9:
-            { return EXECUTION;
+          case 8:
+            { return BEAN;
             }
           // fall through
           case 19: break;
-          case 10:
-            { return AT_ANNOTATION;
+          case 9:
+            { return AT_TARGET;
             }
           // fall through
           case 20: break;
+          case 10:
+            { return EXECUTION;
+            }
+          // fall through
+          case 21: break;
+          case 11:
+            { return AT_ANNOTATION;
+            }
+          // fall through
+          case 22: break;
           default:
             zzScanError(ZZ_NO_MATCH);
           }

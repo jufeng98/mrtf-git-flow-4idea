@@ -48,6 +48,17 @@ public class PointcutExpressionParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
+  // !(WORD)
+  static boolean content_recover(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "content_recover")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NOT_);
+    r = !consumeToken(b, WORD);
+    exit_section_(b, l, m, r, false, null);
+    return r;
+  }
+
+  /* ********************************************************** */
   // EXPR_PATTERN
   public static boolean expr(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "expr")) return false;
@@ -89,13 +100,12 @@ public class PointcutExpressionParser implements PsiParser, LightPsiParser {
   // content pointcut_combination?
   public static boolean pointcut(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "pointcut")) return false;
-    boolean r, p;
+    boolean r;
     Marker m = enter_section_(b, l, _NONE_, POINTCUT, "<pointcut>");
     r = content(b, l + 1);
-    p = r; // pin = 1
     r = r && pointcut_1(b, l + 1);
-    exit_section_(b, l, m, r, p, null);
-    return r || p;
+    exit_section_(b, l, m, r, false, PointcutExpressionParser::content_recover);
+    return r;
   }
 
   // pointcut_combination?
@@ -122,12 +132,13 @@ public class PointcutExpressionParser implements PsiParser, LightPsiParser {
   public static boolean pointcut_combination(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "pointcut_combination")) return false;
     if (!nextTokenIs(b, "<pointcut combination>", AND_OPERATOR, OR_OPERATOR)) return false;
-    boolean r;
+    boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, POINTCUT_COMBINATION, "<pointcut combination>");
     r = pointcut_combination_0(b, l + 1);
+    p = r; // pin = 1
     r = r && pointcut(b, l + 1);
-    exit_section_(b, l, m, r, false, null);
-    return r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   // OR_OPERATOR | AND_OPERATOR
@@ -143,12 +154,13 @@ public class PointcutExpressionParser implements PsiParser, LightPsiParser {
   // kind expr
   public static boolean value(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "value")) return false;
-    boolean r;
+    boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, VALUE, "<value>");
     r = kind(b, l + 1);
+    p = r; // pin = 1
     r = r && expr(b, l + 1);
-    exit_section_(b, l, m, r, false, null);
-    return r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
 }

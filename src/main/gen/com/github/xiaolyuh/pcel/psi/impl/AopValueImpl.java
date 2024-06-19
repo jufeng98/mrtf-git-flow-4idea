@@ -28,9 +28,9 @@ public class AopValueImpl extends ASTWrapperPsiElement implements AopValue {
   }
 
   @Override
-  @NotNull
+  @Nullable
   public AopExpr getExpr() {
-    return findNotNullChildByClass(AopExpr.class);
+    return findChildByClass(AopExpr.class);
   }
 
   @Override

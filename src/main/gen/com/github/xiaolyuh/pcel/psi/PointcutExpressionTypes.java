@@ -24,6 +24,7 @@ public interface PointcutExpressionTypes {
   IElementType EXPR_PATTERN = new PointcutExpressionTokenType("EXPR_PATTERN");
   IElementType METHOD_REFERENCE = new PointcutExpressionTokenType("METHOD_REFERENCE");
   IElementType OR_OPERATOR = new PointcutExpressionTokenType("OR_OPERATOR");
+  IElementType WORD = new PointcutExpressionTokenType("WORD");
 
   class Factory {
     public static PsiElement createElement(ASTNode node) {

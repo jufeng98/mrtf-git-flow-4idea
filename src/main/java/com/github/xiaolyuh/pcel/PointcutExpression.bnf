@@ -41,16 +41,20 @@
     OR_OPERATOR="regexp:\s*\|\|\s*"
     // 匹配 &&
     AND_OPERATOR="regexp:\s*&&\s*"
+    WORD="regexp:\w+"
   ]
 }
-// 下面的 ::= 符号可以理解为Java的 = ,即赋值的意思. 左边是变量,右边是变量的定义. * 号代表定义可以出现任意次, ? 号代表定义可以
-// 出现0次或1次. | 符号表示或
+// 下面的 ::= 符号可以理解为Java的 = ,即赋值的意思. 左边是规则,右边是规则的定义. * 号代表定义可以出现任意次, ? 号代表定义可以
+// 出现0次或1次. | 符号表示或, 更详细说明请查阅官方文档 https://github.com/JetBrains/Grammar-Kit
 pointcutExpressionFile ::= pointcut*
 pointcut ::= content pointcut_combination? {
-    pin = 1
+  recoverWhile="content_recover"
 }
+private content_recover ::= !(WORD)
 content ::= value | method
-value ::= kind expr
+value ::= kind expr {
+    pin=1
+}
 kind ::= AT_ANNOTATION | AT_TARGET | EXECUTION | BEAN
 expr ::= EXPR_PATTERN {
     methods = [
@@ -62,5 +66,7 @@ method ::= METHOD_REFERENCE {
         getReferences
     ]
 }
-pointcut_combination ::= (OR_OPERATOR | AND_OPERATOR) pointcut
+pointcut_combination ::= (OR_OPERATOR | AND_OPERATOR) pointcut {
+    pin=1
+}
 

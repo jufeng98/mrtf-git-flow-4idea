@@ -28,9 +28,9 @@ public class AopPointcutCombinationImpl extends ASTWrapperPsiElement implements 
   }
 
   @Override
-  @NotNull
+  @Nullable
   public AopPointcut getPointcut() {
-    return findNotNullChildByClass(AopPointcut.class);
+    return findChildByClass(AopPointcut.class);
   }
 
   @Override

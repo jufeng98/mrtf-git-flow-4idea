@@ -29,6 +29,7 @@ EXPR_PATTERN=\([\w*!+.\s()]+\)
 METHOD_REFERENCE=[:letter:][a-zA-Z_0-9]*\(\)
 OR_OPERATOR=[ \t\n\x0B\f\r]*\|\|[ \t\n\x0B\f\r]*
 AND_OPERATOR=[ \t\n\x0B\f\r]*&&[ \t\n\x0B\f\r]*
+WORD=[a-zA-Z_0-9]+
 
 %%
 <YYINITIAL> {
@@ -43,6 +44,7 @@ AND_OPERATOR=[ \t\n\x0B\f\r]*&&[ \t\n\x0B\f\r]*
   {METHOD_REFERENCE}       { return METHOD_REFERENCE; }
   {OR_OPERATOR}            { return OR_OPERATOR; }
   {AND_OPERATOR}           { return AND_OPERATOR; }
+  {WORD}                   { return WORD; }
 
 }
 
