@@ -1,12 +1,13 @@
 package com.github.xiaolyuh.spring;
 
 import com.github.xiaolyuh.pcel.psi.AopExpr;
-import com.github.xiaolyuh.pcel.psi.AopKind;
 import com.github.xiaolyuh.pcel.psi.AopMethod;
 import com.github.xiaolyuh.pcel.psi.AopValue;
-import com.github.xiaolyuh.pcel.psi.PointcutExpressionTypes;
+import com.github.xiaolyuh.utils.AopUtils;
 import com.google.common.collect.Lists;
 import com.intellij.lang.injection.InjectedLanguageManager;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.patterns.PlatformPatterns;
@@ -42,14 +43,14 @@ public class AopReferenceContributor extends PsiReferenceContributor {
 
     @Override
     public void registerReferenceProviders(@NotNull PsiReferenceRegistrar registrar) {
-        registrar.registerReferenceProvider(PlatformPatterns.psiElement(AopExpr.class), new AopPsiReferenceProvider());
+        registrar.registerReferenceProvider(PlatformPatterns.psiElement(AopExpr.class), new AopExprPsiReferenceProvider());
         registrar.registerReferenceProvider(PlatformPatterns.psiElement(AopMethod.class), new AopMethodPsiReferenceProvider());
     }
 
     /**
      * 为包名和类名等创建引用,以实现点击跳转
      */
-    public static class AopPsiReferenceProvider extends PsiReferenceProvider {
+    public static class AopExprPsiReferenceProvider extends PsiReferenceProvider {
         private static final Pattern DOT_PATTERN = Pattern.compile("\\.");
 
         @Override
@@ -58,16 +59,15 @@ public class AopReferenceContributor extends PsiReferenceContributor {
             AopExpr aopExpr = (AopExpr) element;
             AopValue aopValue = (AopValue) aopExpr.getParent();
 
-            AopKind aopKind = aopValue.getKind();
-            if (aopKind.getFirstChild().getNode().getElementType() == PointcutExpressionTypes.AT_ANNOTATION) {
-                return handleAnnoReference(aopExpr);
+            if (AopUtils.isAtAnnotationType(aopValue)) {
+                return createAtAnnotationReference(aopExpr);
             }
 
             return PsiReference.EMPTY_ARRAY;
         }
 
-        private PsiReference[] handleAnnoReference(AopExpr aopExpr) {
-            List<AopAnnotationClsReference> references = Lists.newArrayList();
+        private PsiReference[] createAtAnnotationReference(AopExpr aopExpr) {
+            List<AopReference> references = Lists.newArrayList();
             String exprText = aopExpr.getText();
             String fullQualifierName = exprText.substring(1, exprText.length() - 1);
 
@@ -88,24 +88,33 @@ public class AopReferenceContributor extends PsiReferenceContributor {
 
                 int rangeStart = last + 1;
                 int rangeEnd = last + 1 + fullQualifierName.substring(last, start).length();
+
                 TextRange textRange = new TextRange(rangeStart, rangeEnd);
-                AopAnnotationClsReference reference = new AopAnnotationClsReference(aopExpr, textRange, psiPackage);
+                AopReference reference = new AopReference(aopExpr, textRange, psiPackage);
                 references.add(reference);
 
                 last = start + 1;
             }
 
+            // 判断最后一截如果还是有效包名,则创建包名引用
             PsiPackage psiPackage = JavaPsiFacade.getInstance(project).findPackage(fullQualifierName);
             TextRange textRange = new TextRange(last + 1, fullQualifierName.length() + 1);
             if (psiPackage != null) {
-                AopAnnotationClsReference reference = new AopAnnotationClsReference(aopExpr, textRange, psiPackage);
+                AopReference reference = new AopReference(aopExpr, textRange, psiPackage);
                 references.add(reference);
+                return references.toArray(new PsiReference[0]);
             }
 
-            // 为类名创建引用
-            PsiClass annoPsiClass = JavaPsiFacade.getInstance(project).findClass(fullQualifierName, GlobalSearchScope.projectScope(project));
+            Module module = ModuleUtil.findModuleForPsiElement(aopExpr);
+            if (module == null) {
+                return references.toArray(new PsiReference[0]);
+            }
+
+            GlobalSearchScope scope = GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module);
+            // 再判断下最后一截是否为有效类名,是则创建类名引用
+            PsiClass annoPsiClass = JavaPsiFacade.getInstance(project).findClass(fullQualifierName, scope);
             if (annoPsiClass != null) {
-                AopAnnotationClsReference reference = new AopAnnotationClsReference(aopExpr, textRange, annoPsiClass);
+                AopReference reference = new AopReference(aopExpr, textRange, annoPsiClass);
                 references.add(reference);
             }
 
@@ -113,32 +122,10 @@ public class AopReferenceContributor extends PsiReferenceContributor {
         }
     }
 
+
     /**
      * 为方法名创建引用,以实现点击跳转
      */
-    public static final class AopAnnotationClsReference extends PsiReferenceBase<PsiElement> implements PsiPolyVariantReference {
-        private final PsiElement targetPsiElement;
-
-        public AopAnnotationClsReference(@NotNull PsiElement element, TextRange textRange, PsiElement targetPsiElement) {
-            super(element, textRange);
-            this.targetPsiElement = targetPsiElement;
-        }
-
-        @Override
-        public ResolveResult @NotNull [] multiResolve(boolean incompleteCode) {
-            PsiElementResolveResult resolveResult = new PsiElementResolveResult(targetPsiElement);
-            return new ResolveResult[]{resolveResult};
-        }
-
-        @Nullable
-        @Override
-        public PsiElement resolve() {
-            ResolveResult[] resolveResults = multiResolve(false);
-            return resolveResults[0].getElement();
-        }
-
-    }
-
     public static class AopMethodPsiReferenceProvider extends PsiReferenceProvider {
 
         @Override
@@ -169,11 +156,34 @@ public class AopReferenceContributor extends PsiReferenceContributor {
                 }
 
                 TextRange textRange = new TextRange(0, idx);
-                AopAnnotationClsReference reference = new AopAnnotationClsReference(aopMethodReference, textRange, method);
+                AopReference reference = new AopReference(aopMethodReference, textRange, method);
                 return new PsiReference[]{reference};
             }
 
             return PsiReference.EMPTY_ARRAY;
         }
+    }
+
+    public static final class AopReference extends PsiReferenceBase<PsiElement> implements PsiPolyVariantReference {
+        private final PsiElement targetPsiElement;
+
+        public AopReference(@NotNull PsiElement element, TextRange textRange, PsiElement targetPsiElement) {
+            super(element, textRange);
+            this.targetPsiElement = targetPsiElement;
+        }
+
+        @Override
+        public ResolveResult @NotNull [] multiResolve(boolean incompleteCode) {
+            PsiElementResolveResult resolveResult = new PsiElementResolveResult(targetPsiElement);
+            return new ResolveResult[]{resolveResult};
+        }
+
+        @Nullable
+        @Override
+        public PsiElement resolve() {
+            ResolveResult[] resolveResults = multiResolve(false);
+            return resolveResults[0].getElement();
+        }
+
     }
 }

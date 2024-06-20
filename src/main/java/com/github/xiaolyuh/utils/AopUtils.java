@@ -2,7 +2,10 @@ package com.github.xiaolyuh.utils;
 
 import com.github.xiaolyuh.aop.AopMatcher;
 import com.github.xiaolyuh.pcel.inject.PointcutExpressionInjectionContributor;
+import com.github.xiaolyuh.pcel.psi.AopKind;
 import com.github.xiaolyuh.pcel.psi.AopPointcut;
+import com.github.xiaolyuh.pcel.psi.AopValue;
+import com.github.xiaolyuh.pcel.psi.PointcutExpressionTypes;
 import com.google.common.collect.Sets;
 import com.intellij.lang.injection.InjectedLanguageManager;
 import com.intellij.openapi.util.Pair;
@@ -88,4 +91,8 @@ public class AopUtils {
         return set;
     }
 
+    public static boolean isAtAnnotationType(AopValue aopValue) {
+        AopKind aopKind = aopValue.getKind();
+        return aopKind.getNode().getFirstChildNode().getElementType() == PointcutExpressionTypes.AT_ANNOTATION;
+    }
 }
