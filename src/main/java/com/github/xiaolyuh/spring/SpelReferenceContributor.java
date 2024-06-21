@@ -82,6 +82,10 @@ public class SpelReferenceContributor extends PsiReferenceContributor {
                         references.add(reference);
                     } else if (SpelUtils.isSharpMethod(fieldOrMethodName)) {
                         PsiClass psiClass = SpelUtils.getMethodContextClz(spelSpel);
+                        if (psiClass == null) {
+                            continue;
+                        }
+
                         PsiMethod[] psiMethods = psiClass.findMethodsByName(fieldOrMethodName.getText(), false);
                         if (psiMethods.length == 0) {
                             continue;
