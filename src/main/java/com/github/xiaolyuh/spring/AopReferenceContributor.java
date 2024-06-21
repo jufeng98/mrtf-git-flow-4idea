@@ -2,7 +2,6 @@ package com.github.xiaolyuh.spring;
 
 import com.github.xiaolyuh.pcel.psi.AopExpr;
 import com.github.xiaolyuh.pcel.psi.AopMethod;
-import com.github.xiaolyuh.pcel.psi.AopValue;
 import com.github.xiaolyuh.utils.AopUtils;
 import com.google.common.collect.Lists;
 import com.intellij.lang.injection.InjectedLanguageManager;
@@ -56,10 +55,12 @@ public class AopReferenceContributor extends PsiReferenceContributor {
         @Override
         public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement element,
                                                                @NotNull ProcessingContext context) {
-            AopExpr aopExpr = (AopExpr) element;
-            AopValue aopValue = (AopValue) aopExpr.getParent();
+            if (!(element instanceof AopExpr)) {
+                return PsiReference.EMPTY_ARRAY;
+            }
 
-            if (AopUtils.isAtAnnotationType(aopValue)) {
+            AopExpr aopExpr = (AopExpr) element;
+            if (AopUtils.isInAtAnnotation(aopExpr)) {
                 return createAtAnnotationReference(aopExpr);
             }
 

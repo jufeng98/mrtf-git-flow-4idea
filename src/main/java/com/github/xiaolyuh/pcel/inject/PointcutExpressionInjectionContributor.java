@@ -32,44 +32,44 @@ public class PointcutExpressionInjectionContributor implements LanguageInjection
 
     @Override
     public @Nullable Injection getInjection(@NotNull PsiElement context) {
-        if (shouldNotInject(context)) {
-            return null;
+        if (shouldInject(context)) {
+            return new SimpleInjection(PointcutExpressionLanguage.INSTANCE, "", "", null);
         }
 
-        return new SimpleInjection(PointcutExpressionLanguage.INSTANCE, "", "", null);
+        return null;
     }
 
-    private boolean shouldNotInject(PsiElement context) {
+    private boolean shouldInject(PsiElement context) {
         if (!(context instanceof PsiLiteralExpression)) {
-            return true;
+            return false;
         }
 
         PsiLiteralExpression psiLiteralExpression = (PsiLiteralExpression) context;
         PsiAnnotation psiAnnotation = PsiTreeUtil.getParentOfType(psiLiteralExpression, PsiAnnotation.class);
         if (psiAnnotation == null) {
-            return true;
+            return false;
         }
 
         /// 判断是否是Spring AOP的注解
         boolean contains = INTEREST_ANNO_SET.contains(psiAnnotation.getQualifiedName());
         if (!contains) {
-            return true;
+            return false;
         }
 
         /// 判断注解的属性名是否是 value 或者 pointcut
         PsiNameValuePair psiNameValuePair = (PsiNameValuePair) psiLiteralExpression.getParent();
         if (!"value".equals(psiNameValuePair.getAttributeName()) && !"pointcut".equals(psiNameValuePair.getAttributeName())) {
-            return true;
+            return false;
         }
 
         PsiClass psiClass = PsiUtil.getTopLevelClass(psiAnnotation);
         if (psiClass == null) {
-            return true;
+            return false;
         }
 
         // 判断类是否带有 @Aspect 注解
         PsiAnnotation aspectAnnotation = psiClass.getAnnotation(ASPECT_CLASS_NAME);
-        return aspectAnnotation == null;
+        return aspectAnnotation != null;
     }
 
 }

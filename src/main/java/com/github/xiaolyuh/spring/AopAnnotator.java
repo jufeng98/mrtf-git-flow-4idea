@@ -1,9 +1,7 @@
 package com.github.xiaolyuh.spring;
 
 import com.github.xiaolyuh.pcel.psi.AopExpr;
-import com.github.xiaolyuh.pcel.psi.AopKind;
-import com.github.xiaolyuh.pcel.psi.AopValue;
-import com.github.xiaolyuh.pcel.psi.PointcutExpressionTypes;
+import com.github.xiaolyuh.utils.AopUtils;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.Annotator;
@@ -28,20 +26,13 @@ public class AopAnnotator implements Annotator {
 
     @Override
     public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
-        if (!(element instanceof AopExpr)) {
-            return;
-        }
-
-        AopExpr aopExpr = (AopExpr) element;
-        AopValue aopValue = (AopValue) aopExpr.getParent();
-
-        AopKind aopKind = aopValue.getKind();
-        if (aopKind.getFirstChild().getNode().getElementType() == PointcutExpressionTypes.AT_ANNOTATION) {
-            handleAnnoAnnotator(aopExpr, holder);
+        if (AopUtils.isInAtAnnotation(element)) {
+            annotateAtAnnotation(element, holder);
         }
     }
 
-    private void handleAnnoAnnotator(AopExpr aopExpr, AnnotationHolder holder) {
+    private void annotateAtAnnotation(PsiElement element, AnnotationHolder holder) {
+        AopExpr aopExpr = (AopExpr) element.getParent();
         String exprText = aopExpr.getText();
         String fullQualifierName = exprText.substring(1, exprText.length() - 1);
 

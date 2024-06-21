@@ -39,7 +39,7 @@ public class PointcutExpressionColorSettingsPage implements ColorSettingsPage {
     @NotNull
     @Override
     public String getDemoText() {
-        return "@annotation(cn.com.bluemoon.AopLog)";
+        return "@annotation(org.javamaster.annos.AopLog)";
     }
 
     @Nullable

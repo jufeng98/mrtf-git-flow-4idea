@@ -1,7 +1,5 @@
 package com.github.xiaolyuh.spring;
 
-import com.github.xiaolyuh.pcel.psi.AopExpr;
-import com.github.xiaolyuh.pcel.psi.AopValue;
 import com.github.xiaolyuh.pcel.psi.PointcutExpressionTypes;
 import com.github.xiaolyuh.utils.AopUtils;
 import com.intellij.codeInsight.completion.CompletionContributor;
@@ -32,7 +30,7 @@ public class AopCompletionContributor extends CompletionContributor {
             return;
         }
 
-        if (isInAtAnnotation(position)) {
+        if (AopUtils.isInAtAnnotation(position)) {
             fillPackageAndAnnoClass(position, result);
         }
     }
@@ -47,24 +45,6 @@ public class AopCompletionContributor extends CompletionContributor {
                     .bold();
             result.addElement(bold);
         }
-    }
-
-    /**
-     * 光标是否位于 @annotation 指示符的表达式内
-     */
-    private boolean isInAtAnnotation(PsiElement position) {
-        PsiElement parent = position.getParent();
-        if (!(parent instanceof AopExpr)) {
-            return false;
-        }
-
-        parent = parent.getParent();
-        if (!(parent instanceof AopValue)) {
-            return false;
-        }
-
-        AopValue aopValue = (AopValue) parent;
-        return AopUtils.isAtAnnotationType(aopValue);
     }
 
     /**

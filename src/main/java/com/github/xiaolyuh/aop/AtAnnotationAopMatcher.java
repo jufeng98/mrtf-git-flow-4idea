@@ -5,11 +5,12 @@ import com.github.xiaolyuh.pcel.psi.AopValue;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
 
-public class AnnotationAopMatcher implements AopMatcher {
+public class AtAnnotationAopMatcher implements AopMatcher {
     private final String className;
 
-    public AnnotationAopMatcher(AopValue aopReal) {
+    public AtAnnotationAopMatcher(AopValue aopReal) {
         AopExpr aopExpr = aopReal.getExpr();
+        @SuppressWarnings("DataFlowIssue")
         String exprText = aopExpr.getText();
         className = exprText.substring(1, exprText.length() - 1);
     }

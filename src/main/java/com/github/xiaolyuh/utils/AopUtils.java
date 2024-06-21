@@ -2,6 +2,7 @@ package com.github.xiaolyuh.utils;
 
 import com.github.xiaolyuh.aop.AopMatcher;
 import com.github.xiaolyuh.pcel.inject.PointcutExpressionInjectionContributor;
+import com.github.xiaolyuh.pcel.psi.AopExpr;
 import com.github.xiaolyuh.pcel.psi.AopKind;
 import com.github.xiaolyuh.pcel.psi.AopPointcut;
 import com.github.xiaolyuh.pcel.psi.AopValue;
@@ -91,7 +92,38 @@ public class AopUtils {
         return set;
     }
 
-    public static boolean isAtAnnotationType(AopValue aopValue) {
+    /**
+     * 元素是否位于 @annotation 指示符的表达式内
+     */
+    public static boolean isInAtAnnotation(PsiElement position) {
+        if (position == null) {
+            return false;
+        }
+
+        PsiElement parent = position.getParent();
+        if (!(parent instanceof AopExpr)) {
+            return false;
+        }
+
+        AopExpr aopExpr = (AopExpr) parent;
+        return isInAtAnnotation(aopExpr);
+    }
+
+    public static boolean isInAtAnnotation(AopExpr aopExpr) {
+        PsiElement parent = aopExpr.getParent();
+        if (!(parent instanceof AopValue)) {
+            return false;
+        }
+
+        AopValue aopValue = (AopValue) parent;
+        return isInAtAnnotation(aopValue);
+    }
+
+    public static boolean isInAtAnnotation(AopValue aopValue) {
+        if (aopValue == null) {
+            return false;
+        }
+
         AopKind aopKind = aopValue.getKind();
         return aopKind.getNode().getFirstChildNode().getElementType() == PointcutExpressionTypes.AT_ANNOTATION;
     }

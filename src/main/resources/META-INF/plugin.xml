@@ -210,7 +210,8 @@
                 implementationClass="com.github.xiaolyuh.spring.AopCompletionContributor"/>
         <psi.referenceContributor language="PointcutExpression"
                                   implementation="com.github.xiaolyuh.spring.AopReferenceContributor"/>
-
+        <lang.elementManipulator forClass="com.github.xiaolyuh.pcel.psi.AopExpr"
+                                 implementationClass="com.github.xiaolyuh.spring.AopExprManipulator"/>
 
         <fileType
                 name="SpEL"
