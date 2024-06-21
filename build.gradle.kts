@@ -46,7 +46,7 @@ tasks {
     }
 
     runIde {
-        jvmArgs("-Xmx1024m", "-XX:ReservedCodeCacheSize=512m", "-Xms1024m")
+        jvmArgs("-Xmx2048m", "-XX:ReservedCodeCacheSize=512m", "-Xms1024m")
     }
 
     patchPluginXml {

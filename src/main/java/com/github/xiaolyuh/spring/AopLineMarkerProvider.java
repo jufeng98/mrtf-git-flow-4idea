@@ -10,12 +10,15 @@ import com.intellij.codeInsight.daemon.LineMarkerInfo;
 import com.intellij.codeInsight.daemon.LineMarkerProviderDescriptor;
 import com.intellij.codeInsight.daemon.RelatedItemLineMarkerInfo;
 import com.intellij.codeInsight.navigation.NavigationGutterIconBuilder;
+import com.intellij.openapi.module.JavaModuleType;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.util.NotNullLazyValue;
 import com.intellij.openapi.util.Pair;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
@@ -39,6 +42,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
 public final class AopLineMarkerProvider extends LineMarkerProviderDescriptor {
@@ -124,7 +128,7 @@ public final class AopLineMarkerProvider extends LineMarkerProviderDescriptor {
             @SuppressWarnings({"DialogTitleCapitalization", "DataFlowIssue"})
             RelatedItemLineMarkerInfo<PsiElement> lineMarkerInfo = NavigationGutterIconBuilder
                     .create(IconLoader.getIcon("/icons/pointcut.svg", getClass()))
-                    .setTargets(NotNullLazyValue.lazy(() -> findAdvisedMatchedMethods(module, pair.second)))
+                    .setTargets(NotNullLazyValue.lazy(() -> findAdvisedMatchedMethods(module, pair.second, aspectPsiClass)))
                     .setTooltipText("导航到切面匹配的方法")
                     .setEmptyPopupText("切面没有匹配的方法")
                     .createLineMarkerInfo(pair.first.getNameIdentifier());
@@ -133,7 +137,7 @@ public final class AopLineMarkerProvider extends LineMarkerProviderDescriptor {
         }
     }
 
-    private Set<PsiMethod> findAdvisedMatchedMethods(Module module, AopPointcut aopPointcut) {
+    private Set<PsiMethod> findAdvisedMatchedMethods(Module module, AopPointcut aopPointcut, PsiClass aspectPsiClass) {
         Set<PsiMethod> psiMethods = Sets.newHashSet();
 
         AopMatcher matcher = AopMatcher.getMatcher(aopPointcut);
@@ -141,16 +145,25 @@ public final class AopLineMarkerProvider extends LineMarkerProviderDescriptor {
             return psiMethods;
         }
 
-        GlobalSearchScope scope = GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module);
-        Query<PsiClass> query = AllClassesSearch.search(scope, module.getProject());
+        VirtualFile virtualFile = aspectPsiClass.getContainingFile().getVirtualFile();
+        Collection<Module> projectModules = ModuleUtil.getModulesOfType(module.getProject(), JavaModuleType.getModuleType());
+        // 找到依赖了该切面的项目模块
+        List<Module> modulesIncludeAspectCls = projectModules.stream()
+                .filter(projectModule -> projectModule.getModuleContentWithDependenciesScope().accept(virtualFile))
+                .collect(Collectors.toList());
 
-        query.forEach(candidateClz -> {
-            for (PsiMethod candidateMethod : candidateClz.getMethods()) {
-                if (matcher.methodMatcher(candidateClz, candidateMethod)) {
-                    psiMethods.add(candidateMethod);
+        for (Module moduleIncludeAspectCls : modulesIncludeAspectCls) {
+            GlobalSearchScope scope = GlobalSearchScope.moduleWithDependenciesScope(moduleIncludeAspectCls);
+            Query<PsiClass> query = AllClassesSearch.search(scope, moduleIncludeAspectCls.getProject());
+
+            query.forEach(candidateClz -> {
+                for (PsiMethod candidateMethod : candidateClz.getMethods()) {
+                    if (matcher.methodMatcher(candidateClz, candidateMethod)) {
+                        psiMethods.add(candidateMethod);
+                    }
                 }
-            }
-        });
+            });
+        }
 
         return psiMethods;
     }
