@@ -99,7 +99,8 @@ public final class AopLineMarkerProvider extends LineMarkerProviderDescriptor {
     private Set<PsiClass> collectAdvisedClasses(Module module) {
         Set<PsiClass> psiClasses = Sets.newHashSet();
 
-        Query<PsiClass> query = AllClassesSearch.search(GlobalSearchScope.moduleWithDependenciesScope(module), module.getProject());
+        GlobalSearchScope scope = GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module);
+        Query<PsiClass> query = AllClassesSearch.search(scope, module.getProject());
         query.forEach(psiClass -> {
             PsiAnnotation annotation = psiClass.getAnnotation(PointcutExpressionInjectionContributor.ASPECT_CLASS_NAME);
             if (annotation != null) {
@@ -140,8 +141,8 @@ public final class AopLineMarkerProvider extends LineMarkerProviderDescriptor {
             return psiMethods;
         }
 
-        Query<PsiClass> query = AllClassesSearch.search(GlobalSearchScope.projectScope(module.getProject()),
-                module.getProject());
+        GlobalSearchScope scope = GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module);
+        Query<PsiClass> query = AllClassesSearch.search(scope, module.getProject());
 
         query.forEach(candidateClz -> {
             for (PsiMethod candidateMethod : candidateClz.getMethods()) {

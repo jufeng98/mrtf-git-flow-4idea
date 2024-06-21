@@ -6,6 +6,8 @@ import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.Annotator;
 import com.intellij.lang.annotation.HighlightSeverity;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.JavaPsiFacade;
@@ -65,7 +67,13 @@ public class AopAnnotator implements Annotator {
             return;
         }
 
-        PsiClass annoPsiClass = JavaPsiFacade.getInstance(project).findClass(fullQualifierName, GlobalSearchScope.projectScope(project));
+        Module module = ModuleUtil.findModuleForPsiElement(element);
+        if (module == null) {
+            return;
+        }
+
+        GlobalSearchScope scope = GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module);
+        PsiClass annoPsiClass = JavaPsiFacade.getInstance(project).findClass(fullQualifierName, scope);
         if (annoPsiClass == null) {
             createError("无法解析类名", holder, textRange);
         }

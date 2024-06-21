@@ -4,6 +4,9 @@ import com.github.xiaolyuh.spel.psi.SpelFieldOrMethodName;
 import com.github.xiaolyuh.spel.psi.SpelMethodCall;
 import com.github.xiaolyuh.spel.psi.SpelSpel;
 import com.github.xiaolyuh.spel.psi.SpelTypes;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleUtil;
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiClassType;
@@ -16,12 +19,18 @@ import com.intellij.psi.search.GlobalSearchScope;
 import org.jetbrains.annotations.Nullable;
 
 public class SpelUtils {
+    private static final String AOP_LOG_RECORD_UTILS = "cn.com.bluemoon.washing.aspect.AopLogRecordAspect.AopLogRecordUtils";
 
     public static PsiClass getMethodContextClz(SpelSpel spelSpel) {
-        return JavaPsiFacade.getInstance(spelSpel.getProject()).findClass(
-                "cn.com.bluemoon.washing.aspect.AopLogRecordAspect.AopLogRecordUtils",
-                GlobalSearchScope.projectScope(spelSpel.getProject())
-        );
+        Module module = ModuleUtil.findModuleForPsiElement(spelSpel);
+        if (module == null) {
+            return null;
+        }
+
+        Project project = spelSpel.getProject();
+        GlobalSearchScope scope = GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module);
+
+        return JavaPsiFacade.getInstance(project).findClass(AOP_LOG_RECORD_UTILS, scope);
     }
 
     public static boolean isSharpField(SpelFieldOrMethodName fieldOrMethodName) {

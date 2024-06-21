@@ -33,6 +33,7 @@ public class FilePsiReference extends PsiReferenceBase<PsiLiteralExpression> {
         if (StringUtils.isBlank(fileName)) {
             return null;
         }
+
         Collection<VirtualFile> files = FilenameIndex.getVirtualFilesByName(fileName, GlobalSearchScope.projectScope(project));
         if (files.isEmpty()) {
             return null;
