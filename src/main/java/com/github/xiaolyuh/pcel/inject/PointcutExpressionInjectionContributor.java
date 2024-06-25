@@ -28,6 +28,7 @@ public class PointcutExpressionInjectionContributor implements LanguageInjection
             "org.aspectj.lang.annotation.AfterThrowing"
     );
     public static final String ASPECT_CLASS_NAME = "org.aspectj.lang.annotation.Aspect";
+    public static final String ASPECT_SHORT_CLASS_NAME = "Aspect";
 
 
     @Override

@@ -13,7 +13,6 @@ import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.ui.Messages;
@@ -32,7 +31,6 @@ import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
 import com.intellij.psi.PsiJavaFile;
-import com.intellij.psi.PsiJavaParserFacade;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiPackage;
 import com.intellij.psi.search.FilenameIndex;
@@ -65,7 +63,7 @@ public class SampleDialog extends DialogWrapper {
     private JButton toolWindowBalloonBtn;
     private JButton projectBtn;
     private JButton msgBtn;
-    private JButton button2;
+    private JButton fileNameIdxBtn;
     private JButton findBtn;
     private JButton btn3;
     private JButton editorBtn;
@@ -107,7 +105,7 @@ public class SampleDialog extends DialogWrapper {
 
         msgBtn.addActionListener(e -> Messages.showInfoMessage(project, "这是说明啊", "标题"));
 
-        button2.addActionListener(e -> {
+        fileNameIdxBtn.addActionListener(e -> {
             // 通过FilenameIndex寻找任意文件
             Collection<VirtualFile> files = FilenameIndex
                     .getVirtualFilesByName("git-flow-k8s.json", GlobalSearchScope.projectScope(project));
@@ -156,6 +154,10 @@ public class SampleDialog extends DialogWrapper {
         getVfs.addActionListener(e -> getVfs(event));
 
         getDoc.addActionListener(e -> getDoc(event));
+
+//        PsiSearchHelper psiSearchHelper = PsiSearchHelper.getInstance(event.getProject());
+//        Query<PsiClass> query = AllClassesSearch.search(scope, moduleIncludeAspectCls.getProject());
+
     }
 
     private void getDoc(AnActionEvent e) {

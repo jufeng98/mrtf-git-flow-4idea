@@ -1,10 +1,8 @@
 package com.github.xiaolyuh.spring;
 
 import com.github.xiaolyuh.aop.AopMatcher;
-import com.github.xiaolyuh.pcel.inject.PointcutExpressionInjectionContributor;
 import com.github.xiaolyuh.pcel.psi.AopPointcut;
 import com.github.xiaolyuh.utils.AopUtils;
-import com.google.common.collect.Sets;
 import com.intellij.codeInsight.daemon.GutterName;
 import com.intellij.codeInsight.daemon.LineMarkerInfo;
 import com.intellij.codeInsight.daemon.LineMarkerProviderDescriptor;
@@ -24,13 +22,13 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiIdentifier;
 import com.intellij.psi.PsiMethod;
+import com.intellij.psi.impl.java.stubs.index.JavaAnnotationIndex;
 import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.psi.search.searches.AllClassesSearch;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
 import com.intellij.psi.util.PsiModificationTracker;
+import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.util.PsiUtil;
-import com.intellij.util.Query;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.uast.UClass;
 import org.jetbrains.uast.UElement;
@@ -40,9 +38,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.github.xiaolyuh.pcel.inject.PointcutExpressionInjectionContributor.ASPECT_SHORT_CLASS_NAME;
 
 
 public final class AopLineMarkerProvider extends LineMarkerProviderDescriptor {
@@ -101,18 +102,12 @@ public final class AopLineMarkerProvider extends LineMarkerProviderDescriptor {
      * 收集切面类
      */
     private Set<PsiClass> collectAdvisedClasses(Module module) {
-        Set<PsiClass> psiClasses = Sets.newHashSet();
-
         GlobalSearchScope scope = GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module);
-        Query<PsiClass> query = AllClassesSearch.search(scope, module.getProject());
-        query.forEach(psiClass -> {
-            PsiAnnotation annotation = psiClass.getAnnotation(PointcutExpressionInjectionContributor.ASPECT_CLASS_NAME);
-            if (annotation != null) {
-                psiClasses.add(psiClass);
-            }
-        });
+        Collection<PsiAnnotation> psiAnnotations = JavaAnnotationIndex.getInstance().get(ASPECT_SHORT_CLASS_NAME, module.getProject(), scope);
 
-        return psiClasses;
+        return psiAnnotations.stream()
+                .map(it -> PsiTreeUtil.getParentOfType(it, PsiClass.class))
+                .collect(Collectors.toSet());
     }
 
     /**
@@ -138,34 +133,23 @@ public final class AopLineMarkerProvider extends LineMarkerProviderDescriptor {
     }
 
     private Set<PsiMethod> findAdvisedMatchedMethods(Module module, AopPointcut aopPointcut, PsiClass aspectPsiClass) {
-        Set<PsiMethod> psiMethods = Sets.newHashSet();
-
         AopMatcher matcher = AopMatcher.getMatcher(aopPointcut);
         if (matcher == null) {
-            return psiMethods;
+            return Collections.emptySet();
         }
 
         VirtualFile virtualFile = aspectPsiClass.getContainingFile().getVirtualFile();
         Collection<Module> projectModules = ModuleUtil.getModulesOfType(module.getProject(), JavaModuleType.getModuleType());
+
         // 找到依赖了该切面的项目模块
-        List<Module> modulesIncludeAspectCls = projectModules.stream()
+        List<Module> modulesDependAspectCls = projectModules.stream()
                 .filter(projectModule -> projectModule.getModuleContentWithDependenciesScope().accept(virtualFile))
                 .collect(Collectors.toList());
 
-        for (Module moduleIncludeAspectCls : modulesIncludeAspectCls) {
-            GlobalSearchScope scope = GlobalSearchScope.moduleWithDependenciesScope(moduleIncludeAspectCls);
-            Query<PsiClass> query = AllClassesSearch.search(scope, moduleIncludeAspectCls.getProject());
-
-            query.forEach(candidateClz -> {
-                for (PsiMethod candidateMethod : candidateClz.getMethods()) {
-                    if (matcher.methodMatcher(candidateClz, candidateMethod)) {
-                        psiMethods.add(candidateMethod);
-                    }
-                }
-            });
-        }
-
-        return psiMethods;
+        return modulesDependAspectCls.stream()
+                .map(matcher::collectMatchMethods)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toSet());
     }
 
     /**
