@@ -45,7 +45,9 @@ import java.util.stream.Collectors;
 
 import static com.github.xiaolyuh.pcel.inject.PointcutExpressionInjectionContributor.ASPECT_SHORT_CLASS_NAME;
 
-
+/**
+ * @author yudong
+ */
 public final class AopLineMarkerProvider extends LineMarkerProviderDescriptor {
     private static final Logger LOG = LoggerFactory.getLogger(AopLineMarkerProvider.class);
 
@@ -88,6 +90,9 @@ public final class AopLineMarkerProvider extends LineMarkerProviderDescriptor {
         }
     }
 
+    /**
+     * 收集切面类并缓存起来
+     */
     private Set<PsiClass> collectAdvisedClassesAndCache(Module module) {
         return CachedValuesManager.getManager(module.getProject())
                 .getCachedValue(module, () -> {
@@ -103,7 +108,8 @@ public final class AopLineMarkerProvider extends LineMarkerProviderDescriptor {
      */
     private Set<PsiClass> collectAdvisedClasses(Module module) {
         GlobalSearchScope scope = GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module);
-        Collection<PsiAnnotation> psiAnnotations = JavaAnnotationIndex.getInstance().get(ASPECT_SHORT_CLASS_NAME, module.getProject(), scope);
+        JavaAnnotationIndex javaAnnotationIndex = JavaAnnotationIndex.getInstance();
+        Collection<PsiAnnotation> psiAnnotations = javaAnnotationIndex.get(ASPECT_SHORT_CLASS_NAME, module.getProject(), scope);
 
         return psiAnnotations.stream()
                 .map(it -> PsiTreeUtil.getParentOfType(it, PsiClass.class))
@@ -146,6 +152,7 @@ public final class AopLineMarkerProvider extends LineMarkerProviderDescriptor {
                 .filter(projectModule -> projectModule.getModuleContentWithDependenciesScope().accept(virtualFile))
                 .collect(Collectors.toList());
 
+        // 收集模块里所有匹配切面的方法
         return modulesDependAspectCls.stream()
                 .map(matcher::collectMatchMethods)
                 .flatMap(Collection::stream)
@@ -197,7 +204,7 @@ public final class AopLineMarkerProvider extends LineMarkerProviderDescriptor {
 
         @SuppressWarnings("DialogTitleCapitalization")
         RelatedItemLineMarkerInfo<PsiElement> lineMarkerInfo = NavigationGutterIconBuilder
-                .create(IconLoader.getIcon("/icons/pointcut.svg", getClass()))
+                .create(IconLoader.getIcon("/icons/method.svg", getClass()))
                 .setTargets(psiMethods)
                 .setTooltipText("导航到切面")
                 .createLineMarkerInfo(psiElement);

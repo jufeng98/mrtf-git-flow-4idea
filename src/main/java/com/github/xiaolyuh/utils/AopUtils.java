@@ -51,6 +51,9 @@ public class AopUtils {
         return aspectMethodMatchedSet;
     }
 
+    /**
+     * 判断是否是切面类(即类上是否带有 @Aspect 注解)
+     */
     public static boolean isAspectClass(PsiClass psiClass) {
         return psiClass.getAnnotation(PointcutExpressionInjectionContributor.ASPECT_CLASS_NAME) != null;
     }

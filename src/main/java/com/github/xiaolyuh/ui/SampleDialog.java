@@ -1,6 +1,7 @@
 package com.github.xiaolyuh.ui;
 
 import com.github.xiaolyuh.utils.NotifyUtil;
+import com.intellij.ide.highlighter.XmlFileType;
 import com.intellij.lang.Language;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -12,6 +13,9 @@ import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.fileTypes.FileType;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.MessageType;
@@ -26,19 +30,29 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowId;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.psi.JavaPsiFacade;
+import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiDocumentManager;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiPackage;
+import com.intellij.psi.impl.java.stubs.index.JavaAnnotationIndex;
+import com.intellij.psi.impl.java.stubs.index.JavaStubIndexKeys;
+import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.psi.search.PsiSearchHelper;
 import com.intellij.psi.search.PsiShortNamesCache;
+import com.intellij.psi.search.searches.AllClassesSearch;
 import com.intellij.psi.search.searches.ClassInheritorsSearch;
+import com.intellij.psi.stubs.StubIndex;
 import com.intellij.util.DocumentUtil;
 import com.intellij.util.Query;
+import com.intellij.util.indexing.FileBasedIndex;
+import com.intellij.util.indexing.ID;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -51,6 +65,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("DialogTitleCapitalization")
 public class SampleDialog extends DialogWrapper {
@@ -70,7 +85,10 @@ public class SampleDialog extends DialogWrapper {
     private JButton chromeBtn;
     private JButton getVfs;
     private JButton getDoc;
+    private JButton fileBasedIndexesButton;
+    private JButton stubIndexesButton;
 
+    @SuppressWarnings("DataFlowIssue")
     public SampleDialog(AnActionEvent event) {
         super(true);
         setTitle("测试DialogWrapper");
@@ -155,11 +173,59 @@ public class SampleDialog extends DialogWrapper {
 
         getDoc.addActionListener(e -> getDoc(event));
 
-//        PsiSearchHelper psiSearchHelper = PsiSearchHelper.getInstance(event.getProject());
-//        Query<PsiClass> query = AllClassesSearch.search(scope, moduleIncludeAspectCls.getProject());
-
+        fileBasedIndexesButton.addActionListener(e -> handleFileBasedIndexes(event));
+        stubIndexesButton.addActionListener(e -> handleStubIndexes(event));
     }
 
+    @SuppressWarnings("DataFlowIssue")
+    private void handleStubIndexes(AnActionEvent event) {
+        Project project = event.getProject();
+        StubIndex stubIndex = StubIndex.getInstance();
+
+        Collection<String> keys = stubIndex.getAllKeys(JavaStubIndexKeys.ANNOTATIONS, project);
+
+        VirtualFile file = FileEditorManager.getInstance(project).getSelectedEditor().getFile();
+        Module module = ModuleUtilCore.findModuleForFile(file, project);
+
+        Query<PsiClass> query = AllClassesSearch.search(GlobalSearchScope.moduleScope(module), project);
+
+        JavaAnnotationIndex javaAnnotationIndex = JavaAnnotationIndex.getInstance();
+        Collection<PsiAnnotation> psiAnnotations = javaAnnotationIndex.get("AopLog", project, GlobalSearchScope.projectScope(project));
+
+//        VirtualFileGist<Object> virtualFileGist = GistManager.getInstance().newVirtualFileGist();
+//        Object fileData = virtualFileGist.getFileData(project, file);
+//        PsiFileGist<Object> psiFileGist = GistManager.getInstance().newPsiFileGist();
+//        Object fileData1 = psiFileGist.getFileData(file);
+
+        String s = keys.iterator().next() + "~" + query.iterator().next() + "~" + psiAnnotations.iterator().next();
+        showVcsBalloon(project, String.format("<div>%s</div>", s));
+    }
+
+    @SuppressWarnings("DataFlowIssue")
+    private void handleFileBasedIndexes(AnActionEvent event) {
+        Project project = event.getProject();
+        FileBasedIndex fileBasedIndex = FileBasedIndex.getInstance();
+        ID<Object, Object> id = ID.findByName("filetypes");
+        Collection<Object> keys = fileBasedIndex.getAllKeys(id, project);
+        FileType key = (FileType) keys.stream()
+                .filter(it -> it.toString().toLowerCase().contains("xml"))
+                .collect(Collectors.toList())
+                .get(0);
+
+        List<Object> values = fileBasedIndex.getValues(id, key, GlobalSearchScope.everythingScope(project));
+
+        //Word Index
+        PsiSearchHelper psiSearchHelper = PsiSearchHelper.getInstance(event.getProject());
+        PsiElement[] psiElements = psiSearchHelper.findCommentsContainingIdentifier("用例相关的操作", GlobalSearchScope.projectScope(project));
+
+        // File Type Index
+        Collection<VirtualFile> files = FileTypeIndex.getFiles(XmlFileType.INSTANCE, GlobalSearchScope.projectScope(project));
+
+        String s = keys.iterator().next() + ":" + values.get(0) + "~" + Arrays.toString(psiElements) + "~" + files.iterator().next();
+        showVcsBalloon(project, String.format("<div>%s</div>", s));
+    }
+
+    @SuppressWarnings("DataFlowIssue")
     private void getDoc(AnActionEvent e) {
 
         Document document = e.getData(CommonDataKeys.EDITOR).getDocument();
@@ -173,7 +239,6 @@ public class SampleDialog extends DialogWrapper {
         System.out.println(psiFile1);
 
 
-        
         Document document1 = PsiDocumentManager.getInstance(e.getProject()).getDocument(psiFile);
         System.out.println(document1);
 
@@ -187,6 +252,7 @@ public class SampleDialog extends DialogWrapper {
         System.out.println(validOffset);
     }
 
+    @SuppressWarnings("DataFlowIssue")
     private void getVfs(AnActionEvent e) {
         Project project = e.getRequiredData(CommonDataKeys.PROJECT);
         Editor editor = e.getRequiredData(CommonDataKeys.EDITOR);

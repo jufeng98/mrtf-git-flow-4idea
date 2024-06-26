@@ -20,8 +20,8 @@ import java.util.stream.Collectors;
 public class AtAnnotationAopMatcher implements AopMatcher {
     private final String fullQualifierName;
 
-    public AtAnnotationAopMatcher(AopValue aopReal) {
-        AopExpr aopExpr = aopReal.getExpr();
+    public AtAnnotationAopMatcher(AopValue aopValue) {
+        AopExpr aopExpr = aopValue.getExpr();
         @SuppressWarnings("DataFlowIssue")
         String exprText = aopExpr.getText();
         fullQualifierName = exprText.substring(1, exprText.length() - 1);
