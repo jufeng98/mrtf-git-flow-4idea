@@ -126,15 +126,19 @@ public final class AopLineMarkerProvider extends LineMarkerProviderDescriptor {
         }
 
         for (Pair<PsiMethod, AopPointcut> pair : pairSet) {
+            PsiMethod psiMethod = pair.first;
+            AopPointcut aopPointcut = pair.second;
+
             @SuppressWarnings({"DialogTitleCapitalization", "DataFlowIssue"})
             RelatedItemLineMarkerInfo<PsiElement> lineMarkerInfo = NavigationGutterIconBuilder
                     .create(IconLoader.getIcon("/icons/pointcut.svg", getClass()))
-                    .setTargets(NotNullLazyValue.lazy(() -> findAdvisedMatchedMethods(module, pair.second, aspectPsiClass)))
+                    .setTargets(NotNullLazyValue.lazy(() -> findAdvisedMatchedMethods(module, aopPointcut, aspectPsiClass)))
                     .setTooltipText("导航到切面匹配的方法")
                     .setEmptyPopupText("切面没有匹配的方法")
-                    .createLineMarkerInfo(pair.first.getNameIdentifier());
+                    .createLineMarkerInfo(psiMethod.getNameIdentifier());
+
             result.add(lineMarkerInfo);
-            LOG.info("为切面类:{}的{}方法添加行标记", aspectPsiClass.getName(), pair.first.getName());
+            LOG.info("为切面类:{}的{}方法添加行标记", aspectPsiClass.getName(), psiMethod.getName());
         }
     }
 
