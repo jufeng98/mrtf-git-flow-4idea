@@ -1,7 +1,10 @@
 package com.github.xiaolyuh.spring;
 
+import com.github.xiaolyuh.spel.psi.SpelCollectionProjection;
+import com.github.xiaolyuh.spel.psi.SpelFieldName;
 import com.github.xiaolyuh.spel.psi.SpelFieldOrMethod;
 import com.github.xiaolyuh.spel.psi.SpelFieldOrMethodName;
+import com.github.xiaolyuh.spel.psi.SpelFieldRecursiveCall;
 import com.github.xiaolyuh.spel.psi.SpelMethodCall;
 import com.github.xiaolyuh.spel.psi.SpelMethodParam;
 import com.github.xiaolyuh.spel.psi.SpelMethodParams;
@@ -13,6 +16,7 @@ import com.github.xiaolyuh.spel.psi.SpelStringLiteral;
 import com.github.xiaolyuh.utils.SpelUtils;
 import com.google.common.collect.Lists;
 import com.intellij.lang.injection.InjectedLanguageManager;
+import com.intellij.lang.jvm.types.JvmType;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
@@ -36,6 +40,7 @@ import com.intellij.psi.PsiReferenceProvider;
 import com.intellij.psi.PsiReferenceRegistrar;
 import com.intellij.psi.PsiTypeElement;
 import com.intellij.psi.ResolveResult;
+import com.intellij.psi.impl.source.PsiClassReferenceType;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ProcessingContext;
@@ -43,6 +48,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -110,19 +117,46 @@ public class SpelReferenceContributor extends PsiReferenceContributor {
 
                     handleMethodCall(methodCall, spelSpel, psiMethod, references);
                 } else if (child instanceof SpelStringLiteral) {
-                    Project project = spelSpel.getProject();
+                    Project project = psiMethod.getProject();
                     GlobalSearchScope scope = GlobalSearchScope.allScope(project);
                     prevResolve = JavaPsiFacade.getInstance(project).findClass(String.class.getName(), scope);
+                } else if (child instanceof SpelCollectionProjection) {
+                    SpelCollectionProjection collectionProjection = (SpelCollectionProjection) child;
+
+                    prevResolve = handleSpelCollectionProjection(collectionProjection, prevResolve, spelSpel, references);
+                } else {
+                    System.out.println(child);
                 }
             }
 
             return prevResolve;
         }
 
+        private PsiClass handleSpelCollectionProjection(SpelCollectionProjection collectionProjection, PsiClass prevResolve,
+                                                        SpelSpel spelSpel, List<SpelReference> references) {
+            SpelFieldRecursiveCall fieldRecursiveCall = collectionProjection.getFieldRecursiveCall();
+            if (fieldRecursiveCall == null) {
+                return null;
+            }
+
+            SpelFieldName fieldName = fieldRecursiveCall.getFieldName();
+            PsiField psiField = prevResolve.findFieldByName(fieldName.getText(), true);
+            if (psiField == null) {
+                return null;
+            }
+
+            TextRange textRange = fieldName.getTextRange();
+            SpelReference reference = new SpelReference(spelSpel, textRange, psiField);
+            references.add(reference);
+
+            return SpelUtils.resolvePsiType(psiField.getType());
+        }
+
         private PsiClass handleSpelFieldOrMethodName(SpelFieldOrMethodName fieldOrMethodName, SpelSpel spelSpel,
                                                      PsiMethod psiMethod, List<SpelReference> references) {
             if (SpelUtils.isSharpField(fieldOrMethodName)) {
-                if (fieldOrMethodName.getText().equals("result")) {
+                String paramName = fieldOrMethodName.getText();
+                if (paramName.equals("result")) {
                     PsiTypeElement returnTypeElement = psiMethod.getReturnTypeElement();
                     if (returnTypeElement == null) {
                         return null;
@@ -135,7 +169,7 @@ public class SpelReferenceContributor extends PsiReferenceContributor {
                     return SpelUtils.resolvePsiType(returnTypeElement.getType());
                 }
 
-                PsiParameter psiParameter = SpelUtils.findMethodParamRelateToField(fieldOrMethodName.getText(), psiMethod);
+                PsiParameter psiParameter = SpelUtils.findMethodParamRelateToField(paramName, psiMethod);
                 if (psiParameter == null) {
                     return null;
                 }
@@ -143,6 +177,35 @@ public class SpelReferenceContributor extends PsiReferenceContributor {
                 TextRange textRange = fieldOrMethodName.getTextRange();
                 SpelReference reference = new SpelReference(spelSpel, textRange, psiParameter);
                 references.add(reference);
+
+                PsiClass psiClass = SpelUtils.resolvePsiType(psiParameter.getType());
+                if (psiClass == null) {
+                    return null;
+                }
+
+                Project project = psiMethod.getProject();
+                GlobalSearchScope scope = GlobalSearchScope.allScope(project);
+                PsiClass psiClassCollection = JavaPsiFacade.getInstance(project).findClass(Collection.class.getName(), scope);
+
+                //noinspection ConstantConditions
+                if (!psiClass.isInheritor(psiClassCollection, true)) {
+                    return SpelUtils.resolvePsiType(psiParameter.getType());
+                }
+
+                PsiParameter[] parameters = psiMethod.getParameterList().getParameters();
+                for (PsiParameter parameter : parameters) {
+                    if (!parameter.getName().equals(paramName)) {
+                        continue;
+                    }
+
+                    PsiClassReferenceType referenceType = (PsiClassReferenceType) parameter.getType();
+                    @SuppressWarnings("UnstableApiUsage")
+                    Iterator<JvmType> iterator = referenceType.typeArguments().iterator();
+                    if (iterator.hasNext()) {
+                        PsiClassReferenceType jvmType = (PsiClassReferenceType) iterator.next();
+                        return jvmType.resolve();
+                    }
+                }
 
                 return SpelUtils.resolvePsiType(psiParameter.getType());
             }

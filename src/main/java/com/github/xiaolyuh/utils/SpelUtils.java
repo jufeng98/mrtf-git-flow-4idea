@@ -89,6 +89,7 @@ public class SpelUtils {
         return null;
     }
 
+    @Nullable
     public static PsiClass resolvePsiType(PsiType psiType) {
         PsiClassReferenceType referenceType = (PsiClassReferenceType) psiType;
         if (referenceType != null) {
