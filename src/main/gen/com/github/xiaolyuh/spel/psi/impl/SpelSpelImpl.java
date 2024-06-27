@@ -30,50 +30,14 @@ public class SpelSpelImpl extends ASTWrapperPsiElement implements SpelSpel {
 
   @Override
   @NotNull
-  public List<SpelCollectionProjection> getCollectionProjectionList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, SpelCollectionProjection.class);
+  public SpelRoot getRoot() {
+    return findNotNullChildByClass(SpelRoot.class);
   }
 
   @Override
   @NotNull
-  public List<SpelCollectionSelection> getCollectionSelectionList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, SpelCollectionSelection.class);
-  }
-
-  @Override
-  @NotNull
-  public List<SpelFieldOrMethod> getFieldOrMethodList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, SpelFieldOrMethod.class);
-  }
-
-  @Override
-  @Nullable
-  public SpelFieldOrMethodName getFieldOrMethodName() {
-    return findChildByClass(SpelFieldOrMethodName.class);
-  }
-
-  @Override
-  @NotNull
-  public List<SpelMapSelection> getMapSelectionList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, SpelMapSelection.class);
-  }
-
-  @Override
-  @NotNull
-  public List<SpelMethodCall> getMethodCallList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, SpelMethodCall.class);
-  }
-
-  @Override
-  @Nullable
-  public SpelNumberLiteral getNumberLiteral() {
-    return findChildByClass(SpelNumberLiteral.class);
-  }
-
-  @Override
-  @Nullable
-  public SpelStringLiteral getStringLiteral() {
-    return findChildByClass(SpelStringLiteral.class);
+  public List<SpelRootCombination> getRootCombinationList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, SpelRootCombination.class);
   }
 
   @Override

@@ -7,7 +7,7 @@ import com.intellij.psi.PsiElement;
 
 public interface SpelFieldOrMethod extends PsiElement {
 
-  @NotNull
+  @Nullable
   SpelFieldOrMethodName getFieldOrMethodName();
 
   @Nullable

@@ -28,9 +28,9 @@ public class SpelCollectionSelectionImpl extends ASTWrapperPsiElement implements
   }
 
   @Override
-  @NotNull
+  @Nullable
   public SpelSelectionExpression getSelectionExpression() {
-    return findNotNullChildByClass(SpelSelectionExpression.class);
+    return findChildByClass(SpelSelectionExpression.class);
   }
 
 }

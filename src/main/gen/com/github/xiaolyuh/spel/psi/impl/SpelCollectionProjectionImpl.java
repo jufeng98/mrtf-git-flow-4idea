@@ -28,9 +28,9 @@ public class SpelCollectionProjectionImpl extends ASTWrapperPsiElement implement
   }
 
   @Override
-  @NotNull
+  @Nullable
   public SpelFieldRecursiveCall getFieldRecursiveCall() {
-    return findNotNullChildByClass(SpelFieldRecursiveCall.class);
+    return findChildByClass(SpelFieldRecursiveCall.class);
   }
 
 }

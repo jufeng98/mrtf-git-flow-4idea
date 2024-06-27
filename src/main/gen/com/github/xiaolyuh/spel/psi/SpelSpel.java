@@ -9,28 +9,10 @@ import com.intellij.psi.PsiReference;
 public interface SpelSpel extends PsiElement {
 
   @NotNull
-  List<SpelCollectionProjection> getCollectionProjectionList();
+  SpelRoot getRoot();
 
   @NotNull
-  List<SpelCollectionSelection> getCollectionSelectionList();
-
-  @NotNull
-  List<SpelFieldOrMethod> getFieldOrMethodList();
-
-  @Nullable
-  SpelFieldOrMethodName getFieldOrMethodName();
-
-  @NotNull
-  List<SpelMapSelection> getMapSelectionList();
-
-  @NotNull
-  List<SpelMethodCall> getMethodCallList();
-
-  @Nullable
-  SpelNumberLiteral getNumberLiteral();
-
-  @Nullable
-  SpelStringLiteral getStringLiteral();
+  List<SpelRootCombination> getRootCombinationList();
 
   PsiReference @NotNull [] getReferences();
 

@@ -33,9 +33,12 @@
   ]
 }
 
-spelFile ::= item_*
-private item_ ::= spel (PLUS spel)*
-
+spelFile ::= spel*
+spel ::= root root_combination* {
+    methods=[
+       getReferences
+    ]
+}
 string_literal ::= SINGLE_QUOTED_STRING
 number_literal ::= NUMBER
 field_name ::= IDENTIFIER {
@@ -48,7 +51,7 @@ field_or_method_name ::= IDENTIFIER {
        getReferences
    ]
 }
-method_param ::= spel {
+method_param ::= root {
      methods=[
          getReferences
      ]
@@ -58,13 +61,24 @@ method_call ::= '(' method_params? ')' {
     pin=1
 }
 selection_expression ::= EXPR
-field_or_method ::= DOT field_or_method_name method_call?
+field_or_method ::= DOT field_or_method_name method_call? {
+    pin=1
+}
 field_recursive_call ::= SHARP? field_name field_or_method*
-collection_projection ::= PROJECTION field_recursive_call R_BRACKET
-collection_selection ::= SELECTION selection_expression R_BRACKET
-map_selection ::= L_BRACKET field_name R_BRACKET
-spel ::= (string_literal | number_literal | SHARP field_or_method_name) (field_or_method | method_call | map_selection | collection_projection | collection_selection)* {
+collection_projection ::= PROJECTION field_recursive_call R_BRACKET {
+    pin=1
+}
+collection_selection ::= SELECTION selection_expression R_BRACKET {
+    pin=1
+}
+map_selection ::= L_BRACKET field_name R_BRACKET {
+    pin=1
+}
+root ::= (string_literal | number_literal | SHARP field_or_method_name) (field_or_method | method_call | map_selection | collection_projection | collection_selection)* {
     methods=[
         getReferences
     ]
+}
+root_combination ::= PLUS root {
+    pin=1
 }

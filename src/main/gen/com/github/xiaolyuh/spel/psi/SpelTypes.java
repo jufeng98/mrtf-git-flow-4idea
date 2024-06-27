@@ -19,6 +19,8 @@ public interface SpelTypes {
   IElementType METHOD_PARAM = new SpelElementType("METHOD_PARAM");
   IElementType METHOD_PARAMS = new SpelElementType("METHOD_PARAMS");
   IElementType NUMBER_LITERAL = new SpelElementType("NUMBER_LITERAL");
+  IElementType ROOT = new SpelElementType("ROOT");
+  IElementType ROOT_COMBINATION = new SpelElementType("ROOT_COMBINATION");
   IElementType SELECTION_EXPRESSION = new SpelElementType("SELECTION_EXPRESSION");
   IElementType SPEL = new SpelElementType("SPEL");
   IElementType STRING_LITERAL = new SpelElementType("STRING_LITERAL");
@@ -71,6 +73,12 @@ public interface SpelTypes {
       }
       else if (type == NUMBER_LITERAL) {
         return new SpelNumberLiteralImpl(node);
+      }
+      else if (type == ROOT) {
+        return new SpelRootImpl(node);
+      }
+      else if (type == ROOT_COMBINATION) {
+        return new SpelRootCombinationImpl(node);
       }
       else if (type == SELECTION_EXPRESSION) {
         return new SpelSelectionExpressionImpl(node);

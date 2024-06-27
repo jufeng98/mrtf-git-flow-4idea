@@ -7,7 +7,7 @@ import com.intellij.psi.PsiElement;
 
 public interface SpelCollectionProjection extends PsiElement {
 
-  @NotNull
+  @Nullable
   SpelFieldRecursiveCall getFieldRecursiveCall();
 
 }

@@ -51,6 +51,14 @@ public class SpelVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitRoot(@NotNull SpelRoot o) {
+    visitPsiElement(o);
+  }
+
+  public void visitRootCombination(@NotNull SpelRootCombination o) {
+    visitPsiElement(o);
+  }
+
   public void visitSelectionExpression(@NotNull SpelSelectionExpression o) {
     visitPsiElement(o);
   }

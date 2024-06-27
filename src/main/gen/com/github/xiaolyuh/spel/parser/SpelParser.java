@@ -40,13 +40,14 @@ public class SpelParser implements PsiParser, LightPsiParser {
   public static boolean collection_projection(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "collection_projection")) return false;
     if (!nextTokenIs(b, PROJECTION)) return false;
-    boolean r;
-    Marker m = enter_section_(b);
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, COLLECTION_PROJECTION, null);
     r = consumeToken(b, PROJECTION);
-    r = r && field_recursive_call(b, l + 1);
-    r = r && consumeToken(b, R_BRACKET);
-    exit_section_(b, m, COLLECTION_PROJECTION, r);
-    return r;
+    p = r; // pin = 1
+    r = r && report_error_(b, field_recursive_call(b, l + 1));
+    r = p && consumeToken(b, R_BRACKET) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   /* ********************************************************** */
@@ -54,13 +55,14 @@ public class SpelParser implements PsiParser, LightPsiParser {
   public static boolean collection_selection(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "collection_selection")) return false;
     if (!nextTokenIs(b, SELECTION)) return false;
-    boolean r;
-    Marker m = enter_section_(b);
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, COLLECTION_SELECTION, null);
     r = consumeToken(b, SELECTION);
-    r = r && selection_expression(b, l + 1);
-    r = r && consumeToken(b, R_BRACKET);
-    exit_section_(b, m, COLLECTION_SELECTION, r);
-    return r;
+    p = r; // pin = 1
+    r = r && report_error_(b, selection_expression(b, l + 1));
+    r = p && consumeToken(b, R_BRACKET) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   /* ********************************************************** */
@@ -80,13 +82,14 @@ public class SpelParser implements PsiParser, LightPsiParser {
   public static boolean field_or_method(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "field_or_method")) return false;
     if (!nextTokenIs(b, DOT)) return false;
-    boolean r;
-    Marker m = enter_section_(b);
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, FIELD_OR_METHOD, null);
     r = consumeToken(b, DOT);
-    r = r && field_or_method_name(b, l + 1);
-    r = r && field_or_method_2(b, l + 1);
-    exit_section_(b, m, FIELD_OR_METHOD, r);
-    return r;
+    p = r; // pin = 1
+    r = r && report_error_(b, field_or_method_name(b, l + 1));
+    r = p && field_or_method_2(b, l + 1) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   // method_call?
@@ -141,51 +144,18 @@ public class SpelParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // spel (PLUS spel)*
-  static boolean item_(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "item_")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = spel(b, l + 1);
-    r = r && item__1(b, l + 1);
-    exit_section_(b, m, null, r);
-    return r;
-  }
-
-  // (PLUS spel)*
-  private static boolean item__1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "item__1")) return false;
-    while (true) {
-      int c = current_position_(b);
-      if (!item__1_0(b, l + 1)) break;
-      if (!empty_element_parsed_guard_(b, "item__1", c)) break;
-    }
-    return true;
-  }
-
-  // PLUS spel
-  private static boolean item__1_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "item__1_0")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = consumeToken(b, PLUS);
-    r = r && spel(b, l + 1);
-    exit_section_(b, m, null, r);
-    return r;
-  }
-
-  /* ********************************************************** */
   // L_BRACKET field_name R_BRACKET
   public static boolean map_selection(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "map_selection")) return false;
     if (!nextTokenIs(b, L_BRACKET)) return false;
-    boolean r;
-    Marker m = enter_section_(b);
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, MAP_SELECTION, null);
     r = consumeToken(b, L_BRACKET);
-    r = r && field_name(b, l + 1);
-    r = r && consumeToken(b, R_BRACKET);
-    exit_section_(b, m, MAP_SELECTION, r);
-    return r;
+    p = r; // pin = 1
+    r = r && report_error_(b, field_name(b, l + 1));
+    r = p && consumeToken(b, R_BRACKET) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   /* ********************************************************** */
@@ -210,12 +180,12 @@ public class SpelParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // spel
+  // root
   public static boolean method_param(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "method_param")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, METHOD_PARAM, "<method param>");
-    r = spel(b, l + 1);
+    r = root(b, l + 1);
     exit_section_(b, l, m, r, false, null);
     return r;
   }
@@ -267,6 +237,78 @@ public class SpelParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
+  // (string_literal | number_literal | SHARP field_or_method_name) (field_or_method | method_call | map_selection | collection_projection | collection_selection)*
+  public static boolean root(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "root")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NONE_, ROOT, "<root>");
+    r = root_0(b, l + 1);
+    r = r && root_1(b, l + 1);
+    exit_section_(b, l, m, r, false, null);
+    return r;
+  }
+
+  // string_literal | number_literal | SHARP field_or_method_name
+  private static boolean root_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "root_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = string_literal(b, l + 1);
+    if (!r) r = number_literal(b, l + 1);
+    if (!r) r = root_0_2(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // SHARP field_or_method_name
+  private static boolean root_0_2(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "root_0_2")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, SHARP);
+    r = r && field_or_method_name(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // (field_or_method | method_call | map_selection | collection_projection | collection_selection)*
+  private static boolean root_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "root_1")) return false;
+    while (true) {
+      int c = current_position_(b);
+      if (!root_1_0(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "root_1", c)) break;
+    }
+    return true;
+  }
+
+  // field_or_method | method_call | map_selection | collection_projection | collection_selection
+  private static boolean root_1_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "root_1_0")) return false;
+    boolean r;
+    r = field_or_method(b, l + 1);
+    if (!r) r = method_call(b, l + 1);
+    if (!r) r = map_selection(b, l + 1);
+    if (!r) r = collection_projection(b, l + 1);
+    if (!r) r = collection_selection(b, l + 1);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // PLUS root
+  public static boolean root_combination(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "root_combination")) return false;
+    if (!nextTokenIs(b, PLUS)) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, ROOT_COMBINATION, null);
+    r = consumeToken(b, PLUS);
+    p = r; // pin = 1
+    r = r && root(b, l + 1);
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  /* ********************************************************** */
   // EXPR
   public static boolean selection_expression(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "selection_expression")) return false;
@@ -279,70 +321,35 @@ public class SpelParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // (string_literal | number_literal | SHARP field_or_method_name) (field_or_method | method_call | map_selection | collection_projection | collection_selection)*
+  // root root_combination*
   public static boolean spel(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "spel")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, SPEL, "<spel>");
-    r = spel_0(b, l + 1);
+    r = root(b, l + 1);
     r = r && spel_1(b, l + 1);
     exit_section_(b, l, m, r, false, null);
     return r;
   }
 
-  // string_literal | number_literal | SHARP field_or_method_name
-  private static boolean spel_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "spel_0")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = string_literal(b, l + 1);
-    if (!r) r = number_literal(b, l + 1);
-    if (!r) r = spel_0_2(b, l + 1);
-    exit_section_(b, m, null, r);
-    return r;
-  }
-
-  // SHARP field_or_method_name
-  private static boolean spel_0_2(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "spel_0_2")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = consumeToken(b, SHARP);
-    r = r && field_or_method_name(b, l + 1);
-    exit_section_(b, m, null, r);
-    return r;
-  }
-
-  // (field_or_method | method_call | map_selection | collection_projection | collection_selection)*
+  // root_combination*
   private static boolean spel_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "spel_1")) return false;
     while (true) {
       int c = current_position_(b);
-      if (!spel_1_0(b, l + 1)) break;
+      if (!root_combination(b, l + 1)) break;
       if (!empty_element_parsed_guard_(b, "spel_1", c)) break;
     }
     return true;
   }
 
-  // field_or_method | method_call | map_selection | collection_projection | collection_selection
-  private static boolean spel_1_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "spel_1_0")) return false;
-    boolean r;
-    r = field_or_method(b, l + 1);
-    if (!r) r = method_call(b, l + 1);
-    if (!r) r = map_selection(b, l + 1);
-    if (!r) r = collection_projection(b, l + 1);
-    if (!r) r = collection_selection(b, l + 1);
-    return r;
-  }
-
   /* ********************************************************** */
-  // item_*
+  // spel*
   static boolean spelFile(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "spelFile")) return false;
     while (true) {
       int c = current_position_(b);
-      if (!item_(b, l + 1)) break;
+      if (!spel(b, l + 1)) break;
       if (!empty_element_parsed_guard_(b, "spelFile", c)) break;
     }
     return true;

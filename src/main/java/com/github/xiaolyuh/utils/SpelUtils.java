@@ -69,6 +69,11 @@ public class SpelUtils {
         return nextSibling instanceof SpelMethodCall;
     }
 
+    /**
+     * 找到字段名对应的方法参数
+     *
+     * @return 方法参数
+     */
     @Nullable
     public static PsiParameter findMethodParam(String fieldName, PsiMethod psiMethod) {
         PsiParameterList parameterList = psiMethod.getParameterList();

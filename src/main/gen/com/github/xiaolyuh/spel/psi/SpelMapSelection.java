@@ -7,7 +7,7 @@ import com.intellij.psi.PsiElement;
 
 public interface SpelMapSelection extends PsiElement {
 
-  @NotNull
+  @Nullable
   SpelFieldName getFieldName();
 
 }

@@ -28,9 +28,9 @@ public class SpelFieldOrMethodImpl extends ASTWrapperPsiElement implements SpelF
   }
 
   @Override
-  @NotNull
+  @Nullable
   public SpelFieldOrMethodName getFieldOrMethodName() {
-    return findNotNullChildByClass(SpelFieldOrMethodName.class);
+    return findChildByClass(SpelFieldOrMethodName.class);
   }
 
   @Override

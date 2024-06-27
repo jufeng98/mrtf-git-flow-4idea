@@ -11,14 +11,14 @@ import static com.github.xiaolyuh.spel.psi.SpelTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.github.xiaolyuh.spel.psi.*;
 
-public class SpelMapSelectionImpl extends ASTWrapperPsiElement implements SpelMapSelection {
+public class SpelRootCombinationImpl extends ASTWrapperPsiElement implements SpelRootCombination {
 
-  public SpelMapSelectionImpl(@NotNull ASTNode node) {
+  public SpelRootCombinationImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull SpelVisitor visitor) {
-    visitor.visitMapSelection(this);
+    visitor.visitRootCombination(this);
   }
 
   @Override
@@ -29,8 +29,14 @@ public class SpelMapSelectionImpl extends ASTWrapperPsiElement implements SpelMa
 
   @Override
   @Nullable
-  public SpelFieldName getFieldName() {
-    return findChildByClass(SpelFieldName.class);
+  public SpelRoot getRoot() {
+    return findChildByClass(SpelRoot.class);
+  }
+
+  @Override
+  @NotNull
+  public PsiElement getPlus() {
+    return findNotNullChildByType(PLUS);
   }
 
 }

@@ -4,13 +4,13 @@ package com.github.xiaolyuh.spel.psi;
 import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiReference;
 
-public interface SpelMethodParam extends PsiElement {
+public interface SpelRootCombination extends PsiElement {
 
-  @NotNull
+  @Nullable
   SpelRoot getRoot();
 
-  PsiReference @NotNull [] getReferences();
+  @NotNull
+  PsiElement getPlus();
 
 }

@@ -30,8 +30,8 @@ public class SpelMethodParamImpl extends ASTWrapperPsiElement implements SpelMet
 
   @Override
   @NotNull
-  public SpelSpel getSpel() {
-    return findNotNullChildByClass(SpelSpel.class);
+  public SpelRoot getRoot() {
+    return findNotNullChildByClass(SpelRoot.class);
   }
 
   @Override

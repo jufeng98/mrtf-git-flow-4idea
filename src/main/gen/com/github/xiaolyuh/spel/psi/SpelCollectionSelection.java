@@ -7,7 +7,7 @@ import com.intellij.psi.PsiElement;
 
 public interface SpelCollectionSelection extends PsiElement {
 
-  @NotNull
+  @Nullable
   SpelSelectionExpression getSelectionExpression();
 
 }
