@@ -30,6 +30,9 @@ public interface SpelRoot extends PsiElement {
   SpelNumberLiteral getNumberLiteral();
 
   @Nullable
+  SpelStaticT getStaticT();
+
+  @Nullable
   SpelStringLiteral getStringLiteral();
 
   PsiReference @NotNull [] getReferences();

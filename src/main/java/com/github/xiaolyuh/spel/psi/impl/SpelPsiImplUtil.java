@@ -5,6 +5,7 @@ import com.github.xiaolyuh.spel.psi.SpelFieldOrMethodName;
 import com.github.xiaolyuh.spel.psi.SpelMethodParam;
 import com.github.xiaolyuh.spel.psi.SpelRoot;
 import com.github.xiaolyuh.spel.psi.SpelSpel;
+import com.github.xiaolyuh.spel.psi.SpelStaticT;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.impl.source.resolve.reference.ReferenceProvidersRegistry;
 import org.jetbrains.annotations.NotNull;
@@ -15,6 +16,9 @@ public class SpelPsiImplUtil {
     }
 
     public static PsiReference @NotNull [] getReferences(SpelMethodParam param) {
+        return ReferenceProvidersRegistry.getReferencesFromProviders(param);
+    }
+    public static PsiReference @NotNull [] getReferences(SpelStaticT param) {
         return ReferenceProvidersRegistry.getReferencesFromProviders(param);
     }
 

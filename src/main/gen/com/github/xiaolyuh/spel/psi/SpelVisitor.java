@@ -67,6 +67,10 @@ public class SpelVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitStaticT(@NotNull SpelStaticT o) {
+    visitPsiElement(o);
+  }
+
   public void visitStringLiteral(@NotNull SpelStringLiteral o) {
     visitPsiElement(o);
   }

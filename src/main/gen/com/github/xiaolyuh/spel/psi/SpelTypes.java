@@ -23,6 +23,7 @@ public interface SpelTypes {
   IElementType ROOT_COMBINATION = new SpelElementType("ROOT_COMBINATION");
   IElementType SELECTION_EXPRESSION = new SpelElementType("SELECTION_EXPRESSION");
   IElementType SPEL = new SpelElementType("SPEL");
+  IElementType STATIC_T = new SpelElementType("STATIC_T");
   IElementType STRING_LITERAL = new SpelElementType("STRING_LITERAL");
 
   IElementType COMMA = new SpelTokenType("COMMA");
@@ -37,6 +38,7 @@ public interface SpelTypes {
   IElementType SELECTION = new SpelTokenType(".?[");
   IElementType SHARP = new SpelTokenType("#");
   IElementType SINGLE_QUOTED_STRING = new SpelTokenType("SINGLE_QUOTED_STRING");
+  IElementType STATIC_REFERENCE = new SpelTokenType("STATIC_REFERENCE");
 
   class Factory {
     public static PsiElement createElement(ASTNode node) {
@@ -85,6 +87,9 @@ public interface SpelTypes {
       }
       else if (type == SPEL) {
         return new SpelSpelImpl(node);
+      }
+      else if (type == STATIC_T) {
+        return new SpelStaticTImpl(node);
       }
       else if (type == STRING_LITERAL) {
         return new SpelStringLiteralImpl(node);

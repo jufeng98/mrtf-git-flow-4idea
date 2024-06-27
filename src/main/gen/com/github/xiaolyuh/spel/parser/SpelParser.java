@@ -237,7 +237,7 @@ public class SpelParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // (string_literal | number_literal | SHARP field_or_method_name) (field_or_method | method_call | map_selection | collection_projection | collection_selection)*
+  // (string_literal | number_literal | SHARP field_or_method_name | static_t) (field_or_method | method_call | map_selection | collection_projection | collection_selection)*
   public static boolean root(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "root")) return false;
     boolean r;
@@ -248,7 +248,7 @@ public class SpelParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // string_literal | number_literal | SHARP field_or_method_name
+  // string_literal | number_literal | SHARP field_or_method_name | static_t
   private static boolean root_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "root_0")) return false;
     boolean r;
@@ -256,6 +256,7 @@ public class SpelParser implements PsiParser, LightPsiParser {
     r = string_literal(b, l + 1);
     if (!r) r = number_literal(b, l + 1);
     if (!r) r = root_0_2(b, l + 1);
+    if (!r) r = static_t(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
   }
@@ -353,6 +354,19 @@ public class SpelParser implements PsiParser, LightPsiParser {
       if (!empty_element_parsed_guard_(b, "spelFile", c)) break;
     }
     return true;
+  }
+
+  /* ********************************************************** */
+  // 'T' STATIC_REFERENCE
+  public static boolean static_t(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "static_t")) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, STATIC_T, "<static t>");
+    r = consumeToken(b, "T");
+    p = r; // pin = 1
+    r = r && consumeToken(b, STATIC_REFERENCE);
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   /* ********************************************************** */

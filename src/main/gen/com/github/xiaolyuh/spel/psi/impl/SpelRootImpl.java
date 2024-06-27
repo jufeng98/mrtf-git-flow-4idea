@@ -72,6 +72,12 @@ public class SpelRootImpl extends ASTWrapperPsiElement implements SpelRoot {
 
   @Override
   @Nullable
+  public SpelStaticT getStaticT() {
+    return findChildByClass(SpelStaticT.class);
+  }
+
+  @Override
+  @Nullable
   public SpelStringLiteral getStringLiteral() {
     return findChildByClass(SpelStringLiteral.class);
   }

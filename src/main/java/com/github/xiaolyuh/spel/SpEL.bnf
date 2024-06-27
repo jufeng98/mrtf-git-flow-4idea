@@ -24,6 +24,7 @@
     NUMBER='regexp:-?(0|[1-9]\d*)(\.\d+)?([eE][+-]?\d*)?'
     COMMA="regexp:\s*,\s*"
     EXPR="regexp:[\w=']+"
+    STATIC_REFERENCE="regexp:\([\w.]+\)"
     SHARP="#"
     DOT="."
     PROJECTION=".!["
@@ -51,10 +52,16 @@ field_or_method_name ::= IDENTIFIER {
        getReferences
    ]
 }
+static_t ::= 'T' STATIC_REFERENCE {
+    pin=1
+    methods=[
+        getReferences
+    ]
+}
 method_param ::= root {
-     methods=[
-         getReferences
-     ]
+    methods=[
+        getReferences
+    ]
 }
 method_params ::= method_param (COMMA method_param)*
 method_call ::= '(' method_params? ')' {
@@ -74,7 +81,7 @@ collection_selection ::= SELECTION selection_expression R_BRACKET {
 map_selection ::= L_BRACKET field_name R_BRACKET {
     pin=1
 }
-root ::= (string_literal | number_literal | SHARP field_or_method_name) (field_or_method | method_call | map_selection | collection_projection | collection_selection)* {
+root ::= (string_literal | number_literal | SHARP field_or_method_name | static_t) (field_or_method | method_call | map_selection | collection_projection | collection_selection)* {
     methods=[
         getReferences
     ]

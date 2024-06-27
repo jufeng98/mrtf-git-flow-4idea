@@ -8,11 +8,16 @@ import com.github.xiaolyuh.spel.psi.SpelMethodParams;
 import com.github.xiaolyuh.spel.psi.SpelRoot;
 import com.github.xiaolyuh.spel.psi.SpelRootCombination;
 import com.github.xiaolyuh.spel.psi.SpelSpel;
+import com.github.xiaolyuh.spel.psi.SpelStaticT;
 import com.github.xiaolyuh.utils.SpelUtils;
 import com.google.common.collect.Lists;
 import com.intellij.lang.injection.InjectedLanguageManager;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleUtil;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.patterns.PlatformPatterns;
+import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementResolveResult;
@@ -31,6 +36,7 @@ import com.intellij.psi.PsiType;
 import com.intellij.psi.PsiTypeElement;
 import com.intellij.psi.ResolveResult;
 import com.intellij.psi.impl.source.PsiClassReferenceType;
+import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ProcessingContext;
 import org.jetbrains.annotations.NotNull;
@@ -93,6 +99,10 @@ public class SpelReferenceContributor extends PsiReferenceContributor {
                     SpelFieldOrMethod fieldOrMethod = (SpelFieldOrMethod) child;
 
                     prevResolve = handleSpelFieldOrMethod(fieldOrMethod, prevResolve, spelSpel, psiMethod, references);
+                } else if (child instanceof SpelStaticT) {
+                    SpelStaticT staticT = (SpelStaticT) child;
+
+                    prevResolve = handleSpelStaticT(staticT, spelSpel, references);
                 } else if (child instanceof SpelMethodCall) {
                     SpelMethodCall methodCall = (SpelMethodCall) child;
 
@@ -178,8 +188,14 @@ public class SpelReferenceContributor extends PsiReferenceContributor {
             }
 
             String methodName = fieldOrMethodName.getText();
-            PsiClassReferenceType psiType = (PsiClassReferenceType) prevResolve;
-            PsiClass fieldPsiClass = psiType.resolve();
+            PsiClass fieldPsiClass;
+            if (prevResolve instanceof PsiClass) {
+                fieldPsiClass = (PsiClass) prevResolve;
+            } else {
+                PsiClassReferenceType psiType = (PsiClassReferenceType) prevResolve;
+                fieldPsiClass = psiType.resolve();
+            }
+
             if (fieldPsiClass == null) {
                 return null;
             }
@@ -211,6 +227,32 @@ public class SpelReferenceContributor extends PsiReferenceContributor {
             }
 
             return prevResolveInner;
+        }
+
+        private PsiClass handleSpelStaticT(SpelStaticT staticT, SpelSpel spelSpel, List<SpelReference> references) {
+            PsiElement staticReference = staticT.getStaticReference();
+            if (staticReference == null) {
+                return null;
+            }
+
+            String text = staticReference.getText();
+            String fullClassName = text.substring(1, text.length() - 1);
+
+            Module module = ModuleUtil.findModuleForPsiElement(staticReference);
+            if (module == null) {
+                return null;
+            }
+
+            Project project = staticT.getProject();
+            GlobalSearchScope scope = GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module);
+            PsiClass psiClass = JavaPsiFacade.getInstance(project).findClass(fullClassName, scope);
+
+            TextRange textRangeTmp = staticReference.getTextRange();
+            TextRange textRange = new TextRange(textRangeTmp.getStartOffset() + 1, textRangeTmp.getEndOffset() - 1);
+            SpelReference reference = new SpelReference(spelSpel, textRange, psiClass);
+            references.add(reference);
+
+            return psiClass;
         }
 
         private void handleMethodCall(SpelMethodCall methodCall, SpelSpel spelSpel, PsiMethod psiMethod, List<SpelReference> references) {

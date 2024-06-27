@@ -31,6 +31,7 @@ PLUS=[ \t\n\x0B\f\r]*\+[ \t\n\x0B\f\r]*
 NUMBER=-?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][+-]?[0-9]*)?
 COMMA=[ \t\n\x0B\f\r]*,[ \t\n\x0B\f\r]*
 EXPR=[\w=']+
+STATIC_REFERENCE=\([\w.]+\)
 
 %%
 <YYINITIAL> {
@@ -49,6 +50,7 @@ EXPR=[\w=']+
   {NUMBER}                     { return NUMBER; }
   {COMMA}                      { return COMMA; }
   {EXPR}                       { return EXPR; }
+  {STATIC_REFERENCE}           { return STATIC_REFERENCE; }
 
 }
 
