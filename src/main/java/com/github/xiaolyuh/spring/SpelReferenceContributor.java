@@ -9,6 +9,7 @@ import com.github.xiaolyuh.spel.psi.SpelRoot;
 import com.github.xiaolyuh.spel.psi.SpelRootCombination;
 import com.github.xiaolyuh.spel.psi.SpelSpel;
 import com.github.xiaolyuh.spel.psi.SpelStaticT;
+import com.github.xiaolyuh.spel.psi.SpelStringLiteral;
 import com.github.xiaolyuh.utils.SpelUtils;
 import com.google.common.collect.Lists;
 import com.intellij.lang.injection.InjectedLanguageManager;
@@ -26,23 +27,24 @@ import com.intellij.psi.PsiLanguageInjectionHost;
 import com.intellij.psi.PsiLiteralExpression;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiParameter;
+import com.intellij.psi.PsiParameterList;
 import com.intellij.psi.PsiPolyVariantReference;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiReferenceBase;
 import com.intellij.psi.PsiReferenceContributor;
 import com.intellij.psi.PsiReferenceProvider;
 import com.intellij.psi.PsiReferenceRegistrar;
-import com.intellij.psi.PsiType;
 import com.intellij.psi.PsiTypeElement;
 import com.intellij.psi.ResolveResult;
-import com.intellij.psi.impl.source.PsiClassReferenceType;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ProcessingContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 public class SpelReferenceContributor extends PsiReferenceContributor {
@@ -68,8 +70,9 @@ public class SpelReferenceContributor extends PsiReferenceContributor {
 
             SpelRoot spelRoot = spelSpel.getRoot();
             PsiElement[] children = spelRoot.getChildren();
+            List<SpelReference> references = Lists.newArrayList();
 
-            List<SpelReference> references = handleRootChildren(children, spelSpel, psiMethod);
+            handleRootChildren(children, spelSpel, psiMethod, references);
 
             List<SpelRootCombination> rootCombinationList = spelSpel.getRootCombinationList();
             for (SpelRootCombination spelRootCombination : rootCombinationList) {
@@ -79,16 +82,15 @@ public class SpelReferenceContributor extends PsiReferenceContributor {
                 }
 
                 PsiElement[] list = root.getChildren();
-                List<SpelReference> resList = handleRootChildren(list, spelSpel, psiMethod);
-                references.addAll(resList);
+                handleRootChildren(list, spelSpel, psiMethod, references);
             }
 
             return references.toArray(new PsiReference[0]);
         }
 
-        private List<SpelReference> handleRootChildren(PsiElement[] children, SpelSpel spelSpel, PsiMethod psiMethod) {
-            List<SpelReference> references = Lists.newArrayList();
-            Object prevResolve = null;
+        private PsiClass handleRootChildren(PsiElement[] children, SpelSpel spelSpel,
+                                            PsiMethod psiMethod, List<SpelReference> references) {
+            PsiClass prevResolve = null;
 
             for (PsiElement child : children) {
                 if (child instanceof SpelFieldOrMethodName) {
@@ -107,14 +109,18 @@ public class SpelReferenceContributor extends PsiReferenceContributor {
                     SpelMethodCall methodCall = (SpelMethodCall) child;
 
                     handleMethodCall(methodCall, spelSpel, psiMethod, references);
+                } else if (child instanceof SpelStringLiteral) {
+                    Project project = spelSpel.getProject();
+                    GlobalSearchScope scope = GlobalSearchScope.allScope(project);
+                    prevResolve = JavaPsiFacade.getInstance(project).findClass(String.class.getName(), scope);
                 }
             }
 
-            return references;
+            return prevResolve;
         }
 
-        private PsiType handleSpelFieldOrMethodName(SpelFieldOrMethodName fieldOrMethodName, SpelSpel spelSpel,
-                                                    PsiMethod psiMethod, List<SpelReference> references) {
+        private PsiClass handleSpelFieldOrMethodName(SpelFieldOrMethodName fieldOrMethodName, SpelSpel spelSpel,
+                                                     PsiMethod psiMethod, List<SpelReference> references) {
             if (SpelUtils.isSharpField(fieldOrMethodName)) {
                 if (fieldOrMethodName.getText().equals("result")) {
                     PsiTypeElement returnTypeElement = psiMethod.getReturnTypeElement();
@@ -125,10 +131,11 @@ public class SpelReferenceContributor extends PsiReferenceContributor {
                     TextRange textRange = fieldOrMethodName.getTextRange();
                     SpelReference reference = new SpelReference(spelSpel, textRange, returnTypeElement);
                     references.add(reference);
-                    return returnTypeElement.getType();
+
+                    return SpelUtils.resolvePsiType(returnTypeElement.getType());
                 }
 
-                PsiParameter psiParameter = SpelUtils.findMethodParam(fieldOrMethodName.getText(), psiMethod);
+                PsiParameter psiParameter = SpelUtils.findMethodParamRelateToField(fieldOrMethodName.getText(), psiMethod);
                 if (psiParameter == null) {
                     return null;
                 }
@@ -137,7 +144,7 @@ public class SpelReferenceContributor extends PsiReferenceContributor {
                 SpelReference reference = new SpelReference(spelSpel, textRange, psiParameter);
                 references.add(reference);
 
-                return psiParameter.getType();
+                return SpelUtils.resolvePsiType(psiParameter.getType());
             }
 
             if (SpelUtils.isSharpMethod(fieldOrMethodName)) {
@@ -160,8 +167,16 @@ public class SpelReferenceContributor extends PsiReferenceContributor {
             return null;
         }
 
-        private Object handleSpelFieldOrMethod(SpelFieldOrMethod fieldOrMethod, Object prevResolve,
-                                               SpelSpel spelSpel, PsiMethod psiMethod, List<SpelReference> references) {
+        /**
+         * @return 如果是字段，返回字段类型，否则返回方法返回值的类型
+         */
+        @Nullable
+        private PsiClass handleSpelFieldOrMethod(SpelFieldOrMethod fieldOrMethod, PsiClass prevResolve,
+                                                 SpelSpel spelSpel, PsiMethod psiMethod, List<SpelReference> references) {
+            if (prevResolve == null) {
+                return null;
+            }
+
             SpelFieldOrMethodName fieldOrMethodName = fieldOrMethod.getFieldOrMethodName();
             if (fieldOrMethodName == null) {
                 return null;
@@ -170,7 +185,7 @@ public class SpelReferenceContributor extends PsiReferenceContributor {
             SpelMethodCall methodCall = fieldOrMethod.getMethodCall();
             if (methodCall == null) {
                 String fieldName = fieldOrMethodName.getText();
-                PsiField psiField = SpelUtils.findField(fieldName, prevResolve);
+                PsiField psiField = prevResolve.findFieldByName(fieldName, true);
                 if (psiField == null) {
                     return null;
                 }
@@ -180,53 +195,59 @@ public class SpelReferenceContributor extends PsiReferenceContributor {
                 SpelReference reference = new SpelReference(spelSpel, textRange, psiField);
                 references.add(reference);
 
-                return psiField;
-            }
-
-            if (prevResolve == null) {
-                return null;
+                return SpelUtils.resolvePsiType(psiField.getType());
             }
 
             String methodName = fieldOrMethodName.getText();
-            PsiClass fieldPsiClass;
-            if (prevResolve instanceof PsiClass) {
-                fieldPsiClass = (PsiClass) prevResolve;
-            } else {
-                PsiClassReferenceType psiType = (PsiClassReferenceType) prevResolve;
-                fieldPsiClass = psiType.resolve();
-            }
-
-            if (fieldPsiClass == null) {
+            PsiMethod[] fieldPsiMethods = prevResolve.findMethodsByName(methodName, true);
+            if (fieldPsiMethods.length == 0) {
                 return null;
             }
 
-            Object prevResolveInner = null;
-            PsiMethod[] fieldPsiMethods = fieldPsiClass.findMethodsByName(methodName, true);
-            if (fieldPsiMethods.length > 0) {
-                TextRange textRange = fieldOrMethodName.getTextRange();
-                // 难以判断具体是哪个方法,直接取第一个算了
+            TextRange textRange = fieldOrMethodName.getTextRange();
+
+            SpelMethodParams methodParams = methodCall.getMethodParams();
+            if (methodParams == null) {
                 PsiMethod fieldPsiMethod = fieldPsiMethods[0];
                 SpelReference reference = new SpelReference(spelSpel, textRange, fieldPsiMethod);
                 references.add(reference);
 
-                prevResolveInner = fieldPsiMethod.getReturnType();
-            }
-
-
-            SpelMethodParams methodParams = methodCall.getMethodParams();
-            if (methodParams == null) {
-                return prevResolveInner;
+                return SpelUtils.resolvePsiType(fieldPsiMethod.getReturnType());
             }
 
             List<SpelMethodParam> methodParamList = methodParams.getMethodParamList();
-            for (SpelMethodParam methodParam : methodParamList) {
-                SpelRoot root = methodParam.getRoot();
-                PsiElement[] children = root.getChildren();
-                List<SpelReference> list = handleRootChildren(children, spelSpel, psiMethod);
-                references.addAll(list);
+            List<PsiClass> paramPsiClasses = handleMethodParams(methodParamList, spelSpel, psiMethod, references);
+
+            outer:
+            for (PsiMethod fieldPsiMethod : fieldPsiMethods) {
+                PsiParameterList parameterList = fieldPsiMethod.getParameterList();
+                PsiParameter[] parameters = parameterList.getParameters();
+
+                if (parameters.length != paramPsiClasses.size()) {
+                    continue;
+                }
+
+                List<PsiClass> list = Arrays.stream(parameters)
+                        .map(parameter -> SpelUtils.resolvePsiType(parameter.getType()))
+                        .collect(Collectors.toList());
+
+                for (int i = 0; i < list.size(); i++) {
+                    PsiClass psiClass = list.get(i);
+                    PsiClass paramPsiClass = paramPsiClasses.get(i);
+
+                    // 暂时不考虑参数转型情况
+                    if (psiClass != paramPsiClass) {
+                        continue outer;
+                    }
+                }
+
+                SpelReference reference = new SpelReference(spelSpel, textRange, fieldPsiMethod);
+                references.add(reference);
+
+                return SpelUtils.resolvePsiType(fieldPsiMethod.getReturnType());
             }
 
-            return prevResolveInner;
+            return null;
         }
 
         private PsiClass handleSpelStaticT(SpelStaticT staticT, SpelSpel spelSpel, List<SpelReference> references) {
@@ -255,18 +276,29 @@ public class SpelReferenceContributor extends PsiReferenceContributor {
             return psiClass;
         }
 
-        private void handleMethodCall(SpelMethodCall methodCall, SpelSpel spelSpel, PsiMethod psiMethod, List<SpelReference> references) {
+        private void handleMethodCall(SpelMethodCall methodCall, SpelSpel spelSpel,
+                                      PsiMethod psiMethod, List<SpelReference> references) {
             SpelMethodParams methodParams = methodCall.getMethodParams();
             if (methodParams == null) {
                 return;
             }
 
-            for (SpelMethodParam spelMethodParam : methodParams.getMethodParamList()) {
+            List<SpelMethodParam> methodParamList = methodParams.getMethodParamList();
+            handleMethodParams(methodParamList, spelSpel, psiMethod, references);
+        }
+
+
+        private List<PsiClass> handleMethodParams(List<SpelMethodParam> methodParamList, SpelSpel spelSpel,
+                                                  PsiMethod psiMethod, List<SpelReference> references) {
+            List<PsiClass> psiClasses = Lists.newArrayList();
+            for (SpelMethodParam spelMethodParam : methodParamList) {
                 SpelRoot root = spelMethodParam.getRoot();
                 PsiElement[] children = root.getChildren();
-                List<SpelReference> list = handleRootChildren(children, spelSpel, psiMethod);
-                references.addAll(list);
+
+                PsiClass paramPsiClass = handleRootChildren(children, spelSpel, psiMethod, references);
+                psiClasses.add(paramPsiClass);
             }
+            return psiClasses;
         }
     }
 

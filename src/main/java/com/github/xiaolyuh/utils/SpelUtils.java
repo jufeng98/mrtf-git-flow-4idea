@@ -9,12 +9,12 @@ import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiClassType;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiParameter;
 import com.intellij.psi.PsiParameterList;
+import com.intellij.psi.PsiType;
+import com.intellij.psi.impl.source.PsiClassReferenceType;
 import com.intellij.psi.search.GlobalSearchScope;
 import org.jetbrains.annotations.Nullable;
 
@@ -75,7 +75,7 @@ public class SpelUtils {
      * @return 方法参数
      */
     @Nullable
-    public static PsiParameter findMethodParam(String fieldName, PsiMethod psiMethod) {
+    public static PsiParameter findMethodParamRelateToField(String fieldName, PsiMethod psiMethod) {
         PsiParameterList parameterList = psiMethod.getParameterList();
         PsiParameter[] parameters = parameterList.getParameters();
         for (PsiParameter parameter : parameters) {
@@ -89,28 +89,12 @@ public class SpelUtils {
         return null;
     }
 
-    @Nullable
-    public static PsiField findField(String fieldName, Object prevResolve) {
-        if (prevResolve == null) {
-            return null;
-        }
-
-        if (prevResolve instanceof PsiClassType) {
-            PsiClassType psiClassType = (PsiClassType) prevResolve;
-            PsiClass psiClass = psiClassType.resolve();
-            if (psiClass == null) {
-                return null;
-            }
-
-            return psiClass.findFieldByName(fieldName, true);
-        }
-
-        if (prevResolve instanceof PsiField) {
-            PsiField psiField = (PsiField) prevResolve;
-            return findField(fieldName, psiField.getType());
+    public static PsiClass resolvePsiType(PsiType psiType) {
+        PsiClassReferenceType referenceType = (PsiClassReferenceType) psiType;
+        if (referenceType != null) {
+            return referenceType.resolve();
         }
 
         return null;
     }
-
 }
