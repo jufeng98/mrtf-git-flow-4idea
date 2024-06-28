@@ -31,10 +31,12 @@ public interface SpelTypes {
   IElementType EXPR = new SpelTokenType("EXPR");
   IElementType IDENTIFIER = new SpelTokenType("IDENTIFIER");
   IElementType L_BRACKET = new SpelTokenType("[");
+  IElementType L_PARENTHESES = new SpelTokenType("(");
   IElementType NUMBER = new SpelTokenType("NUMBER");
   IElementType PLUS = new SpelTokenType("PLUS");
   IElementType PROJECTION = new SpelTokenType(".![");
   IElementType R_BRACKET = new SpelTokenType("]");
+  IElementType R_PARENTHESES = new SpelTokenType(")");
   IElementType SELECTION = new SpelTokenType(".?[");
   IElementType SHARP = new SpelTokenType("#");
   IElementType SINGLE_QUOTED_STRING = new SpelTokenType("SINGLE_QUOTED_STRING");

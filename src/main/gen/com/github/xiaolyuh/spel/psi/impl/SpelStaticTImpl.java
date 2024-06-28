@@ -29,9 +29,9 @@ public class SpelStaticTImpl extends ASTWrapperPsiElement implements SpelStaticT
   }
 
   @Override
-  @Nullable
+  @NotNull
   public PsiElement getStaticReference() {
-    return findChildByType(STATIC_REFERENCE);
+    return findNotNullChildByType(STATIC_REFERENCE);
   }
 
   @Override

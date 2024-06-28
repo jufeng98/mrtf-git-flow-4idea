@@ -8,7 +8,7 @@ import com.intellij.psi.PsiReference;
 
 public interface SpelStaticT extends PsiElement {
 
-  @Nullable
+  @NotNull
   PsiElement getStaticReference();
 
   PsiReference @NotNull [] getReferences();

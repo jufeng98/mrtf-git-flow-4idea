@@ -159,15 +159,16 @@ public class SpelParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // '(' method_params? ')'
+  // L_PARENTHESES method_params? R_PARENTHESES
   public static boolean method_call(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "method_call")) return false;
+    if (!nextTokenIs(b, L_PARENTHESES)) return false;
     boolean r, p;
-    Marker m = enter_section_(b, l, _NONE_, METHOD_CALL, "<method call>");
-    r = consumeToken(b, "(");
+    Marker m = enter_section_(b, l, _NONE_, METHOD_CALL, null);
+    r = consumeToken(b, L_PARENTHESES);
     p = r; // pin = 1
     r = r && report_error_(b, method_call_1(b, l + 1));
-    r = p && consumeToken(b, ")") && r;
+    r = p && consumeToken(b, R_PARENTHESES) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
@@ -357,16 +358,15 @@ public class SpelParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // 'T' STATIC_REFERENCE
+  // STATIC_REFERENCE
   public static boolean static_t(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "static_t")) return false;
-    boolean r, p;
-    Marker m = enter_section_(b, l, _NONE_, STATIC_T, "<static t>");
-    r = consumeToken(b, "T");
-    p = r; // pin = 1
-    r = r && consumeToken(b, STATIC_REFERENCE);
-    exit_section_(b, l, m, r, p, null);
-    return r || p;
+    if (!nextTokenIs(b, STATIC_REFERENCE)) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, STATIC_REFERENCE);
+    exit_section_(b, m, STATIC_T, r);
+    return r;
   }
 
   /* ********************************************************** */

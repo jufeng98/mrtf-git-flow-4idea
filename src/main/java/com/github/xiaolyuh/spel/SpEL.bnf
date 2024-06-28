@@ -18,19 +18,21 @@
   psiImplUtilClass="com.github.xiaolyuh.spel.psi.impl.SpelPsiImplUtil"
 
   tokens=[
-    SINGLE_QUOTED_STRING="regexp:'([^\\\'\r\n]|\\[^\r\n])*'"
-    IDENTIFIER="regexp:[a-zA-Z][\w_\\$]*"
+    SINGLE_QUOTED_STRING="regexp:\s*'([^\\\'\r\n]|\\[^\r\n])*'\s*"
+    IDENTIFIER="regexp:[a-zA-Z][\w$]*"
     PLUS="regexp:\s*\+\s*"
-    NUMBER='regexp:-?(0|[1-9]\d*)(\.\d+)?([eE][+-]?\d*)?'
+    NUMBER='regexp:\s*-?(0|[1-9]\d*)(\.\d+)?([eE][+-]?\d*)?\s*'
     COMMA="regexp:\s*,\s*"
     EXPR="regexp:[\w=']+"
-    STATIC_REFERENCE="regexp:\([\w.]+\)"
+    STATIC_REFERENCE="regexp:T\([a-zA-Z][\w.$]*\)"
     SHARP="#"
     DOT="."
     PROJECTION=".!["
     SELECTION=".?["
     L_BRACKET="["
     R_BRACKET="]"
+    L_PARENTHESES="("
+    R_PARENTHESES=")"
   ]
 }
 
@@ -52,8 +54,7 @@ field_or_method_name ::= IDENTIFIER {
        getReferences
    ]
 }
-static_t ::= 'T' STATIC_REFERENCE {
-    pin=1
+static_t ::= STATIC_REFERENCE {
     methods=[
         getReferences
     ]
@@ -64,7 +65,7 @@ method_param ::= root {
     ]
 }
 method_params ::= method_param (COMMA method_param)*
-method_call ::= '(' method_params? ')' {
+method_call ::= L_PARENTHESES method_params? R_PARENTHESES {
     pin=1
 }
 selection_expression ::= EXPR

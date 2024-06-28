@@ -25,13 +25,13 @@ import static com.github.xiaolyuh.spel.psi.SpelTypes.*;
 EOL=\R
 WHITE_SPACE=\s+
 
-SINGLE_QUOTED_STRING='([^\\'\r\n]|\\[^\r\n])*'
-IDENTIFIER=[a-zA-Z][\w_\\$]*
+SINGLE_QUOTED_STRING=[ \t\n\x0B\f\r]*'([^\\'\r\n]|\\[^\r\n])*'[ \t\n\x0B\f\r]*
+IDENTIFIER=[a-zA-Z][\w$]*
 PLUS=[ \t\n\x0B\f\r]*\+[ \t\n\x0B\f\r]*
-NUMBER=-?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][+-]?[0-9]*)?
+NUMBER=[ \t\n\x0B\f\r]*-?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][+-]?[0-9]*)?[ \t\n\x0B\f\r]*
 COMMA=[ \t\n\x0B\f\r]*,[ \t\n\x0B\f\r]*
 EXPR=[\w=']+
-STATIC_REFERENCE=\([\w.]+\)
+STATIC_REFERENCE=T\([a-zA-Z][\w.$]*\)
 
 %%
 <YYINITIAL> {
@@ -43,6 +43,8 @@ STATIC_REFERENCE=\([\w.]+\)
   ".?["                        { return SELECTION; }
   "["                          { return L_BRACKET; }
   "]"                          { return R_BRACKET; }
+  "("                          { return L_PARENTHESES; }
+  ")"                          { return R_PARENTHESES; }
 
   {SINGLE_QUOTED_STRING}       { return SINGLE_QUOTED_STRING; }
   {IDENTIFIER}                 { return IDENTIFIER; }

@@ -124,8 +124,6 @@ public class SpelReferenceContributor extends PsiReferenceContributor {
                     SpelCollectionProjection collectionProjection = (SpelCollectionProjection) child;
 
                     prevResolve = handleSpelCollectionProjection(collectionProjection, prevResolve, spelSpel, references);
-                } else {
-                    System.out.println(child);
                 }
             }
 
@@ -315,12 +313,8 @@ public class SpelReferenceContributor extends PsiReferenceContributor {
 
         private PsiClass handleSpelStaticT(SpelStaticT staticT, SpelSpel spelSpel, List<SpelReference> references) {
             PsiElement staticReference = staticT.getStaticReference();
-            if (staticReference == null) {
-                return null;
-            }
-
             String text = staticReference.getText();
-            String fullClassName = text.substring(1, text.length() - 1);
+            String fullClassName = text.substring(2, text.length() - 1);
 
             Module module = ModuleUtil.findModuleForPsiElement(staticReference);
             if (module == null) {
@@ -332,7 +326,7 @@ public class SpelReferenceContributor extends PsiReferenceContributor {
             PsiClass psiClass = JavaPsiFacade.getInstance(project).findClass(fullClassName, scope);
 
             TextRange textRangeTmp = staticReference.getTextRange();
-            TextRange textRange = new TextRange(textRangeTmp.getStartOffset() + 1, textRangeTmp.getEndOffset() - 1);
+            TextRange textRange = new TextRange(textRangeTmp.getStartOffset() + 2, textRangeTmp.getEndOffset() - 1);
             SpelReference reference = new SpelReference(spelSpel, textRange, psiClass);
             references.add(reference);
 
