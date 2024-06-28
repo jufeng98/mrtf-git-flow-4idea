@@ -227,9 +227,8 @@
                 implementationClass="com.github.xiaolyuh.spel.highlight.SpelSyntaxHighlighterFactory"/>
         <colorSettingsPage
                 implementation="com.github.xiaolyuh.spel.highlight.SpelColorSettingsPage"/>
-        <languageInjectionContributor
-                implementationClass="com.github.xiaolyuh.spel.inject.SpelInjectionContributor"
-                language="JAVA"/>
+        <multiHostInjector
+                implementation="com.github.xiaolyuh.spel.inject.SpelMultiHostInjector"/>
         <psi.referenceContributor language="SpEL"
                                   implementation="com.github.xiaolyuh.spring.SpelReferenceContributor"/>
     </extensions>
