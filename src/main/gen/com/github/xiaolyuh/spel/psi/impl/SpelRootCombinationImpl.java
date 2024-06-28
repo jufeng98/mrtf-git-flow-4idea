@@ -8,10 +8,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static com.github.xiaolyuh.spel.psi.SpelTypes.*;
-import com.intellij.extapi.psi.ASTWrapperPsiElement;
+import com.github.xiaolyuh.spel.SpelPsiElement;
 import com.github.xiaolyuh.spel.psi.*;
 
-public class SpelRootCombinationImpl extends ASTWrapperPsiElement implements SpelRootCombination {
+public class SpelRootCombinationImpl extends SpelPsiElement implements SpelRootCombination {
 
   public SpelRootCombinationImpl(@NotNull ASTNode node) {
     super(node);

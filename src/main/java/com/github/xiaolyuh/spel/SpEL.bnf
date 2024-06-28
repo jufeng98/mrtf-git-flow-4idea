@@ -5,7 +5,7 @@
   parserClass="com.github.xiaolyuh.spel.parser.SpelParser"
   parserUtilClass="com.github.xiaolyuh.spel.parser.SpelParserUtil"
 
-  extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+  extends="com.github.xiaolyuh.spel.SpelPsiElement"
 
   psiClassPrefix="Spel"
   psiImplClassSuffix="Impl"

@@ -8,10 +8,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static com.github.xiaolyuh.spel.psi.SpelTypes.*;
-import com.intellij.extapi.psi.ASTWrapperPsiElement;
+import com.github.xiaolyuh.spel.SpelPsiElement;
 import com.github.xiaolyuh.spel.psi.*;
 
-public class SpelSelectionExpressionImpl extends ASTWrapperPsiElement implements SpelSelectionExpression {
+public class SpelSelectionExpressionImpl extends SpelPsiElement implements SpelSelectionExpression {
 
   public SpelSelectionExpressionImpl(@NotNull ASTNode node) {
     super(node);
