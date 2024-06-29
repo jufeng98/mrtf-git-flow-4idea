@@ -36,6 +36,44 @@ public class SpelParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
+  // L_BRACE root (COMMA root)* R_BRACE
+  public static boolean array_wrap(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "array_wrap")) return false;
+    if (!nextTokenIs(b, L_BRACE)) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, ARRAY_WRAP, null);
+    r = consumeToken(b, L_BRACE);
+    p = r; // pin = 1
+    r = r && report_error_(b, root(b, l + 1));
+    r = p && report_error_(b, array_wrap_2(b, l + 1)) && r;
+    r = p && consumeToken(b, R_BRACE) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  // (COMMA root)*
+  private static boolean array_wrap_2(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "array_wrap_2")) return false;
+    while (true) {
+      int c = current_position_(b);
+      if (!array_wrap_2_0(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "array_wrap_2", c)) break;
+    }
+    return true;
+  }
+
+  // COMMA root
+  private static boolean array_wrap_2_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "array_wrap_2_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, COMMA);
+    r = r && root(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  /* ********************************************************** */
   // PROJECTION field_recursive_call R_BRACKET
   public static boolean collection_projection(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "collection_projection")) return false;
@@ -238,7 +276,7 @@ public class SpelParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // (string_literal | number_literal | SHARP field_or_method_name | static_t) (field_or_method | method_call | map_selection | collection_projection | collection_selection)*
+  // (string_literal | number_literal | SHARP field_or_method_name | static_t | array_wrap) (field_or_method | method_call | map_selection | collection_projection | collection_selection)*
   public static boolean root(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "root")) return false;
     boolean r;
@@ -249,7 +287,7 @@ public class SpelParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // string_literal | number_literal | SHARP field_or_method_name | static_t
+  // string_literal | number_literal | SHARP field_or_method_name | static_t | array_wrap
   private static boolean root_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "root_0")) return false;
     boolean r;
@@ -258,6 +296,7 @@ public class SpelParser implements PsiParser, LightPsiParser {
     if (!r) r = number_literal(b, l + 1);
     if (!r) r = root_0_2(b, l + 1);
     if (!r) r = static_t(b, l + 1);
+    if (!r) r = array_wrap(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
   }

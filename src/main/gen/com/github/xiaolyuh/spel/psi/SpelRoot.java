@@ -8,6 +8,9 @@ import com.intellij.psi.PsiReference;
 
 public interface SpelRoot extends PsiElement {
 
+  @Nullable
+  SpelArrayWrap getArrayWrap();
+
   @NotNull
   List<SpelCollectionProjection> getCollectionProjectionList();
 

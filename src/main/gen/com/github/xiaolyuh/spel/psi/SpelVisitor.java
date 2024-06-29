@@ -7,6 +7,10 @@ import com.intellij.psi.PsiElement;
 
 public class SpelVisitor extends PsiElementVisitor {
 
+  public void visitArrayWrap(@NotNull SpelArrayWrap o) {
+    visitPsiElement(o);
+  }
+
   public void visitCollectionProjection(@NotNull SpelCollectionProjection o) {
     visitPsiElement(o);
   }

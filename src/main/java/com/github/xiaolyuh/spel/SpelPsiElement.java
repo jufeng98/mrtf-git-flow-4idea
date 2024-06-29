@@ -11,6 +11,6 @@ public class SpelPsiElement extends ASTWrapperPsiElement {
 
     @Override
     public String toString() {
-        return getText();
+        return getClass().getSimpleName() + "(" + getNode().getElementType() + "@" + getText() + ")";
     }
 }

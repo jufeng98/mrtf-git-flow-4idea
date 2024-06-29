@@ -8,6 +8,7 @@ import com.github.xiaolyuh.spel.psi.impl.*;
 
 public interface SpelTypes {
 
+  IElementType ARRAY_WRAP = new SpelElementType("ARRAY_WRAP");
   IElementType COLLECTION_PROJECTION = new SpelElementType("COLLECTION_PROJECTION");
   IElementType COLLECTION_SELECTION = new SpelElementType("COLLECTION_SELECTION");
   IElementType FIELD_NAME = new SpelElementType("FIELD_NAME");
@@ -30,11 +31,13 @@ public interface SpelTypes {
   IElementType DOT = new SpelTokenType(".");
   IElementType EXPR = new SpelTokenType("EXPR");
   IElementType IDENTIFIER = new SpelTokenType("IDENTIFIER");
+  IElementType L_BRACE = new SpelTokenType("{");
   IElementType L_BRACKET = new SpelTokenType("[");
   IElementType L_PARENTHESES = new SpelTokenType("(");
   IElementType NUMBER = new SpelTokenType("NUMBER");
   IElementType PLUS = new SpelTokenType("PLUS");
   IElementType PROJECTION = new SpelTokenType(".![");
+  IElementType R_BRACE = new SpelTokenType("}");
   IElementType R_BRACKET = new SpelTokenType("]");
   IElementType R_PARENTHESES = new SpelTokenType(")");
   IElementType SELECTION = new SpelTokenType(".?[");
@@ -45,7 +48,10 @@ public interface SpelTypes {
   class Factory {
     public static PsiElement createElement(ASTNode node) {
       IElementType type = node.getElementType();
-      if (type == COLLECTION_PROJECTION) {
+      if (type == ARRAY_WRAP) {
+        return new SpelArrayWrapImpl(node);
+      }
+      else if (type == COLLECTION_PROJECTION) {
         return new SpelCollectionProjectionImpl(node);
       }
       else if (type == COLLECTION_SELECTION) {

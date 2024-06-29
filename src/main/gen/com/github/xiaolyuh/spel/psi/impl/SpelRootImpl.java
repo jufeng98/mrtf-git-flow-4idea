@@ -29,6 +29,12 @@ public class SpelRootImpl extends SpelPsiElement implements SpelRoot {
   }
 
   @Override
+  @Nullable
+  public SpelArrayWrap getArrayWrap() {
+    return findChildByClass(SpelArrayWrap.class);
+  }
+
+  @Override
   @NotNull
   public List<SpelCollectionProjection> getCollectionProjectionList() {
     return PsiTreeUtil.getChildrenOfTypeAsList(this, SpelCollectionProjection.class);

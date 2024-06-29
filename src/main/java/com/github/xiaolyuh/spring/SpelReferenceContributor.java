@@ -1,5 +1,6 @@
 package com.github.xiaolyuh.spring;
 
+import com.github.xiaolyuh.spel.psi.SpelArrayWrap;
 import com.github.xiaolyuh.spel.psi.SpelCollectionProjection;
 import com.github.xiaolyuh.spel.psi.SpelFieldName;
 import com.github.xiaolyuh.spel.psi.SpelFieldOrMethod;
@@ -124,6 +125,11 @@ public class SpelReferenceContributor extends PsiReferenceContributor {
                     SpelCollectionProjection collectionProjection = (SpelCollectionProjection) child;
 
                     prevResolve = handleSpelCollectionProjection(collectionProjection, prevResolve, spelSpel, references);
+                } else if (child instanceof SpelArrayWrap) {
+                    SpelArrayWrap spelArrayWrap = (SpelArrayWrap) child;
+                    for (SpelRoot root : spelArrayWrap.getRootList()) {
+                        handleRootChildren(root.getChildren(), spelSpel, psiMethod, references);
+                    }
                 }
             }
 

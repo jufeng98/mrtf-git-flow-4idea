@@ -45,6 +45,8 @@ STATIC_REFERENCE=T\([a-zA-Z][\w.$]*\)
   "]"                          { return R_BRACKET; }
   "("                          { return L_PARENTHESES; }
   ")"                          { return R_PARENTHESES; }
+  "{"                          { return L_BRACE; }
+  "}"                          { return R_BRACE; }
 
   {SINGLE_QUOTED_STRING}       { return SINGLE_QUOTED_STRING; }
   {IDENTIFIER}                 { return IDENTIFIER; }

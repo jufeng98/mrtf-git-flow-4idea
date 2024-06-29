@@ -33,6 +33,8 @@
     R_BRACKET="]"
     L_PARENTHESES="("
     R_PARENTHESES=")"
+    L_BRACE="{"
+    R_BRACE="}"
   ]
 }
 
@@ -82,7 +84,10 @@ collection_selection ::= SELECTION selection_expression R_BRACKET {
 map_selection ::= L_BRACKET field_name R_BRACKET {
     pin=1
 }
-root ::= (string_literal | number_literal | SHARP field_or_method_name | static_t) (field_or_method | method_call | map_selection | collection_projection | collection_selection)* {
+array_wrap ::= L_BRACE root (COMMA root)* R_BRACE {
+    pin=1
+}
+root ::= (string_literal | number_literal | SHARP field_or_method_name | static_t | array_wrap) (field_or_method | method_call | map_selection | collection_projection | collection_selection)* {
     methods=[
         getReferences
     ]
