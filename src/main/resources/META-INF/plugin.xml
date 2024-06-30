@@ -239,7 +239,15 @@
                 fieldName="INSTANCE"
                 language="sql"
                 extensions="sql"/>
-
+        <lang.parserDefinition
+                language="sql"
+                implementationClass="com.github.xiaolyuh.sql.parser.SqlParserDefinition"/>
+        <lang.syntaxHighlighterFactory
+                language="sql"
+                implementationClass="com.github.xiaolyuh.sql.highlight.SqlSyntaxHighlighterFactory"/>
+        <annotator
+                language="sql"
+                implementationClass="com.alecstrong.sql.psi.core.SqlAnnotator"/>
     </extensions>
 
     <projectListeners>
