@@ -231,6 +231,15 @@
                 implementation="com.github.xiaolyuh.spel.inject.SpelMultiHostInjector"/>
         <psi.referenceContributor language="SpEL"
                                   implementation="com.github.xiaolyuh.spring.SpelReferenceContributor"/>
+
+
+        <fileType
+                name="SQL"
+                implementationClass="com.github.xiaolyuh.sql.SqlFileType"
+                fieldName="INSTANCE"
+                language="sql"
+                extensions="sql"/>
+
     </extensions>
 
     <projectListeners>

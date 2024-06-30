@@ -1,0 +1,47 @@
+{
+    parserClass="com.github.xiaolyuh.sql.parser.SqlParser"
+    parserUtilClass="com.github.xiaolyuh.sql.parser.SqlParserUtil"
+    extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+    psiClassPrefix="Sql"
+    psiImplClassSuffix="Impl"
+    psiPackage="com.github.xiaolyuh.sql.psi"
+    psiImplPackage="com.github.xiaolyuh.sql.psi.impl"
+
+    elementTypeHolderClass="com.github.xiaolyuh.sql.psi.SqlTypes"
+    elementTypeClass="com.github.xiaolyuh.sql.psi.SqlElementType"
+    tokenTypeClass="com.github.xiaolyuh.sql.psi.SqlTokenType"
+    psiImplUtilClass="com.github.xiaolyuh.sql.psi.impl.SqlPsiImplUtil"
+
+    tokens=[
+        SEMI=';'
+        EQ='='
+        LP='('
+        RP=')'
+        DOT='.'
+        COMMA=','
+        PLUS='+'
+        MINUS='-'
+        BITWISE_NOT='~'
+        SHIFT_RIGHT='>>'
+        SHIFT_LEFT='<<'
+        LT='<'
+        GT='>'
+        LTE='<='
+        GTE='>='
+        EQ2='=='
+        NEQ='!='
+        NEQ2='<>'
+        MULTIPLY='*'
+        DIVIDE='/'
+        MOD='%'
+        BITWISE_AND='&'
+        BITWISE_OR='|'
+        CONCAT='||'
+        space='regexp:\s+'
+        comment='regexp:--.*'
+        javadoc='regexp:/\*\*(.|\n)*\*/'
+        digit='regexp:\d+(\.\d*)?'
+        id='regexp:([a-zA-Z0-9_\`\[\]])*'
+        string="regexp:('([^'])*'|\"([^\"])*\")"
+    ]
+}
