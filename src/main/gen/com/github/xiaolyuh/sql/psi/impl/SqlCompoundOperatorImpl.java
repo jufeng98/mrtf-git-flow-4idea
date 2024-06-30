@@ -35,6 +35,18 @@ public class SqlCompoundOperatorImpl extends SqlCompositeElementImpl implements 
 
   @Override
   @Nullable
+  public PsiElement getExcept() {
+    return findChildByType(EXCEPT);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getIntersect() {
+    return findChildByType(INTERSECT);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getUnion() {
     return findChildByType(UNION);
   }

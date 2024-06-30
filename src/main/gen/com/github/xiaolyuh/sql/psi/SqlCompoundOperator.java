@@ -12,6 +12,12 @@ public interface SqlCompoundOperator extends SqlCompositeElement {
   PsiElement getAll();
 
   @Nullable
+  PsiElement getExcept();
+
+  @Nullable
+  PsiElement getIntersect();
+
+  @Nullable
   PsiElement getUnion();
 
 }

@@ -27,6 +27,18 @@ public interface SqlUpdateStmt extends SqlCompositeElement {
   SqlWithClause getWithClause();
 
   @Nullable
+  PsiElement getAbort();
+
+  @Nullable
+  PsiElement getFail();
+
+  @Nullable
+  PsiElement getIgnore();
+
+  @Nullable
+  PsiElement getOr();
+
+  @Nullable
   PsiElement getRollback();
 
   @Nullable

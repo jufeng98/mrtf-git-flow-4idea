@@ -52,6 +52,12 @@ public class SqlAlterTableStmtImpl extends SqlCompositeElementImpl implements Sq
   }
 
   @Override
+  @Nullable
+  public PsiElement getAdd() {
+    return findChildByType(ADD);
+  }
+
+  @Override
   @NotNull
   public PsiElement getAlter() {
     return findNotNullChildByType(ALTER);

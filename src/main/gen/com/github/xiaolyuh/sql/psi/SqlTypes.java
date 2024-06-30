@@ -123,7 +123,7 @@ public interface SqlTypes {
   IElementType ANALYZE = new SqlTokenType("ANALYZE");
   IElementType AND = new SqlTokenType("AND");
   IElementType AS = new SqlTokenType("AS");
-  IElementType ASC = new SqlTokenType("asc");
+  IElementType ASC = new SqlTokenType("ASC");
   IElementType ATTACH = new SqlTokenType("ATTACH");
   IElementType AUTOINCREMENT = new SqlTokenType("AUTOINCREMENT");
   IElementType BEFORE = new SqlTokenType("BEFORE");
@@ -155,7 +155,7 @@ public interface SqlTypes {
   IElementType DEFERRABLE = new SqlTokenType("DEFERRABLE");
   IElementType DEFERRED = new SqlTokenType("DEFERRED");
   IElementType DELETE = new SqlTokenType("DELETE");
-  IElementType DESC = new SqlTokenType("desc");
+  IElementType DESC = new SqlTokenType("DESC");
   IElementType DETACH = new SqlTokenType("DETACH");
   IElementType DIGIT = new SqlTokenType("digit");
   IElementType DISTINCT = new SqlTokenType("DISTINCT");
@@ -202,7 +202,7 @@ public interface SqlTypes {
   IElementType KEY = new SqlTokenType("KEY");
   IElementType LEFT = new SqlTokenType("LEFT");
   IElementType LIKE = new SqlTokenType("LIKE");
-  IElementType LIMIT = new SqlTokenType("limit");
+  IElementType LIMIT = new SqlTokenType("LIMIT");
   IElementType LP = new SqlTokenType("(");
   IElementType LT = new SqlTokenType("<");
   IElementType LTE = new SqlTokenType("<=");
@@ -217,7 +217,7 @@ public interface SqlTypes {
   IElementType NOT = new SqlTokenType("NOT");
   IElementType NULL = new SqlTokenType("NULL");
   IElementType OF = new SqlTokenType("OF");
-  IElementType OFFSET = new SqlTokenType("offset");
+  IElementType OFFSET = new SqlTokenType("OFFSET");
   IElementType ON = new SqlTokenType("ON");
   IElementType OR = new SqlTokenType("OR");
   IElementType ORDER = new SqlTokenType("ORDER");

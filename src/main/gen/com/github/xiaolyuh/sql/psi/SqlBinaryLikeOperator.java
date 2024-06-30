@@ -8,4 +8,16 @@ import com.alecstrong.sql.psi.core.psi.SqlCompositeElement;
 
 public interface SqlBinaryLikeOperator extends SqlCompositeElement {
 
+  @Nullable
+  PsiElement getGlob();
+
+  @Nullable
+  PsiElement getLike();
+
+  @Nullable
+  PsiElement getMatch();
+
+  @Nullable
+  PsiElement getRegexp();
+
 }

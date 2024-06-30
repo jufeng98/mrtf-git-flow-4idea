@@ -45,4 +45,10 @@ public class SqlCastExprImpl extends SqlExprImpl implements SqlCastExpr {
     return findChildByType(AS);
   }
 
+  @Override
+  @NotNull
+  public PsiElement getCast() {
+    return findNotNullChildByType(CAST);
+  }
+
 }

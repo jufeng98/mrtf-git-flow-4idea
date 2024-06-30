@@ -14,6 +14,9 @@ public interface SqlBinaryLikeExpr extends SqlExpr {
   List<SqlExpr> getExprList();
 
   @Nullable
+  PsiElement getEscape();
+
+  @Nullable
   PsiElement getNot();
 
 }

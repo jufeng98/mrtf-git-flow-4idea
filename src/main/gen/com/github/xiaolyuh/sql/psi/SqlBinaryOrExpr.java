@@ -11,4 +11,7 @@ public interface SqlBinaryOrExpr extends SqlExpr, SqlBinaryExpr {
   @NotNull
   List<SqlExpr> getExprList();
 
+  @NotNull
+  PsiElement getOr();
+
 }

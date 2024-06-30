@@ -27,4 +27,28 @@ public class SqlBinaryLikeOperatorImpl extends SqlCompositeElementImpl implement
     else super.accept(visitor);
   }
 
+  @Override
+  @Nullable
+  public PsiElement getGlob() {
+    return findChildByType(GLOB);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getLike() {
+    return findChildByType(LIKE);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getMatch() {
+    return findChildByType(MATCH);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getRegexp() {
+    return findChildByType(REGEXP);
+  }
+
 }

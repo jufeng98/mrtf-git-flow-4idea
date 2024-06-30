@@ -19,6 +19,9 @@ public interface SqlInExpr extends SqlExpr {
   @Nullable
   SqlTableName getTableName();
 
+  @NotNull
+  PsiElement getIn();
+
   @Nullable
   PsiElement getNot();
 

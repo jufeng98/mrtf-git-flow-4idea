@@ -33,4 +33,10 @@ public class SqlBinaryOrExprImpl extends SqlExprImpl implements SqlBinaryOrExpr 
     return PsiTreeUtil.getChildrenOfTypeAsList(this, SqlExpr.class);
   }
 
+  @Override
+  @NotNull
+  public PsiElement getOr() {
+    return findNotNullChildByType(OR);
+  }
+
 }

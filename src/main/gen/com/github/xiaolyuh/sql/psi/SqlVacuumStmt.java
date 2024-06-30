@@ -8,4 +8,7 @@ import com.alecstrong.sql.psi.core.psi.SqlCompositeElement;
 
 public interface SqlVacuumStmt extends SqlCompositeElement {
 
+  @NotNull
+  PsiElement getVacuum();
+
 }

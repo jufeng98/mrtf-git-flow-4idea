@@ -27,13 +27,25 @@ public interface SqlInsertStmt extends SqlCompositeElement {
   SqlWithClause getWithClause();
 
   @Nullable
+  PsiElement getAbort();
+
+  @Nullable
   PsiElement getDefault();
+
+  @Nullable
+  PsiElement getFail();
+
+  @Nullable
+  PsiElement getIgnore();
 
   @Nullable
   PsiElement getInsert();
 
   @NotNull
   PsiElement getInto();
+
+  @Nullable
+  PsiElement getOr();
 
   @Nullable
   PsiElement getRollback();

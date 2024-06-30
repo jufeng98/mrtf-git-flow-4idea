@@ -10,6 +10,12 @@ public interface SqlCaseExpr extends SqlExpr {
   @NotNull
   List<SqlExpr> getExprList();
 
+  @NotNull
+  PsiElement getCase();
+
+  @Nullable
+  PsiElement getElse();
+
   @Nullable
   PsiElement getEnd();
 

@@ -21,6 +21,9 @@ public interface SqlJoinOperator extends SqlCompositeElement {
   PsiElement getLeft();
 
   @Nullable
+  PsiElement getNatural();
+
+  @Nullable
   PsiElement getOuter();
 
 }

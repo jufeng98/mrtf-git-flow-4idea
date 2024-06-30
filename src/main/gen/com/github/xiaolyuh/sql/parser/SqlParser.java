@@ -577,7 +577,7 @@ public class SqlParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // [ with_clause ] select_stmt  ( compound_operator select_stmt ) * [ ORDER BY ordering_term ( ',' ordering_term ) * ] [ (LIMIT|limit) limiting_term [ ( (OFFSET|offset) | ',' ) limiting_term ] ]
+  // [ with_clause ] select_stmt  ( compound_operator select_stmt ) * [ ORDER BY ordering_term ( ',' ordering_term ) * ] [ LIMIT limiting_term [ ( OFFSET | ',' ) limiting_term ] ]
   public static boolean compound_select_stmt(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "compound_select_stmt")) return false;
     boolean r;
@@ -661,42 +661,33 @@ public class SqlParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // [ (LIMIT|limit) limiting_term [ ( (OFFSET|offset) | ',' ) limiting_term ] ]
+  // [ LIMIT limiting_term [ ( OFFSET | ',' ) limiting_term ] ]
   private static boolean compound_select_stmt_4(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "compound_select_stmt_4")) return false;
     compound_select_stmt_4_0(b, l + 1);
     return true;
   }
 
-  // (LIMIT|limit) limiting_term [ ( (OFFSET|offset) | ',' ) limiting_term ]
+  // LIMIT limiting_term [ ( OFFSET | ',' ) limiting_term ]
   private static boolean compound_select_stmt_4_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "compound_select_stmt_4_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = compound_select_stmt_4_0_0(b, l + 1);
+    r = consumeToken(b, LIMIT);
     r = r && limiting_term(b, l + 1);
     r = r && compound_select_stmt_4_0_2(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
   }
 
-  // LIMIT|limit
-  private static boolean compound_select_stmt_4_0_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "compound_select_stmt_4_0_0")) return false;
-    boolean r;
-    r = consumeToken(b, LIMIT);
-    if (!r) r = consumeToken(b, LIMIT);
-    return r;
-  }
-
-  // [ ( (OFFSET|offset) | ',' ) limiting_term ]
+  // [ ( OFFSET | ',' ) limiting_term ]
   private static boolean compound_select_stmt_4_0_2(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "compound_select_stmt_4_0_2")) return false;
     compound_select_stmt_4_0_2_0(b, l + 1);
     return true;
   }
 
-  // ( (OFFSET|offset) | ',' ) limiting_term
+  // ( OFFSET | ',' ) limiting_term
   private static boolean compound_select_stmt_4_0_2_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "compound_select_stmt_4_0_2_0")) return false;
     boolean r;
@@ -707,23 +698,12 @@ public class SqlParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // (OFFSET|offset) | ','
+  // OFFSET | ','
   private static boolean compound_select_stmt_4_0_2_0_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "compound_select_stmt_4_0_2_0_0")) return false;
     boolean r;
-    Marker m = enter_section_(b);
-    r = compound_select_stmt_4_0_2_0_0_0(b, l + 1);
-    if (!r) r = consumeToken(b, COMMA);
-    exit_section_(b, m, null, r);
-    return r;
-  }
-
-  // OFFSET|offset
-  private static boolean compound_select_stmt_4_0_2_0_0_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "compound_select_stmt_4_0_2_0_0_0")) return false;
-    boolean r;
     r = consumeToken(b, OFFSET);
-    if (!r) r = consumeToken(b, OFFSET);
+    if (!r) r = consumeToken(b, COMMA);
     return r;
   }
 
@@ -2070,7 +2050,7 @@ public class SqlParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // column_name [ COLLATE collation_name ] [ ASC | DESC | asc | desc]
+  // column_name [ COLLATE collation_name ] [ ASC | DESC ]
   public static boolean indexed_column(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "indexed_column")) return false;
     if (!nextTokenIs(b, "<indexed column>", ID, STRING)) return false;
@@ -2101,20 +2081,18 @@ public class SqlParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // [ ASC | DESC | asc | desc]
+  // [ ASC | DESC ]
   private static boolean indexed_column_2(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "indexed_column_2")) return false;
     indexed_column_2_0(b, l + 1);
     return true;
   }
 
-  // ASC | DESC | asc | desc
+  // ASC | DESC
   private static boolean indexed_column_2_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "indexed_column_2_0")) return false;
     boolean r;
     r = consumeToken(b, ASC);
-    if (!r) r = consumeToken(b, DESC);
-    if (!r) r = consumeToken(b, ASC);
     if (!r) r = consumeToken(b, DESC);
     return r;
   }

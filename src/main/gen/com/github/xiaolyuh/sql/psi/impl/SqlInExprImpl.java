@@ -52,6 +52,12 @@ public class SqlInExprImpl extends InExprMixin implements SqlInExpr {
   }
 
   @Override
+  @NotNull
+  public PsiElement getIn() {
+    return findNotNullChildByType(IN);
+  }
+
+  @Override
   @Nullable
   public PsiElement getNot() {
     return findChildByType(NOT);

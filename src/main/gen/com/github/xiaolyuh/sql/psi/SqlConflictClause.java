@@ -9,6 +9,15 @@ import com.alecstrong.sql.psi.core.psi.SqlCompositeElement;
 public interface SqlConflictClause extends SqlCompositeElement {
 
   @Nullable
+  PsiElement getAbort();
+
+  @Nullable
+  PsiElement getFail();
+
+  @Nullable
+  PsiElement getIgnore();
+
+  @Nullable
   PsiElement getOn();
 
   @Nullable

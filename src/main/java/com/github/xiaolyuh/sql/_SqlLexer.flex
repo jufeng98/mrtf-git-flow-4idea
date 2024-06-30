@@ -26,7 +26,7 @@ EOL=\R
 WHITE_SPACE=\s+
 
 SELECT=[Ss][Ee][Ll][Ee][Cc][Tt]
-DELETE=[Dd][Ee][Ll][Ee][Tt][Tt]
+DELETE=[Dd][Ee][Ll][Ee][Tt][Ee]
 UPDATE=[Uu][Pp][Dd][Aa][Tt][Ee]
 INSERT=[Ii][Nn][Ss][Ee][Rr][Tt]
 DISTINCT=[Dd][Ii][Ss][Tt][Ii][Nn][Cc][Tt]
@@ -38,9 +38,31 @@ RENAME=[Rr][Ee][Nn][Aa][Mm][Ee]
 WHERE=[Ww][Hh][Ee][Rr][Ee]
 TO=[Tt][Oo]
 ON=[Oo][Nn]
+IN=[Ii][Nn]
+ADD=[Aa][Dd][Dd]
 SET=[Ss][Ee][Tt]
+CASE=[Cc][Aa][Ss][Ee]
+THEN=[Tt][Hh][Ee][Nn]
+ELSE=[Ee][Ll][Ss][Ee]
+CAST=[Cc][Aa][Ss][Tt]
+LIKE=[Ll][Ii][Kk][Ee]
+GLOB=[Gg][Ll][Oo][Bb]
+REGEXP=[Rr][Ee][Gg][Ee][Xx][Pp]
+VACUUM=[Vv][Aa][Cc][Uu][Uu][Mm]
+MATCH=[Mm][Aa][Tt][Cc][Hh]
+ESCAPE=[Ee][Ss][Cc][Aa][Pp][Ee]
+EXCEPT=[Ee][Xx][Cc][Ee][Pp][Tt]
+INTERSECT=[Ii][Nn][Tt][Ee][Rr][Ss][Ee][Cc][Tt]
+BETWEEN=[Bb][Ee][Tt][Ww][Ee][Ee][Nn]
+NATURAL=[Nn][Aa][Tt][Uu][Rr][Aa][Ll]
+END=[Ee][Nn][Dd]
 FOR=[Ff][Oo][Rr]
+OR=[Oo][Rr]
+ABORT=[Aa][Bb][Oo][Rr][Tt]
+RAISE=[Rr][Aa][Ii][Ss][Ee]
+FAIL=[Ff][Aa][Ii][Ll]
 COLUMN=[Cc][Oo][Ll][Uu][Mm][Nn]
+IGNORE=[Ii][Gg][Nn][Oo][Rr][Ee]
 ALTER=[Aa][Ll][Tt][Ee][Rr]
 TABLE=[Tt][Aa][Bb][Ll][Ee]
 TEMP=[Tt][Ee][Mm][Pp]
@@ -56,7 +78,6 @@ IMMEDIATE=[Ii][Mm][Mm][Ee][Dd][Ii][Aa][Tt][Ee]
 EXCLUSIVE=[Ee][Xx][Cc][Ll][Uu][Ss][Ii][Vv][Ee]
 TRANSACTION=[Tt][Rr][Aa][Nn][Ss][Aa][Cc][Tt][Ii][Oo][Nn]
 COMMIT=[Cc][Oo][Mm][Mm][Ii][Tt]
-END=[Ee][Nn][Dd]
 ROLLBACK=[Rr][Oo][Ll][Ll][Bb][Aa][Cc][Kk]
 SAVEPOINT=[Ss][Aa][Vv][Ee][Pp][Oo][Ii][Nn][Tt]
 RELEASE=[Rr][Ee][Ll][Ee][Aa][Ss][Ee]
@@ -144,17 +165,12 @@ STRING=('([^'])*'|\"([^\"])*\")
   "&"                       { return BITWISE_AND; }
   "|"                       { return BITWISE_OR; }
   "||"                      { return CONCAT; }
-  "ADD"                     { return ADD; }
   "ROWID"                   { return ROWID; }
   "NO"                      { return NO; }
   "ACTION"                  { return ACTION; }
-  "MATCH"                   { return MATCH; }
   "DEFERRABLE"              { return DEFERRABLE; }
   "INITIALLY"               { return INITIALLY; }
   "CONFLICT"                { return CONFLICT; }
-  "ABORT"                   { return ABORT; }
-  "FAIL"                    { return FAIL; }
-  "IGNORE"                  { return IGNORE; }
   "REPLACE"                 { return REPLACE; }
   "TRIGGER"                 { return TRIGGER; }
   "BEFORE"                  { return BEFORE; }
@@ -165,25 +181,9 @@ STRING=('([^'])*'|\"([^\"])*\")
   "VIRTUAL"                 { return VIRTUAL; }
   "RECURSIVE"               { return RECURSIVE; }
   "DETACH"                  { return DETACH; }
-  "OR"                      { return OR; }
-  "CAST"                    { return CAST; }
-  "LIKE"                    { return LIKE; }
-  "GLOB"                    { return GLOB; }
-  "REGEXP"                  { return REGEXP; }
-  "ESCAPE"                  { return ESCAPE; }
-  "BETWEEN"                 { return BETWEEN; }
-  "IN"                      { return IN; }
-  "CASE"                    { return CASE; }
-  "THEN"                    { return THEN; }
-  "ELSE"                    { return ELSE; }
-  "RAISE"                   { return RAISE; }
   "E"                       { return E; }
   "GROUP"                   { return GROUP; }
   "HAVING"                  { return HAVING; }
-  "NATURAL"                 { return NATURAL; }
-  "INTERSECT"               { return INTERSECT; }
-  "EXCEPT"                  { return EXCEPT; }
-  "VACUUM"                  { return VACUUM; }
 
   {SELECT}                  { return SELECT; }
   {DELETE}                  { return DELETE; }
@@ -198,9 +198,31 @@ STRING=('([^'])*'|\"([^\"])*\")
   {WHERE}                   { return WHERE; }
   {TO}                      { return TO; }
   {ON}                      { return ON; }
+  {IN}                      { return IN; }
+  {ADD}                     { return ADD; }
   {SET}                     { return SET; }
+  {CASE}                    { return CASE; }
+  {THEN}                    { return THEN; }
+  {ELSE}                    { return ELSE; }
+  {CAST}                    { return CAST; }
+  {LIKE}                    { return LIKE; }
+  {GLOB}                    { return GLOB; }
+  {REGEXP}                  { return REGEXP; }
+  {VACUUM}                  { return VACUUM; }
+  {MATCH}                   { return MATCH; }
+  {ESCAPE}                  { return ESCAPE; }
+  {EXCEPT}                  { return EXCEPT; }
+  {INTERSECT}               { return INTERSECT; }
+  {BETWEEN}                 { return BETWEEN; }
+  {NATURAL}                 { return NATURAL; }
+  {END}                     { return END; }
   {FOR}                     { return FOR; }
+  {OR}                      { return OR; }
+  {ABORT}                   { return ABORT; }
+  {RAISE}                   { return RAISE; }
+  {FAIL}                    { return FAIL; }
   {COLUMN}                  { return COLUMN; }
+  {IGNORE}                  { return IGNORE; }
   {ALTER}                   { return ALTER; }
   {TABLE}                   { return TABLE; }
   {TEMP}                    { return TEMP; }
@@ -216,7 +238,6 @@ STRING=('([^'])*'|\"([^\"])*\")
   {EXCLUSIVE}               { return EXCLUSIVE; }
   {TRANSACTION}             { return TRANSACTION; }
   {COMMIT}                  { return COMMIT; }
-  {END}                     { return END; }
   {ROLLBACK}                { return ROLLBACK; }
   {SAVEPOINT}               { return SAVEPOINT; }
   {RELEASE}                 { return RELEASE; }

@@ -13,6 +13,9 @@ public interface SqlBetweenExpr extends SqlExpr {
   @Nullable
   PsiElement getAnd();
 
+  @NotNull
+  PsiElement getBetween();
+
   @Nullable
   PsiElement getNot();
 

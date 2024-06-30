@@ -65,8 +65,26 @@ public class SqlInsertStmtImpl extends InsertStmtMixin implements SqlInsertStmt 
 
   @Override
   @Nullable
+  public PsiElement getAbort() {
+    return findChildByType(ABORT);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getDefault() {
     return findChildByType(DEFAULT);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getFail() {
+    return findChildByType(FAIL);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getIgnore() {
+    return findChildByType(IGNORE);
   }
 
   @Override
@@ -79,6 +97,12 @@ public class SqlInsertStmtImpl extends InsertStmtMixin implements SqlInsertStmt 
   @NotNull
   public PsiElement getInto() {
     return findNotNullChildByType(INTO);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getOr() {
+    return findChildByType(OR);
   }
 
   @Override

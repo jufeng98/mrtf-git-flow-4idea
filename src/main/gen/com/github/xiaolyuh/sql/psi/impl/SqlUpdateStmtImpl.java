@@ -65,6 +65,30 @@ public class SqlUpdateStmtImpl extends MutatorMixin implements SqlUpdateStmt {
 
   @Override
   @Nullable
+  public PsiElement getAbort() {
+    return findChildByType(ABORT);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getFail() {
+    return findChildByType(FAIL);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getIgnore() {
+    return findChildByType(IGNORE);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getOr() {
+    return findChildByType(OR);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getRollback() {
     return findChildByType(ROLLBACK);
   }

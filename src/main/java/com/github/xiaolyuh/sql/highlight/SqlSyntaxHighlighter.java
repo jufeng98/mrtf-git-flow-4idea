@@ -91,8 +91,6 @@ public class SqlSyntaxHighlighter extends SyntaxHighlighterBase {
             return KEYWORD_KEYS;
         }
 
-        System.out.println(tokenType);
-
         if (tokenType.equals(SqlTypes.ID)
                 || tokenType.equals(SqlTypes.IDENTIFIER)) {
             return IDENTIFIER_KEYS;

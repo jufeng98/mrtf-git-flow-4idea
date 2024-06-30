@@ -12,6 +12,18 @@ public interface SqlRaiseFunction extends SqlCompositeElement {
   SqlErrorMessage getErrorMessage();
 
   @Nullable
+  PsiElement getAbort();
+
+  @Nullable
+  PsiElement getFail();
+
+  @Nullable
+  PsiElement getIgnore();
+
+  @NotNull
+  PsiElement getRaise();
+
+  @Nullable
   PsiElement getRollback();
 
 }

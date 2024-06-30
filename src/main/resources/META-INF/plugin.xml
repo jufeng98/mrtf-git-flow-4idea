@@ -245,9 +245,11 @@
         <lang.syntaxHighlighterFactory
                 language="sql"
                 implementationClass="com.github.xiaolyuh.sql.highlight.SqlSyntaxHighlighterFactory"/>
-        <annotator
-                language="sql"
-                implementationClass="com.alecstrong.sql.psi.core.SqlAnnotator"/>
+<!--        <annotator-->
+<!--                language="sql"-->
+<!--                implementationClass="com.alecstrong.sql.psi.core.SqlAnnotator"/>-->
+        <multiHostInjector
+                implementation="com.github.xiaolyuh.sql.inject.SqlMultiHostInjector"/>
     </extensions>
 
     <projectListeners>

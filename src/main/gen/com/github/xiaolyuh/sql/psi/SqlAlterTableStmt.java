@@ -20,6 +20,9 @@ public interface SqlAlterTableStmt extends SqlCompositeElement {
   @Nullable
   SqlTableName getTableName();
 
+  @Nullable
+  PsiElement getAdd();
+
   @NotNull
   PsiElement getAlter();
 

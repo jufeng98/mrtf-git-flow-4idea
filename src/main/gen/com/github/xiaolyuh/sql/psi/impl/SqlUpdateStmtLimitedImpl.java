@@ -71,8 +71,26 @@ public class SqlUpdateStmtLimitedImpl extends MutatorMixin implements SqlUpdateS
 
   @Override
   @Nullable
+  public PsiElement getAbort() {
+    return findChildByType(ABORT);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getBy() {
     return findChildByType(BY);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getFail() {
+    return findChildByType(FAIL);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getIgnore() {
+    return findChildByType(IGNORE);
   }
 
   @Override
@@ -85,6 +103,12 @@ public class SqlUpdateStmtLimitedImpl extends MutatorMixin implements SqlUpdateS
   @Nullable
   public PsiElement getOffset() {
     return findChildByType(OFFSET);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getOr() {
+    return findChildByType(OR);
   }
 
   @Override

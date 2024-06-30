@@ -34,6 +34,18 @@ public class SqlCaseExprImpl extends SqlExprImpl implements SqlCaseExpr {
   }
 
   @Override
+  @NotNull
+  public PsiElement getCase() {
+    return findNotNullChildByType(CASE);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getElse() {
+    return findChildByType(ELSE);
+  }
+
+  @Override
   @Nullable
   public PsiElement getEnd() {
     return findChildByType(END);

@@ -27,4 +27,10 @@ public class SqlVacuumStmtImpl extends SqlCompositeElementImpl implements SqlVac
     else super.accept(visitor);
   }
 
+  @Override
+  @NotNull
+  public PsiElement getVacuum() {
+    return findNotNullChildByType(VACUUM);
+  }
+
 }

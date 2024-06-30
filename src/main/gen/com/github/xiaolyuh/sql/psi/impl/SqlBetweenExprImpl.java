@@ -40,6 +40,12 @@ public class SqlBetweenExprImpl extends SqlExprImpl implements SqlBetweenExpr {
   }
 
   @Override
+  @NotNull
+  public PsiElement getBetween() {
+    return findNotNullChildByType(BETWEEN);
+  }
+
+  @Override
   @Nullable
   public PsiElement getNot() {
     return findChildByType(NOT);

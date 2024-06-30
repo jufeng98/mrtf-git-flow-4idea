@@ -30,13 +30,25 @@ public interface SqlUpdateStmtLimited extends SqlCompositeElement {
   SqlWithClause getWithClause();
 
   @Nullable
+  PsiElement getAbort();
+
+  @Nullable
   PsiElement getBy();
+
+  @Nullable
+  PsiElement getFail();
+
+  @Nullable
+  PsiElement getIgnore();
 
   @Nullable
   PsiElement getLimit();
 
   @Nullable
   PsiElement getOffset();
+
+  @Nullable
+  PsiElement getOr();
 
   @Nullable
   PsiElement getOrder();

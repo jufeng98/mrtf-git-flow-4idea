@@ -16,4 +16,7 @@ public interface SqlCastExpr extends SqlExpr {
   @Nullable
   PsiElement getAs();
 
+  @NotNull
+  PsiElement getCast();
+
 }

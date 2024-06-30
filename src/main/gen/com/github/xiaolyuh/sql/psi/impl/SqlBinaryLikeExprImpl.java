@@ -41,6 +41,12 @@ public class SqlBinaryLikeExprImpl extends BinaryLikeExprMixin implements SqlBin
 
   @Override
   @Nullable
+  public PsiElement getEscape() {
+    return findChildByType(ESCAPE);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getNot() {
     return findChildByType(NOT);
   }

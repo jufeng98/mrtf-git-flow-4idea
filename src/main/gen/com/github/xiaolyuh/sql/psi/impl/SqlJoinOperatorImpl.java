@@ -53,6 +53,12 @@ public class SqlJoinOperatorImpl extends SqlCompositeElementImpl implements SqlJ
 
   @Override
   @Nullable
+  public PsiElement getNatural() {
+    return findChildByType(NATURAL);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getOuter() {
     return findChildByType(OUTER);
   }

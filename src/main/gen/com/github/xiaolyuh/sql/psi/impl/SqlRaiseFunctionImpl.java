@@ -35,6 +35,30 @@ public class SqlRaiseFunctionImpl extends SqlCompositeElementImpl implements Sql
 
   @Override
   @Nullable
+  public PsiElement getAbort() {
+    return findChildByType(ABORT);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getFail() {
+    return findChildByType(FAIL);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getIgnore() {
+    return findChildByType(IGNORE);
+  }
+
+  @Override
+  @NotNull
+  public PsiElement getRaise() {
+    return findNotNullChildByType(RAISE);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getRollback() {
     return findChildByType(ROLLBACK);
   }
