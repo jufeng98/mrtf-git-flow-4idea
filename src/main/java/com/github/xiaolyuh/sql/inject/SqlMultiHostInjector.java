@@ -46,7 +46,7 @@ public class SqlMultiHostInjector implements MultiHostInjector {
 
         XmlTag xmlTag = (XmlTag) context;
         String name = xmlTag.getName();
-        return "select".equals(name) || "delete".equals(name);
+        return "select".equals(name) || "delete".equals(name) || "update".equals(name) || "insert".equals(name);
     }
 
 

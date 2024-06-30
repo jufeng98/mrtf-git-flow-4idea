@@ -26,10 +26,8 @@ public class SqlSyntaxHighlighter extends SyntaxHighlighterBase {
             createTextAttributesKey("NUMBER", DefaultLanguageHighlighterColors.NUMBER);
     public static final TextAttributesKey DOT =
             createTextAttributesKey("DOT", DefaultLanguageHighlighterColors.DOT);
-    public static final TextAttributesKey LABEL =
-            createTextAttributesKey("LABEL", DefaultLanguageHighlighterColors.LABEL);
     public static final TextAttributesKey BAD_CHARACTER =
-            createTextAttributesKey("SIMPLE_BAD_CHARACTER", HighlighterColors.BAD_CHARACTER);
+            createTextAttributesKey("BAD_CHARACTER", HighlighterColors.BAD_CHARACTER);
 
 
     private static final TextAttributesKey[] IDENTIFIER_KEYS = new TextAttributesKey[]{IDENTIFIER};
@@ -37,7 +35,6 @@ public class SqlSyntaxHighlighter extends SyntaxHighlighterBase {
     private static final TextAttributesKey[] STRING_KEYS = new TextAttributesKey[]{STRING};
     private static final TextAttributesKey[] NUMBER_KEYS = new TextAttributesKey[]{NUMBER};
     private static final TextAttributesKey[] DOT_KEYS = new TextAttributesKey[]{DOT};
-    private static final TextAttributesKey[] LABEL_KEYS = new TextAttributesKey[]{LABEL};
     private static final TextAttributesKey[] BAD_CHAR_KEYS = new TextAttributesKey[]{BAD_CHARACTER};
     private static final TextAttributesKey[] EMPTY_KEYS = new TextAttributesKey[0];
 
@@ -68,6 +65,17 @@ public class SqlSyntaxHighlighter extends SyntaxHighlighterBase {
                 || tokenType.equals(SqlTypes.NOT)
                 || tokenType.equals(SqlTypes.NULL)
                 || tokenType.equals(SqlTypes.CREATE)
+                || tokenType.equals(SqlTypes.EXISTS)
+                || tokenType.equals(SqlTypes.NO)
+                || tokenType.equals(SqlTypes.END)
+                || tokenType.equals(SqlTypes.FOR)
+                || tokenType.equals(SqlTypes.OR)
+                || tokenType.equals(SqlTypes.COLUMN)
+                || tokenType.equals(SqlTypes.LIKE)
+                || tokenType.equals(SqlTypes.ELSE)
+                || tokenType.equals(SqlTypes.IN)
+                || tokenType.equals(SqlTypes.TO)
+                || tokenType.equals(SqlTypes.CAST)
                 || tokenType.equals(SqlTypes.LIMIT)
                 || tokenType.equals(SqlTypes.OFFSET)
                 || tokenType.equals(SqlTypes.OF)
@@ -91,8 +99,7 @@ public class SqlSyntaxHighlighter extends SyntaxHighlighterBase {
             return KEYWORD_KEYS;
         }
 
-        if (tokenType.equals(SqlTypes.ID)
-                || tokenType.equals(SqlTypes.IDENTIFIER)) {
+        if (tokenType.equals(SqlTypes.ID)) {
             return IDENTIFIER_KEYS;
         }
 
