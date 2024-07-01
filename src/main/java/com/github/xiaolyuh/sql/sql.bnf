@@ -163,6 +163,9 @@ stmt_list ::= statement* {
 }
 statement ::= sql_stmt SEMI? {
     pin=1
+    methods = [
+        getReferences
+    ]
 }
 
 sql_stmt ::= [ EXPLAIN ] (
@@ -173,6 +176,9 @@ sql_stmt ::= [ EXPLAIN ] (
 ) {
     recoverWhile=sql_stmt_recovery
     pin = 2
+    methods = [
+        queryAvailable
+    ]
 }
 private sql_stmt_recovery ::= !( ';' | ALTER | ANALYZE | ATTACH | BEGIN | COMMIT | END | ROLLBACK | SAVEPOINT | RELEASE | CREATE | DROP | INSERT | WITH | UPDATE | DELETE | SELECT | PRAGMA | REINDEX)
 alter_table_stmt ::= ALTER TABLE [ database_name '.' ] table_name ( RENAME TO new_table_name | ADD [ COLUMN ] column_def ) {
@@ -438,6 +444,7 @@ table_name ::= id {
 }
 database_name ::= id
 index_name ::= id
+mybatis_desc ::= expr
 column_name ::= id | string {
     mixin = "com.alecstrong.sql.psi.core.psi.mixins.ColumnNameMixin"
     implements = [
