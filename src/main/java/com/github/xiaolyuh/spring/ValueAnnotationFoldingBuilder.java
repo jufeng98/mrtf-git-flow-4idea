@@ -53,8 +53,10 @@ final class ValueAnnotationFoldingBuilder extends FoldingBuilderEx {
         PsiElement psiElement = node.getPsi();
 
         Triple<List<String>, TextRange, List<PsiElement>> triple = ValueUtils.findApolloConfig(psiElement);
+        if (triple == null) {
+            return "";
+        }
 
-        @SuppressWarnings("DataFlowIssue")
         List<PsiElement> targetElements = triple.getRight();
 
         IProperty prop = (IProperty) targetElements.get(0);

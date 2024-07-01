@@ -35,6 +35,9 @@ public class XmlReferenceContributor extends PsiReferenceContributor {
                 new ImportPsiReferenceProvider());
     }
 
+    /**
+     * 处理xml文件里的${...}占位符,关联到Apollo
+     */
     public static class ValuePsiReferenceProvider extends PsiReferenceProvider {
         @Override
         public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement element,
@@ -54,6 +57,9 @@ public class XmlReferenceContributor extends PsiReferenceContributor {
         }
     }
 
+    /**
+     * 处理xml文件里的import标签resource属性,使其可跳转到对应文件
+     */
     public static class ImportPsiReferenceProvider extends PsiReferenceProvider {
         @Override
         public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement element,
