@@ -245,11 +245,11 @@
         <lang.syntaxHighlighterFactory
                 language="sql"
                 implementationClass="com.github.xiaolyuh.sql.highlight.SqlSyntaxHighlighterFactory"/>
-<!--        <annotator-->
-<!--                language="sql"-->
-<!--                implementationClass="com.alecstrong.sql.psi.core.SqlAnnotator"/>-->
         <multiHostInjector
                 implementation="com.github.xiaolyuh.sql.inject.SqlMultiHostInjector"/>
+        <psi.referenceContributor language="sql"
+                                  implementation="com.github.xiaolyuh.spring.SqlReferenceContributor"/>
+        <highlightErrorFilter implementation="com.github.xiaolyuh.sql.SqlHighlightErrorFilter"/>
     </extensions>
 
     <projectListeners>
