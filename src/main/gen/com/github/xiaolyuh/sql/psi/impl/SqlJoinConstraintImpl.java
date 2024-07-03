@@ -8,10 +8,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static com.github.xiaolyuh.sql.psi.SqlTypes.*;
-import com.alecstrong.sql.psi.core.psi.SqlCompositeElementImpl;
+import com.github.xiaolyuh.sql.SqlPsiElement;
 import com.github.xiaolyuh.sql.psi.*;
 
-public class SqlJoinConstraintImpl extends SqlCompositeElementImpl implements SqlJoinConstraint {
+public class SqlJoinConstraintImpl extends SqlPsiElement implements SqlJoinConstraint {
 
   public SqlJoinConstraintImpl(@NotNull ASTNode node) {
     super(node);

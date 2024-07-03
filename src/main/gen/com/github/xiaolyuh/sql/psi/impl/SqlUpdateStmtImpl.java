@@ -8,10 +8,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static com.github.xiaolyuh.sql.psi.SqlTypes.*;
-import com.alecstrong.sql.psi.core.psi.mixins.MutatorMixin;
+import com.github.xiaolyuh.sql.SqlPsiElement;
 import com.github.xiaolyuh.sql.psi.*;
 
-public class SqlUpdateStmtImpl extends MutatorMixin implements SqlUpdateStmt {
+public class SqlUpdateStmtImpl extends SqlPsiElement implements SqlUpdateStmt {
 
   public SqlUpdateStmtImpl(@NotNull ASTNode node) {
     super(node);

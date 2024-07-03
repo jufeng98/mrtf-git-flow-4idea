@@ -8,10 +8,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static com.github.xiaolyuh.sql.psi.SqlTypes.*;
-import com.alecstrong.sql.psi.core.psi.mixins.MutatorMixin;
+import com.github.xiaolyuh.sql.SqlPsiElement;
 import com.github.xiaolyuh.sql.psi.*;
 
-public class SqlDeleteStmtLimitedImpl extends MutatorMixin implements SqlDeleteStmtLimited {
+public class SqlDeleteStmtLimitedImpl extends SqlPsiElement implements SqlDeleteStmtLimited {
 
   public SqlDeleteStmtLimitedImpl(@NotNull ASTNode node) {
     super(node);

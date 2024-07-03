@@ -3,29 +3,24 @@ package com.github.xiaolyuh.sql.psi;
 
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElementVisitor;
-import com.alecstrong.sql.psi.core.psi.SqlCompositeElement;
-import com.alecstrong.sql.psi.core.psi.TableElement;
-import com.alecstrong.sql.psi.core.psi.NamedElement;
-import com.alecstrong.sql.psi.core.psi.SqlBinaryExpr;
-import com.alecstrong.sql.psi.core.psi.QueryElement;
-import com.alecstrong.sql.psi.core.psi.AliasElement;
+import com.intellij.psi.PsiElement;
 
 public class SqlVisitor extends PsiElementVisitor {
 
   public void visitAlterTableStmt(@NotNull SqlAlterTableStmt o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitAnalyzeStmt(@NotNull SqlAnalyzeStmt o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitAttachStmt(@NotNull SqlAttachStmt o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitBeginStmt(@NotNull SqlBeginStmt o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitBetweenExpr(@NotNull SqlBetweenExpr o) {
@@ -34,27 +29,22 @@ public class SqlVisitor extends PsiElementVisitor {
 
   public void visitBinaryAddExpr(@NotNull SqlBinaryAddExpr o) {
     visitExpr(o);
-    // visitBinaryExpr(o);
   }
 
   public void visitBinaryAndExpr(@NotNull SqlBinaryAndExpr o) {
     visitExpr(o);
-    // visitBinaryExpr(o);
   }
 
   public void visitBinaryBitwiseExpr(@NotNull SqlBinaryBitwiseExpr o) {
     visitExpr(o);
-    // visitBinaryExpr(o);
   }
 
   public void visitBinaryBooleanExpr(@NotNull SqlBinaryBooleanExpr o) {
     visitExpr(o);
-    // visitBinaryExpr(o);
   }
 
   public void visitBinaryEqualityExpr(@NotNull SqlBinaryEqualityExpr o) {
     visitExpr(o);
-    // visitBinaryExpr(o);
   }
 
   public void visitBinaryLikeExpr(@NotNull SqlBinaryLikeExpr o) {
@@ -62,22 +52,19 @@ public class SqlVisitor extends PsiElementVisitor {
   }
 
   public void visitBinaryLikeOperator(@NotNull SqlBinaryLikeOperator o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitBinaryMultExpr(@NotNull SqlBinaryMultExpr o) {
     visitExpr(o);
-    // visitBinaryExpr(o);
   }
 
   public void visitBinaryOrExpr(@NotNull SqlBinaryOrExpr o) {
     visitExpr(o);
-    // visitBinaryExpr(o);
   }
 
   public void visitBinaryPipeExpr(@NotNull SqlBinaryPipeExpr o) {
     visitExpr(o);
-    // visitBinaryExpr(o);
   }
 
   public void visitBindExpr(@NotNull SqlBindExpr o) {
@@ -85,11 +72,11 @@ public class SqlVisitor extends PsiElementVisitor {
   }
 
   public void visitBindParameter(@NotNull SqlBindParameter o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitBlobLiteral(@NotNull SqlBlobLiteral o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitCaseExpr(@NotNull SqlCaseExpr o) {
@@ -105,20 +92,19 @@ public class SqlVisitor extends PsiElementVisitor {
   }
 
   public void visitCollationName(@NotNull SqlCollationName o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitColumnAlias(@NotNull SqlColumnAlias o) {
-    visitAliasElement(o);
-    // visitNamedElement(o);
+    visitPsiElement(o);
   }
 
   public void visitColumnConstraint(@NotNull SqlColumnConstraint o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitColumnDef(@NotNull SqlColumnDef o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitColumnExpr(@NotNull SqlColumnExpr o) {
@@ -126,83 +112,83 @@ public class SqlVisitor extends PsiElementVisitor {
   }
 
   public void visitColumnName(@NotNull SqlColumnName o) {
-    visitNamedElement(o);
+    visitPsiElement(o);
   }
 
   public void visitCommitStmt(@NotNull SqlCommitStmt o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitCompoundOperator(@NotNull SqlCompoundOperator o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitCompoundSelectStmt(@NotNull SqlCompoundSelectStmt o) {
-    visitQueryElement(o);
+    visitPsiElement(o);
   }
 
   public void visitConflictClause(@NotNull SqlConflictClause o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitCreateIndexStmt(@NotNull SqlCreateIndexStmt o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitCreateTableStmt(@NotNull SqlCreateTableStmt o) {
-    visitTableElement(o);
+    visitPsiElement(o);
   }
 
   public void visitCreateTriggerStmt(@NotNull SqlCreateTriggerStmt o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitCreateViewStmt(@NotNull SqlCreateViewStmt o) {
-    visitTableElement(o);
+    visitPsiElement(o);
   }
 
   public void visitCreateVirtualTableStmt(@NotNull SqlCreateVirtualTableStmt o) {
-    visitTableElement(o);
+    visitPsiElement(o);
   }
 
   public void visitCteTableName(@NotNull SqlCteTableName o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitDatabaseName(@NotNull SqlDatabaseName o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitDeleteStmt(@NotNull SqlDeleteStmt o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitDeleteStmtLimited(@NotNull SqlDeleteStmtLimited o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitDetachStmt(@NotNull SqlDetachStmt o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitDropIndexStmt(@NotNull SqlDropIndexStmt o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitDropTableStmt(@NotNull SqlDropTableStmt o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitDropTriggerStmt(@NotNull SqlDropTriggerStmt o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitDropViewStmt(@NotNull SqlDropViewStmt o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitErrorMessage(@NotNull SqlErrorMessage o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitExistsExpr(@NotNull SqlExistsExpr o) {
@@ -210,15 +196,15 @@ public class SqlVisitor extends PsiElementVisitor {
   }
 
   public void visitExpr(@NotNull SqlExpr o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitForeignKeyClause(@NotNull SqlForeignKeyClause o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitForeignTable(@NotNull SqlForeignTable o) {
-    visitNamedElement(o);
+    visitPsiElement(o);
   }
 
   public void visitFunctionExpr(@NotNull SqlFunctionExpr o) {
@@ -226,11 +212,11 @@ public class SqlVisitor extends PsiElementVisitor {
   }
 
   public void visitFunctionName(@NotNull SqlFunctionName o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitIdentifier(@NotNull SqlIdentifier o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitInExpr(@NotNull SqlInExpr o) {
@@ -238,15 +224,15 @@ public class SqlVisitor extends PsiElementVisitor {
   }
 
   public void visitIndexName(@NotNull SqlIndexName o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitIndexedColumn(@NotNull SqlIndexedColumn o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitInsertStmt(@NotNull SqlInsertStmt o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitIsExpr(@NotNull SqlIsExpr o) {
@@ -254,19 +240,19 @@ public class SqlVisitor extends PsiElementVisitor {
   }
 
   public void visitJoinClause(@NotNull SqlJoinClause o) {
-    visitQueryElement(o);
+    visitPsiElement(o);
   }
 
   public void visitJoinConstraint(@NotNull SqlJoinConstraint o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitJoinOperator(@NotNull SqlJoinOperator o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitLimitingTerm(@NotNull SqlLimitingTerm o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitLiteralExpr(@NotNull SqlLiteralExpr o) {
@@ -274,19 +260,19 @@ public class SqlVisitor extends PsiElementVisitor {
   }
 
   public void visitLiteralValue(@NotNull SqlLiteralValue o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitModuleArgument(@NotNull SqlModuleArgument o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitModuleName(@NotNull SqlModuleName o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitNewTableName(@NotNull SqlNewTableName o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitNullExpr(@NotNull SqlNullExpr o) {
@@ -294,11 +280,11 @@ public class SqlVisitor extends PsiElementVisitor {
   }
 
   public void visitNumericLiteral(@NotNull SqlNumericLiteral o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitOrderingTerm(@NotNull SqlOrderingTerm o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitParenExpr(@NotNull SqlParenExpr o) {
@@ -306,19 +292,19 @@ public class SqlVisitor extends PsiElementVisitor {
   }
 
   public void visitPragmaName(@NotNull SqlPragmaName o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitPragmaStmt(@NotNull SqlPragmaStmt o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitPragmaValue(@NotNull SqlPragmaValue o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitQualifiedTableName(@NotNull SqlQualifiedTableName o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitRaiseExpr(@NotNull SqlRaiseExpr o) {
@@ -326,88 +312,83 @@ public class SqlVisitor extends PsiElementVisitor {
   }
 
   public void visitRaiseFunction(@NotNull SqlRaiseFunction o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitReindexStmt(@NotNull SqlReindexStmt o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitReleaseStmt(@NotNull SqlReleaseStmt o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitResultColumn(@NotNull SqlResultColumn o) {
-    visitQueryElement(o);
+    visitPsiElement(o);
   }
 
   public void visitRollbackStmt(@NotNull SqlRollbackStmt o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
+  }
+
+  public void visitRoot(@NotNull SqlRoot o) {
+    visitPsiElement(o);
   }
 
   public void visitSavepointName(@NotNull SqlSavepointName o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitSavepointStmt(@NotNull SqlSavepointStmt o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitSelectStmt(@NotNull SqlSelectStmt o) {
-    visitQueryElement(o);
+    visitPsiElement(o);
   }
 
   public void visitSetterExpression(@NotNull SqlSetterExpression o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitSignedNumber(@NotNull SqlSignedNumber o) {
-    visitCompositeElement(o);
-  }
-
-  public void visitSqlStmt(@NotNull SqlSqlStmt o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitStatement(@NotNull SqlStatement o) {
-    visitCompositeElement(o);
-  }
-
-  public void visitStmtList(@NotNull SqlStmtList o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitStringLiteral(@NotNull SqlStringLiteral o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitTableAlias(@NotNull SqlTableAlias o) {
-    visitNamedElement(o);
-    // visitAliasElement(o);
+    visitPsiElement(o);
   }
 
   public void visitTableConstraint(@NotNull SqlTableConstraint o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitTableName(@NotNull SqlTableName o) {
-    visitNamedElement(o);
+    visitPsiElement(o);
   }
 
   public void visitTableOrIndexName(@NotNull SqlTableOrIndexName o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitTableOrSubquery(@NotNull SqlTableOrSubquery o) {
-    visitQueryElement(o);
+    visitPsiElement(o);
   }
 
   public void visitTriggerName(@NotNull SqlTriggerName o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitTypeName(@NotNull SqlTypeName o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitUnaryExpr(@NotNull SqlUnaryExpr o) {
@@ -415,50 +396,34 @@ public class SqlVisitor extends PsiElementVisitor {
   }
 
   public void visitUpdateStmt(@NotNull SqlUpdateStmt o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitUpdateStmtLimited(@NotNull SqlUpdateStmtLimited o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitUpdateStmtSubsequentSetter(@NotNull SqlUpdateStmtSubsequentSetter o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitVacuumStmt(@NotNull SqlVacuumStmt o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitValuesExpression(@NotNull SqlValuesExpression o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
   public void visitViewName(@NotNull SqlViewName o) {
-    visitNamedElement(o);
+    visitPsiElement(o);
   }
 
   public void visitWithClause(@NotNull SqlWithClause o) {
-    visitCompositeElement(o);
+    visitPsiElement(o);
   }
 
-  public void visitAliasElement(@NotNull AliasElement o) {
-    visitElement(o);
-  }
-
-  public void visitNamedElement(@NotNull NamedElement o) {
-    visitElement(o);
-  }
-
-  public void visitQueryElement(@NotNull QueryElement o) {
-    visitElement(o);
-  }
-
-  public void visitTableElement(@NotNull TableElement o) {
-    visitElement(o);
-  }
-
-  public void visitCompositeElement(@NotNull SqlCompositeElement o) {
+  public void visitPsiElement(@NotNull PsiElement o) {
     visitElement(o);
   }
 

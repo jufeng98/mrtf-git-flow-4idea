@@ -4,9 +4,8 @@ package com.github.xiaolyuh.sql.psi;
 import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
-import com.alecstrong.sql.psi.core.psi.SqlBinaryExpr;
 
-public interface SqlBinaryOrExpr extends SqlExpr, SqlBinaryExpr {
+public interface SqlBinaryOrExpr extends SqlExpr {
 
   @NotNull
   List<SqlExpr> getExprList();

@@ -4,10 +4,8 @@ package com.github.xiaolyuh.sql.psi;
 import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
-import com.alecstrong.sql.psi.core.psi.QueryElement;
-import com.alecstrong.sql.psi.core.psi.SqlCompositeElement;
 
-public interface SqlSelectStmt extends QueryElement, SqlCompositeElement {
+public interface SqlSelectStmt extends PsiElement {
 
   @NotNull
   List<SqlExpr> getExprList();
@@ -32,6 +30,9 @@ public interface SqlSelectStmt extends QueryElement, SqlCompositeElement {
 
   @Nullable
   PsiElement getFrom();
+
+  @Nullable
+  PsiElement getGroup();
 
   @Nullable
   PsiElement getSelect();

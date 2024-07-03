@@ -1,6 +1,5 @@
 package com.github.xiaolyuh.sql.parser;
 
-import com.github.xiaolyuh.spel._SpelLexer;
 import com.github.xiaolyuh.sql._SqlLexer;
 import com.intellij.lexer.FlexAdapter;
 

@@ -8,10 +8,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static com.github.xiaolyuh.sql.psi.SqlTypes.*;
-import com.alecstrong.sql.psi.core.psi.mixins.ColumnAliasMixin;
+import com.github.xiaolyuh.sql.SqlPsiElement;
 import com.github.xiaolyuh.sql.psi.*;
 
-public class SqlColumnAliasImpl extends ColumnAliasMixin implements SqlColumnAlias {
+public class SqlColumnAliasImpl extends SqlPsiElement implements SqlColumnAlias {
 
   public SqlColumnAliasImpl(@NotNull ASTNode node) {
     super(node);

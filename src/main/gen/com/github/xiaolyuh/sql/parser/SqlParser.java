@@ -2245,7 +2245,7 @@ public class SqlParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // table_or_subquery ( join_operator table_or_subquery join_constraint ) *
+  // table_or_subquery ( join_operator table_or_subquery join_constraint )*
   public static boolean join_clause(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "join_clause")) return false;
     if (!nextTokenIs(b, "<join clause>", ID, LP)) return false;
@@ -2257,7 +2257,7 @@ public class SqlParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // ( join_operator table_or_subquery join_constraint ) *
+  // ( join_operator table_or_subquery join_constraint )*
   private static boolean join_clause_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "join_clause_1")) return false;
     while (true) {
@@ -3058,6 +3058,26 @@ public class SqlParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
+  // statement SEMI?
+  public static boolean root(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "root")) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, ROOT, "<root>");
+    r = statement(b, l + 1);
+    p = r; // pin = 1
+    r = r && root_1(b, l + 1);
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  // SEMI?
+  private static boolean root_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "root_1")) return false;
+    consumeToken(b, SEMI);
+    return true;
+  }
+
+  /* ********************************************************** */
   // id
   public static boolean savepoint_name(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "savepoint_name")) return false;
@@ -3320,68 +3340,15 @@ public class SqlParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // stmt_list
+  // root*
   static boolean sqlFile(PsiBuilder b, int l) {
-    return stmt_list(b, l + 1);
-  }
-
-  /* ********************************************************** */
-  // [ EXPLAIN ] (
-  //     alter_table_stmt | analyze_stmt | attach_stmt | begin_stmt | commit_stmt | create_index_stmt | create_table_stmt |
-  //     create_trigger_stmt | create_view_stmt | create_virtual_table_stmt | delete_stmt_limited | detach_stmt | drop_index_stmt |
-  //     drop_table_stmt | drop_trigger_stmt | drop_view_stmt | insert_stmt | pragma_stmt | reindex_stmt | release_stmt |
-  //     rollback_stmt | savepoint_stmt | compound_select_stmt | update_stmt_limited | vacuum_stmt
-  // )
-  public static boolean sql_stmt(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "sql_stmt")) return false;
-    boolean r;
-    Marker m = enter_section_(b, l, _NONE_, SQL_STMT, "<sql stmt>");
-    r = sql_stmt_0(b, l + 1);
-    r = r && sql_stmt_1(b, l + 1);
-    exit_section_(b, l, m, r, false, SqlParser::sql_stmt_recovery);
-    return r;
-  }
-
-  // [ EXPLAIN ]
-  private static boolean sql_stmt_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "sql_stmt_0")) return false;
-    consumeToken(b, EXPLAIN);
+    if (!recursion_guard_(b, l, "sqlFile")) return false;
+    while (true) {
+      int c = current_position_(b);
+      if (!root(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "sqlFile", c)) break;
+    }
     return true;
-  }
-
-  // alter_table_stmt | analyze_stmt | attach_stmt | begin_stmt | commit_stmt | create_index_stmt | create_table_stmt |
-  //     create_trigger_stmt | create_view_stmt | create_virtual_table_stmt | delete_stmt_limited | detach_stmt | drop_index_stmt |
-  //     drop_table_stmt | drop_trigger_stmt | drop_view_stmt | insert_stmt | pragma_stmt | reindex_stmt | release_stmt |
-  //     rollback_stmt | savepoint_stmt | compound_select_stmt | update_stmt_limited | vacuum_stmt
-  private static boolean sql_stmt_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "sql_stmt_1")) return false;
-    boolean r;
-    r = alter_table_stmt(b, l + 1);
-    if (!r) r = analyze_stmt(b, l + 1);
-    if (!r) r = attach_stmt(b, l + 1);
-    if (!r) r = begin_stmt(b, l + 1);
-    if (!r) r = commit_stmt(b, l + 1);
-    if (!r) r = create_index_stmt(b, l + 1);
-    if (!r) r = create_table_stmt(b, l + 1);
-    if (!r) r = create_trigger_stmt(b, l + 1);
-    if (!r) r = create_view_stmt(b, l + 1);
-    if (!r) r = create_virtual_table_stmt(b, l + 1);
-    if (!r) r = delete_stmt_limited(b, l + 1);
-    if (!r) r = detach_stmt(b, l + 1);
-    if (!r) r = drop_index_stmt(b, l + 1);
-    if (!r) r = drop_table_stmt(b, l + 1);
-    if (!r) r = drop_trigger_stmt(b, l + 1);
-    if (!r) r = drop_view_stmt(b, l + 1);
-    if (!r) r = insert_stmt(b, l + 1);
-    if (!r) r = pragma_stmt(b, l + 1);
-    if (!r) r = reindex_stmt(b, l + 1);
-    if (!r) r = release_stmt(b, l + 1);
-    if (!r) r = rollback_stmt(b, l + 1);
-    if (!r) r = savepoint_stmt(b, l + 1);
-    if (!r) r = compound_select_stmt(b, l + 1);
-    if (!r) r = update_stmt_limited(b, l + 1);
-    if (!r) r = vacuum_stmt(b, l + 1);
-    return r;
   }
 
   /* ********************************************************** */
@@ -3422,37 +3389,62 @@ public class SqlParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // sql_stmt SEMI?
+  // [ EXPLAIN ] (
+  //     alter_table_stmt | analyze_stmt | attach_stmt | begin_stmt | commit_stmt | create_index_stmt | create_table_stmt |
+  //     create_trigger_stmt | create_view_stmt | create_virtual_table_stmt | delete_stmt_limited | detach_stmt | drop_index_stmt |
+  //     drop_table_stmt | drop_trigger_stmt | drop_view_stmt | insert_stmt | pragma_stmt | reindex_stmt | release_stmt |
+  //     rollback_stmt | savepoint_stmt | compound_select_stmt | update_stmt_limited | vacuum_stmt
+  // )
   public static boolean statement(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "statement")) return false;
-    boolean r, p;
+    boolean r;
     Marker m = enter_section_(b, l, _NONE_, STATEMENT, "<statement>");
-    r = sql_stmt(b, l + 1);
-    p = r; // pin = 1
+    r = statement_0(b, l + 1);
     r = r && statement_1(b, l + 1);
-    exit_section_(b, l, m, r, p, null);
-    return r || p;
+    exit_section_(b, l, m, r, false, SqlParser::sql_stmt_recovery);
+    return r;
   }
 
-  // SEMI?
+  // [ EXPLAIN ]
+  private static boolean statement_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "statement_0")) return false;
+    consumeToken(b, EXPLAIN);
+    return true;
+  }
+
+  // alter_table_stmt | analyze_stmt | attach_stmt | begin_stmt | commit_stmt | create_index_stmt | create_table_stmt |
+  //     create_trigger_stmt | create_view_stmt | create_virtual_table_stmt | delete_stmt_limited | detach_stmt | drop_index_stmt |
+  //     drop_table_stmt | drop_trigger_stmt | drop_view_stmt | insert_stmt | pragma_stmt | reindex_stmt | release_stmt |
+  //     rollback_stmt | savepoint_stmt | compound_select_stmt | update_stmt_limited | vacuum_stmt
   private static boolean statement_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "statement_1")) return false;
-    consumeToken(b, SEMI);
-    return true;
-  }
-
-  /* ********************************************************** */
-  // statement *
-  public static boolean stmt_list(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "stmt_list")) return false;
-    Marker m = enter_section_(b, l, _NONE_, STMT_LIST, "<stmt list>");
-    while (true) {
-      int c = current_position_(b);
-      if (!statement(b, l + 1)) break;
-      if (!empty_element_parsed_guard_(b, "stmt_list", c)) break;
-    }
-    exit_section_(b, l, m, true, false, null);
-    return true;
+    boolean r;
+    r = alter_table_stmt(b, l + 1);
+    if (!r) r = analyze_stmt(b, l + 1);
+    if (!r) r = attach_stmt(b, l + 1);
+    if (!r) r = begin_stmt(b, l + 1);
+    if (!r) r = commit_stmt(b, l + 1);
+    if (!r) r = create_index_stmt(b, l + 1);
+    if (!r) r = create_table_stmt(b, l + 1);
+    if (!r) r = create_trigger_stmt(b, l + 1);
+    if (!r) r = create_view_stmt(b, l + 1);
+    if (!r) r = create_virtual_table_stmt(b, l + 1);
+    if (!r) r = delete_stmt_limited(b, l + 1);
+    if (!r) r = detach_stmt(b, l + 1);
+    if (!r) r = drop_index_stmt(b, l + 1);
+    if (!r) r = drop_table_stmt(b, l + 1);
+    if (!r) r = drop_trigger_stmt(b, l + 1);
+    if (!r) r = drop_view_stmt(b, l + 1);
+    if (!r) r = insert_stmt(b, l + 1);
+    if (!r) r = pragma_stmt(b, l + 1);
+    if (!r) r = reindex_stmt(b, l + 1);
+    if (!r) r = release_stmt(b, l + 1);
+    if (!r) r = rollback_stmt(b, l + 1);
+    if (!r) r = savepoint_stmt(b, l + 1);
+    if (!r) r = compound_select_stmt(b, l + 1);
+    if (!r) r = update_stmt_limited(b, l + 1);
+    if (!r) r = vacuum_stmt(b, l + 1);
+    return r;
   }
 
   /* ********************************************************** */
@@ -4588,22 +4580,40 @@ public class SqlParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // [ ESCAPE expr ]
+  // [ ESCAPE expr ] {
+  // }
   private static boolean binary_like_expr_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "binary_like_expr_1")) return false;
-    binary_like_expr_1_0(b, l + 1);
+    boolean r;
+    Marker m = enter_section_(b);
+    r = binary_like_expr_1_0(b, l + 1);
+    r = r && binary_like_expr_1_1(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // [ ESCAPE expr ]
+  private static boolean binary_like_expr_1_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "binary_like_expr_1_0")) return false;
+    binary_like_expr_1_0_0(b, l + 1);
     return true;
   }
 
   // ESCAPE expr
-  private static boolean binary_like_expr_1_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "binary_like_expr_1_0")) return false;
+  private static boolean binary_like_expr_1_0_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "binary_like_expr_1_0_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, ESCAPE);
     r = r && expr(b, l + 1, -1);
     exit_section_(b, m, null, r);
     return r;
+  }
+
+  // {
+  // }
+  private static boolean binary_like_expr_1_1(PsiBuilder b, int l) {
+    return true;
   }
 
   // IS [ NOT ]

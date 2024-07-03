@@ -8,10 +8,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static com.github.xiaolyuh.sql.psi.SqlTypes.*;
-import com.alecstrong.sql.psi.core.psi.SqlCompositeElementImpl;
+import com.github.xiaolyuh.sql.SqlPsiElement;
 import com.github.xiaolyuh.sql.psi.*;
 
-public class SqlTableOrIndexNameImpl extends SqlCompositeElementImpl implements SqlTableOrIndexName {
+public class SqlTableOrIndexNameImpl extends SqlPsiElement implements SqlTableOrIndexName {
 
   public SqlTableOrIndexNameImpl(@NotNull ASTNode node) {
     super(node);

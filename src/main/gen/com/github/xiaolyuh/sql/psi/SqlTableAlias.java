@@ -4,11 +4,8 @@ package com.github.xiaolyuh.sql.psi;
 import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
-import com.alecstrong.sql.psi.core.psi.NamedElement;
-import com.alecstrong.sql.psi.core.psi.AliasElement;
-import com.alecstrong.sql.psi.core.psi.SqlCompositeElement;
 
-public interface SqlTableAlias extends NamedElement, AliasElement, SqlCompositeElement {
+public interface SqlTableAlias extends PsiElement {
 
   @NotNull
   PsiElement getId();

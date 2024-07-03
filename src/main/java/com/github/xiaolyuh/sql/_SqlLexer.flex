@@ -109,6 +109,7 @@ DROP=[Dd][Rr][Oo][Pp]
 VALUES=[Vv][Aa][Ll][Uu][Ee][Ss]
 ORDER=[Oo][Rr][Dd][Ee][Rr]
 INDEXED=[Ii][Nn][Dd][Ee][Xx][Ee][Dd]
+GROUP=[Gg][Rr][Oo][Uu][Pp]
 BY=[Bb][Yy]
 LIMIT=[Ll][Ii][Mm][Ii][Tt]
 OFFSET=[Oo][Ff][Ff][Ss][Ee][Tt]
@@ -122,6 +123,7 @@ PRIMARY=[Pp][Rr][Ii][Mm][Aa][Rr][Yy]
 KEY=[Kk][Ee][Yy]
 CHECK=[Cc][Hh][Ee][Cc][Kk]
 DEFAULT=[Dd][Ee][Ff][Aa][Uu][Ll][Tt]
+RECURSIVE=[Rr][Ee][Cc][Uu][Rr][Ss][Ii][Vv][Ee]
 FOREIGN=[Ff][Oo][Rr][Ee][Ii][Gg][Nn]
 REFERENCES_WORD=[Rr][Ee][Ff][Ee][Rr][Ee][Nn][Cc][Ee][Ss]
 AUTOINCREMENT=[Aa][Uu][Tt][Oo][Ii][Nn][Cc][Rr][Ee][Mm][Ee][Nn][Tt]
@@ -145,6 +147,8 @@ STRING=('([^'])*'|\"([^\"])*\")
   "="                       { return EQ; }
   "("                       { return LP; }
   ")"                       { return RP; }
+  "{"                       { return LB; }
+  "}"                       { return RB; }
   "."                       { return DOT; }
   ","                       { return COMMA; }
   "+"                       { return PLUS; }
@@ -165,6 +169,8 @@ STRING=('([^'])*'|\"([^\"])*\")
   "&"                       { return BITWISE_AND; }
   "|"                       { return BITWISE_OR; }
   "||"                      { return CONCAT; }
+  "#"                       { return SHARP; }
+  "$"                       { return DOLLAR; }
   "ROWID"                   { return ROWID; }
   "NO"                      { return NO; }
   "ACTION"                  { return ACTION; }
@@ -179,10 +185,8 @@ STRING=('([^'])*'|\"([^\"])*\")
   "EACH"                    { return EACH; }
   "ROW"                     { return ROW; }
   "VIRTUAL"                 { return VIRTUAL; }
-  "RECURSIVE"               { return RECURSIVE; }
   "DETACH"                  { return DETACH; }
   "E"                       { return E; }
-  "GROUP"                   { return GROUP; }
   "HAVING"                  { return HAVING; }
 
   {SELECT}                  { return SELECT; }
@@ -269,6 +273,7 @@ STRING=('([^'])*'|\"([^\"])*\")
   {VALUES}                  { return VALUES; }
   {ORDER}                   { return ORDER; }
   {INDEXED}                 { return INDEXED; }
+  {GROUP}                   { return GROUP; }
   {BY}                      { return BY; }
   {LIMIT}                   { return LIMIT; }
   {OFFSET}                  { return OFFSET; }
@@ -282,6 +287,7 @@ STRING=('([^'])*'|\"([^\"])*\")
   {KEY}                     { return KEY; }
   {CHECK}                   { return CHECK; }
   {DEFAULT}                 { return DEFAULT; }
+  {RECURSIVE}               { return RECURSIVE; }
   {FOREIGN}                 { return FOREIGN; }
   {REFERENCES_WORD}         { return REFERENCES_WORD; }
   {AUTOINCREMENT}           { return AUTOINCREMENT; }

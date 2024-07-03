@@ -8,17 +8,17 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static com.github.xiaolyuh.sql.psi.SqlTypes.*;
-import com.alecstrong.sql.psi.core.psi.mixins.SqlStmtListMixin;
+import com.github.xiaolyuh.sql.SqlPsiElement;
 import com.github.xiaolyuh.sql.psi.*;
 
-public class SqlStmtListImpl extends SqlStmtListMixin implements SqlStmtList {
+public class SqlRootImpl extends SqlPsiElement implements SqlRoot {
 
-  public SqlStmtListImpl(@NotNull ASTNode node) {
+  public SqlRootImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull SqlVisitor visitor) {
-    visitor.visitStmtList(this);
+    visitor.visitRoot(this);
   }
 
   @Override
@@ -29,8 +29,8 @@ public class SqlStmtListImpl extends SqlStmtListMixin implements SqlStmtList {
 
   @Override
   @NotNull
-  public List<SqlStatement> getStatementList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, SqlStatement.class);
+  public SqlStatement getStatement() {
+    return findNotNullChildByClass(SqlStatement.class);
   }
 
 }

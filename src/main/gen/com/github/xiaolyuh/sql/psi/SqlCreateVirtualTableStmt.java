@@ -4,9 +4,8 @@ package com.github.xiaolyuh.sql.psi;
 import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
-import com.alecstrong.sql.psi.core.psi.TableElement;
 
-public interface SqlCreateVirtualTableStmt extends TableElement {
+public interface SqlCreateVirtualTableStmt extends PsiElement {
 
   @Nullable
   SqlDatabaseName getDatabaseName();

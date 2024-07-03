@@ -8,10 +8,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static com.github.xiaolyuh.sql.psi.SqlTypes.*;
-import com.alecstrong.sql.psi.core.psi.mixins.LiteralValueMixin;
+import com.github.xiaolyuh.sql.SqlPsiElement;
 import com.github.xiaolyuh.sql.psi.*;
 
-public class SqlLiteralValueImpl extends LiteralValueMixin implements SqlLiteralValue {
+public class SqlLiteralValueImpl extends SqlPsiElement implements SqlLiteralValue {
 
   public SqlLiteralValueImpl(@NotNull ASTNode node) {
     super(node);

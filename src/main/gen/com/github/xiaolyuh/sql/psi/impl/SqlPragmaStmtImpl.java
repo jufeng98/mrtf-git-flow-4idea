@@ -8,10 +8,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static com.github.xiaolyuh.sql.psi.SqlTypes.*;
-import com.alecstrong.sql.psi.core.psi.SqlCompositeElementImpl;
+import com.github.xiaolyuh.sql.SqlPsiElement;
 import com.github.xiaolyuh.sql.psi.*;
 
-public class SqlPragmaStmtImpl extends SqlCompositeElementImpl implements SqlPragmaStmt {
+public class SqlPragmaStmtImpl extends SqlPsiElement implements SqlPragmaStmt {
 
   public SqlPragmaStmtImpl(@NotNull ASTNode node) {
     super(node);

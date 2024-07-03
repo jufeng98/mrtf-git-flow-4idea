@@ -8,10 +8,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static com.github.xiaolyuh.sql.psi.SqlTypes.*;
-import com.alecstrong.sql.psi.core.psi.mixins.SelectStmtMixin;
+import com.github.xiaolyuh.sql.SqlPsiElement;
 import com.github.xiaolyuh.sql.psi.*;
 
-public class SqlSelectStmtImpl extends SelectStmtMixin implements SqlSelectStmt {
+public class SqlSelectStmtImpl extends SqlPsiElement implements SqlSelectStmt {
 
   public SqlSelectStmtImpl(@NotNull ASTNode node) {
     super(node);
@@ -73,6 +73,12 @@ public class SqlSelectStmtImpl extends SelectStmtMixin implements SqlSelectStmt 
   @Nullable
   public PsiElement getFrom() {
     return findChildByType(FROM);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getGroup() {
+    return findChildByType(GROUP);
   }
 
   @Override

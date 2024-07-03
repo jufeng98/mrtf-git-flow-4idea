@@ -8,10 +8,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static com.github.xiaolyuh.sql.psi.SqlTypes.*;
-import com.alecstrong.sql.psi.core.psi.mixins.TableAliasMixin;
+import com.github.xiaolyuh.sql.SqlPsiElement;
 import com.github.xiaolyuh.sql.psi.*;
 
-public class SqlTableAliasImpl extends TableAliasMixin implements SqlTableAlias {
+public class SqlTableAliasImpl extends SqlPsiElement implements SqlTableAlias {
 
   public SqlTableAliasImpl(@NotNull ASTNode node) {
     super(node);

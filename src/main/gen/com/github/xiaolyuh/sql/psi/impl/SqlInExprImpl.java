@@ -8,15 +8,15 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static com.github.xiaolyuh.sql.psi.SqlTypes.*;
-import com.alecstrong.sql.psi.core.psi.mixins.InExprMixin;
 import com.github.xiaolyuh.sql.psi.*;
 
-public class SqlInExprImpl extends InExprMixin implements SqlInExpr {
+public class SqlInExprImpl extends SqlExprImpl implements SqlInExpr {
 
   public SqlInExprImpl(@NotNull ASTNode node) {
     super(node);
   }
 
+  @Override
   public void accept(@NotNull SqlVisitor visitor) {
     visitor.visitInExpr(this);
   }

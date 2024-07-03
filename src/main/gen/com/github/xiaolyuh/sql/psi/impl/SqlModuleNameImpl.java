@@ -8,10 +8,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static com.github.xiaolyuh.sql.psi.SqlTypes.*;
-import com.alecstrong.sql.psi.core.psi.SqlCompositeElementImpl;
+import com.github.xiaolyuh.sql.SqlPsiElement;
 import com.github.xiaolyuh.sql.psi.*;
 
-public class SqlModuleNameImpl extends SqlCompositeElementImpl implements SqlModuleName {
+public class SqlModuleNameImpl extends SqlPsiElement implements SqlModuleName {
 
   public SqlModuleNameImpl(@NotNull ASTNode node) {
     super(node);

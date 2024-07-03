@@ -8,10 +8,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static com.github.xiaolyuh.sql.psi.SqlTypes.*;
-import com.alecstrong.sql.psi.core.psi.mixins.WithClauseMixin;
+import com.github.xiaolyuh.sql.SqlPsiElement;
 import com.github.xiaolyuh.sql.psi.*;
 
-public class SqlWithClauseImpl extends WithClauseMixin implements SqlWithClause {
+public class SqlWithClauseImpl extends SqlPsiElement implements SqlWithClause {
 
   public SqlWithClauseImpl(@NotNull ASTNode node) {
     super(node);
@@ -37,6 +37,12 @@ public class SqlWithClauseImpl extends WithClauseMixin implements SqlWithClause 
   @NotNull
   public List<SqlCteTableName> getCteTableNameList() {
     return PsiTreeUtil.getChildrenOfTypeAsList(this, SqlCteTableName.class);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getRecursive() {
+    return findChildByType(RECURSIVE);
   }
 
   @Override

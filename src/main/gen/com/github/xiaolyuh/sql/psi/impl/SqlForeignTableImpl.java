@@ -8,10 +8,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static com.github.xiaolyuh.sql.psi.SqlTypes.*;
-import com.alecstrong.sql.psi.core.psi.mixins.TableNameMixin;
+import com.github.xiaolyuh.sql.SqlPsiElement;
 import com.github.xiaolyuh.sql.psi.*;
 
-public class SqlForeignTableImpl extends TableNameMixin implements SqlForeignTable {
+public class SqlForeignTableImpl extends SqlPsiElement implements SqlForeignTable {
 
   public SqlForeignTableImpl(@NotNull ASTNode node) {
     super(node);

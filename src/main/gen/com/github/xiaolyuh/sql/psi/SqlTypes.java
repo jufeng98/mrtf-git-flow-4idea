@@ -89,14 +89,13 @@ public interface SqlTypes {
   IElementType RELEASE_STMT = new SqlElementType("RELEASE_STMT");
   IElementType RESULT_COLUMN = new SqlElementType("RESULT_COLUMN");
   IElementType ROLLBACK_STMT = new SqlElementType("ROLLBACK_STMT");
+  IElementType ROOT = new SqlElementType("ROOT");
   IElementType SAVEPOINT_NAME = new SqlElementType("SAVEPOINT_NAME");
   IElementType SAVEPOINT_STMT = new SqlElementType("SAVEPOINT_STMT");
   IElementType SELECT_STMT = new SqlElementType("SELECT_STMT");
   IElementType SETTER_EXPRESSION = new SqlElementType("SETTER_EXPRESSION");
   IElementType SIGNED_NUMBER = new SqlElementType("SIGNED_NUMBER");
-  IElementType SQL_STMT = new SqlElementType("SQL_STMT");
   IElementType STATEMENT = new SqlElementType("STATEMENT");
-  IElementType STMT_LIST = new SqlElementType("STMT_LIST");
   IElementType STRING_LITERAL = new SqlElementType("STRING_LITERAL");
   IElementType TABLE_ALIAS = new SqlElementType("TABLE_ALIAS");
   IElementType TABLE_CONSTRAINT = new SqlElementType("TABLE_CONSTRAINT");
@@ -160,6 +159,7 @@ public interface SqlTypes {
   IElementType DIGIT = new SqlTokenType("digit");
   IElementType DISTINCT = new SqlTokenType("DISTINCT");
   IElementType DIVIDE = new SqlTokenType("/");
+  IElementType DOLLAR = new SqlTokenType("$");
   IElementType DOT = new SqlTokenType(".");
   IElementType DROP = new SqlTokenType("DROP");
   IElementType E = new SqlTokenType("E");
@@ -200,6 +200,7 @@ public interface SqlTypes {
   IElementType JAVADOC = new SqlTokenType("javadoc");
   IElementType JOIN = new SqlTokenType("JOIN");
   IElementType KEY = new SqlTokenType("KEY");
+  IElementType LB = new SqlTokenType("{");
   IElementType LEFT = new SqlTokenType("LEFT");
   IElementType LIKE = new SqlTokenType("LIKE");
   IElementType LIMIT = new SqlTokenType("LIMIT");
@@ -228,6 +229,7 @@ public interface SqlTypes {
   IElementType PRIMARY = new SqlTokenType("PRIMARY");
   IElementType QUERY = new SqlTokenType("QUERY");
   IElementType RAISE = new SqlTokenType("RAISE");
+  IElementType RB = new SqlTokenType("}");
   IElementType RECURSIVE = new SqlTokenType("RECURSIVE");
   IElementType REFERENCES_WORD = new SqlTokenType("REFERENCES_WORD");
   IElementType REGEXP = new SqlTokenType("REGEXP");
@@ -244,6 +246,7 @@ public interface SqlTypes {
   IElementType SELECT = new SqlTokenType("SELECT");
   IElementType SEMI = new SqlTokenType(";");
   IElementType SET = new SqlTokenType("SET");
+  IElementType SHARP = new SqlTokenType("#");
   IElementType SHIFT_LEFT = new SqlTokenType("<<");
   IElementType SHIFT_RIGHT = new SqlTokenType(">>");
   IElementType STRING = new SqlTokenType("string");
@@ -511,6 +514,9 @@ public interface SqlTypes {
       else if (type == ROLLBACK_STMT) {
         return new SqlRollbackStmtImpl(node);
       }
+      else if (type == ROOT) {
+        return new SqlRootImpl(node);
+      }
       else if (type == SAVEPOINT_NAME) {
         return new SqlSavepointNameImpl(node);
       }
@@ -526,14 +532,8 @@ public interface SqlTypes {
       else if (type == SIGNED_NUMBER) {
         return new SqlSignedNumberImpl(node);
       }
-      else if (type == SQL_STMT) {
-        return new SqlSqlStmtImpl(node);
-      }
       else if (type == STATEMENT) {
         return new SqlStatementImpl(node);
-      }
-      else if (type == STMT_LIST) {
-        return new SqlStmtListImpl(node);
       }
       else if (type == STRING_LITERAL) {
         return new SqlStringLiteralImpl(node);

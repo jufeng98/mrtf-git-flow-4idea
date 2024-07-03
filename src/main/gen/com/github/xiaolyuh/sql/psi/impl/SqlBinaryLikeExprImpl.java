@@ -8,15 +8,15 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static com.github.xiaolyuh.sql.psi.SqlTypes.*;
-import com.alecstrong.sql.psi.core.psi.mixins.BinaryLikeExprMixin;
 import com.github.xiaolyuh.sql.psi.*;
 
-public class SqlBinaryLikeExprImpl extends BinaryLikeExprMixin implements SqlBinaryLikeExpr {
+public class SqlBinaryLikeExprImpl extends SqlExprImpl implements SqlBinaryLikeExpr {
 
   public SqlBinaryLikeExprImpl(@NotNull ASTNode node) {
     super(node);
   }
 
+  @Override
   public void accept(@NotNull SqlVisitor visitor) {
     visitor.visitBinaryLikeExpr(this);
   }

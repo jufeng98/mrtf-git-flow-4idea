@@ -17,17 +17,17 @@ import static com.intellij.openapi.editor.colors.TextAttributesKey.createTextAtt
 public class SqlSyntaxHighlighter extends SyntaxHighlighterBase {
 
     public static final TextAttributesKey IDENTIFIER =
-            createTextAttributesKey("IDENTIFIER", DefaultLanguageHighlighterColors.IDENTIFIER);
+            createTextAttributesKey("SQL_IDENTIFIER", DefaultLanguageHighlighterColors.IDENTIFIER);
     public static final TextAttributesKey KEYWORD =
-            createTextAttributesKey("KEYWORD", DefaultLanguageHighlighterColors.KEYWORD);
+            createTextAttributesKey("SQL_KEYWORD", DefaultLanguageHighlighterColors.KEYWORD);
     public static final TextAttributesKey STRING =
-            createTextAttributesKey("STRING", DefaultLanguageHighlighterColors.STRING);
+            createTextAttributesKey("SQL_STRING", DefaultLanguageHighlighterColors.STRING);
     public static final TextAttributesKey NUMBER =
-            createTextAttributesKey("NUMBER", DefaultLanguageHighlighterColors.NUMBER);
+            createTextAttributesKey("SQL_NUMBER", DefaultLanguageHighlighterColors.NUMBER);
     public static final TextAttributesKey DOT =
-            createTextAttributesKey("DOT", DefaultLanguageHighlighterColors.DOT);
+            createTextAttributesKey("SQL_DOT", DefaultLanguageHighlighterColors.DOT);
     public static final TextAttributesKey BAD_CHARACTER =
-            createTextAttributesKey("BAD_CHARACTER", HighlighterColors.BAD_CHARACTER);
+            createTextAttributesKey("SQL_BAD_CHARACTER", HighlighterColors.BAD_CHARACTER);
 
 
     private static final TextAttributesKey[] IDENTIFIER_KEYS = new TextAttributesKey[]{IDENTIFIER};

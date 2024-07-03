@@ -4,9 +4,8 @@ package com.github.xiaolyuh.sql.psi;
 import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
-import com.alecstrong.sql.psi.core.psi.SqlCompositeElement;
 
-public interface SqlPragmaValue extends SqlCompositeElement {
+public interface SqlPragmaValue extends PsiElement {
 
   @Nullable
   SqlIdentifier getIdentifier();

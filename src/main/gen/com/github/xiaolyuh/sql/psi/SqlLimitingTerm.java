@@ -4,9 +4,8 @@ package com.github.xiaolyuh.sql.psi;
 import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
-import com.alecstrong.sql.psi.core.psi.SqlCompositeElement;
 
-public interface SqlLimitingTerm extends SqlCompositeElement {
+public interface SqlLimitingTerm extends PsiElement {
 
   @NotNull
   SqlExpr getExpr();

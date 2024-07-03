@@ -8,10 +8,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static com.github.xiaolyuh.sql.psi.SqlTypes.*;
-import com.alecstrong.sql.psi.core.psi.mixins.ResultColumnMixin;
+import com.github.xiaolyuh.sql.SqlPsiElement;
 import com.github.xiaolyuh.sql.psi.*;
 
-public class SqlResultColumnImpl extends ResultColumnMixin implements SqlResultColumn {
+public class SqlResultColumnImpl extends SqlPsiElement implements SqlResultColumn {
 
   public SqlResultColumnImpl(@NotNull ASTNode node) {
     super(node);

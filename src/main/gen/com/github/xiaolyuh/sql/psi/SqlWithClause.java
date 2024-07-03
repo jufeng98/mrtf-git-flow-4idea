@@ -4,15 +4,17 @@ package com.github.xiaolyuh.sql.psi;
 import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
-import com.alecstrong.sql.psi.core.psi.SqlCompositeElement;
 
-public interface SqlWithClause extends SqlCompositeElement {
+public interface SqlWithClause extends PsiElement {
 
   @NotNull
   List<SqlCompoundSelectStmt> getCompoundSelectStmtList();
 
   @NotNull
   List<SqlCteTableName> getCteTableNameList();
+
+  @Nullable
+  PsiElement getRecursive();
 
   @NotNull
   PsiElement getWith();

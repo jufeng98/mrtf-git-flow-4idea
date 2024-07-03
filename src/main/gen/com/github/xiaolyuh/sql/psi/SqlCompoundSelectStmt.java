@@ -4,10 +4,8 @@ package com.github.xiaolyuh.sql.psi;
 import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
-import com.alecstrong.sql.psi.core.psi.QueryElement;
-import com.alecstrong.sql.psi.core.psi.SqlCompositeElement;
 
-public interface SqlCompoundSelectStmt extends QueryElement, SqlCompositeElement {
+public interface SqlCompoundSelectStmt extends PsiElement {
 
   @NotNull
   List<SqlCompoundOperator> getCompoundOperatorList();

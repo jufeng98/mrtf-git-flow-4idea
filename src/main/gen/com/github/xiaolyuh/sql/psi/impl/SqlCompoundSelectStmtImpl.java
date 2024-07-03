@@ -8,10 +8,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static com.github.xiaolyuh.sql.psi.SqlTypes.*;
-import com.alecstrong.sql.psi.core.psi.mixins.CompoundSelectStmtMixin;
+import com.github.xiaolyuh.sql.SqlPsiElement;
 import com.github.xiaolyuh.sql.psi.*;
 
-public class SqlCompoundSelectStmtImpl extends CompoundSelectStmtMixin implements SqlCompoundSelectStmt {
+public class SqlCompoundSelectStmtImpl extends SqlPsiElement implements SqlCompoundSelectStmt {
 
   public SqlCompoundSelectStmtImpl(@NotNull ASTNode node) {
     super(node);

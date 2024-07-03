@@ -25,13 +25,21 @@ public class SqlMultiHostInjector implements MultiHostInjector {
         registrar.startInjecting(SqlLanguage.INSTANCE);
         XmlTag xmlTag = (XmlTag) context;
 
+        boolean hasAddPlace = false;
         Collection<XmlText> collection = PsiTreeUtil.findChildrenOfType(xmlTag, XmlText.class);
         for (XmlText xmlText : collection) {
             TextRange textRange = innerRangeStrippingQuotes(xmlText);
+            if (textRange == null) {
+                continue;
+            }
+
             registrar.addPlace(null, null, (PsiLanguageInjectionHost) xmlText, textRange);
+            hasAddPlace = true;
         }
 
-        registrar.doneInjecting();
+        if (hasAddPlace) {
+            registrar.doneInjecting();
+        }
     }
 
     @Override
@@ -53,6 +61,10 @@ public class SqlMultiHostInjector implements MultiHostInjector {
     private TextRange innerRangeStrippingQuotes(PsiElement context) {
         TextRange textRange = context.getTextRange();
         TextRange textRangeTmp = textRange.shiftLeft(textRange.getStartOffset());
-        return new TextRange(textRangeTmp.getStartOffset() + 1, textRangeTmp.getEndOffset() - 1);
+        if (textRangeTmp.getEndOffset() == 0) {
+            return null;
+        }
+
+        return textRangeTmp;
     }
 }
