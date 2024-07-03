@@ -276,10 +276,12 @@ expr ::= ( raise_expr
          | unary_expr
          | literal_expr
          | column_expr
+         | mybatis_expr
          | bind_expr)
 
 literal_expr ::= literal_value
 bind_expr ::= bind_parameter
+mybatis_expr ::= ( DOLLAR | SHARP ) LB column_name (DOT column_name)* (COMMA mybatis_desc)* RB
 column_expr ::= [ database_name '.' table_name '.' | table_name '.' ] column_name
 unary_expr ::= ('+' | '-' | '~' ) expr
 binary_pipe_expr ::= expr '||' expr
@@ -302,7 +304,7 @@ binary_like_expr ::= expr [ NOT ] ( binary_like_operator ) expr [ ESCAPE expr ] 
 null_expr ::= expr ( IS NULL | IS NOT NULL )
 is_expr ::= expr IS [ NOT ] expr
 between_expr ::= expr [ NOT ] BETWEEN expr AND expr
-in_expr ::= expr [ NOT ] IN ( '(' [ compound_select_stmt | expr ( ',' expr ) * ] ')' | [ database_name '.' ] table_name | bind_expr ) {
+in_expr ::= expr [ NOT ] IN ( '(' [ compound_select_stmt | expr ( ',' expr ) * ] ')' | [ database_name '.' ] table_name | bind_expr | mybatis_expr ) {
     pin = 3
 }
 exists_expr ::= [ [ NOT ] EXISTS ] '(' compound_select_stmt ')'
@@ -338,7 +340,7 @@ reindex_stmt ::= REINDEX [ collation_name | [ database_name '.' ] ( table_name |
 }
 compound_select_stmt ::= [ with_clause ] select_stmt  ( compound_operator select_stmt ) * [ ORDER BY ordering_term ( ',' ordering_term ) * ] [ LIMIT limiting_term [ ( OFFSET | ',' ) limiting_term ] ]
 limiting_term ::= expr
-select_stmt ::= SELECT [ DISTINCT | ALL ] result_column ( ',' result_column )* [ FROM join_clause ] [ WHERE expr ] [ GROUP BY expr ( ',' expr ) * [ HAVING expr ] ] | VALUES values_expression ( ',' values_expression ) * {
+select_stmt ::= SELECT [ DISTINCT | ALL ] result_column ( ',' result_column )* [ FROM join_clause ] [ [WHERE] expr ] [ GROUP BY expr ( ',' expr ) * [ HAVING expr ] ] | VALUES values_expression ( ',' values_expression ) * {
     pin = 1
 }
 values_expression ::= '(' expr ( ',' expr ) * ')'
@@ -366,6 +368,7 @@ update_stmt_subsequent_setter ::= ',' column_name '=' setter_expression {
     pin = 1
 }
 setter_expression ::= expr
+mybatis_desc ::= expr
 qualified_table_name ::= [ database_name '.' ] table_name [ INDEXED BY index_name | NOT INDEXED ]
 vacuum_stmt ::= VACUUM
 table_name ::= id
