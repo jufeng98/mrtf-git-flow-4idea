@@ -238,7 +238,7 @@
                 implementationClass="com.github.xiaolyuh.sql.SqlFileType"
                 fieldName="INSTANCE"
                 language="sql"
-                extensions="sql"/>
+                extensions="mysql"/>
         <lang.parserDefinition
                 language="sql"
                 implementationClass="com.github.xiaolyuh.sql.parser.SqlParserDefinition"/>

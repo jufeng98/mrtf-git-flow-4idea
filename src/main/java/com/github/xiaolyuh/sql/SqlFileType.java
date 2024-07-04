@@ -28,7 +28,7 @@ public class SqlFileType extends LanguageFileType {
     @NotNull
     @Override
     public String getDefaultExtension() {
-        return "sql";
+        return "mysql";
     }
 
     @Override
