@@ -41,8 +41,8 @@ public class SqlParser implements PsiParser, LightPsiParser {
       BINARY_OR_EXPR, BINARY_PIPE_EXPR, BIND_EXPR, CASE_EXPR,
       CAST_EXPR, COLLATE_EXPR, COLUMN_EXPR, EXISTS_EXPR,
       EXPR, FUNCTION_EXPR, IN_EXPR, IS_EXPR,
-      LITERAL_EXPR, NULL_EXPR, PAREN_EXPR, RAISE_EXPR,
-      UNARY_EXPR),
+      LITERAL_EXPR, MYBATIS_EXPR, NULL_EXPR, PAREN_EXPR,
+      RAISE_EXPR, UNARY_EXPR),
   };
 
   /* ********************************************************** */
@@ -2948,9 +2948,7 @@ public class SqlParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // '*'
-  //                   | table_name '.' '*'
-  //                   | expr [ [ AS ] column_alias ]
+  // '*' | table_name '.' '*' | expr [ [ AS ] column_alias ]
   public static boolean result_column(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "result_column")) return false;
     boolean r;
@@ -3104,7 +3102,7 @@ public class SqlParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // SELECT [ DISTINCT | ALL ] result_column ( ',' result_column )* [ FROM join_clause ] [ WHERE expr ] [ GROUP BY expr ( ',' expr ) * [ HAVING expr ] ] | VALUES values_expression ( ',' values_expression ) *
+  // SELECT [ DISTINCT | ALL ] result_column ( ',' result_column )* [ FROM join_clause ] [ [WHERE] expr ] [ GROUP BY expr ( ',' expr ) * [ HAVING expr ] ] | VALUES values_expression ( ',' values_expression ) *
   public static boolean select_stmt(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "select_stmt")) return false;
     if (!nextTokenIs(b, "<select stmt>", SELECT, VALUES)) return false;
@@ -3116,7 +3114,7 @@ public class SqlParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // SELECT [ DISTINCT | ALL ] result_column ( ',' result_column )* [ FROM join_clause ] [ WHERE expr ] [ GROUP BY expr ( ',' expr ) * [ HAVING expr ] ]
+  // SELECT [ DISTINCT | ALL ] result_column ( ',' result_column )* [ FROM join_clause ] [ [WHERE] expr ] [ GROUP BY expr ( ',' expr ) * [ HAVING expr ] ]
   private static boolean select_stmt_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "select_stmt_0")) return false;
     boolean r;
@@ -3188,22 +3186,29 @@ public class SqlParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // [ WHERE expr ]
+  // [ [WHERE] expr ]
   private static boolean select_stmt_0_5(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "select_stmt_0_5")) return false;
     select_stmt_0_5_0(b, l + 1);
     return true;
   }
 
-  // WHERE expr
+  // [WHERE] expr
   private static boolean select_stmt_0_5_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "select_stmt_0_5_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = consumeToken(b, WHERE);
+    r = select_stmt_0_5_0_0(b, l + 1);
     r = r && expr(b, l + 1, -1);
     exit_section_(b, m, null, r);
     return r;
+  }
+
+  // [WHERE]
+  private static boolean select_stmt_0_5_0_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "select_stmt_0_5_0_0")) return false;
+    consumeToken(b, WHERE);
+    return true;
   }
 
   // [ GROUP BY expr ( ',' expr ) * [ HAVING expr ] ]
@@ -4298,7 +4303,8 @@ public class SqlParser implements PsiParser, LightPsiParser {
   // 20: PREFIX(unary_expr)
   // 21: ATOM(literal_expr)
   // 22: ATOM(column_expr)
-  // 23: ATOM(bind_expr)
+  // 23: ATOM(mybatis_expr)
+  // 24: ATOM(bind_expr)
   public static boolean expr(PsiBuilder b, int l, int g) {
     if (!recursion_guard_(b, l, "expr")) return false;
     addVariant(b, "<expr>");
@@ -4313,6 +4319,7 @@ public class SqlParser implements PsiParser, LightPsiParser {
     if (!r) r = unary_expr(b, l + 1);
     if (!r) r = literal_expr(b, l + 1);
     if (!r) r = column_expr(b, l + 1);
+    if (!r) r = mybatis_expr(b, l + 1);
     if (!r) r = bind_expr(b, l + 1);
     p = r;
     r = r && expr_0(b, l + 1, g);
@@ -4681,17 +4688,26 @@ public class SqlParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // function_name '(' [ [ DISTINCT ] expr ( ',' expr ) * | '*' ] ')'
+  // (function_name | IF) '(' [ [ DISTINCT ] expr ( ',' expr ) * | '*' ] ')'
   public static boolean function_expr(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "function_expr")) return false;
-    if (!nextTokenIsSmart(b, ID)) return false;
+    if (!nextTokenIsSmart(b, ID, IF)) return false;
     boolean r;
-    Marker m = enter_section_(b);
-    r = function_name(b, l + 1);
+    Marker m = enter_section_(b, l, _NONE_, FUNCTION_EXPR, "<function expr>");
+    r = function_expr_0(b, l + 1);
     r = r && consumeToken(b, LP);
     r = r && function_expr_2(b, l + 1);
     r = r && consumeToken(b, RP);
-    exit_section_(b, m, FUNCTION_EXPR, r);
+    exit_section_(b, l, m, r, false, null);
+    return r;
+  }
+
+  // function_name | IF
+  private static boolean function_expr_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "function_expr_0")) return false;
+    boolean r;
+    r = function_name(b, l + 1);
+    if (!r) r = consumeTokenSmart(b, IF);
     return r;
   }
 
@@ -4754,7 +4770,7 @@ public class SqlParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // [ NOT ] IN ( '(' [ compound_select_stmt | expr ( ',' expr ) * ] ')' | [ database_name '.' ] table_name | bind_expr )
+  // [ NOT ] IN ( '(' [ compound_select_stmt | expr ( ',' expr ) * ] ')' | [ database_name '.' ] table_name | bind_expr | mybatis_expr )
   private static boolean in_expr_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "in_expr_0")) return false;
     boolean r;
@@ -4773,7 +4789,7 @@ public class SqlParser implements PsiParser, LightPsiParser {
     return true;
   }
 
-  // '(' [ compound_select_stmt | expr ( ',' expr ) * ] ')' | [ database_name '.' ] table_name | bind_expr
+  // '(' [ compound_select_stmt | expr ( ',' expr ) * ] ')' | [ database_name '.' ] table_name | bind_expr | mybatis_expr
   private static boolean in_expr_0_2(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "in_expr_0_2")) return false;
     boolean r;
@@ -4781,6 +4797,7 @@ public class SqlParser implements PsiParser, LightPsiParser {
     r = in_expr_0_2_0(b, l + 1);
     if (!r) r = in_expr_0_2_1(b, l + 1);
     if (!r) r = bind_expr(b, l + 1);
+    if (!r) r = mybatis_expr(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
   }
@@ -5011,6 +5028,17 @@ public class SqlParser implements PsiParser, LightPsiParser {
     r = table_name(b, l + 1);
     r = r && consumeToken(b, DOT);
     exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // MYBATIS_OGNL
+  public static boolean mybatis_expr(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "mybatis_expr")) return false;
+    if (!nextTokenIsSmart(b, MYBATIS_OGNL)) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeTokenSmart(b, MYBATIS_OGNL);
+    exit_section_(b, m, MYBATIS_EXPR, r);
     return r;
   }
 

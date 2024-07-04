@@ -271,6 +271,10 @@ public class SqlVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitMybatisExpr(@NotNull SqlMybatisExpr o) {
+    visitExpr(o);
+  }
+
   public void visitNewTableName(@NotNull SqlNewTableName o) {
     visitPsiElement(o);
   }

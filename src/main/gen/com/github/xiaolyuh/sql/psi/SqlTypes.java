@@ -74,6 +74,7 @@ public interface SqlTypes {
   IElementType LITERAL_VALUE = new SqlElementType("LITERAL_VALUE");
   IElementType MODULE_ARGUMENT = new SqlElementType("MODULE_ARGUMENT");
   IElementType MODULE_NAME = new SqlElementType("MODULE_NAME");
+  IElementType MYBATIS_EXPR = new SqlElementType("MYBATIS_EXPR");
   IElementType NEW_TABLE_NAME = new SqlElementType("NEW_TABLE_NAME");
   IElementType NULL_EXPR = new SqlElementType("NULL_EXPR");
   IElementType NUMERIC_LITERAL = new SqlElementType("NUMERIC_LITERAL");
@@ -211,6 +212,7 @@ public interface SqlTypes {
   IElementType MINUS = new SqlTokenType("-");
   IElementType MOD = new SqlTokenType("%");
   IElementType MULTIPLY = new SqlTokenType("*");
+  IElementType MYBATIS_OGNL = new SqlTokenType("MYBATIS_OGNL");
   IElementType NATURAL = new SqlTokenType("NATURAL");
   IElementType NEQ = new SqlTokenType("!=");
   IElementType NEQ2 = new SqlTokenType("<>");
@@ -468,6 +470,9 @@ public interface SqlTypes {
       }
       else if (type == MODULE_NAME) {
         return new SqlModuleNameImpl(node);
+      }
+      else if (type == MYBATIS_EXPR) {
+        return new SqlMybatisExprImpl(node);
       }
       else if (type == NEW_TABLE_NAME) {
         return new SqlNewTableNameImpl(node);

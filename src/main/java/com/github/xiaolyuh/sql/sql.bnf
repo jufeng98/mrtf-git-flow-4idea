@@ -157,6 +157,8 @@
         digit='regexp:\d+(\.\d*)?'
         id='regexp:[a-zA-Z0-9_\`\[\]]+'
         string="regexp:('([^'])*'|\"([^\"])*\")"
+
+        MYBATIS_OGNL="regexp:[$#]\{[a-zA-Z0-9_@()'.,=\s]+}"
     ]
   extends(".*expr")=expr
 }
@@ -281,7 +283,7 @@ expr ::= ( raise_expr
 
 literal_expr ::= literal_value
 bind_expr ::= bind_parameter
-mybatis_expr ::= ( DOLLAR | SHARP ) LB column_name (DOT column_name)* (COMMA mybatis_desc)* RB
+mybatis_expr ::= MYBATIS_OGNL
 column_expr ::= [ database_name '.' table_name '.' | table_name '.' ] column_name
 unary_expr ::= ('+' | '-' | '~' ) expr
 binary_pipe_expr ::= expr '||' expr
@@ -292,7 +294,7 @@ binary_boolean_expr ::= expr (  '<' | '<=' | '>' | '>=' ) expr
 binary_equality_expr ::= expr ( '=' | '==' | '!=' | '<>' ) expr
 binary_and_expr ::= expr AND expr
 binary_or_expr ::= expr OR expr
-function_expr ::= function_name '(' [ [ DISTINCT ] expr ( ',' expr ) * | '*' ] ')'
+function_expr ::= (function_name | IF) '(' [ [ DISTINCT ] expr ( ',' expr ) * | '*' ] ')'
 paren_expr ::= '(' expr ')' {
     pin = 1
 }
@@ -368,7 +370,6 @@ update_stmt_subsequent_setter ::= ',' column_name '=' setter_expression {
     pin = 1
 }
 setter_expression ::= expr
-mybatis_desc ::= expr
 qualified_table_name ::= [ database_name '.' ] table_name [ INDEXED BY index_name | NOT INDEXED ]
 vacuum_stmt ::= VACUUM
 table_name ::= id

@@ -10,15 +10,15 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static com.github.xiaolyuh.sql.psi.SqlTypes.*;
 import com.github.xiaolyuh.sql.psi.*;
 
-public class SqlFunctionExprImpl extends SqlExprImpl implements SqlFunctionExpr {
+public class SqlMybatisExprImpl extends SqlExprImpl implements SqlMybatisExpr {
 
-  public SqlFunctionExprImpl(@NotNull ASTNode node) {
+  public SqlMybatisExprImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   @Override
   public void accept(@NotNull SqlVisitor visitor) {
-    visitor.visitFunctionExpr(this);
+    visitor.visitMybatisExpr(this);
   }
 
   @Override
@@ -29,26 +29,8 @@ public class SqlFunctionExprImpl extends SqlExprImpl implements SqlFunctionExpr 
 
   @Override
   @NotNull
-  public List<SqlExpr> getExprList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, SqlExpr.class);
-  }
-
-  @Override
-  @Nullable
-  public SqlFunctionName getFunctionName() {
-    return findChildByClass(SqlFunctionName.class);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getDistinct() {
-    return findChildByType(DISTINCT);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getIf() {
-    return findChildByType(IF);
+  public PsiElement getMybatisOgnl() {
+    return findNotNullChildByType(MYBATIS_OGNL);
   }
 
 }

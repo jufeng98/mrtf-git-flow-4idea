@@ -138,6 +138,7 @@ JAVADOC="/"\*\*(.|\n)*\*"/"
 DIGIT=[0-9]+(\.[0-9]*)?
 ID=[a-zA-Z0-9_\`\[\]]+
 STRING=('([^'])*'|\"([^\"])*\")
+MYBATIS_OGNL=[$#]\{[a-zA-Z0-9_@()'.,=\s]+}
 
 %%
 <YYINITIAL> {
@@ -302,6 +303,7 @@ STRING=('([^'])*'|\"([^\"])*\")
   {DIGIT}                   { return DIGIT; }
   {ID}                      { return ID; }
   {STRING}                  { return STRING; }
+  {MYBATIS_OGNL}            { return MYBATIS_OGNL; }
 
 }
 

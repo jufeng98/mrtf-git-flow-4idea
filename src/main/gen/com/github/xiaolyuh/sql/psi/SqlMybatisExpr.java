@@ -5,18 +5,9 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface SqlFunctionExpr extends SqlExpr {
+public interface SqlMybatisExpr extends SqlExpr {
 
   @NotNull
-  List<SqlExpr> getExprList();
-
-  @Nullable
-  SqlFunctionName getFunctionName();
-
-  @Nullable
-  PsiElement getDistinct();
-
-  @Nullable
-  PsiElement getIf();
+  PsiElement getMybatisOgnl();
 
 }

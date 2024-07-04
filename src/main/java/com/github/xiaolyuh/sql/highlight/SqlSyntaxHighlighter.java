@@ -9,6 +9,7 @@ import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.fileTypes.SyntaxHighlighterBase;
 import com.intellij.psi.TokenType;
 import com.intellij.psi.tree.IElementType;
+import com.intellij.xdebugger.ui.DebuggerColors;
 import org.jetbrains.annotations.NotNull;
 
 import static com.intellij.openapi.editor.colors.TextAttributesKey.createTextAttributesKey;
@@ -35,6 +36,7 @@ public class SqlSyntaxHighlighter extends SyntaxHighlighterBase {
     private static final TextAttributesKey[] STRING_KEYS = new TextAttributesKey[]{STRING};
     private static final TextAttributesKey[] NUMBER_KEYS = new TextAttributesKey[]{NUMBER};
     private static final TextAttributesKey[] DOT_KEYS = new TextAttributesKey[]{DOT};
+    private static final TextAttributesKey[] OGNL = new TextAttributesKey[]{DebuggerColors.INLINED_VALUES_MODIFIED};
     private static final TextAttributesKey[] BAD_CHAR_KEYS = new TextAttributesKey[]{BAD_CHARACTER};
     private static final TextAttributesKey[] EMPTY_KEYS = new TextAttributesKey[0];
 
@@ -113,6 +115,10 @@ public class SqlSyntaxHighlighter extends SyntaxHighlighterBase {
 
         if (tokenType.equals(SqlTypes.STRING)) {
             return STRING_KEYS;
+        }
+
+        if (tokenType.equals(SqlTypes.MYBATIS_OGNL)) {
+            return OGNL;
         }
 
         if (tokenType.equals(TokenType.BAD_CHARACTER)) {
