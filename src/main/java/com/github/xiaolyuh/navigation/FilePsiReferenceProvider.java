@@ -1,6 +1,6 @@
 package com.github.xiaolyuh.navigation;
 
-import com.github.xiaolyuh.listener.FilePsiReference;
+import com.github.xiaolyuh.reference.FilePsiReference;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiJavaCodeReferenceElement;

@@ -46,6 +46,7 @@
     <depends>Git4Idea</depends>
     <depends>com.intellij.java</depends>
     <depends>com.intellij.properties</depends>
+    <depends optional="true" config-file="dbn-java-support.xml">DBN</depends>
 
     <idea-version since-build="212.*" until-build="233.*"/>
 

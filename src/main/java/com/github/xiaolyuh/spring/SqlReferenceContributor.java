@@ -1,5 +1,7 @@
 package com.github.xiaolyuh.spring;
 
+import com.github.xiaolyuh.reference.CommonReference;
+import com.github.xiaolyuh.reference.TableReference;
 import com.github.xiaolyuh.sql.psi.SqlJoinClause;
 import com.github.xiaolyuh.sql.psi.SqlRoot;
 import com.github.xiaolyuh.sql.psi.SqlStatement;
@@ -15,9 +17,11 @@ import com.intellij.psi.PsiReferenceProvider;
 import com.intellij.psi.PsiReferenceRegistrar;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ProcessingContext;
+import org.apache.commons.compress.utils.Lists;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -38,13 +42,57 @@ public class SqlReferenceContributor extends PsiReferenceContributor {
                                                                @NotNull ProcessingContext context) {
             SqlStatement sqlStatement = (SqlStatement) element;
 
-            return createTableAliasReferences(sqlStatement);
+            return createSqlReferences(sqlStatement);
         }
 
 
-        private PsiReference[] createTableAliasReferences(SqlStatement sqlStatement) {
+        private PsiReference[] createSqlReferences(SqlStatement sqlStatement) {
+            SqlRoot sqlRoot = PsiTreeUtil.getParentOfType(sqlStatement, SqlRoot.class);
+            if (sqlRoot == null) {
+                return PsiReference.EMPTY_ARRAY;
+            }
+
             Collection<SqlJoinClause> sqlJoinClauses = PsiTreeUtil.findChildrenOfType(sqlStatement, SqlJoinClause.class);
 
+            int startOffsetInParent = calOffset(sqlRoot);
+
+            Collection<SqlTableName> sqlTableNames = PsiTreeUtil.findChildrenOfType(sqlStatement, SqlTableName.class);
+
+            List<PsiReference> references = Lists.newArrayList();
+
+            List<CommonReference> tableAliasReferences = createTableAliasReferences(sqlStatement, sqlJoinClauses, sqlTableNames, startOffsetInParent);
+
+            List<TableReference> tableReferences = createTableNameReferences(sqlStatement, sqlJoinClauses, startOffsetInParent);
+
+            references.addAll(tableAliasReferences);
+            references.addAll(tableReferences);
+
+            return references.toArray(PsiReference[]::new);
+        }
+
+        private List<TableReference> createTableNameReferences(SqlStatement sqlStatement,
+                                                               Collection<SqlJoinClause> sqlJoinClauses,
+                                                               int startOffsetInParent) {
+            return sqlJoinClauses.stream()
+                    .map(sqlJoinClause -> {
+                        List<SqlTableOrSubquery> tableOrSubqueryList = sqlJoinClause.getTableOrSubqueryList();
+                        return tableOrSubqueryList.stream()
+                                .map(SqlTableOrSubquery::getTableName)
+                                .filter(Objects::nonNull)
+                                .collect(Collectors.toList());
+                    })
+                    .flatMap(Collection::stream)
+                    .map(it -> {
+                        TextRange textRange = it.getTextRange().shiftLeft(startOffsetInParent);
+                        return new TableReference(sqlStatement, it, textRange);
+                    })
+                    .collect(Collectors.toList());
+        }
+
+        private List<CommonReference> createTableAliasReferences(SqlStatement sqlStatement,
+                                                                 Collection<SqlJoinClause> sqlJoinClauses,
+                                                                 Collection<SqlTableName> sqlTableNames,
+                                                                 int startOffsetInParent) {
             Map<String, List<SqlTableAlias>> aliasMap = sqlJoinClauses.stream()
                     .map(sqlJoinClause -> {
                         List<SqlTableOrSubquery> tableOrSubqueryList = sqlJoinClause.getTableOrSubqueryList();
@@ -57,17 +105,8 @@ public class SqlReferenceContributor extends PsiReferenceContributor {
                     .collect(Collectors.groupingBy(SqlTableAlias::getText));
 
             if (aliasMap.isEmpty()) {
-                return PsiReference.EMPTY_ARRAY;
+                return Collections.emptyList();
             }
-
-            SqlRoot sqlRoot = PsiTreeUtil.getParentOfType(sqlStatement, SqlRoot.class);
-            if (sqlRoot == null) {
-                return PsiReference.EMPTY_ARRAY;
-            }
-
-            int startOffsetInParent = calOffset(sqlRoot);
-
-            Collection<SqlTableName> sqlTableNames = PsiTreeUtil.findChildrenOfType(sqlStatement, SqlTableName.class);
 
             return sqlTableNames.stream()
                     .map(it -> {
@@ -81,7 +120,7 @@ public class SqlReferenceContributor extends PsiReferenceContributor {
                         return new CommonReference(sqlStatement, textRange, sqlTableAliases.get(0));
                     })
                     .filter(Objects::nonNull)
-                    .toArray(PsiReference[]::new);
+                    .collect(Collectors.toList());
         }
 
         private int calOffset(PsiElement psiElement) {

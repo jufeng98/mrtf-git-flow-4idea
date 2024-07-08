@@ -29,7 +29,9 @@ intellij {
         "Git4Idea",
         "tasks",
         "com.intellij.java",
-        "com.intellij.properties"
+        "com.intellij.properties",
+//        "DBN:3.4.4179.0",
+        file("D:\\my_opensource_project\\dbn\\build\\distributions\\DBNavigator")
     ))
     intellij.updateSinceUntilBuild.set(false)
 }

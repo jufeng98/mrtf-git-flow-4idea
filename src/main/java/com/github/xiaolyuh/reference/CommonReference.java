@@ -1,4 +1,4 @@
-package com.github.xiaolyuh.spring;
+package com.github.xiaolyuh.reference;
 
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
