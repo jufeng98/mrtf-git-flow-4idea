@@ -22,6 +22,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
 public class SqlCompletionContributor extends CompletionContributor {
@@ -48,12 +50,6 @@ public class SqlCompletionContributor extends CompletionContributor {
 
     }
 
-    private void fillAliasName(CompletionResultSet result, SqlStatement sqlStatement) {
-        Collection<SqlJoinClause> sqlJoinClauses = PsiTreeUtil.findChildrenOfType(sqlStatement, SqlJoinClause.class);
-        Map<String, List<SqlTableAlias>> aliasMap = SqlUtils.getAliasMap(sqlJoinClauses);
-        aliasMap.keySet().forEach(aliasName -> result.addElement(LookupElementBuilder.create(aliasName).bold()));
-    }
-
     private void fillColumnNames(CompletionResultSet result, SqlColumnName sqlColumnName) {
         List<DBTable> tables = DbnToolWindowPsiElement.Companion.getTables();
         if (tables == null) {
@@ -65,13 +61,18 @@ public class SqlCompletionContributor extends CompletionContributor {
             return;
         }
 
+        // 获取列名前面的表别名
         SqlTableName aliasTableName = PsiTreeUtil.getPrevSiblingOfType(sqlColumnName, SqlTableName.class);
         if (aliasTableName == null) {
             fillAliasName(result, sqlStatement);
+
+            Collection<SqlJoinClause> sqlJoinClauses = PsiTreeUtil.findChildrenOfType(sqlStatement, SqlJoinClause.class);
+            Set<String> sqlTableNames = SqlUtils.getSqlTableNames(sqlJoinClauses).stream()
+                    .map(PsiElement::getText)
+                    .collect(Collectors.toSet());
+            fillColumnNames(result, sqlTableNames, tables);
             return;
         }
-
-        fillAliasName(result, sqlStatement);
 
         Collection<SqlJoinClause> sqlJoinClauses = PsiTreeUtil.findChildrenOfType(sqlStatement, SqlJoinClause.class);
         Map<String, List<SqlTableAlias>> aliasMap = SqlUtils.getAliasMap(sqlJoinClauses);
@@ -82,11 +83,24 @@ public class SqlCompletionContributor extends CompletionContributor {
         }
 
         String tableName = sqlTableName.getText();
+
+        fillColumnNames(result, Set.of(tableName), tables);
+    }
+
+    private void fillColumnNames(CompletionResultSet result, Set<String> tableNames, List<DBTable> tables) {
         tables.stream()
-                .filter(it -> it.getName().endsWith(tableName))
+                .filter(it -> tableNames.contains(it.getName()))
                 .forEach(it -> it.getColumns()
                         .forEach(dbColumn -> {
-                            LookupElementBuilder builder = LookupElementBuilder.create(dbColumn.getName()).bold();
+                            LookupElementBuilder builder = LookupElementBuilder.create(dbColumn.getName())
+                                    .withInsertHandler((context, item) -> {
+                                        Editor editor = context.getEditor();
+                                        Document document = editor.getDocument();
+                                        context.commitDocument();
+                                        document.insertString(context.getTailOffset(), ",");
+                                        editor.getCaretModel().moveToOffset(context.getTailOffset());
+                                    })
+                                    .bold();
                             result.addElement(builder);
                         }));
     }
@@ -98,6 +112,24 @@ public class SqlCompletionContributor extends CompletionContributor {
         }
 
         tables.forEach(it -> result.addElement(LookupElementBuilder.create(it.getName()).bold()));
+    }
+
+
+    private void fillAliasName(CompletionResultSet result, SqlStatement sqlStatement) {
+        Collection<SqlJoinClause> sqlJoinClauses = PsiTreeUtil.findChildrenOfType(sqlStatement, SqlJoinClause.class);
+        Map<String, List<SqlTableAlias>> aliasMap = SqlUtils.getAliasMap(sqlJoinClauses);
+        aliasMap.keySet().forEach(aliasName -> {
+            LookupElementBuilder builder = LookupElementBuilder.create(aliasName)
+                    .withInsertHandler((context, item) -> {
+                        Editor editor = context.getEditor();
+                        Document document = editor.getDocument();
+                        context.commitDocument();
+                        document.insertString(context.getTailOffset(), ".");
+                        editor.getCaretModel().moveToOffset(context.getTailOffset());
+                    })
+                    .bold();
+            result.addElement(builder);
+        });
     }
 
     private void fillSqlTypes(CompletionResultSet result) {
