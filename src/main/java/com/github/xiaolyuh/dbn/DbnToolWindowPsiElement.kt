@@ -3,6 +3,7 @@ package com.github.xiaolyuh.dbn
 import com.dbn.browser.DatabaseBrowserManager
 import com.dbn.connection.ConnectionHandler
 import com.dbn.editor.data.options.DataEditorSettings
+import com.dbn.`object`.DBSchema
 import com.dbn.`object`.common.DBObjectBundle
 import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.ide.plugins.PluginManagerCore
@@ -16,29 +17,14 @@ class DbnToolWindowPsiElement(private val tableNames: Set<String>, private val c
     ASTWrapperPsiElement(node) {
 
     override fun navigate(requestFocus: Boolean) {
-        if (!dbnAvailable()) {
-            return
-        }
-
-        val browserManager = DatabaseBrowserManager.getInstance(getProject())
-        val connection = browserManager.selectedConnection
-        if (!ConnectionHandler.isLiveConnection(connection)) {
-            return
-        }
-
-        val dbName = getDbName(project) ?: return
-        val objectBundle: DBObjectBundle = connection?.objectBundle ?: return
-
-        val dbSchema = objectBundle.schemas.firstOrNull { it.name == dbName }
-        if (dbSchema == null) {
-            return
-        }
+        val dbSchema = getDefaultDbScheme(project) ?: return
 
         val dbTables = dbSchema.tables.filter { tableNames.contains(it.name) }
         if (dbTables.isEmpty()) {
             return
         }
 
+        val browserManager = DatabaseBrowserManager.getInstance(getProject())
         if (columnName == null) {
             browserManager.navigateToElement(dbTables[0], requestFocus, true)
             return
@@ -53,6 +39,23 @@ class DbnToolWindowPsiElement(private val tableNames: Set<String>, private val c
     }
 
     companion object {
+        fun getDefaultDbScheme(project: Project): DBSchema? {
+            if (!dbnAvailable()) {
+                return null
+            }
+
+            val browserManager = DatabaseBrowserManager.getInstance(project)
+            val connection = browserManager.selectedConnection
+            if (!ConnectionHandler.isLiveConnection(connection)) {
+                return null
+            }
+
+            val dbName = getDbName(project) ?: return null
+            val objectBundle: DBObjectBundle = connection?.objectBundle ?: return null
+
+            return objectBundle.schemas.firstOrNull { it.name == dbName }
+        }
+
         fun getDbName(project: Project): String? {
             val browserManager = DatabaseBrowserManager.getInstance(project)
             val connection = browserManager.selectedConnection
