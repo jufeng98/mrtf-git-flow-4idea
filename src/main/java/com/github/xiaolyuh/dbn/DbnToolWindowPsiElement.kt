@@ -4,6 +4,7 @@ import com.dbn.browser.DatabaseBrowserManager
 import com.dbn.connection.ConnectionHandler
 import com.dbn.editor.data.options.DataEditorSettings
 import com.dbn.`object`.DBSchema
+import com.dbn.`object`.DBTable
 import com.dbn.`object`.common.DBObjectBundle
 import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.ide.plugins.PluginManagerCore
@@ -18,6 +19,10 @@ class DbnToolWindowPsiElement(private val tableNames: Set<String>, private val c
 
     override fun navigate(requestFocus: Boolean) {
         val dbSchema = getDefaultDbScheme(project) ?: return
+
+        if (tables == null) {
+            tables = dbSchema.tables
+        }
 
         val dbTables = dbSchema.tables.filter { tableNames.contains(it.name) }
         if (dbTables.isEmpty()) {
@@ -39,6 +44,11 @@ class DbnToolWindowPsiElement(private val tableNames: Set<String>, private val c
     }
 
     companion object {
+        private var tables: List<DBTable>? = null
+        fun getTables(): List<DBTable>? {
+            return tables
+        }
+
         fun getDefaultDbScheme(project: Project): DBSchema? {
             if (!dbnAvailable()) {
                 return null
@@ -56,7 +66,7 @@ class DbnToolWindowPsiElement(private val tableNames: Set<String>, private val c
             return objectBundle.schemas.firstOrNull { it.name == dbName }
         }
 
-        fun getDbName(project: Project): String? {
+        private fun getDbName(project: Project): String? {
             val browserManager = DatabaseBrowserManager.getInstance(project)
             val connection = browserManager.selectedConnection
             if (!ConnectionHandler.isLiveConnection(connection)) {
@@ -74,7 +84,7 @@ class DbnToolWindowPsiElement(private val tableNames: Set<String>, private val c
             return uri.path.substring(1)
         }
 
-        fun dbnAvailable(): Boolean {
+        private fun dbnAvailable(): Boolean {
             val pluginId = PluginId.getId("DBN")
             val pluginDescriptor = PluginManagerCore.getPlugin(pluginId) ?: return false
             return pluginDescriptor.isEnabled
