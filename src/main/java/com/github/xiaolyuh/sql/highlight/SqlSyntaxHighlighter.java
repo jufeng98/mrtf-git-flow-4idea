@@ -73,6 +73,8 @@ public class SqlSyntaxHighlighter extends SyntaxHighlighterBase {
                 || tokenType.equals(SqlTypes.FOR)
                 || tokenType.equals(SqlTypes.OR)
                 || tokenType.equals(SqlTypes.COLUMN)
+                || tokenType.equals(SqlTypes.COMMENT)
+                || tokenType.equals(SqlTypes.DEFAULT)
                 || tokenType.equals(SqlTypes.LIKE)
                 || tokenType.equals(SqlTypes.ELSE)
                 || tokenType.equals(SqlTypes.IN)

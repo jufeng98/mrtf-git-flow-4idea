@@ -8,16 +8,15 @@ import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.extensions.PluginId
+import com.intellij.openapi.project.Project
 import java.net.URI
 
 
-class DbnToolWindowPsiElement(private val tableName: String, private val columnName: String?, node: ASTNode) :
+class DbnToolWindowPsiElement(private val tableNames: Set<String>, private val columnName: String?, node: ASTNode) :
     ASTWrapperPsiElement(node) {
 
     override fun navigate(requestFocus: Boolean) {
-        val pluginId = PluginId.getId("DBN")
-        val pluginDescriptor = PluginManagerCore.getPlugin(pluginId) ?: return
-        if (!pluginDescriptor.isEnabled) {
+        if (!dbnAvailable()) {
             return
         }
 
@@ -27,33 +26,55 @@ class DbnToolWindowPsiElement(private val tableName: String, private val columnN
             return
         }
 
+        val dbName = getDbName(project) ?: return
         val objectBundle: DBObjectBundle = connection?.objectBundle ?: return
 
-        val connectionSettingsList = DataEditorSettings.getInstance(project).parent!!.connectionSettings
-        val connectionSettings = connectionSettingsList.connections[0]
-
-        val dbName = resolveUrlDbName(connectionSettings.databaseSettings.connectionUrl)
-
-        val schemas = objectBundle.schemas.filter { it.name == dbName }.toList()
-        if (schemas.isEmpty()) {
+        val dbSchema = objectBundle.schemas.firstOrNull { it.name == dbName }
+        if (dbSchema == null) {
             return
         }
 
-        val dbSchema = schemas[0]
-        val dbTables = dbSchema.tables.filter { it.name == tableName }.toList()
+        val dbTables = dbSchema.tables.filter { tableNames.contains(it.name) }
         if (dbTables.isEmpty()) {
             return
         }
 
-        val tableTreeNode = dbTables[0]
         if (columnName == null) {
-            browserManager.navigateToElement(tableTreeNode, requestFocus, true)
+            browserManager.navigateToElement(dbTables[0], requestFocus, true)
             return
         }
+
+        val dbColumns = dbTables.map { it.columns }.flatten().filter { it.name == columnName }
+        if (dbColumns.isEmpty()) {
+            return
+        }
+
+        browserManager.navigateToElement(dbColumns[0], requestFocus, true)
     }
 
-    private fun resolveUrlDbName(url: String): String {
-        val uri = URI.create(url.substring(5))
-        return uri.path.substring(1)
+    companion object {
+        fun getDbName(project: Project): String? {
+            val browserManager = DatabaseBrowserManager.getInstance(project)
+            val connection = browserManager.selectedConnection
+            if (!ConnectionHandler.isLiveConnection(connection)) {
+                return null
+            }
+
+            val connectionSettingsList = DataEditorSettings.getInstance(project).parent!!.connectionSettings
+            val connectionSettings = connectionSettingsList.connections[0]
+
+            return resolveUrlDbName(connectionSettings.databaseSettings.connectionUrl)
+        }
+
+        private fun resolveUrlDbName(url: String): String {
+            val uri = URI.create(url.substring(5))
+            return uri.path.substring(1)
+        }
+
+        fun dbnAvailable(): Boolean {
+            val pluginId = PluginId.getId("DBN")
+            val pluginDescriptor = PluginManagerCore.getPlugin(pluginId) ?: return false
+            return pluginDescriptor.isEnabled
+        }
     }
 }
