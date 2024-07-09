@@ -251,6 +251,9 @@
         <psi.referenceContributor language="sql"
                                   implementation="com.github.xiaolyuh.spring.SqlReferenceContributor"/>
         <highlightErrorFilter implementation="com.github.xiaolyuh.sql.SqlHighlightErrorFilter"/>
+        <completion.contributor
+                language="sql"
+                implementationClass="com.github.xiaolyuh.spring.SqlCompletionContributor"/>
     </extensions>
 
     <projectListeners>
