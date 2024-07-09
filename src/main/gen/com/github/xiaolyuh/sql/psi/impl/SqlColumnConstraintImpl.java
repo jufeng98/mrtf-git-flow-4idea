@@ -83,6 +83,12 @@ public class SqlColumnConstraintImpl extends SqlPsiElement implements SqlColumnC
 
   @Override
   @Nullable
+  public PsiElement getAutoIncrement() {
+    return findChildByType(AUTO_INCREMENT);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getCheck() {
     return findChildByType(CHECK);
   }
@@ -91,6 +97,12 @@ public class SqlColumnConstraintImpl extends SqlPsiElement implements SqlColumnC
   @Nullable
   public PsiElement getCollate() {
     return findChildByType(COLLATE);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getComment() {
+    return findChildByType(COMMENT);
   }
 
   @Override
@@ -139,6 +151,18 @@ public class SqlColumnConstraintImpl extends SqlPsiElement implements SqlColumnC
   @Nullable
   public PsiElement getUnique() {
     return findChildByType(UNIQUE);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getUnsigned() {
+    return findChildByType(UNSIGNED);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getString() {
+    return findChildByType(STRING);
   }
 
 }

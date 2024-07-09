@@ -35,10 +35,16 @@ public interface SqlColumnConstraint extends PsiElement {
   PsiElement getAutoincrement();
 
   @Nullable
+  PsiElement getAutoIncrement();
+
+  @Nullable
   PsiElement getCheck();
 
   @Nullable
   PsiElement getCollate();
+
+  @Nullable
+  PsiElement getComment();
 
   @Nullable
   PsiElement getConstraint();
@@ -63,5 +69,11 @@ public interface SqlColumnConstraint extends PsiElement {
 
   @Nullable
   PsiElement getUnique();
+
+  @Nullable
+  PsiElement getUnsigned();
+
+  @Nullable
+  PsiElement getString();
 
 }

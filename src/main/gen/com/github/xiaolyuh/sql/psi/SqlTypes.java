@@ -126,6 +126,7 @@ public interface SqlTypes {
   IElementType ASC = new SqlTokenType("ASC");
   IElementType ATTACH = new SqlTokenType("ATTACH");
   IElementType AUTOINCREMENT = new SqlTokenType("AUTOINCREMENT");
+  IElementType AUTO_INCREMENT = new SqlTokenType("AUTO_INCREMENT");
   IElementType BEFORE = new SqlTokenType("BEFORE");
   IElementType BEGIN = new SqlTokenType("BEGIN");
   IElementType BETWEEN = new SqlTokenType("BETWEEN");
@@ -262,6 +263,7 @@ public interface SqlTypes {
   IElementType TRUE = new SqlTokenType("TRUE");
   IElementType UNION = new SqlTokenType("UNION");
   IElementType UNIQUE = new SqlTokenType("UNIQUE");
+  IElementType UNSIGNED = new SqlTokenType("UNSIGNED");
   IElementType UPDATE = new SqlTokenType("UPDATE");
   IElementType USING = new SqlTokenType("USING");
   IElementType VACUUM = new SqlTokenType("VACUUM");

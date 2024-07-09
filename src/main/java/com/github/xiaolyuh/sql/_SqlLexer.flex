@@ -132,8 +132,10 @@ REINDEX=[Rr][Ee][Ii][Nn][Dd][Ee][Xx]
 CURRENT_TIME=[Cc][Uu][Rr][Rr][Ee][Nn][Tt]_[Tt][Ii][Mm][Ee]
 CURRENT_DATE=[Cc][Uu][Rr][Rr][Ee][Nn][Tt]_[Dd][Aa][Tt][Ee]
 CURRENT_TIMESTAMP=[Cc][Uu][Rr][Rr][Ee][Nn][Tt]_[Tt][Ii][Mm][Ee][Ss][Tt][Aa][Mm][Pp]
-SPACE=[ \t\n\x0B\f\r]+
+AUTO_INCREMENT=[Aa][Uu][Tt][Oo]_[Ii][Nn][Cc][Rr][Ee][Mm][Ee][Nn][Tt]
+UNSIGNED=[Uu][Nn][Ss][Ii][Gg][Nn][Ee][Dd]
 COMMENT=--.*
+SPACE=[ \t\n\x0B\f\r]+
 JAVADOC="/"\*\*(.|\n)*\*"/"
 DIGIT=[0-9]+(\.[0-9]*)?
 ID=[a-zA-Z0-9_\`\[\]]+
@@ -297,8 +299,10 @@ MYBATIS_OGNL=[$#]\{[a-zA-Z0-9_@()'.,=\s]+}
   {CURRENT_TIME}            { return CURRENT_TIME; }
   {CURRENT_DATE}            { return CURRENT_DATE; }
   {CURRENT_TIMESTAMP}       { return CURRENT_TIMESTAMP; }
-  {SPACE}                   { return SPACE; }
+  {AUTO_INCREMENT}          { return AUTO_INCREMENT; }
+  {UNSIGNED}                { return UNSIGNED; }
   {COMMENT}                 { return COMMENT; }
+  {SPACE}                   { return SPACE; }
   {JAVADOC}                 { return JAVADOC; }
   {DIGIT}                   { return DIGIT; }
   {ID}                      { return ID; }
