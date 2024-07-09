@@ -8,6 +8,7 @@ import com.github.xiaolyuh.sql.psi.SqlJoinClause;
 import com.github.xiaolyuh.sql.psi.SqlStatement;
 import com.github.xiaolyuh.sql.psi.SqlTableAlias;
 import com.github.xiaolyuh.sql.psi.SqlTableName;
+import com.github.xiaolyuh.utils.SqlUtils;
 import com.intellij.codeInsight.completion.CompletionContributor;
 import com.intellij.codeInsight.completion.CompletionParameters;
 import com.intellij.codeInsight.completion.CompletionResultSet;
@@ -22,8 +23,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import static com.github.xiaolyuh.spring.SqlReferenceContributor.SqlPsiReferenceProvider.getAliasMap;
-import static com.github.xiaolyuh.spring.SqlReferenceContributor.SqlPsiReferenceProvider.getTableNameOfAlias;
 
 public class SqlCompletionContributor extends CompletionContributor {
     private static final String[] SQL_TYPE = {"select", "update", "delete", "insert"};
@@ -45,17 +44,14 @@ public class SqlCompletionContributor extends CompletionContributor {
         if (position.getParent() instanceof SqlColumnName) {
             SqlColumnName sqlColumnName = (SqlColumnName) position.getParent();
             fillColumnNames(result, sqlColumnName);
-            return;
         }
 
     }
 
     private void fillAliasName(CompletionResultSet result, SqlStatement sqlStatement) {
         Collection<SqlJoinClause> sqlJoinClauses = PsiTreeUtil.findChildrenOfType(sqlStatement, SqlJoinClause.class);
-        Map<String, List<SqlTableAlias>> aliasMap = getAliasMap(sqlJoinClauses);
-        aliasMap.keySet().forEach(aliasName -> {
-            result.addElement(LookupElementBuilder.create(aliasName).bold());
-        });
+        Map<String, List<SqlTableAlias>> aliasMap = SqlUtils.getAliasMap(sqlJoinClauses);
+        aliasMap.keySet().forEach(aliasName -> result.addElement(LookupElementBuilder.create(aliasName).bold()));
     }
 
     private void fillColumnNames(CompletionResultSet result, SqlColumnName sqlColumnName) {
@@ -78,9 +74,9 @@ public class SqlCompletionContributor extends CompletionContributor {
         fillAliasName(result, sqlStatement);
 
         Collection<SqlJoinClause> sqlJoinClauses = PsiTreeUtil.findChildrenOfType(sqlStatement, SqlJoinClause.class);
-        Map<String, List<SqlTableAlias>> aliasMap = getAliasMap(sqlJoinClauses);
+        Map<String, List<SqlTableAlias>> aliasMap = SqlUtils.getAliasMap(sqlJoinClauses);
         String aliasName = aliasTableName.getText();
-        SqlTableName sqlTableName = getTableNameOfAlias(aliasMap, aliasName);
+        SqlTableName sqlTableName = SqlUtils.getTableNameOfAlias(aliasMap, aliasName);
         if (sqlTableName == null) {
             return;
         }
@@ -88,12 +84,11 @@ public class SqlCompletionContributor extends CompletionContributor {
         String tableName = sqlTableName.getText();
         tables.stream()
                 .filter(it -> it.getName().endsWith(tableName))
-                .forEach(it -> {
-                    it.getColumns()
-                            .forEach(dbColumn -> {
-                                result.addElement(LookupElementBuilder.create(dbColumn.getName()).bold());
-                            });
-                });
+                .forEach(it -> it.getColumns()
+                        .forEach(dbColumn -> {
+                            LookupElementBuilder builder = LookupElementBuilder.create(dbColumn.getName()).bold();
+                            result.addElement(builder);
+                        }));
     }
 
     private void fillTableNames(CompletionResultSet result) {
@@ -102,11 +97,7 @@ public class SqlCompletionContributor extends CompletionContributor {
             return;
         }
 
-        tables.forEach(it -> {
-            LookupElementBuilder builder = LookupElementBuilder.create(it.getName())
-                    .bold();
-            result.addElement(builder);
-        });
+        tables.forEach(it -> result.addElement(LookupElementBuilder.create(it.getName()).bold()));
     }
 
     private void fillSqlTypes(CompletionResultSet result) {

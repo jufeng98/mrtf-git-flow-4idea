@@ -8,7 +8,7 @@ import com.github.xiaolyuh.sql.psi.SqlRoot;
 import com.github.xiaolyuh.sql.psi.SqlStatement;
 import com.github.xiaolyuh.sql.psi.SqlTableAlias;
 import com.github.xiaolyuh.sql.psi.SqlTableName;
-import com.github.xiaolyuh.sql.psi.SqlTableOrSubquery;
+import com.github.xiaolyuh.utils.SqlUtils;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.patterns.PlatformPatterns;
 import com.intellij.psi.PsiElement;
@@ -63,7 +63,7 @@ public class SqlReferenceContributor extends PsiReferenceContributor {
 
             int startOffsetInParent = calOffset(sqlRoot);
 
-            Map<String, List<SqlTableAlias>> aliasMap = getAliasMap(sqlJoinClauses);
+            Map<String, List<SqlTableAlias>> aliasMap = SqlUtils.getAliasMap(sqlJoinClauses);
 
             List<CommonReference> tableAliasReferences = createTableAliasReferences(sqlStatement, aliasMap,
                     sqlTableNames, startOffsetInParent);
@@ -72,7 +72,7 @@ public class SqlReferenceContributor extends PsiReferenceContributor {
             List<TableReference> tableReferences = Collections.emptyList();
 
             if (sqlStatement.getCompoundSelectStmt() != null) {
-                sqlTableNameList = getSqlTableNames(sqlJoinClauses);
+                sqlTableNameList = SqlUtils.getSqlTableNames(sqlJoinClauses);
 
                 tableReferences = createTableNameReferences(sqlStatement, sqlTableNameList, startOffsetInParent);
             } else if (sqlStatement.getDeleteStmtLimited() != null || sqlStatement.getUpdateStmtLimited() != null) {
@@ -119,22 +119,11 @@ public class SqlReferenceContributor extends PsiReferenceContributor {
                     .collect(Collectors.toList());
         }
 
-        public static SqlTableName getTableNameOfAlias(Map<String, List<SqlTableAlias>> aliasMap, String columnTableAliasName) {
-            List<SqlTableAlias> sqlTableAliases = aliasMap.get(columnTableAliasName);
-            if (sqlTableAliases == null) {
-                return null;
-            }
-
-            SqlTableAlias sqlTableAlias = sqlTableAliases.get(0);
-
-            return PsiTreeUtil.getPrevSiblingOfType(sqlTableAlias, SqlTableName.class);
-        }
-
         @Nullable
         private TableReference createColumnTableReference(SqlColumnName sqlColumnName, String columnTableAliasName,
                                                           SqlStatement sqlStatement, Map<String, List<SqlTableAlias>> aliasMap,
                                                           TextRange textRange) {
-            SqlTableName sqlTableName = getTableNameOfAlias(aliasMap, columnTableAliasName);
+            SqlTableName sqlTableName = SqlUtils.getTableNameOfAlias(aliasMap, columnTableAliasName);
             if (sqlTableName == null) {
                 return null;
             }
@@ -152,19 +141,6 @@ public class SqlReferenceContributor extends PsiReferenceContributor {
             return sqlTableName.getText();
         }
 
-        public static List<SqlTableName> getSqlTableNames(Collection<SqlJoinClause> sqlJoinClauses) {
-            return sqlJoinClauses.stream()
-                    .map(sqlJoinClause -> {
-                        List<SqlTableOrSubquery> tableOrSubqueryList = sqlJoinClause.getTableOrSubqueryList();
-                        return tableOrSubqueryList.stream()
-                                .map(SqlTableOrSubquery::getTableName)
-                                .filter(Objects::nonNull)
-                                .collect(Collectors.toList());
-                    })
-                    .flatMap(Collection::stream)
-                    .collect(Collectors.toList());
-        }
-
         private List<TableReference> createTableNameReferences(SqlStatement sqlStatement,
                                                                List<SqlTableName> sqlTableNameList,
                                                                int startOffsetInParent) {
@@ -174,19 +150,6 @@ public class SqlReferenceContributor extends PsiReferenceContributor {
                         return new TableReference(sqlStatement, List.of(sqlTableName), null, textRange);
                     })
                     .collect(Collectors.toList());
-        }
-
-        public static Map<String, List<SqlTableAlias>> getAliasMap(Collection<SqlJoinClause> sqlJoinClauses) {
-            return sqlJoinClauses.stream()
-                    .map(sqlJoinClause -> {
-                        List<SqlTableOrSubquery> tableOrSubqueryList = sqlJoinClause.getTableOrSubqueryList();
-                        return tableOrSubqueryList.stream()
-                                .map(SqlTableOrSubquery::getTableAlias)
-                                .filter(Objects::nonNull)
-                                .collect(Collectors.toList());
-                    })
-                    .flatMap(Collection::stream)
-                    .collect(Collectors.groupingBy(SqlTableAlias::getText));
         }
 
         private List<CommonReference> createTableAliasReferences(SqlStatement sqlStatement,
