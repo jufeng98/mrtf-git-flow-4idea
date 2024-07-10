@@ -322,7 +322,7 @@ public class SqlParser implements PsiParser, LightPsiParser {
   /* ********************************************************** */
   // [ CONSTRAINT identifier ] ( PRIMARY KEY [ ASC | DESC ] conflict_clause [ AUTOINCREMENT ] |
   //     UNSIGNED | NOT NULL [conflict_clause] | UNIQUE conflict_clause | CHECK '(' expr ')' | AUTO_INCREMENT |
-  //     DEFAULT ( signed_number | literal_value | '(' expr ')' ) | COLLATE collation_name | foreign_key_clause | COMMENT string )
+  //     DEFAULT ( signed_number | literal_value | '(' expr ')' ) | COLLATE collation_name | foreign_key_clause | COLUMN_COMMENT string )
   public static boolean column_constraint(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "column_constraint")) return false;
     boolean r;
@@ -353,7 +353,7 @@ public class SqlParser implements PsiParser, LightPsiParser {
 
   // PRIMARY KEY [ ASC | DESC ] conflict_clause [ AUTOINCREMENT ] |
   //     UNSIGNED | NOT NULL [conflict_clause] | UNIQUE conflict_clause | CHECK '(' expr ')' | AUTO_INCREMENT |
-  //     DEFAULT ( signed_number | literal_value | '(' expr ')' ) | COLLATE collation_name | foreign_key_clause | COMMENT string
+  //     DEFAULT ( signed_number | literal_value | '(' expr ')' ) | COLLATE collation_name | foreign_key_clause | COLUMN_COMMENT string
   private static boolean column_constraint_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "column_constraint_1")) return false;
     boolean r;
@@ -367,7 +367,7 @@ public class SqlParser implements PsiParser, LightPsiParser {
     if (!r) r = column_constraint_1_6(b, l + 1);
     if (!r) r = column_constraint_1_7(b, l + 1);
     if (!r) r = foreign_key_clause(b, l + 1);
-    if (!r) r = parseTokens(b, 0, COMMENT, STRING);
+    if (!r) r = parseTokens(b, 0, COLUMN_COMMENT, STRING);
     exit_section_(b, m, null, r);
     return r;
   }

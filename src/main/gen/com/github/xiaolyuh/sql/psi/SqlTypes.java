@@ -140,6 +140,7 @@ public interface SqlTypes {
   IElementType CHECK = new SqlTokenType("CHECK");
   IElementType COLLATE = new SqlTokenType("COLLATE");
   IElementType COLUMN = new SqlTokenType("COLUMN");
+  IElementType COLUMN_COMMENT = new SqlTokenType("COLUMN_COMMENT");
   IElementType COMMA = new SqlTokenType(",");
   IElementType COMMENT = new SqlTokenType("comment");
   IElementType COMMIT = new SqlTokenType("COMMIT");

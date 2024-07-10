@@ -101,8 +101,8 @@ public class SqlColumnConstraintImpl extends SqlPsiElement implements SqlColumnC
 
   @Override
   @Nullable
-  public PsiElement getComment() {
-    return findChildByType(COMMENT);
+  public PsiElement getColumnComment() {
+    return findChildByType(COLUMN_COMMENT);
   }
 
   @Override

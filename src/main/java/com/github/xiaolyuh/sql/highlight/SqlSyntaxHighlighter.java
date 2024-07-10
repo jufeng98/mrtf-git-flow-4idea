@@ -27,6 +27,8 @@ public class SqlSyntaxHighlighter extends SyntaxHighlighterBase {
             createTextAttributesKey("SQL_NUMBER", DefaultLanguageHighlighterColors.NUMBER);
     public static final TextAttributesKey DOT =
             createTextAttributesKey("SQL_DOT", DefaultLanguageHighlighterColors.DOT);
+    public static final TextAttributesKey COMMENT =
+            createTextAttributesKey("SQL_COMMENT", DefaultLanguageHighlighterColors.LINE_COMMENT);
     public static final TextAttributesKey BAD_CHARACTER =
             createTextAttributesKey("SQL_BAD_CHARACTER", HighlighterColors.BAD_CHARACTER);
 
@@ -37,6 +39,7 @@ public class SqlSyntaxHighlighter extends SyntaxHighlighterBase {
     private static final TextAttributesKey[] NUMBER_KEYS = new TextAttributesKey[]{NUMBER};
     private static final TextAttributesKey[] DOT_KEYS = new TextAttributesKey[]{DOT};
     private static final TextAttributesKey[] OGNL = new TextAttributesKey[]{DebuggerColors.INLINED_VALUES_MODIFIED};
+    private static final TextAttributesKey[] COMMENT_KEYS = new TextAttributesKey[]{COMMENT};
     private static final TextAttributesKey[] BAD_CHAR_KEYS = new TextAttributesKey[]{BAD_CHARACTER};
     private static final TextAttributesKey[] EMPTY_KEYS = new TextAttributesKey[0];
 
@@ -73,7 +76,7 @@ public class SqlSyntaxHighlighter extends SyntaxHighlighterBase {
                 || tokenType.equals(SqlTypes.FOR)
                 || tokenType.equals(SqlTypes.OR)
                 || tokenType.equals(SqlTypes.COLUMN)
-                || tokenType.equals(SqlTypes.COMMENT)
+                || tokenType.equals(SqlTypes.COLUMN_COMMENT)
                 || tokenType.equals(SqlTypes.DEFAULT)
                 || tokenType.equals(SqlTypes.LIKE)
                 || tokenType.equals(SqlTypes.ELSE)
@@ -121,6 +124,10 @@ public class SqlSyntaxHighlighter extends SyntaxHighlighterBase {
 
         if (tokenType.equals(SqlTypes.MYBATIS_OGNL)) {
             return OGNL;
+        }
+
+        if (tokenType.equals(SqlTypes.COMMENT)) {
+            return COMMENT_KEYS;
         }
 
         if (tokenType.equals(TokenType.BAD_CHARACTER)) {
