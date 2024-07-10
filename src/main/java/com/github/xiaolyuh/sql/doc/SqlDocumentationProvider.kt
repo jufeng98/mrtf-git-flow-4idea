@@ -15,7 +15,7 @@ class SqlDocumentationProvider : AbstractDocumentationProvider() {
             return null
         }
 
-        val tables: List<DBTable>? = getTables()
+        val tables: List<DBTable>? = getTables(element.project)
         tables ?: return null
 
         val columnName = element.columnName

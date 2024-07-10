@@ -11,6 +11,7 @@ import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Key
 import java.net.URI
 
 
@@ -20,8 +21,10 @@ class DbnToolWindowPsiElement(val tableNames: Set<String>, val columnName: Strin
     override fun navigate(requestFocus: Boolean) {
         val dbSchema = getDefaultDbScheme(project) ?: return
 
-        if (tables == null) {
-            tables = dbSchema.tables
+        var userData = project.getUserData(DB_TABLES_KEY)
+        if (userData.isNullOrEmpty()) {
+            userData = dbSchema.tables
+            project.putUserData(DB_TABLES_KEY, userData)
         }
 
         val dbTables = dbSchema.tables.filter { tableNames.contains(it.name) }
@@ -44,9 +47,9 @@ class DbnToolWindowPsiElement(val tableNames: Set<String>, val columnName: Strin
     }
 
     companion object {
-        private var tables: List<DBTable>? = null
-        fun getTables(): List<DBTable>? {
-            return tables
+        private val DB_TABLES_KEY = Key.create<List<DBTable>>("gitflowplus.dbn.tables.id")
+        fun getTables(project: Project): List<DBTable>? {
+            return project.getUserData(DB_TABLES_KEY)
         }
 
         fun getDefaultDbScheme(project: Project): DBSchema? {

@@ -17,6 +17,7 @@ import com.intellij.codeInsight.completion.CompletionResultSet;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
@@ -41,7 +42,7 @@ public class SqlCompletionContributor extends CompletionContributor {
         }
 
         if (position.getParent() instanceof SqlTableName) {
-            fillTableNames(result);
+            fillTableNames(result, position.getProject());
             return;
         }
 
@@ -53,7 +54,7 @@ public class SqlCompletionContributor extends CompletionContributor {
     }
 
     private void fillColumnNames(CompletionResultSet result, SqlColumnName sqlColumnName) {
-        List<DBTable> tables = DbnToolWindowPsiElement.Companion.getTables();
+        List<DBTable> tables = DbnToolWindowPsiElement.Companion.getTables(sqlColumnName.getProject());
         if (tables == null) {
             return;
         }
@@ -117,8 +118,8 @@ public class SqlCompletionContributor extends CompletionContributor {
                         }));
     }
 
-    private void fillTableNames(CompletionResultSet result) {
-        List<DBTable> tables = DbnToolWindowPsiElement.Companion.getTables();
+    private void fillTableNames(CompletionResultSet result, @NotNull Project project) {
+        List<DBTable> tables = DbnToolWindowPsiElement.Companion.getTables(project);
         if (tables == null) {
             return;
         }
