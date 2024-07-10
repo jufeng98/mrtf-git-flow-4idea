@@ -5,6 +5,8 @@ import com.github.xiaolyuh.dbn.DbnToolWindowPsiElement;
 import com.github.xiaolyuh.sql.parser.SqlFile;
 import com.github.xiaolyuh.sql.psi.SqlColumnName;
 import com.github.xiaolyuh.sql.psi.SqlJoinClause;
+import com.github.xiaolyuh.sql.psi.SqlJoinConstraint;
+import com.github.xiaolyuh.sql.psi.SqlResultColumn;
 import com.github.xiaolyuh.sql.psi.SqlStatement;
 import com.github.xiaolyuh.sql.psi.SqlTableAlias;
 import com.github.xiaolyuh.sql.psi.SqlTableName;
@@ -70,7 +72,7 @@ public class SqlCompletionContributor extends CompletionContributor {
             Set<String> sqlTableNames = SqlUtils.getSqlTableNames(sqlJoinClauses).stream()
                     .map(PsiElement::getText)
                     .collect(Collectors.toSet());
-            fillColumnNames(result, sqlTableNames, tables);
+            fillColumnNames(sqlColumnName, result, sqlTableNames, tables);
             return;
         }
 
@@ -84,10 +86,19 @@ public class SqlCompletionContributor extends CompletionContributor {
 
         String tableName = sqlTableName.getText();
 
-        fillColumnNames(result, Set.of(tableName), tables);
+        fillColumnNames(sqlColumnName, result, Set.of(tableName), tables);
     }
 
-    private void fillColumnNames(CompletionResultSet result, Set<String> tableNames, List<DBTable> tables) {
+    private void fillColumnNames(SqlColumnName sqlColumnName, CompletionResultSet result, Set<String> tableNames, List<DBTable> tables) {
+        String insertStr;
+        if (PsiTreeUtil.getParentOfType(sqlColumnName, SqlResultColumn.class) != null) {
+            insertStr = ", ";
+        } else if (PsiTreeUtil.getParentOfType(sqlColumnName, SqlJoinConstraint.class) != null) {
+            insertStr = " = ";
+        } else {
+            insertStr = "";
+        }
+
         tables.stream()
                 .filter(it -> tableNames.contains(it.getName()))
                 .forEach(it -> it.getColumns()
@@ -97,9 +108,10 @@ public class SqlCompletionContributor extends CompletionContributor {
                                         Editor editor = context.getEditor();
                                         Document document = editor.getDocument();
                                         context.commitDocument();
-                                        document.insertString(context.getTailOffset(), ",");
+                                        document.insertString(context.getTailOffset(), insertStr);
                                         editor.getCaretModel().moveToOffset(context.getTailOffset());
                                     })
+                                    .withTypeText(dbColumn.getDataType().getQualifiedName() + " " + dbColumn.getColumnComment(), true)
                                     .bold();
                             result.addElement(builder);
                         }));
@@ -111,23 +123,29 @@ public class SqlCompletionContributor extends CompletionContributor {
             return;
         }
 
-        tables.forEach(it -> result.addElement(LookupElementBuilder.create(it.getName()).bold()));
+        tables.forEach(it -> {
+            LookupElementBuilder builder = LookupElementBuilder
+                    .create(it.getName())
+                    .withTypeText(it.getComment(), true)
+                    .bold();
+            result.addElement(builder);
+        });
     }
 
 
     private void fillAliasName(CompletionResultSet result, SqlStatement sqlStatement) {
         Collection<SqlJoinClause> sqlJoinClauses = PsiTreeUtil.findChildrenOfType(sqlStatement, SqlJoinClause.class);
         Map<String, List<SqlTableAlias>> aliasMap = SqlUtils.getAliasMap(sqlJoinClauses);
-        aliasMap.keySet().forEach(aliasName -> {
+        aliasMap.forEach((aliasName, value) -> {
+            SqlTableAlias sqlTableAlias = value.get(0);
             LookupElementBuilder builder = LookupElementBuilder.create(aliasName)
-                    .withInsertHandler((context, item) -> {
-                        Editor editor = context.getEditor();
-                        Document document = editor.getDocument();
-                        context.commitDocument();
-                        document.insertString(context.getTailOffset(), ".");
-                        editor.getCaretModel().moveToOffset(context.getTailOffset());
-                    })
                     .bold();
+
+            SqlTableName aliasTableName = PsiTreeUtil.getPrevSiblingOfType(sqlTableAlias, SqlTableName.class);
+            if (aliasTableName != null) {
+                builder = builder.withTypeText(aliasTableName.getText(), true);
+            }
+
             result.addElement(builder);
         });
     }

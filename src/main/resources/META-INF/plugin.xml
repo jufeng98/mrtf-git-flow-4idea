@@ -254,6 +254,12 @@
         <completion.contributor
                 language="sql"
                 implementationClass="com.github.xiaolyuh.spring.SqlCompletionContributor"/>
+        <lang.commenter
+                language="sql"
+                implementationClass="com.github.xiaolyuh.sql.commenter.SqlCommenter"/>
+        <lang.documentationProvider
+                language="sql"
+                implementationClass="com.github.xiaolyuh.sql.doc.SqlDocumentationProvider"/>
     </extensions>
 
     <projectListeners>

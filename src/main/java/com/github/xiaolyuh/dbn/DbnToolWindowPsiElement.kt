@@ -14,7 +14,7 @@ import com.intellij.openapi.project.Project
 import java.net.URI
 
 
-class DbnToolWindowPsiElement(private val tableNames: Set<String>, private val columnName: String?, node: ASTNode) :
+class DbnToolWindowPsiElement(val tableNames: Set<String>, val columnName: String?, node: ASTNode) :
     ASTWrapperPsiElement(node) {
 
     override fun navigate(requestFocus: Boolean) {
