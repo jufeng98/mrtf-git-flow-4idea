@@ -7,6 +7,7 @@ import com.github.xiaolyuh.dbn.DbnToolWindowPsiElement.Companion.getTables
 import com.intellij.lang.documentation.AbstractDocumentationProvider
 import com.intellij.lang.documentation.DocumentationMarkup.*
 import com.intellij.psi.PsiElement
+import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.Nls
 
 class SqlDocumentationProvider : AbstractDocumentationProvider() {
@@ -40,11 +41,20 @@ class SqlDocumentationProvider : AbstractDocumentationProvider() {
     private fun generateColumnDoc(table: DBTable, column: DBColumn): String {
         return buildString {
             append("<span>")
-            append(column.name + " " + column.dataType.qualifiedName + " " + column.columnComment)
+            append(column.name)
+            append(" ")
+            append(column.dataType.qualifiedName)
+            append(" ")
+            append(column.columnDefault)
+            append(" ")
+            append(column.columnComment)
             append("</span>")
 
             append("<span style='color:gray'>")
-            append(table.name + "(" + table.comment + ")")
+            append(table.name)
+            append("(")
+            append(table.comment)
+            append(")")
             append("</span>")
         }
     }
@@ -52,7 +62,10 @@ class SqlDocumentationProvider : AbstractDocumentationProvider() {
     private fun generateTableDoc(table: DBTable): String {
         return buildString {
             append(DEFINITION_START)
-            append(table.name + "(" + table.comment + ")")
+            append(table.name)
+            append("(")
+            append(table.comment)
+            append(")")
             append(DEFINITION_END)
 
             append(SECTIONS_START)
@@ -62,7 +75,11 @@ class SqlDocumentationProvider : AbstractDocumentationProvider() {
                 append(column.name)
                 append("</p>")
                 append("</td><td valign='top' style='color:gray'>")
-                append(column.dataType.qualifiedName + " " + column.columnComment)
+                append(column.dataType.qualifiedName)
+                append(" ")
+                append(column.columnDefault)
+                append(" ")
+                append(column.columnComment)
                 append("</td>")
                 append("</tr>\r\n")
             }
