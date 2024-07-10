@@ -104,6 +104,8 @@ public class SqlCompletionContributor extends CompletionContributor {
                 .filter(it -> tableNames.contains(it.getName()))
                 .forEach(it -> it.getColumns()
                         .forEach(dbColumn -> {
+                            String typeText = dbColumn.getDataType().getQualifiedName() + " " + dbColumn.getColumnDefault()
+                                    + " " + dbColumn.getColumnComment();
                             LookupElementBuilder builder = LookupElementBuilder.create(dbColumn.getName())
                                     .withInsertHandler((context, item) -> {
                                         Editor editor = context.getEditor();
@@ -112,7 +114,7 @@ public class SqlCompletionContributor extends CompletionContributor {
                                         document.insertString(context.getTailOffset(), insertStr);
                                         editor.getCaretModel().moveToOffset(context.getTailOffset());
                                     })
-                                    .withTypeText(dbColumn.getDataType().getQualifiedName() + " " + dbColumn.getColumnComment(), true)
+                                    .withTypeText(typeText, true)
                                     .bold();
                             result.addElement(builder);
                         }));
