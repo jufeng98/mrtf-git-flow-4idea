@@ -7,7 +7,6 @@ import com.github.xiaolyuh.dbn.DbnToolWindowPsiElement.Companion.getTables
 import com.intellij.lang.documentation.AbstractDocumentationProvider
 import com.intellij.lang.documentation.DocumentationMarkup.*
 import com.intellij.psi.PsiElement
-import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.Nls
 
 class SqlDocumentationProvider : AbstractDocumentationProvider() {

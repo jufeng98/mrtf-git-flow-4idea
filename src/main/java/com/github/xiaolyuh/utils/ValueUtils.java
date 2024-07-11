@@ -74,6 +74,10 @@ public class ValueUtils {
         }
 
         TextRange textRange = createExpressionTextRange(value, startIdx);
+        if (textRange == null) {
+            return null;
+        }
+
         String key = value.substring(textRange.getStartOffset() - 1, textRange.getEndOffset() - 1);
 
         Module module = ModuleUtil.findModuleForFile(psiFile);
@@ -140,6 +144,11 @@ public class ValueUtils {
         } else {
             endIdx = value.indexOf(DOLLAR_END, startIdx) + DOLLAR_END.length();
         }
+
+        if (endIdx <= startIdx) {
+            return null;
+        }
+
         return new TextRange(startIdx + DOLLAR_START.length() + 1, endIdx);
     }
 
