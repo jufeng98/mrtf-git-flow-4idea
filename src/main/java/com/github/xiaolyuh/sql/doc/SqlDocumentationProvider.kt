@@ -27,6 +27,8 @@ class SqlDocumentationProvider : AbstractDocumentationProvider() {
             return generateTableDoc(table)
         } else {
             tables.forEach { table ->
+                if (!element.tableNames.contains(table.name)) return@forEach
+
                 table.columns.forEach {
                     if (it.name == columnName) {
                         return generateColumnDoc(table, it)
