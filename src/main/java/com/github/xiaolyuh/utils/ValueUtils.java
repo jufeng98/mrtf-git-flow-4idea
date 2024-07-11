@@ -138,7 +138,7 @@ public class ValueUtils {
 
     private static TextRange createExpressionTextRange(String value, int startIdx) {
         int endIdx;
-        int separatorIndex = value.indexOf(":");
+        int separatorIndex = value.indexOf(":", startIdx);
         if (separatorIndex != -1) {
             endIdx = separatorIndex + DOLLAR_END.length();
         } else {
