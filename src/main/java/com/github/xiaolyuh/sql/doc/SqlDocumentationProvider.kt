@@ -1,50 +1,50 @@
 package com.github.xiaolyuh.sql.doc
 
-import com.dbn.`object`.DBColumn
-import com.dbn.`object`.DBTable
+import com.dbn.cache.CacheDbColumn
+import com.dbn.cache.CacheDbTable
 import com.github.xiaolyuh.dbn.DbnToolWindowPsiElement
-import com.github.xiaolyuh.dbn.DbnToolWindowPsiElement.Companion.getTables
 import com.intellij.lang.documentation.AbstractDocumentationProvider
 import com.intellij.lang.documentation.DocumentationMarkup.*
 import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.Nls
+import java.util.*
+import kotlin.streams.toList
 
 class SqlDocumentationProvider : AbstractDocumentationProvider() {
+
     override fun generateDoc(element: PsiElement, originalElement: PsiElement?): @Nls String? {
         if (element !is DbnToolWindowPsiElement) {
             return null
         }
 
-        val tables: List<DBTable>? = getTables(element.project)
-        tables ?: return null
+        val cacheDbTableMap = DbnToolWindowPsiElement.getTables(element.project) ?: return null
 
-        val columnName = element.columnName
-        if (columnName == null) {
+        if (element.columnName == null) {
             val tableNames = element.tableNames
             val tableName = tableNames.iterator().next()
-            val table = tables.firstOrNull { it.name == tableName } ?: return null
-            return generateTableDoc(table)
+            val cacheDbTable = cacheDbTableMap[tableName] ?: return null
+            return generateTableDoc(cacheDbTable)
         } else {
-            tables.forEach { table ->
-                if (!element.tableNames.contains(table.name)) return@forEach
+            return element.tableNames.stream()
+                .map {
+                    val cacheDbTable = cacheDbTableMap[it] ?: return@map null
 
-                table.columns.forEach {
-                    if (it.name == columnName) {
-                        return generateColumnDoc(table, it)
-                    }
+                    val cacheDbColumn = cacheDbTable.cacheDbColumnMap[element.columnName] ?: return@map null
+
+                    generateColumnDoc(cacheDbTable, cacheDbColumn)
                 }
-            }
-
-            return null
+                .filter(Objects::nonNull)
+                .toList()
+                .firstOrNull()
         }
     }
 
-    private fun generateColumnDoc(table: DBTable, column: DBColumn): String {
+    private fun generateColumnDoc(table: CacheDbTable, column: CacheDbColumn): String {
         return buildString {
             append("<span>")
             append(column.name)
             append(" ")
-            append(column.dataType.qualifiedName)
+            append(column.cacheDbDataType.qualifiedName)
             append(" ")
             append(column.columnDefault)
             append(" ")
@@ -60,7 +60,7 @@ class SqlDocumentationProvider : AbstractDocumentationProvider() {
         }
     }
 
-    private fun generateTableDoc(table: DBTable): String {
+    private fun generateTableDoc(table: CacheDbTable): String {
         return buildString {
             append(DEFINITION_START)
             append(table.name)
@@ -71,12 +71,12 @@ class SqlDocumentationProvider : AbstractDocumentationProvider() {
 
             append(SECTIONS_START)
 
-            for (column in table.columns) {
+            for (column in table.cacheDbColumnMap.values) {
                 append("<tr><td valign='top' class='section' style='color:black'><p>")
                 append(column.name)
                 append("</p>")
                 append("</td><td valign='top' style='color:gray'>")
-                append(column.dataType.qualifiedName)
+                append(column.cacheDbDataType.qualifiedName)
                 append(" ")
                 append(column.columnDefault)
                 append(" ")

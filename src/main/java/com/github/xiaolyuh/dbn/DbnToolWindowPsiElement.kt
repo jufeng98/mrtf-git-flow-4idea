@@ -1,17 +1,19 @@
 package com.github.xiaolyuh.dbn
 
 import com.dbn.browser.DatabaseBrowserManager
+import com.dbn.cache.CacheDbTable
+import com.dbn.cache.MetadataCacheService
 import com.dbn.connection.ConnectionHandler
+import com.dbn.connection.config.ConnectionDatabaseSettings
 import com.dbn.editor.data.options.DataEditorSettings
 import com.dbn.`object`.DBSchema
-import com.dbn.`object`.DBTable
 import com.dbn.`object`.common.DBObjectBundle
+import com.intellij.codeInsight.hint.HintManager
 import com.intellij.extapi.psi.ASTWrapperPsiElement
-import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.lang.ASTNode
-import com.intellij.openapi.extensions.PluginId
+import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.Key
+import org.apache.commons.collections4.CollectionUtils
 import java.net.URI
 
 
@@ -19,12 +21,16 @@ class DbnToolWindowPsiElement(val tableNames: Set<String>, val columnName: Strin
     ASTWrapperPsiElement(node) {
 
     override fun navigate(requestFocus: Boolean) {
-        val dbSchema = getDefaultDbScheme(project) ?: return
+        val dbSchema = getDbSchemeOfFirstConnection(project)
+        if (dbSchema == null) {
+            showTooltip("无法跳转DB Browser工具窗口,请先连接数据库,或者打开 Connect Automatically 选项!", project)
+            return
+        }
 
-        var userData = project.getUserData(DB_TABLES_KEY)
-        if (userData.isNullOrEmpty()) {
-            userData = dbSchema.tables
-            project.putUserData(DB_TABLES_KEY, userData)
+        val tables = dbSchema.tables
+        if (tables.isNullOrEmpty()) {
+            showTooltip("尝试初始化tables控件,请稍后再试...", project)
+            return
         }
 
         val dbTables = dbSchema.tables.filter { tableNames.contains(it.name) }
@@ -40,57 +46,69 @@ class DbnToolWindowPsiElement(val tableNames: Set<String>, val columnName: Strin
 
         val dbColumns = dbTables.map { it.columns }.flatten().filter { it.name == columnName }
         if (dbColumns.isEmpty()) {
+            showTooltip("尝试初始化columns组件,请稍后再试...", project)
             return
         }
 
         browserManager.navigateToElement(dbColumns[0], requestFocus, true)
     }
 
+    private fun showTooltip(msg: String, project: Project) {
+        val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return
+        HintManager.getInstance().showInformationHint(editor, msg)
+    }
+
     companion object {
-        private val DB_TABLES_KEY = Key.create<List<DBTable>>("gitflowplus.dbn.tables.id")
-        fun getTables(project: Project): List<DBTable>? {
-            return project.getUserData(DB_TABLES_KEY)
+        fun getTables(project: Project): Map<String, CacheDbTable>? {
+            val dbName = getFirstConnectionConfigDbName(project) ?: return null
+
+            val cacheService = MetadataCacheService.getService(project)
+            return cacheService.schemaMap[dbName]
         }
 
-        fun getDefaultDbScheme(project: Project): DBSchema? {
-            if (!dbnAvailable()) {
-                return null
-            }
-
+        fun getDbSchemeOfFirstConnection(project: Project): DBSchema? {
             val browserManager = DatabaseBrowserManager.getInstance(project)
+
+            val config = getFirstConnectionConfig(project) ?: return null
+            browserManager.selectConnection(config.connectionId)
+
             val connection = browserManager.selectedConnection
             if (!ConnectionHandler.isLiveConnection(connection)) {
                 return null
             }
 
-            val dbName = getDbName(project) ?: return null
+            val dbName = getFirstConnectionConfigDbName(project) ?: return null
             val objectBundle: DBObjectBundle = connection?.objectBundle ?: return null
 
             return objectBundle.schemas.firstOrNull { it.name == dbName }
         }
 
-        private fun getDbName(project: Project): String? {
-            val browserManager = DatabaseBrowserManager.getInstance(project)
-            val connection = browserManager.selectedConnection
-            if (!ConnectionHandler.isLiveConnection(connection)) {
+        private fun getFirstConnectionConfig(project: Project): ConnectionDatabaseSettings? {
+            val projectSettings = DataEditorSettings.getInstance(project).parent ?: return null
+            val connectionSettingsList = projectSettings.connectionSettings ?: return null
+            val connections = connectionSettingsList.connections
+            if (CollectionUtils.isEmpty(connections)) {
                 return null
             }
 
-            val connectionSettingsList = DataEditorSettings.getInstance(project).parent!!.connectionSettings
-            val connectionSettings = connectionSettingsList.connections[0]
-
-            return resolveUrlDbName(connectionSettings.databaseSettings.connectionUrl)
+            val connectionSettings = connections[0]
+            return connectionSettings?.databaseSettings ?: return null
         }
 
-        private fun resolveUrlDbName(url: String): String {
-            val uri = URI.create(url.substring(5))
-            return uri.path.substring(1)
+        fun getFirstConnectionConfigDbName(project: Project): String? {
+            val config = getFirstConnectionConfig(project) ?: return null
+            val url = config.connectionUrl ?: return null
+            return resolveUrlDbName(url)
         }
 
-        private fun dbnAvailable(): Boolean {
-            val pluginId = PluginId.getId("DBN")
-            val pluginDescriptor = PluginManagerCore.getPlugin(pluginId) ?: return false
-            return pluginDescriptor.isEnabled
+        private fun resolveUrlDbName(url: String): String? {
+            try {
+                val uri = URI.create(url.substring(5))
+                return uri.path.substring(1)
+            } catch (e: Exception) {
+                return null
+            }
         }
+
     }
 }

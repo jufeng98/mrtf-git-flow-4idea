@@ -1,0 +1,11 @@
+<idea-plugin>
+    <extensions defaultExtensionNs="com.intellij">
+        <postStartupActivity implementation="com.github.xiaolyuh.start.DbnProjectStartupActivity"/>
+        <completion.contributor
+                language="sql"
+                implementationClass="com.github.xiaolyuh.spring.SqlCompletionContributor"/>
+        <lang.documentationProvider
+                language="sql"
+                implementationClass="com.github.xiaolyuh.sql.doc.SqlDocumentationProvider"/>
+    </extensions>
+</idea-plugin>

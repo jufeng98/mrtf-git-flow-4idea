@@ -46,9 +46,9 @@
     <depends>Git4Idea</depends>
     <depends>com.intellij.java</depends>
     <depends>com.intellij.properties</depends>
-    <depends optional="true" config-file="dbn-java-support.xml">DBN</depends>
+    <depends optional="true" config-file="gitflow-plus-dbn.xml">DBN</depends>
 
-    <idea-version since-build="212.*" until-build="233.*"/>
+    <idea-version since-build="221" until-build="242.*"/>
 
     <extensions defaultExtensionNs="com.intellij">
         <statusBarWidgetFactory implementation="com.github.xiaolyuh.ui.GitFlowPlusStatusBarWidgetFactory"
@@ -251,15 +251,9 @@
         <psi.referenceContributor language="sql"
                                   implementation="com.github.xiaolyuh.spring.SqlReferenceContributor"/>
         <highlightErrorFilter implementation="com.github.xiaolyuh.sql.SqlHighlightErrorFilter"/>
-        <completion.contributor
-                language="sql"
-                implementationClass="com.github.xiaolyuh.spring.SqlCompletionContributor"/>
         <lang.commenter
                 language="sql"
                 implementationClass="com.github.xiaolyuh.sql.commenter.SqlCommenter"/>
-        <lang.documentationProvider
-                language="sql"
-                implementationClass="com.github.xiaolyuh.sql.doc.SqlDocumentationProvider"/>
     </extensions>
 
     <projectListeners>

@@ -1,6 +1,7 @@
 package com.github.xiaolyuh.spring;
 
-import com.dbn.object.DBTable;
+import com.dbn.cache.CacheDbColumn;
+import com.dbn.cache.CacheDbTable;
 import com.github.xiaolyuh.dbn.DbnToolWindowPsiElement;
 import com.github.xiaolyuh.sql.parser.SqlFile;
 import com.github.xiaolyuh.sql.psi.SqlColumnName;
@@ -25,6 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -54,8 +56,8 @@ public class SqlCompletionContributor extends CompletionContributor {
     }
 
     private void fillColumnNames(CompletionResultSet result, SqlColumnName sqlColumnName) {
-        List<DBTable> tables = DbnToolWindowPsiElement.Companion.getTables(sqlColumnName.getProject());
-        if (tables == null) {
+        Map<String, CacheDbTable> tableMap = DbnToolWindowPsiElement.Companion.getTables(sqlColumnName.getProject());
+        if (tableMap == null) {
             return;
         }
 
@@ -73,7 +75,7 @@ public class SqlCompletionContributor extends CompletionContributor {
             Set<String> sqlTableNames = SqlUtils.getSqlTableNames(sqlJoinClauses).stream()
                     .map(PsiElement::getText)
                     .collect(Collectors.toSet());
-            fillColumnNames(sqlColumnName, result, sqlTableNames, tables);
+            fillColumnNames(sqlColumnName, result, sqlTableNames, tableMap);
             return;
         }
 
@@ -87,10 +89,11 @@ public class SqlCompletionContributor extends CompletionContributor {
 
         String tableName = sqlTableName.getText();
 
-        fillColumnNames(sqlColumnName, result, Set.of(tableName), tables);
+        fillColumnNames(sqlColumnName, result, Set.of(tableName), tableMap);
     }
 
-    private void fillColumnNames(SqlColumnName sqlColumnName, CompletionResultSet result, Set<String> tableNames, List<DBTable> tables) {
+    private void fillColumnNames(SqlColumnName sqlColumnName, CompletionResultSet result,
+                                 Set<String> tableNames, Map<String, CacheDbTable> tableMap) {
         String insertStr;
         if (PsiTreeUtil.getParentOfType(sqlColumnName, SqlResultColumn.class) != null) {
             insertStr = ", ";
@@ -100,33 +103,36 @@ public class SqlCompletionContributor extends CompletionContributor {
             insertStr = "";
         }
 
-        tables.stream()
-                .filter(it -> tableNames.contains(it.getName()))
-                .forEach(it -> it.getColumns()
-                        .forEach(dbColumn -> {
-                            String typeText = dbColumn.getDataType().getQualifiedName() + " " + dbColumn.getColumnDefault()
-                                    + " " + dbColumn.getColumnComment();
-                            LookupElementBuilder builder = LookupElementBuilder.create(dbColumn.getName())
-                                    .withInsertHandler((context, item) -> {
-                                        Editor editor = context.getEditor();
-                                        Document document = editor.getDocument();
-                                        context.commitDocument();
-                                        document.insertString(context.getTailOffset(), insertStr);
-                                        editor.getCaretModel().moveToOffset(context.getTailOffset());
-                                    })
-                                    .withTypeText(typeText, true)
-                                    .bold();
-                            result.addElement(builder);
-                        }));
+        tableNames.stream()
+                .map(tableMap::get)
+                .filter(Objects::nonNull)
+                .forEach(it -> {
+                    Map<String, CacheDbColumn> cacheDbColumnMap = it.getCacheDbColumnMap();
+                    cacheDbColumnMap.values().forEach(dbColumn -> {
+                        String typeText = dbColumn.getCacheDbDataType().getQualifiedName() + " " + dbColumn.getColumnDefault()
+                                + " " + dbColumn.getColumnComment();
+                        LookupElementBuilder builder = LookupElementBuilder.create(dbColumn.getName())
+                                .withInsertHandler((context, item) -> {
+                                    Editor editor = context.getEditor();
+                                    Document document = editor.getDocument();
+                                    context.commitDocument();
+                                    document.insertString(context.getTailOffset(), insertStr);
+                                    editor.getCaretModel().moveToOffset(context.getTailOffset());
+                                })
+                                .withTypeText(typeText, true)
+                                .bold();
+                        result.addElement(builder);
+                    });
+                });
     }
 
     private void fillTableNames(CompletionResultSet result, @NotNull Project project) {
-        List<DBTable> tables = DbnToolWindowPsiElement.Companion.getTables(project);
-        if (tables == null) {
+        Map<String, CacheDbTable> tableMap = DbnToolWindowPsiElement.Companion.getTables(project);
+        if (tableMap == null) {
             return;
         }
 
-        tables.forEach(it -> {
+        tableMap.values().forEach(it -> {
             LookupElementBuilder builder = LookupElementBuilder
                     .create(it.getName())
                     .withTypeText(it.getComment(), true)
