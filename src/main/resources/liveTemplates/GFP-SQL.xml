@@ -1,0 +1,8 @@
+<templateSet group="SQL">
+    <template name="sel" description="Select from table" value="select * from $TABLE$$END$;" toReformat="true">
+        <variable name="TABLE" expression="complete()" defaultValue="" alwaysStopAt="true"/>
+        <context>
+            <option name="GFP-SQL" value="true"/>
+        </context>
+    </template>
+</templateSet>
