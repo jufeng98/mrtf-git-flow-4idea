@@ -2,6 +2,7 @@ package com.github.xiaolyuh.spring;
 
 import com.dbn.cache.CacheDbColumn;
 import com.dbn.cache.CacheDbTable;
+import com.dbn.common.util.Naming;
 import com.github.xiaolyuh.dbn.DbnToolWindowPsiElement;
 import com.github.xiaolyuh.sql.parser.SqlFile;
 import com.github.xiaolyuh.sql.psi.SqlColumnName;
@@ -37,22 +38,42 @@ public class SqlCompletionContributor extends CompletionContributor {
     @Override
     public void fillCompletionVariants(@NotNull CompletionParameters parameters, @NotNull CompletionResultSet result) {
         PsiElement position = parameters.getPosition();
+        PsiElement parent = position.getParent();
 
-        if (position.getParent().getParent() instanceof SqlFile) {
+        if (parent.getParent() instanceof SqlFile) {
             fillSqlTypes(result);
             return;
         }
 
-        if (position.getParent() instanceof SqlTableName) {
+        if (parent instanceof SqlTableName) {
             fillTableNames(result, position.getProject());
             return;
         }
 
-        if (position.getParent() instanceof SqlColumnName) {
-            SqlColumnName sqlColumnName = (SqlColumnName) position.getParent();
+        if (parent instanceof SqlColumnName) {
+            SqlColumnName sqlColumnName = (SqlColumnName) parent;
             fillColumnNames(result, sqlColumnName);
+            return;
         }
 
+        if (parent instanceof SqlTableAlias) {
+            SqlTableAlias sqlTableAlias = (SqlTableAlias) parent;
+            fillTableAlias(result, sqlTableAlias);
+        }
+
+    }
+
+    private void fillTableAlias(CompletionResultSet result, SqlTableAlias sqlTableAlias) {
+        SqlTableName sqlTableName = PsiTreeUtil.getPrevSiblingOfType(sqlTableAlias, SqlTableName.class);
+        if (sqlTableName == null) {
+            return;
+        }
+
+        String alias = Naming.createAliasName(sqlTableName.getText());
+        LookupElementBuilder builder = LookupElementBuilder
+                .create(alias)
+                .bold();
+        result.addElement(builder);
     }
 
     private void fillColumnNames(CompletionResultSet result, SqlColumnName sqlColumnName) {
