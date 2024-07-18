@@ -2,8 +2,8 @@ import java.net.URI
 
 plugins {
     id("java")
-    id("org.jetbrains.kotlin.jvm") version "1.6.20"
-    id("org.jetbrains.intellij") version "1.5.2"
+    id("org.jetbrains.kotlin.jvm") version "1.9.20"
+    id("org.jetbrains.intellij") version "1.16.0"
 }
 
 group = "com.github.xiaolyuh"
