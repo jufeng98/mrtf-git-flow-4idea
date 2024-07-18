@@ -1,6 +1,10 @@
 package com.github.xiaolyuh.ui;
 
+import com.dbn.common.color.Colors;
 import com.github.xiaolyuh.utils.NotifyUtil;
+import com.intellij.codeInsight.hint.HintManager;
+import com.intellij.ide.IdeTooltip;
+import com.intellij.ide.IdeTooltipManager;
 import com.intellij.ide.highlighter.XmlFileType;
 import com.intellij.lang.Language;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -57,6 +61,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -87,6 +92,7 @@ public class SampleDialog extends DialogWrapper {
     private JButton getDoc;
     private JButton fileBasedIndexesButton;
     private JButton stubIndexesButton;
+    private JButton tooltipBtn;
 
     @SuppressWarnings("DataFlowIssue")
     public SampleDialog(AnActionEvent event) {
@@ -175,6 +181,19 @@ public class SampleDialog extends DialogWrapper {
 
         fileBasedIndexesButton.addActionListener(e -> handleFileBasedIndexes(event));
         stubIndexesButton.addActionListener(e -> handleStubIndexes(event));
+        tooltipBtn.addActionListener(e -> showTooltip(project));
+    }
+
+    private void showTooltip(Project project) {
+        IdeTooltip tooltip = new IdeTooltip(tooltipBtn, new Point(50, 12), new JLabel("这是tooltip提示"));
+        tooltip.setTextBackground(Colors.getWarningHintColor());
+        IdeTooltipManager.getInstance().show(tooltip, true);
+
+        Editor textEditor = FileEditorManager.getInstance(project).getSelectedTextEditor();
+        if (textEditor == null) {
+            return;
+        }
+        HintManager.getInstance().showInformationHint(textEditor, "这是tooltip提示啊啊啊");
     }
 
     @SuppressWarnings("DataFlowIssue")
