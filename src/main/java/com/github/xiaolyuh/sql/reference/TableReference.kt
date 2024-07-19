@@ -1,4 +1,4 @@
-package com.github.xiaolyuh.reference
+package com.github.xiaolyuh.sql.reference
 
 import com.github.xiaolyuh.dbn.DbnToolWindowPsiElement
 import com.github.xiaolyuh.sql.psi.SqlColumnName
