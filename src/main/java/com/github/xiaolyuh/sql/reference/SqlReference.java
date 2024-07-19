@@ -88,8 +88,8 @@ public class SqlReference extends PsiReferenceBase<PsiElement> implements PsiPol
             PsiLanguageInjectionHost injectionHost = InjectedLanguageManager.getInstance(getProject()).getInjectionHost(this);
             int lineNumberHost;
             if (injectionHost != null) {
-                lineNumberHost = xmlDocument.getLineNumber(injectionHost.getTextRange().getStartOffset()) +
-                        xmlDocument.getLineNumber(injectionHost.getStartOffsetInParent());
+                //mapper.xml文件里的sql语句的最前面有一个换行符,所以这里不用加1
+                lineNumberHost = xmlDocument.getLineNumber(injectionHost.getParent().getTextRange().getStartOffset());
             } else {
                 lineNumberHost = 0;
             }
@@ -100,13 +100,13 @@ public class SqlReference extends PsiReferenceBase<PsiElement> implements PsiPol
                         @Override
                         public String getElementText(PsiElement element) {
                             return ApplicationManager.getApplication().runReadAction((Computable<String>) () -> {
-
-                                int lineNumber = sqlDocument.getLineNumber(element.getTextRange().getStartOffset());
+                                int lineNumber = sqlDocument.getLineNumber(element.getTextRange().getStartOffset()) + 1;
 
                                 int lineStartOffset = sqlDocument.getLineStartOffset(lineNumber);
                                 int lineEndOffset = sqlDocument.getLineEndOffset(lineNumber);
 
                                 String text = sqlDocument.getText(new TextRange(lineStartOffset, lineEndOffset));
+
                                 return "第" + (lineNumber + lineNumberHost) + "行  " + text.trim();
                             });
                         }

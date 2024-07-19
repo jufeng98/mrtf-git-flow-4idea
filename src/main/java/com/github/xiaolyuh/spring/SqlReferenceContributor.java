@@ -1,13 +1,14 @@
 package com.github.xiaolyuh.spring;
 
-import com.github.xiaolyuh.sql.reference.SqlReference;
-import com.github.xiaolyuh.sql.reference.TableReference;
 import com.github.xiaolyuh.sql.psi.SqlColumnName;
 import com.github.xiaolyuh.sql.psi.SqlJoinClause;
 import com.github.xiaolyuh.sql.psi.SqlRoot;
+import com.github.xiaolyuh.sql.psi.SqlSelectStmt;
 import com.github.xiaolyuh.sql.psi.SqlStatement;
 import com.github.xiaolyuh.sql.psi.SqlTableAlias;
 import com.github.xiaolyuh.sql.psi.SqlTableName;
+import com.github.xiaolyuh.sql.reference.SqlReference;
+import com.github.xiaolyuh.sql.reference.TableReference;
 import com.github.xiaolyuh.utils.SqlUtils;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.patterns.PlatformPatterns;
@@ -113,15 +114,32 @@ public class SqlReferenceContributor extends PsiReferenceContributor {
 
             return aliasMap.values().stream()
                     .map(it -> {
-                        SqlTableAlias sqlTableAlias = it.get(0);
-                        List<SqlTableName> tableNames = tableNameMap.get(sqlTableAlias.getText());
-                        if (tableNames == null) {
-                            return null;
-                        }
-                        TextRange textRange = sqlTableAlias.getTextRange().shiftLeft(startOffsetInParent);
-                        return new SqlReference(sqlStatement, textRange, tableNames.toArray(PsiElement[]::new));
+                        boolean existsSameAlias = it.size() > 1;
+                        return it.stream()
+                                .map(innerIt -> {
+                                    List<SqlTableName> columnNameAliases = tableNameMap.get(innerIt.getText());
+                                    if (columnNameAliases == null) {
+                                        return null;
+                                    }
+
+                                    if (existsSameAlias) {
+                                        SqlSelectStmt sqlSelectStmt1 = PsiTreeUtil.getParentOfType(innerIt, SqlSelectStmt.class);
+                                        // 存在同样别名的表,需要过滤拿到真正的
+                                        columnNameAliases = columnNameAliases.stream()
+                                                .filter(columnNameAlias -> {
+                                                    SqlSelectStmt sqlSelectStmt2 = PsiTreeUtil.getParentOfType(columnNameAlias, SqlSelectStmt.class);
+                                                    return sqlSelectStmt1 == sqlSelectStmt2;
+                                                })
+                                                .collect(Collectors.toList());
+                                    }
+
+                                    TextRange textRange = innerIt.getTextRange().shiftLeft(startOffsetInParent);
+                                    return new SqlReference(sqlStatement, textRange, columnNameAliases.toArray(PsiElement[]::new));
+                                })
+                                .filter(Objects::nonNull)
+                                .collect(Collectors.toList());
                     })
-                    .filter(Objects::nonNull)
+                    .flatMap(Collection::stream)
                     .collect(Collectors.toList());
 
         }
@@ -199,11 +217,20 @@ public class SqlReferenceContributor extends PsiReferenceContributor {
                             return new SqlReference(sqlStatement, textRange);
                         }
 
+                        SqlTableAlias target = sqlTableAliases.get(0);
                         if (sqlTableAliases.size() > 1) {
-                            log.warn("根据{}找到多个表别名:{},直接取第一个", name, sqlTableAliases);
+                            // 存在同样别名的表,需要判断下哪个是真正的表
+                            for (SqlTableAlias sqlTableAlias : sqlTableAliases) {
+                                SqlSelectStmt sqlSelectStmt1 = PsiTreeUtil.getParentOfType(sqlTableAlias, SqlSelectStmt.class);
+                                SqlSelectStmt sqlSelectStmt2 = PsiTreeUtil.getParentOfType(it, SqlSelectStmt.class);
+                                if (sqlSelectStmt1 == sqlSelectStmt2) {
+                                    target = sqlTableAlias;
+                                    break;
+                                }
+                            }
                         }
 
-                        return new SqlReference(sqlStatement, textRange, sqlTableAliases.get(0));
+                        return new SqlReference(sqlStatement, textRange, target);
                     })
                     .collect(Collectors.toList());
         }
