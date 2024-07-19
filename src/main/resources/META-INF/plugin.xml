@@ -254,7 +254,7 @@
         <lang.commenter
                 language="sql"
                 implementationClass="com.github.xiaolyuh.sql.commenter.SqlCommenter"/>
-        <defaultLiveTemplates file="/liveTemplates/GFP-SQL.xml"/>
+        <defaultLiveTemplates file="/liveTemplates/gfp-sql.xml"/>
         <liveTemplateContext implementation="com.github.xiaolyuh.sql.livetempate.SqlTemplateContextType"/>
     </extensions>
 

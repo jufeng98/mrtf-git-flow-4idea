@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class SqlTemplateContextType extends TemplateContextType {
     protected SqlTemplateContextType() {
-        super("GFP-SQL", "SQL (GitFlowPlus)");
+        super("gfp-sql", "SQL (GitFlowPlus)");
     }
 
     @Override

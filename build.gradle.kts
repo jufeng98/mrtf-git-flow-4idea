@@ -31,7 +31,7 @@ intellij {
         "com.intellij.java",
         "com.intellij.properties",
 //        "DBN:3.4.4179.0",
-        file("D:\\my_opensource_project\\dbn\\build\\distributions\\DBNavigator")
+        file("D:\\my_opensource_project\\dbn\\build\\distributions\\DBN-MASTER")
     ))
     intellij.updateSinceUntilBuild.set(false)
 }
