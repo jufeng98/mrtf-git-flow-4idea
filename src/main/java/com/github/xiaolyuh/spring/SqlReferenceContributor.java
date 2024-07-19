@@ -1,6 +1,7 @@
 package com.github.xiaolyuh.spring;
 
 import com.github.xiaolyuh.reference.CommonReference;
+import com.github.xiaolyuh.reference.TableAliasReference;
 import com.github.xiaolyuh.reference.TableReference;
 import com.github.xiaolyuh.sql.psi.SqlColumnName;
 import com.github.xiaolyuh.sql.psi.SqlJoinClause;
@@ -21,6 +22,8 @@ import com.intellij.util.ProcessingContext;
 import org.apache.commons.compress.utils.Lists;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,6 +42,7 @@ public class SqlReferenceContributor extends PsiReferenceContributor {
     }
 
     public static class SqlPsiReferenceProvider extends PsiReferenceProvider {
+        private static final Logger log = LoggerFactory.getLogger(SqlPsiReferenceProvider.class);
 
         @Override
         public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement element,
@@ -65,7 +69,7 @@ public class SqlReferenceContributor extends PsiReferenceContributor {
 
             Map<String, List<SqlTableAlias>> aliasMap = SqlUtils.getAliasMap(sqlJoinClauses);
 
-            List<CommonReference> tableAliasReferences = createTableAliasReferences(sqlStatement, aliasMap,
+            List<CommonReference> columnTableAliasReferences = createColumnTableAliasReferences(sqlStatement, aliasMap,
                     sqlTableNames, startOffsetInParent);
 
             List<SqlTableName> sqlTableNameList = Collections.emptyList();
@@ -88,14 +92,28 @@ public class SqlReferenceContributor extends PsiReferenceContributor {
             List<TableReference> columnReferences = createColumnNameReferences(sqlStatement, sqlTableNameList, sqlColumnNames,
                     aliasMap, startOffsetInParent);
 
+            List<TableAliasReference> tableAliasReferences = createTableAliasReferences(sqlStatement, aliasMap, startOffsetInParent);
+
             List<PsiReference> references = Lists.newArrayList();
-
-            references.addAll(tableAliasReferences);
-
+            references.addAll(columnTableAliasReferences);
             references.addAll(tableReferences);
             references.addAll(columnReferences);
+            references.addAll(tableAliasReferences);
 
             return references.toArray(PsiReference[]::new);
+        }
+
+        private List<TableAliasReference> createTableAliasReferences(SqlStatement sqlStatement,
+                                                                     Map<String, List<SqlTableAlias>> aliasMap,
+                                                                     int startOffsetInParent) {
+            return aliasMap.values().stream()
+                    .map(it -> {
+                        SqlTableAlias sqlTableAlias = it.get(0);
+                        TextRange textRange = sqlTableAlias.getTextRange().shiftLeft(startOffsetInParent);
+                        return new TableAliasReference(sqlStatement, sqlTableAlias, textRange);
+                    })
+                    .collect(Collectors.toList());
+
         }
 
         private List<TableReference> createColumnNameReferences(SqlStatement sqlStatement,
@@ -152,26 +170,31 @@ public class SqlReferenceContributor extends PsiReferenceContributor {
                     .collect(Collectors.toList());
         }
 
-        private List<CommonReference> createTableAliasReferences(SqlStatement sqlStatement,
-                                                                 Map<String, List<SqlTableAlias>> aliasMap,
-                                                                 Collection<SqlTableName> sqlTableNames,
-                                                                 int startOffsetInParent) {
+        private List<CommonReference> createColumnTableAliasReferences(SqlStatement sqlStatement,
+                                                                       Map<String, List<SqlTableAlias>> aliasMap,
+                                                                       Collection<SqlTableName> sqlTableNames,
+                                                                       int startOffsetInParent) {
             if (aliasMap.isEmpty()) {
                 return Lists.newArrayList();
             }
 
             return sqlTableNames.stream()
+                    .filter(it -> PsiTreeUtil.getNextSiblingOfType(it, SqlColumnName.class) != null)
                     .map(it -> {
+                        TextRange textRange = it.getTextRange().shiftLeft(startOffsetInParent);
+
                         String name = it.getText();
                         List<SqlTableAlias> sqlTableAliases = aliasMap.get(name);
                         if (sqlTableAliases == null) {
-                            return null;
+                            return new CommonReference(sqlStatement, textRange, null);
                         }
 
-                        TextRange textRange = it.getTextRange().shiftLeft(startOffsetInParent);
+                        if (sqlTableAliases.size() > 1) {
+                            log.warn("根据{}找到多个表别名:{},直接取第一个", name, sqlTableAliases);
+                        }
+
                         return new CommonReference(sqlStatement, textRange, sqlTableAliases.get(0));
                     })
-                    .filter(Objects::nonNull)
                     .collect(Collectors.toList());
         }
 

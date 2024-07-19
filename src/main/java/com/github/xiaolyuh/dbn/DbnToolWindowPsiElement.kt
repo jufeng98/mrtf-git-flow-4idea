@@ -8,10 +8,9 @@ import com.dbn.connection.config.ConnectionDatabaseSettings
 import com.dbn.editor.data.options.DataEditorSettings
 import com.dbn.`object`.DBSchema
 import com.dbn.`object`.common.DBObjectBundle
-import com.intellij.codeInsight.hint.HintManager
+import com.github.xiaolyuh.utils.TooltipUtils
 import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.lang.ASTNode
-import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import org.apache.commons.collections4.CollectionUtils
 import java.net.URI
@@ -23,18 +22,22 @@ class DbnToolWindowPsiElement(val tableNames: Set<String>, val columnName: Strin
     override fun navigate(requestFocus: Boolean) {
         val dbSchema = getDbSchemeOfFirstConnection(project)
         if (dbSchema == null) {
-            showTooltip("无法跳转DB Browser工具窗口,请先连接数据库,或者打开 Connect Automatically 选项!", project)
+            TooltipUtils.showTooltip(
+                "无法跳转DB Browser工具窗口,请先连接数据库,或者打开 Connect Automatically 选项!",
+                project
+            )
             return
         }
 
         val tables = dbSchema.tables
         if (tables.isNullOrEmpty()) {
-            showTooltip("尝试初始化tables控件,请稍后再试...", project)
+            TooltipUtils.showTooltip("尝试初始化tables控件,请稍后再试...", project)
             return
         }
 
         val dbTables = dbSchema.tables.filter { tableNames.contains(it.name) }
         if (dbTables.isEmpty()) {
+            TooltipUtils.showTooltip("${dbSchema.name}数据库中未找到表$tableNames", project)
             return
         }
 
@@ -44,18 +47,19 @@ class DbnToolWindowPsiElement(val tableNames: Set<String>, val columnName: Strin
             return
         }
 
-        val dbColumns = dbTables.map { it.columns }.flatten().filter { it.name == columnName }
+        var dbColumns = dbTables.map { it.columns }.flatten()
         if (dbColumns.isEmpty()) {
-            showTooltip("尝试初始化columns组件,请稍后再试...", project)
+            TooltipUtils.showTooltip("尝试初始化columns组件,请稍后再试...", project)
+            return
+        }
+
+        dbColumns = dbColumns.filter { it.name == columnName }
+        if (dbColumns.isEmpty()) {
+            TooltipUtils.showTooltip("${tableNames}表中未找到列$columnName", project)
             return
         }
 
         browserManager.navigateToElement(dbColumns[0], requestFocus, true)
-    }
-
-    private fun showTooltip(msg: String, project: Project) {
-        val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return
-        HintManager.getInstance().showInformationHint(editor, msg)
     }
 
     companion object {
