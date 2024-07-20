@@ -30,13 +30,14 @@ import java.util.Arrays;
 public class SqlReference extends PsiReferenceBase<PsiElement> implements PsiPolyVariantReference {
     private final PsiElement[] targetPsiElements;
 
-    public SqlReference(@NotNull PsiElement element, @NotNull TextRange textRange, @NotNull PsiElement... targetPsiElements) {
+    public SqlReference(@NotNull PsiElement element, @NotNull PsiElement sourcePsiElement,
+                        @NotNull TextRange textRange, @NotNull NavigatablePsiElement... targetPsiElements) {
         super(element, textRange);
 
         if (targetPsiElements.length == 0) {
-            targetPsiElements = new PsiElement[]{new FakePsiElement(element)};
+            targetPsiElements = new NavigatablePsiElement[]{new FakePsiElement(element)};
         } else if (targetPsiElements[0] instanceof SqlTableName) {
-            targetPsiElements = new PsiElement[]{new TableAliasPsiElement(targetPsiElements)};
+            targetPsiElements = new NavigatablePsiElement[]{new TableAliasPsiElement(sourcePsiElement, targetPsiElements)};
         }
 
         this.targetPsiElements = targetPsiElements;
@@ -59,11 +60,9 @@ public class SqlReference extends PsiReferenceBase<PsiElement> implements PsiPol
     public static class TableAliasPsiElement extends ASTWrapperPsiElement {
         private final NavigatablePsiElement[] targetPsiElements;
 
-        public TableAliasPsiElement(PsiElement[] targetPsiElements) {
-            super(targetPsiElements[0].getNode());
-            this.targetPsiElements = Arrays.stream(targetPsiElements)
-                    .map(it -> (NavigatablePsiElement) it)
-                    .toArray(NavigatablePsiElement[]::new);
+        public TableAliasPsiElement(@NotNull PsiElement sourcePsiElement, NavigatablePsiElement[] targetPsiElements) {
+            super(sourcePsiElement.getNode());
+            this.targetPsiElements = targetPsiElements;
         }
 
         @Override
@@ -94,6 +93,8 @@ public class SqlReference extends PsiReferenceBase<PsiElement> implements PsiPol
                 lineNumberHost = 0;
             }
 
+            int sourceLineNumber = sqlDocument.getLineNumber(this.getTextRange().getStartOffset());
+
             PsiElementListNavigator.openTargets(textEditor, targetPsiElements,
                     "别名 " + this.getText() + " 共" + targetPsiElements.length + "个引用", "",
                     new PsiElementListCellRenderer<>() {
@@ -107,7 +108,12 @@ public class SqlReference extends PsiReferenceBase<PsiElement> implements PsiPol
 
                                 String text = sqlDocument.getText(new TextRange(lineStartOffset, lineEndOffset));
 
-                                return "第" + (lineNumber + lineNumberHost + 1) + "行  " + text.trim();
+                                String current = "";
+                                if (sourceLineNumber == lineNumber) {
+                                    current = "(当前行)";
+                                }
+
+                                return "第" + (lineNumber + lineNumberHost + 1) + "行" + current + "  " + text.trim();
                             });
                         }
 
