@@ -100,14 +100,14 @@ public class SqlReference extends PsiReferenceBase<PsiElement> implements PsiPol
                         @Override
                         public String getElementText(PsiElement element) {
                             return ApplicationManager.getApplication().runReadAction((Computable<String>) () -> {
-                                int lineNumber = sqlDocument.getLineNumber(element.getTextRange().getStartOffset()) + 1;
+                                int lineNumber = sqlDocument.getLineNumber(element.getTextRange().getStartOffset());
 
                                 int lineStartOffset = sqlDocument.getLineStartOffset(lineNumber);
                                 int lineEndOffset = sqlDocument.getLineEndOffset(lineNumber);
 
                                 String text = sqlDocument.getText(new TextRange(lineStartOffset, lineEndOffset));
 
-                                return "第" + (lineNumber + lineNumberHost) + "行  " + text.trim();
+                                return "第" + (lineNumber + lineNumberHost + 1) + "行  " + text.trim();
                             });
                         }
 
