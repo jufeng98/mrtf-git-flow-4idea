@@ -383,7 +383,15 @@ database_name ::= id
 index_name ::= id
 column_name ::= id | string
 column_alias ::= id
-table_alias ::= id
+table_alias ::= id {
+    mixin="com.github.xiaolyuh.sql.psi.impl.SqlNamedElementImpl"
+    implements="com.github.xiaolyuh.sql.psi.SqlNamedElement"
+    methods = [
+        setName
+        getName
+        getNameIdentifier
+    ]
+}
 foreign_table ::= id
 identifier ::= id
 pragma_name ::= id
