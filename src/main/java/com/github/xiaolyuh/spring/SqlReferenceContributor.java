@@ -111,6 +111,7 @@ public class SqlReferenceContributor extends PsiReferenceContributor {
                             return createColumnTableReference(sqlColumnName, columnTableAliasName, sqlStatement,
                                     aliasMap, textRange);
                         } else {
+                            // 列名前没有表别名,则从所有表里搜索列
                             return new TableOrColumnPsiReference(sqlStatement, sqlTableNames, sqlColumnName, textRange);
                         }
                     })
