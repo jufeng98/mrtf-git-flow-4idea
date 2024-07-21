@@ -10,9 +10,7 @@ import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiPolyVariantReference
 import com.intellij.psi.PsiReferenceBase
-import com.intellij.psi.ResolveResult
 import com.intellij.psi.util.PsiTreeUtil
 import java.util.*
 import kotlin.streams.toList
@@ -23,11 +21,7 @@ class TableOrColumnPsiReference(
     private val sqlColumnName: SqlColumnName?,
     textRange: TextRange,
 ) :
-    PsiReferenceBase<PsiElement>(sqlStatement, textRange), PsiPolyVariantReference {
-
-    override fun multiResolve(incompleteCode: Boolean): Array<ResolveResult?> {
-        return arrayOfNulls(0)
-    }
+    PsiReferenceBase<PsiElement>(sqlStatement, textRange) {
 
     override fun resolve(): PsiElement {
         val tableNames = sqlTableNames.map { it.text }.toSet()
@@ -84,7 +78,7 @@ class TableOrColumnPsiReference(
                         val typeText = (dbColumn.cacheDbDataType.qualifiedName + " " + dbColumn.columnDefault
                                 + " " + dbColumn.columnComment)
                         LookupElementBuilder.create(dbColumn.name)
-                            .withInsertHandler { context: InsertionContext, item: LookupElement? ->
+                            .withInsertHandler { context: InsertionContext, _: LookupElement? ->
                                 val editor = context.editor
                                 val document = editor.document
                                 context.commitDocument()
