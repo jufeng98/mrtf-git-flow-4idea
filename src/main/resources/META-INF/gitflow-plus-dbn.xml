@@ -8,6 +8,6 @@
                 language="sql"
                 implementationClass="com.github.xiaolyuh.sql.doc.SqlDocumentationProvider"/>
         <lang.findUsagesProvider language="sql"
-                                 implementationClass="com.github.xiaolyuh.sql.usageprovider.SqlFindUsageProvider"/>
+                                 implementationClass="com.github.xiaolyuh.sql.usage.SqlFindUsageProvider"/>
     </extensions>
 </idea-plugin>

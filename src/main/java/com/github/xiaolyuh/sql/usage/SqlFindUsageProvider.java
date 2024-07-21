@@ -1,4 +1,4 @@
-package com.github.xiaolyuh.sql.usageprovider;
+package com.github.xiaolyuh.sql.usage;
 
 import com.github.xiaolyuh.sql.psi.SqlNamedElement;
 import com.intellij.json.JsonBundle;
