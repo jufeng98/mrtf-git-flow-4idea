@@ -7,5 +7,7 @@
         <lang.documentationProvider
                 language="sql"
                 implementationClass="com.github.xiaolyuh.sql.doc.SqlDocumentationProvider"/>
+        <lang.findUsagesProvider language="sql"
+                                 implementationClass="com.github.xiaolyuh.sql.usageprovider.SqlFindUsageProvider"/>
     </extensions>
 </idea-plugin>

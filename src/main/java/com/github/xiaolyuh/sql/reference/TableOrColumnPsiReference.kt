@@ -10,7 +10,7 @@ import com.intellij.psi.PsiPolyVariantReference
 import com.intellij.psi.PsiReferenceBase
 import com.intellij.psi.ResolveResult
 
-class TableReference(
+class TableOrColumnPsiReference(
     sqlStatement: SqlStatement,
     private val sqlTableNames: List<SqlTableName>,
     private val sqlColumnName: SqlColumnName?,
