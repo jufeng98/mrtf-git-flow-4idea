@@ -144,8 +144,6 @@
                 implementationClass="com.github.xiaolyuh.cls.step9.SimpleCompletionContributor"/>
         <psi.referenceContributor language="JAVA"
                                   implementation="com.github.xiaolyuh.cls.step10.SimpleReferenceContributor"/>
-        <psi.referenceContributor language="JSON"
-                                  implementation="com.github.xiaolyuh.cls.step10.SimpleJsonReferenceContributor"/>
         <lang.refactoringSupport
                 language="Simple"
                 implementationClass="com.github.xiaolyuh.cls.step10.SimpleRefactoringSupportProvider"/>
@@ -176,9 +174,6 @@
                 implementationClass="com.github.xiaolyuh.cls.step20.SimpleDocumentationProvider"/>
         <spellchecker.support language="Simple"
                               implementationClass="com.github.xiaolyuh.cls.step21.SimpleSpellcheckingStrategy"/>
-        <languageInjectionContributor
-                implementationClass="com.github.xiaolyuh.cls.SimpleLanguageInjectionContributor"
-                language="JSON"/>
 <!--        <multiHostInjector-->
 <!--                implementation="com.github.xiaolyuh.cls.SimpleLanguageInjectionContributor"/>-->
 
