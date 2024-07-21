@@ -5,9 +5,15 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface SqlTableAlias extends PsiElement {
+public interface SqlTableAlias extends SqlNamedElement {
 
   @NotNull
   PsiElement getId();
+
+  PsiElement setName(String newName);
+
+  String getName();
+
+  PsiElement getNameIdentifier();
 
 }

@@ -368,7 +368,7 @@ public class SqlVisitor extends PsiElementVisitor {
   }
 
   public void visitTableAlias(@NotNull SqlTableAlias o) {
-    visitPsiElement(o);
+    visitNamedElement(o);
   }
 
   public void visitTableConstraint(@NotNull SqlTableConstraint o) {
@@ -424,6 +424,10 @@ public class SqlVisitor extends PsiElementVisitor {
   }
 
   public void visitWithClause(@NotNull SqlWithClause o) {
+    visitPsiElement(o);
+  }
+
+  public void visitNamedElement(@NotNull SqlNamedElement o) {
     visitPsiElement(o);
   }
 
