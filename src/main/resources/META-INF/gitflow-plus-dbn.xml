@@ -3,11 +3,13 @@
         <postStartupActivity implementation="com.github.xiaolyuh.start.DbnProjectStartupActivity"/>
         <completion.contributor
                 language="sql"
-                implementationClass="com.github.xiaolyuh.spring.SqlCompletionContributor"/>
+                implementationClass="com.github.xiaolyuh.sql.completion.SqlCompletionContributor"/>
         <lang.documentationProvider
                 language="sql"
                 implementationClass="com.github.xiaolyuh.sql.doc.SqlDocumentationProvider"/>
         <lang.findUsagesProvider language="sql"
                                  implementationClass="com.github.xiaolyuh.sql.usage.SqlFindUsageProvider"/>
+<!--        <annotator language="sql"-->
+<!--                   implementationClass="com.github.xiaolyuh.sql.annotator.SqlAnnotator"/>-->
     </extensions>
 </idea-plugin>

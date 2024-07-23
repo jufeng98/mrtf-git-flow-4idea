@@ -12,6 +12,7 @@ import com.github.xiaolyuh.utils.TooltipUtils
 import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Key
 import org.apache.commons.collections4.CollectionUtils
 import java.net.URI
 
@@ -55,11 +56,12 @@ class DbnToolWindowPsiElement(val tableNames: Set<String>, val columnName: Strin
 
         dbColumns = dbColumns.filter { it.name == columnName }
         if (dbColumns.isEmpty()) {
-            TooltipUtils.showTooltip("${tableNames}表中未找到列$columnName", project)
-            return
+            TooltipUtils.showTooltip("在${tableNames}中未能解析列$columnName,无法跳转!", project)
+        } else if (dbColumns.size == 1) {
+            browserManager.navigateToElement(dbColumns[0], requestFocus, true)
+        } else {
+            TooltipUtils.showTooltip("在${tableNames}中解析到多个列$columnName,无法跳转!", project)
         }
-
-        browserManager.navigateToElement(dbColumns[0], requestFocus, true)
     }
 
     companion object {
@@ -99,10 +101,20 @@ class DbnToolWindowPsiElement(val tableNames: Set<String>, val columnName: Strin
             return connectionSettings?.databaseSettings ?: return null
         }
 
+        private val dbNameKey = Key.create<String>("gfp.connection.url.dbName")
+
         fun getFirstConnectionConfigDbName(project: Project): String? {
             val config = getFirstConnectionConfig(project) ?: return null
             val url = config.connectionUrl ?: return null
-            return resolveUrlDbName(url)
+            var dbName = project.getUserData(dbNameKey)
+            if (dbName != null) {
+                return dbName
+            }
+
+            dbName = resolveUrlDbName(url)
+            project.putUserData(dbNameKey, dbName)
+
+            return dbName
         }
 
         private fun resolveUrlDbName(url: String): String? {

@@ -1,14 +1,11 @@
-package com.github.xiaolyuh.spring;
+package com.github.xiaolyuh.sql.reference;
 
 import com.github.xiaolyuh.sql.psi.SqlColumnName;
 import com.github.xiaolyuh.sql.psi.SqlJoinClause;
 import com.github.xiaolyuh.sql.psi.SqlRoot;
-import com.github.xiaolyuh.sql.psi.SqlSelectStmt;
 import com.github.xiaolyuh.sql.psi.SqlStatement;
 import com.github.xiaolyuh.sql.psi.SqlTableAlias;
 import com.github.xiaolyuh.sql.psi.SqlTableName;
-import com.github.xiaolyuh.sql.reference.ColumnTableAliasPsiReference;
-import com.github.xiaolyuh.sql.reference.TableOrColumnPsiReference;
 import com.github.xiaolyuh.utils.SqlUtils;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.patterns.PlatformPatterns;
@@ -66,8 +63,8 @@ public class SqlReferenceContributor extends PsiReferenceContributor {
 
             Map<String, List<SqlTableAlias>> aliasMap = SqlUtils.getAliasMap(sqlJoinClauses);
 
-            List<ColumnTableAliasPsiReference> columnTableAliasReferences = createColumnTableAliasReferences(sqlStatement, aliasMap,
-                    sqlTableNames, startOffsetInParent);
+            List<ColumnTableAliasPsiReference> columnTableAliasReferences = createColumnTableAliasReferences(sqlStatement,
+                    aliasMap, sqlTableNames, startOffsetInParent);
 
             List<SqlTableName> sqlTableNameList = Collections.emptyList();
             List<TableOrColumnPsiReference> tableOrColumnPsiReferences = Collections.emptyList();
@@ -76,7 +73,9 @@ public class SqlReferenceContributor extends PsiReferenceContributor {
                 sqlTableNameList = SqlUtils.getSqlTableNames(sqlJoinClauses);
 
                 tableOrColumnPsiReferences = createTableNameReferences(sqlStatement, sqlTableNameList, startOffsetInParent);
-            } else if (sqlStatement.getDeleteStmtLimited() != null || sqlStatement.getUpdateStmtLimited() != null) {
+            } else if (sqlStatement.getDeleteStmtLimited() != null
+                    || sqlStatement.getUpdateStmtLimited() != null
+                    || sqlStatement.getInsertStmt() != null) {
                 sqlTableNameList = new ArrayList<>(PsiTreeUtil.findChildrenOfType(sqlStatement, SqlTableName.class));
 
                 tableOrColumnPsiReferences = createTableNameReferences(sqlStatement, sqlTableNameList, startOffsetInParent);
@@ -104,14 +103,18 @@ public class SqlReferenceContributor extends PsiReferenceContributor {
                                                                            int startOffsetInParent) {
             return sqlColumnNames.stream()
                     .map(sqlColumnName -> {
-                        String columnTableAliasName = getTableAliasNameOfColumn(sqlColumnName);
                         TextRange textRange = sqlColumnName.getTextRange().shiftLeft(startOffsetInParent);
+
+                        if (sqlStatement.getInsertStmt() != null) {
+                            return new TableOrColumnPsiReference(sqlStatement, sqlTableNames, sqlColumnName, textRange);
+                        }
+
+                        SqlTableName columnTableAliasName = SqlUtils.getTableAliasNameOfColumn(sqlColumnName);
 
                         if (columnTableAliasName != null) {
                             return createColumnTableReference(sqlColumnName, columnTableAliasName, sqlStatement,
                                     aliasMap, textRange);
                         } else {
-                            // 列名前没有表别名,则从所有表里搜索列
                             return new TableOrColumnPsiReference(sqlStatement, sqlTableNames, sqlColumnName, textRange);
                         }
                     })
@@ -120,8 +123,10 @@ public class SqlReferenceContributor extends PsiReferenceContributor {
         }
 
         @Nullable
-        private TableOrColumnPsiReference createColumnTableReference(SqlColumnName sqlColumnName, String columnTableAliasName,
-                                                                     SqlStatement sqlStatement, Map<String, List<SqlTableAlias>> aliasMap,
+        private TableOrColumnPsiReference createColumnTableReference(SqlColumnName sqlColumnName,
+                                                                     SqlTableName columnTableAliasName,
+                                                                     SqlStatement sqlStatement,
+                                                                     Map<String, List<SqlTableAlias>> aliasMap,
                                                                      TextRange textRange) {
             SqlTableName sqlTableName = SqlUtils.getTableNameOfAlias(aliasMap, columnTableAliasName);
             if (sqlTableName == null) {
@@ -129,16 +134,6 @@ public class SqlReferenceContributor extends PsiReferenceContributor {
             }
 
             return new TableOrColumnPsiReference(sqlStatement, List.of(sqlTableName), sqlColumnName, textRange);
-        }
-
-        @Nullable
-        private String getTableAliasNameOfColumn(SqlColumnName sqlColumnName) {
-            SqlTableName sqlTableName = PsiTreeUtil.getPrevSiblingOfType(sqlColumnName, SqlTableName.class);
-            if (sqlTableName == null) {
-                return null;
-            }
-
-            return sqlTableName.getText();
         }
 
         private List<TableOrColumnPsiReference> createTableNameReferences(SqlStatement sqlStatement,
@@ -162,29 +157,20 @@ public class SqlReferenceContributor extends PsiReferenceContributor {
 
             return sqlTableNames.stream()
                     .filter(it -> PsiTreeUtil.getNextSiblingOfType(it, SqlColumnName.class) != null)
-                    .map(it -> {
-                        TextRange textRange = it.getTextRange().shiftLeft(startOffsetInParent);
+                    .map(columnTableAlias -> {
+                        TextRange textRange = columnTableAlias.getTextRange().shiftLeft(startOffsetInParent);
 
-                        String name = it.getText();
-                        List<SqlTableAlias> sqlTableAliases = aliasMap.get(name);
-                        if (sqlTableAliases == null) {
+                        SqlTableName sqlTableName = SqlUtils.getTableNameOfAlias(aliasMap, columnTableAlias);
+                        if (sqlTableName == null) {
                             return new ColumnTableAliasPsiReference(sqlStatement, textRange, null);
                         }
 
-                        SqlTableAlias target = sqlTableAliases.get(0);
-                        if (sqlTableAliases.size() > 1) {
-                            // 存在同样别名的表,需要判断下哪个是真正的表
-                            for (SqlTableAlias sqlTableAlias : sqlTableAliases) {
-                                SqlSelectStmt sqlSelectStmt1 = PsiTreeUtil.getParentOfType(sqlTableAlias, SqlSelectStmt.class);
-                                SqlSelectStmt sqlSelectStmt2 = PsiTreeUtil.getParentOfType(it, SqlSelectStmt.class);
-                                if (sqlSelectStmt1 == sqlSelectStmt2) {
-                                    target = sqlTableAlias;
-                                    break;
-                                }
-                            }
+                        SqlTableAlias sqlTableAlias = SqlUtils.getTableAliasOfColumn(aliasMap, columnTableAlias);
+                        if (sqlTableAlias == null) {
+                            return new ColumnTableAliasPsiReference(sqlStatement, textRange, null);
                         }
 
-                        return new ColumnTableAliasPsiReference(sqlStatement, textRange, target);
+                        return new ColumnTableAliasPsiReference(sqlStatement, textRange, sqlTableAlias);
                     })
                     .collect(Collectors.toList());
         }

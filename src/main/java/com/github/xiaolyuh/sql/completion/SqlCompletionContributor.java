@@ -1,4 +1,4 @@
-package com.github.xiaolyuh.spring;
+package com.github.xiaolyuh.sql.completion;
 
 import com.dbn.cache.CacheDbTable;
 import com.dbn.common.util.Naming;
@@ -8,6 +8,7 @@ import com.github.xiaolyuh.sql.psi.SqlColumnName;
 import com.github.xiaolyuh.sql.psi.SqlStatement;
 import com.github.xiaolyuh.sql.psi.SqlTableAlias;
 import com.github.xiaolyuh.sql.psi.SqlTableName;
+import com.github.xiaolyuh.utils.SqlUtils;
 import com.intellij.codeInsight.completion.CompletionContributor;
 import com.intellij.codeInsight.completion.CompletionParameters;
 import com.intellij.codeInsight.completion.CompletionResultSet;
@@ -23,7 +24,7 @@ import java.util.Map;
 
 
 public class SqlCompletionContributor extends CompletionContributor {
-    private static final String[] SQL_TYPE = {"select", "update", "delete", "insert"};
+    private static final String[] SQL_TYPE = {"select", "update", "delete from", "insert into"};
 
     @Override
     public void fillCompletionVariants(@NotNull CompletionParameters parameters, @NotNull CompletionResultSet result) {
@@ -49,14 +50,14 @@ public class SqlCompletionContributor extends CompletionContributor {
     }
 
     private void fillTableAliasOfGenerated(CompletionResultSet result, SqlTableAlias sqlTableAlias) {
-        SqlTableName sqlTableName = PsiTreeUtil.getPrevSiblingOfType(sqlTableAlias, SqlTableName.class);
+        SqlTableName sqlTableName = SqlUtils.getTableNameOfAlias(sqlTableAlias);
         if (sqlTableName == null) {
             return;
         }
 
-        String alias = Naming.createAliasName(sqlTableName.getText());
+        String aliasName = Naming.createAliasName(sqlTableName.getText());
         LookupElementBuilder builder = LookupElementBuilder
-                .create(alias)
+                .create(aliasName)
                 .bold();
         result.addElement(builder);
     }
@@ -67,12 +68,12 @@ public class SqlCompletionContributor extends CompletionContributor {
             return;
         }
 
-        SqlTableName columnTableAliasName = PsiTreeUtil.getPrevSiblingOfType(sqlColumnName, SqlTableName.class);
-        if (columnTableAliasName != null) {
+        SqlTableName columnTableAlias = SqlUtils.getTableAliasNameOfColumn(sqlColumnName);
+        if (columnTableAlias != null) {
             return;
         }
 
-        Map<String, CacheDbTable> tableMap = DbnToolWindowPsiElement.Companion.getTables(sqlStatement.getProject());
+        Map<String, CacheDbTable> tableMap = DbnToolWindowPsiElement.Companion.getTables(sqlColumnName.getProject());
 
         Collection<SqlTableAlias> sqlTableAliases = PsiTreeUtil.findChildrenOfType(sqlStatement, SqlTableAlias.class);
         sqlTableAliases.forEach(sqlTableAlias -> {
@@ -93,18 +94,17 @@ public class SqlCompletionContributor extends CompletionContributor {
     }
 
     private String getAliasDesc(SqlTableAlias sqlTableAlias, Map<String, CacheDbTable> tableMap) {
-        SqlTableName sqlTableName = PsiTreeUtil.getPrevSiblingOfType(sqlTableAlias, SqlTableName.class);
-        String typeName = "";
+        SqlTableName sqlTableName = SqlUtils.getTableNameOfAlias(sqlTableAlias);
         if (sqlTableName == null) {
-            return typeName;
+            return "";
         }
 
         String tableName = sqlTableName.getText();
-        typeName += tableName;
         if (tableMap == null) {
-            return typeName;
+            return tableName;
         }
 
+        String typeName = tableName;
         CacheDbTable cacheDbTable = tableMap.get(tableName);
         if (cacheDbTable != null) {
             typeName += "(" + cacheDbTable.getComment() + ")";

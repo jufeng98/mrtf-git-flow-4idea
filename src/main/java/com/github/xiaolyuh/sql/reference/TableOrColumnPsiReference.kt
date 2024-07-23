@@ -26,10 +26,27 @@ class TableOrColumnPsiReference(
     override fun resolve(): PsiElement {
         val tableNames = sqlTableNames.map { it.text }.toSet()
         return if (sqlColumnName != null) {
-            DbnToolWindowPsiElement(tableNames, sqlColumnName.text, sqlColumnName.node)
+            val columnAlias = findColumnAliasIfInOrderBy(sqlColumnName)
+            if (columnAlias != null) {
+                return columnAlias
+            }
+
+            DbnToolWindowPsiElement(tableNames, sqlColumnName.text, sqlTableNames[0].node)
         } else {
             DbnToolWindowPsiElement(tableNames, null, sqlTableNames[0].node)
         }
+    }
+
+    private fun findColumnAliasIfInOrderBy(sqlColumnName: SqlColumnName): SqlColumnAlias? {
+        PsiTreeUtil.getParentOfType(this.sqlColumnName, SqlOrderingTerm::class.java) ?: return null
+
+        val sqlStatement = PsiTreeUtil.getParentOfType(this.sqlColumnName, SqlStatement::class.java) ?: return null
+
+        val columnAliases = PsiTreeUtil.findChildrenOfType(sqlStatement, SqlColumnAlias::class.java)
+        return columnAliases
+            .firstOrNull {
+                it.text == sqlColumnName.text
+            }
     }
 
     override fun getVariants(): Array<Any> {
@@ -68,7 +85,7 @@ class TableOrColumnPsiReference(
 
         return sqlTableNames.stream()
             .map {
-                tableMap[it.text]!!
+                tableMap[it.text]
             }
             .filter { Objects.nonNull(it) }
             .map {

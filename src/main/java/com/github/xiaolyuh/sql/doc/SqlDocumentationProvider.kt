@@ -6,13 +6,12 @@ import com.github.xiaolyuh.dbn.DbnToolWindowPsiElement
 import com.intellij.lang.documentation.AbstractDocumentationProvider
 import com.intellij.lang.documentation.DocumentationMarkup.*
 import com.intellij.psi.PsiElement
-import org.jetbrains.annotations.Nls
 import java.util.*
 import kotlin.streams.toList
 
 class SqlDocumentationProvider : AbstractDocumentationProvider() {
 
-    override fun generateDoc(element: PsiElement, originalElement: PsiElement?): @Nls String? {
+    override fun generateDoc(element: PsiElement, originalElement: PsiElement?): String? {
         if (element !is DbnToolWindowPsiElement) {
             return null
         }
@@ -20,12 +19,11 @@ class SqlDocumentationProvider : AbstractDocumentationProvider() {
         val cacheDbTableMap = DbnToolWindowPsiElement.getTables(element.project) ?: return null
 
         if (element.columnName == null) {
-            val tableNames = element.tableNames
-            val tableName = tableNames.iterator().next()
+            val tableName = element.tableNames.iterator().next()
             val cacheDbTable = cacheDbTableMap[tableName] ?: return null
             return generateTableDoc(cacheDbTable)
         } else {
-            return element.tableNames.stream()
+            val columnDocList = element.tableNames.stream()
                 .map {
                     val cacheDbTable = cacheDbTableMap[it] ?: return@map null
 
@@ -35,7 +33,15 @@ class SqlDocumentationProvider : AbstractDocumentationProvider() {
                 }
                 .filter(Objects::nonNull)
                 .toList()
-                .firstOrNull()
+
+            return if (columnDocList.isEmpty()) {
+                "<div style='color:red'>错误: 在${element.tableNames}中未能解析列${element.columnName}!</div>"
+            } else if (columnDocList.size == 1) {
+                columnDocList[0]
+            } else {
+                "<div style='color:red'>错误: 解析到多个列${element.columnName}!</div>" +
+                        columnDocList.joinToString(separator = "<br/>")
+            }
         }
     }
 
