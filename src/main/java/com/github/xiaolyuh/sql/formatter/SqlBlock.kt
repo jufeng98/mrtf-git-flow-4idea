@@ -3,6 +3,7 @@ package com.github.xiaolyuh.sql.formatter
 import com.dbn.code.common.style.presets.CodeStylePreset
 import com.github.xiaolyuh.sql.codestyle.SqlCodeStyleSettings
 import com.github.xiaolyuh.sql.psi.*
+import com.intellij.application.options.CodeStyle
 import com.intellij.formatting.*
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
@@ -59,7 +60,8 @@ class SqlBlock(
             || psiElement is SqlBinaryAndExpr
             || psiElement is SqlOrderingTerm
         ) {
-            return Indent.getSpaceIndent(4)
+            val indentOptions = CodeStyle.getIndentOptions(psiElement.containingFile)
+            return Indent.getSpaceIndent(indentOptions.INDENT_SIZE)
         }
 
         if (psiElement is SqlJoinOperator) {
