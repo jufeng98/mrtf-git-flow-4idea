@@ -100,7 +100,8 @@
                                 order="first"
                                 implementationClass="com.github.xiaolyuh.completion.GitFlowCompletionContributor"/>
 
-        <psi.referenceContributor language="JAVA" implementation="com.github.xiaolyuh.navigation.FilePsiReferenceContributor"/>
+        <psi.referenceContributor language="JAVA"
+                                  implementation="com.github.xiaolyuh.navigation.FilePsiReferenceContributor"/>
 
         <psi.referenceContributor language="JAVA"
                                   implementation="com.github.xiaolyuh.spring.ValueAnnotationReferenceContributor"/>
@@ -174,8 +175,8 @@
                 implementationClass="com.github.xiaolyuh.cls.step20.SimpleDocumentationProvider"/>
         <spellchecker.support language="Simple"
                               implementationClass="com.github.xiaolyuh.cls.step21.SimpleSpellcheckingStrategy"/>
-<!--        <multiHostInjector-->
-<!--                implementation="com.github.xiaolyuh.cls.SimpleLanguageInjectionContributor"/>-->
+        <!--        <multiHostInjector-->
+        <!--                implementation="com.github.xiaolyuh.cls.SimpleLanguageInjectionContributor"/>-->
 
 
         <fileType
@@ -251,6 +252,13 @@
                 implementationClass="com.github.xiaolyuh.sql.commenter.SqlCommenter"/>
         <defaultLiveTemplates file="/liveTemplates/gfp-sql.xml"/>
         <liveTemplateContext implementation="com.github.xiaolyuh.sql.livetempate.SqlTemplateContextType"/>
+        <lang.formatter
+                language="sql"
+                implementationClass="com.github.xiaolyuh.sql.formatter.SqlFormattingModelBuilder"/>
+        <codeStyleSettingsProvider
+                implementation="com.github.xiaolyuh.sql.codestyle.SqlCodeStyleSettingsProvider"/>
+        <langCodeStyleSettingsProvider
+                implementation="com.github.xiaolyuh.sql.codestyle.SqlLanguageCodeStyleSettingsProvider"/>
     </extensions>
 
     <projectListeners>
