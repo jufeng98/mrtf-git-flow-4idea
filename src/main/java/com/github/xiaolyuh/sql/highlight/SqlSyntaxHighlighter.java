@@ -2,6 +2,7 @@ package com.github.xiaolyuh.sql.highlight;
 
 import com.github.xiaolyuh.sql.parser.SqlAdapter;
 import com.github.xiaolyuh.sql.psi.SqlTypes;
+import com.github.xiaolyuh.utils.SqlUtils;
 import com.intellij.lexer.Lexer;
 import com.intellij.openapi.editor.DefaultLanguageHighlighterColors;
 import com.intellij.openapi.editor.HighlighterColors;
@@ -51,58 +52,7 @@ public class SqlSyntaxHighlighter extends SyntaxHighlighterBase {
 
     @Override
     public TextAttributesKey @NotNull [] getTokenHighlights(IElementType tokenType) {
-        if (tokenType.equals(SqlTypes.SELECT)
-                || tokenType.equals(SqlTypes.DELETE)
-                || tokenType.equals(SqlTypes.ADD)
-                || tokenType.equals(SqlTypes.UPDATE)
-                || tokenType.equals(SqlTypes.FROM)
-                || tokenType.equals(SqlTypes.INNER)
-                || tokenType.equals(SqlTypes.LEFT)
-                || tokenType.equals(SqlTypes.JOIN)
-                || tokenType.equals(SqlTypes.WHEN)
-                || tokenType.equals(SqlTypes.WHERE)
-                || tokenType.equals(SqlTypes.CASE)
-                || tokenType.equals(SqlTypes.IF)
-                || tokenType.equals(SqlTypes.AS)
-                || tokenType.equals(SqlTypes.ON)
-                || tokenType.equals(SqlTypes.AND)
-                || tokenType.equals(SqlTypes.IS)
-                || tokenType.equals(SqlTypes.NOT)
-                || tokenType.equals(SqlTypes.NULL)
-                || tokenType.equals(SqlTypes.CREATE)
-                || tokenType.equals(SqlTypes.EXISTS)
-                || tokenType.equals(SqlTypes.NO)
-                || tokenType.equals(SqlTypes.END)
-                || tokenType.equals(SqlTypes.FOR)
-                || tokenType.equals(SqlTypes.OR)
-                || tokenType.equals(SqlTypes.COLUMN)
-                || tokenType.equals(SqlTypes.COLUMN_COMMENT)
-                || tokenType.equals(SqlTypes.DEFAULT)
-                || tokenType.equals(SqlTypes.LIKE)
-                || tokenType.equals(SqlTypes.ELSE)
-                || tokenType.equals(SqlTypes.IN)
-                || tokenType.equals(SqlTypes.TO)
-                || tokenType.equals(SqlTypes.CAST)
-                || tokenType.equals(SqlTypes.LIMIT)
-                || tokenType.equals(SqlTypes.OFFSET)
-                || tokenType.equals(SqlTypes.OF)
-                || tokenType.equals(SqlTypes.TABLE)
-                || tokenType.equals(SqlTypes.INDEX)
-                || tokenType.equals(SqlTypes.ASC)
-                || tokenType.equals(SqlTypes.DESC)
-                || tokenType.equals(SqlTypes.BETWEEN)
-                || tokenType.equals(SqlTypes.BY)
-                || tokenType.equals(SqlTypes.ORDER)
-                || tokenType.equals(SqlTypes.VALUES)
-                || tokenType.equals(SqlTypes.UNIQUE)
-                || tokenType.equals(SqlTypes.UNION)
-                || tokenType.equals(SqlTypes.TRUE)
-                || tokenType.equals(SqlTypes.FALSE)
-                || tokenType.equals(SqlTypes.SET)
-                || tokenType.equals(SqlTypes.PRIMARY)
-                || tokenType.equals(SqlTypes.KEY)
-                || tokenType.equals(SqlTypes.HAVING)
-                || tokenType.equals(SqlTypes.GROUP)) {
+        if (SqlUtils.isKeyword(tokenType)) {
             return KEYWORD_KEYS;
         }
 

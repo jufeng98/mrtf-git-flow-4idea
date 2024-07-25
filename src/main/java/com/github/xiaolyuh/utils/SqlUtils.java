@@ -1,21 +1,100 @@
 package com.github.xiaolyuh.utils;
 
+import com.dbn.language.sql.SqlElementFactory;
 import com.github.xiaolyuh.sql.psi.SqlColumnName;
 import com.github.xiaolyuh.sql.psi.SqlJoinClause;
 import com.github.xiaolyuh.sql.psi.SqlSelectStmt;
 import com.github.xiaolyuh.sql.psi.SqlTableAlias;
 import com.github.xiaolyuh.sql.psi.SqlTableName;
 import com.github.xiaolyuh.sql.psi.SqlTableOrSubquery;
+import com.github.xiaolyuh.sql.psi.SqlTypes;
+import com.intellij.openapi.project.Project;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.psi.util.PsiUtilCore;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class SqlUtils {
+    public static Set<IElementType> SQL_KEYWORDS = Set.of(
+            SqlTypes.SELECT,
+            SqlTypes.DELETE,
+            SqlTypes.ADD,
+            SqlTypes.UPDATE,
+            SqlTypes.FROM,
+            SqlTypes.INNER,
+            SqlTypes.LEFT,
+            SqlTypes.JOIN,
+            SqlTypes.WHEN,
+            SqlTypes.WHERE,
+            SqlTypes.CASE,
+            SqlTypes.IF,
+            SqlTypes.AS,
+            SqlTypes.ON,
+            SqlTypes.AND,
+            SqlTypes.IS,
+            SqlTypes.NOT,
+            SqlTypes.NULL,
+            SqlTypes.CREATE,
+            SqlTypes.EXISTS,
+            SqlTypes.NO,
+            SqlTypes.END,
+            SqlTypes.FOR,
+            SqlTypes.OR,
+            SqlTypes.COLUMN,
+            SqlTypes.COLUMN_COMMENT,
+            SqlTypes.DEFAULT,
+            SqlTypes.LIKE,
+            SqlTypes.ELSE,
+            SqlTypes.IN,
+            SqlTypes.TO,
+            SqlTypes.CAST,
+            SqlTypes.LIMIT,
+            SqlTypes.OFFSET,
+            SqlTypes.OF,
+            SqlTypes.TABLE,
+            SqlTypes.INDEX,
+            SqlTypes.ASC,
+            SqlTypes.DESC,
+            SqlTypes.BETWEEN,
+            SqlTypes.BY,
+            SqlTypes.ORDER,
+            SqlTypes.VALUES,
+            SqlTypes.UNIQUE,
+            SqlTypes.UNION,
+            SqlTypes.TRUE,
+            SqlTypes.FALSE,
+            SqlTypes.SET,
+            SqlTypes.PRIMARY,
+            SqlTypes.KEY,
+            SqlTypes.HAVING,
+            SqlTypes.GROUP
+    );
+
+    public static boolean isKeyword(IElementType tokenType) {
+        return SqlUtils.SQL_KEYWORDS.contains(tokenType);
+    }
+
+    public static Map<IElementType, List<PsiElement>> initSampleLowerMap(Project project, String sql) {
+        PsiElement sqlRoot = SqlElementFactory.createSqlElement(project, sql);
+        Collection<PsiElement> children = PsiTreeUtil.findChildrenOfType(sqlRoot, PsiElement.class);
+        return children.stream()
+                .collect(Collectors.groupingBy(PsiUtilCore::getElementType));
+    }
+
+    public static Map<IElementType, List<PsiElement>> initSampleUpperMap(Project project, String sql) {
+        PsiElement sqlRoot = SqlElementFactory.createSqlElement(project, sql.toUpperCase());
+        Collection<PsiElement> children = PsiTreeUtil.findChildrenOfType(sqlRoot, PsiElement.class);
+        return children.stream()
+                .collect(Collectors.groupingBy(PsiUtilCore::getElementType));
+    }
 
     /**
      * 获取列名前的表别名

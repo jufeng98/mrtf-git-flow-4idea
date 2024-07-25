@@ -7,6 +7,7 @@ import com.intellij.psi.codeStyle.CodeStyleSettings
 class SqlCodeStyleMainPanel(currentSettings: CodeStyleSettings, settings: CodeStyleSettings) :
     TabbedLanguageCodeStylePanel(SqlLanguage.INSTANCE, currentSettings, settings) {
     override fun initTabs(settings: CodeStyleSettings?) {
+        addTab(SqlCaseCodeStyleSpacesPanel(settings))
         addIndentOptionsTab(settings)
         addSpacesTab(settings)
         addBlankLinesTab(settings)

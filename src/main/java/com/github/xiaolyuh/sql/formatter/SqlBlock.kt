@@ -1,19 +1,21 @@
 package com.github.xiaolyuh.sql.formatter
 
 import com.dbn.code.common.style.presets.CodeStylePreset
+import com.github.xiaolyuh.sql.SqlLanguage
 import com.github.xiaolyuh.sql.codestyle.SqlCodeStyleSettings
 import com.github.xiaolyuh.sql.psi.*
-import com.intellij.application.options.CodeStyle
 import com.intellij.formatting.*
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiWhiteSpace
+import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.elementType
 
 
 class SqlBlock(
+    private val settings: CodeStyleSettings,
     private val customSettings: SqlCodeStyleSettings,
     val psiElement: PsiElement,
     val parentBlock: SqlBlock?,
@@ -27,7 +29,7 @@ class SqlBlock(
         var child = psiElement.firstChild
         while (child != null) {
             if (child !is PsiWhiteSpace && child.textLength > 0) {
-                val childBlock = SqlBlock(customSettings, child, this)
+                val childBlock = SqlBlock(settings, customSettings, child, this)
                 list.add(childBlock)
             }
             child = child.nextSibling
@@ -60,7 +62,7 @@ class SqlBlock(
             || psiElement is SqlBinaryAndExpr
             || psiElement is SqlOrderingTerm
         ) {
-            val indentOptions = CodeStyle.getIndentOptions(psiElement.containingFile)
+            val indentOptions = settings.getLanguageIndentOptions(SqlLanguage.INSTANCE)
             return Indent.getSpaceIndent(indentOptions.INDENT_SIZE)
         }
 
@@ -104,7 +106,7 @@ class SqlBlock(
             return spacing
         }
 
-        spacing = oneSpace(leftPsiElement, rightPsiElement)
+        spacing = spaceAfterComma(leftPsiElement, rightPsiElement)
         if (spacing != null) {
             return spacing
         }
@@ -112,13 +114,17 @@ class SqlBlock(
         return Spacing.createSpacing(0, 2, 0, false, 0)
     }
 
-    private fun oneSpace(leftPsiElement: PsiElement, rightPsiElement: PsiElement): Spacing? {
-        val need = leftPsiElement.elementType == SqlTypes.COMMA && rightPsiElement is SqlOrderingTerm
-                || leftPsiElement is SqlColumnExpr && rightPsiElement.elementType == SqlTypes.EQ
-                || leftPsiElement.elementType == SqlTypes.EQ && rightPsiElement is SqlColumnExpr
+    private fun spaceAfterComma(leftPsiElement: PsiElement, rightPsiElement: PsiElement): Spacing? {
+        val need = leftPsiElement.elementType == SqlTypes.COMMA
+                || rightPsiElement.elementType == SqlTypes.EQ
+                || leftPsiElement.elementType == SqlTypes.EQ
 
         if (need) {
-            return Spacing.createSpacing(1, 1, 0, false, 0)
+            return if (customSettings.spaceBetweenSymbol) {
+                Spacing.createSpacing(1, 1, 0, false, 0)
+            } else {
+                Spacing.createSpacing(0, 0, 0, false, 0)
+            }
         }
 
         return null
