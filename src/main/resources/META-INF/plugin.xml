@@ -242,6 +242,7 @@
         <lang.syntaxHighlighterFactory
                 language="sql"
                 implementationClass="com.github.xiaolyuh.sql.highlight.SqlSyntaxHighlighterFactory"/>
+        <lang.ast.factory language="sql" implementationClass="com.github.xiaolyuh.sql.SqlASTFactory"/>
         <multiHostInjector
                 implementation="com.github.xiaolyuh.sql.inject.SqlMultiHostInjector"/>
         <psi.referenceContributor language="sql"

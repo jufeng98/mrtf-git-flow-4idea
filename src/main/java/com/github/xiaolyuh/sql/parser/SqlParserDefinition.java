@@ -1,10 +1,5 @@
 package com.github.xiaolyuh.sql.parser;
 
-import com.github.xiaolyuh.spel.SpelLanguage;
-import com.github.xiaolyuh.spel.parser.SpelAdapter;
-import com.github.xiaolyuh.spel.parser.SpelFile;
-import com.github.xiaolyuh.spel.parser.SpelParser;
-import com.github.xiaolyuh.spel.psi.SpelTypes;
 import com.github.xiaolyuh.sql.SqlLanguage;
 import com.github.xiaolyuh.sql.psi.SqlTypes;
 import com.intellij.lang.ASTNode;
@@ -39,12 +34,12 @@ public class SqlParserDefinition implements ParserDefinition {
 
     @Override
     public @NotNull TokenSet getCommentTokens() {
-        return TokenSet.EMPTY;
+        return SqlTokenSets.SQL_COMMENT;
     }
 
     @Override
     public @NotNull TokenSet getStringLiteralElements() {
-        return TokenSet.EMPTY;
+        return SqlTokenSets.STRING_LITERALS;
     }
 
     @Override
