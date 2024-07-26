@@ -260,6 +260,7 @@
                 implementation="com.github.xiaolyuh.sql.codestyle.SqlCodeStyleSettingsProvider"/>
         <langCodeStyleSettingsProvider
                 implementation="com.github.xiaolyuh.sql.codestyle.SqlLanguageCodeStyleSettingsProvider"/>
+        <preFormatProcessor implementation="com.github.xiaolyuh.sql.codestyle.SqlFormatPreprocessor"/>
     </extensions>
 
     <projectListeners>

@@ -1,7 +1,7 @@
 package com.github.xiaolyuh.sql.codestyle
 
 import com.dbn.common.util.Naming
-import com.intellij.openapi.editor.Document
+import com.github.xiaolyuh.sql.SqlElementFactory
 import com.intellij.psi.PsiElement
 import com.intellij.util.ui.PresentableEnum
 
@@ -9,28 +9,28 @@ enum class SqlCaseStyle(val myId: Int, private val myDescription: String) : Pres
     LOWER(1, "改为小写") {
         override fun doModifyKeyword(
             psiElement: PsiElement,
-            document: Document,
         ) {
-            val textRange = psiElement.textRange
-            document.replaceString(textRange.startOffset, textRange.endOffset, psiElement.text.lowercase())
+            val leafPsiElement =
+                SqlElementFactory.createSqlElement(psiElement.project, psiElement.text.lowercase()).firstChild
+            psiElement.replace(leafPsiElement)
         }
     },
     UPPER(2, "改为大写") {
         override fun doModifyKeyword(
             psiElement: PsiElement,
-            document: Document,
         ) {
-            val textRange = psiElement.textRange
-            document.replaceString(textRange.startOffset, textRange.endOffset, psiElement.text.uppercase())
+            val leafPsiElement =
+                SqlElementFactory.createSqlElement(psiElement.project, psiElement.text.uppercase()).firstChild
+            psiElement.replace(leafPsiElement)
         }
     },
     CAPITALIZE(3, "首字母大写") {
         override fun doModifyKeyword(
             psiElement: PsiElement,
-            document: Document,
         ) {
-            val textRange = psiElement.textRange
-            document.replaceString(textRange.startOffset, textRange.endOffset, Naming.capitalize(psiElement.text))
+            val leafPsiElement =
+                SqlElementFactory.createSqlElement(psiElement.project, Naming.capitalize(psiElement.text)).firstChild
+            psiElement.replace(leafPsiElement)
         }
     },
 
@@ -39,7 +39,6 @@ enum class SqlCaseStyle(val myId: Int, private val myDescription: String) : Pres
 
     open fun doModifyKeyword(
         psiElement: PsiElement,
-        document: Document,
     ) {
     }
 

@@ -7,6 +7,7 @@ import com.github.xiaolyuh.sql.psi.*
 import com.intellij.formatting.*
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi.PsiComment
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiWhiteSpace
 import com.intellij.psi.codeStyle.CodeStyleSettings
@@ -18,7 +19,6 @@ class SqlBlock(
     private val settings: CodeStyleSettings,
     private val customSettings: SqlCodeStyleSettings,
     val psiElement: PsiElement,
-    val parentBlock: SqlBlock?,
 ) : ASTBlock {
     private val childBlocks: MutableList<Block> by lazy {
         initChildBlocks()
@@ -29,7 +29,7 @@ class SqlBlock(
         var child = psiElement.firstChild
         while (child != null) {
             if (child !is PsiWhiteSpace && child.textLength > 0) {
-                val childBlock = SqlBlock(settings, customSettings, child, this)
+                val childBlock = SqlBlock(settings, customSettings, child)
                 list.add(childBlock)
             }
             child = child.nextSibling
@@ -50,7 +50,7 @@ class SqlBlock(
     }
 
     override fun getIndent(): Indent? {
-        if (psiElement is SqlBinaryAndExpr) {
+        if (psiElement is SqlBinaryAndExpr || psiElement is SqlBinaryEqualityExpr) {
             val sqlBinaryAndExpr = PsiTreeUtil.getParentOfType(psiElement, SqlBinaryAndExpr::class.java)
             if (sqlBinaryAndExpr != null) {
                 return Indent.getLabelIndent()
@@ -60,7 +60,9 @@ class SqlBlock(
         if (psiElement is SqlResultColumn
             || psiElement is SqlTableOrSubquery
             || psiElement is SqlBinaryAndExpr
+            || psiElement is SqlBinaryEqualityExpr
             || psiElement is SqlOrderingTerm
+            || psiElement is PsiComment
         ) {
             val indentOptions = settings.getLanguageIndentOptions(SqlLanguage.INSTANCE)
             return Indent.getSpaceIndent(indentOptions.INDENT_SIZE)
