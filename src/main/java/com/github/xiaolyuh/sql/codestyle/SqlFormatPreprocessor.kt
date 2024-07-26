@@ -2,7 +2,6 @@ package com.github.xiaolyuh.sql.codestyle
 
 import com.github.xiaolyuh.sql.SqlLanguage
 import com.github.xiaolyuh.utils.SqlUtils
-import com.github.xiaolyuh.visitor.PsiElementRecursiveVisitor
 import com.intellij.application.options.CodeStyle
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
@@ -10,7 +9,8 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.psi.impl.source.codeStyle.PostFormatProcessorHelper
 import com.intellij.psi.impl.source.codeStyle.PreFormatProcessor
-import com.intellij.psi.util.PsiUtilCore
+import com.intellij.psi.impl.source.tree.LeafPsiElement
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.DocumentUtil
 
 class SqlFormatPreprocessor : PreFormatProcessor {
@@ -44,17 +44,14 @@ class SqlFormatPreprocessor : PreFormatProcessor {
             return
         }
 
-        psiElement.accept(object : PsiElementRecursiveVisitor() {
-            override fun visitEachElement(psiElement: PsiElement): Boolean {
-                if (!SqlUtils.isKeyword(PsiUtilCore.getElementType(psiElement))) {
-                    return true
-                }
-
-                sqlCaseStyle.doModifyKeyword(psiElement)
-
-                return true
+        val children = PsiTreeUtil.findChildrenOfType(psiElement, LeafPsiElement::class.java)
+        children.forEach {
+            if (!SqlUtils.isKeyword(it.elementType)) {
+                return@forEach
             }
-        })
+
+            sqlCaseStyle.doModifyKeyword(it)
+        }
     }
 
 }

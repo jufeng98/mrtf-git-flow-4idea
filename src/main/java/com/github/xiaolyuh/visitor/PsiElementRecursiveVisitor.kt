@@ -19,7 +19,7 @@ abstract class PsiElementRecursiveVisitor : PsiRecursiveVisitor, PsiElementVisit
     }
 
     /**
-     * 递归迭代所有元素
+     * 递归迭代所有元素.注意,不能修改psiElement,否则抛异常
      * @return 返回false则停止迭代
      */
     abstract fun visitEachElement(psiElement: PsiElement): Boolean
