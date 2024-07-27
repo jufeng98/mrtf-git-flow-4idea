@@ -1,7 +1,7 @@
 package com.github.xiaolyuh.sql.annotator
 
 import com.dbn.cache.CacheDbTable
-import com.github.xiaolyuh.dbn.DbnToolWindowPsiElement.Companion.getTables
+import com.github.xiaolyuh.dbn.DbnToolWindowPsiElement.Companion.getFirstConnCacheDbTables
 import com.github.xiaolyuh.sql.psi.SqlColumnName
 import com.github.xiaolyuh.sql.psi.SqlJoinClause
 import com.github.xiaolyuh.sql.psi.SqlStatement
@@ -18,7 +18,7 @@ import java.util.*
 
 class SqlAnnotator : Annotator {
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
-        val tableMap = getTables(element.project) ?: return
+        val tableMap = getFirstConnCacheDbTables(element.project) ?: return
 
         if (element is SqlTableName) {
             if (SqlUtils.isColumnTableAlias(element)) {

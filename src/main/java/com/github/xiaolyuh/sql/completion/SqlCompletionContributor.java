@@ -73,7 +73,7 @@ public class SqlCompletionContributor extends CompletionContributor {
             return;
         }
 
-        Map<String, CacheDbTable> tableMap = DbnToolWindowPsiElement.Companion.getTables(sqlColumnName.getProject());
+        Map<String, CacheDbTable> tableMap = DbnToolWindowPsiElement.Companion.getFirstConnCacheDbTables(sqlColumnName.getProject());
 
         Collection<SqlTableAlias> sqlTableAliases = PsiTreeUtil.findChildrenOfType(sqlStatement, SqlTableAlias.class);
         sqlTableAliases.forEach(sqlTableAlias -> {

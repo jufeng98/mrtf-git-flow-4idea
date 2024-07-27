@@ -16,7 +16,7 @@ class SqlDocumentationProvider : AbstractDocumentationProvider() {
             return null
         }
 
-        val cacheDbTableMap = DbnToolWindowPsiElement.getTables(element.project) ?: return null
+        val cacheDbTableMap = DbnToolWindowPsiElement.getFirstConnCacheDbTables(element.project) ?: return null
 
         if (element.columnName == null) {
             val tableName = element.tableNames.iterator().next()
@@ -87,6 +87,18 @@ class SqlDocumentationProvider : AbstractDocumentationProvider() {
                 append(column.columnDefault)
                 append(" ")
                 append(column.columnComment)
+                append("</td>")
+                append("</tr>\r\n")
+            }
+
+            append("<tr><td colspan='2'><hr/></td></tr>")
+
+            for (index in table.cacheDbIndexMap.values) {
+                append("<tr><td valign='top' class='section' style='color:black'><p>")
+                append(index.name)
+                append("</p>")
+                append("</td><td valign='top' style='color:gray'>")
+                append(index.columnNames.joinToString(", "))
                 append("</td>")
                 append("</tr>\r\n")
             }

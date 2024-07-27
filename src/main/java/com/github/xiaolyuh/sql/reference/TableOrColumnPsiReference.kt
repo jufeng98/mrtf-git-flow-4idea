@@ -3,7 +3,7 @@ package com.github.xiaolyuh.sql.reference
 import com.dbn.cache.CacheDbColumn
 import com.dbn.cache.CacheDbTable
 import com.github.xiaolyuh.dbn.DbnToolWindowPsiElement
-import com.github.xiaolyuh.dbn.DbnToolWindowPsiElement.Companion.getTables
+import com.github.xiaolyuh.dbn.DbnToolWindowPsiElement.Companion.getFirstConnCacheDbTables
 import com.github.xiaolyuh.sql.psi.*
 import com.intellij.codeInsight.completion.InsertionContext
 import com.intellij.codeInsight.lookup.LookupElement
@@ -59,7 +59,7 @@ class TableOrColumnPsiReference(
 
     private fun findTableNames(): Array<Any> {
         val project = sqlTableNames.iterator().next().project
-        val tableMap = getTables(project) ?: return arrayOf()
+        val tableMap = getFirstConnCacheDbTables(project) ?: return arrayOf()
 
         return tableMap.values
             .map { it: CacheDbTable ->
@@ -73,7 +73,7 @@ class TableOrColumnPsiReference(
 
     private fun findColumnNames(): Array<Any> {
         val project = sqlColumnName!!.project
-        val tableMap = getTables(project) ?: return arrayOf()
+        val tableMap = getFirstConnCacheDbTables(project) ?: return arrayOf()
         val insertStr =
             if (PsiTreeUtil.getParentOfType(sqlColumnName, SqlResultColumn::class.java) != null) {
                 ", "
