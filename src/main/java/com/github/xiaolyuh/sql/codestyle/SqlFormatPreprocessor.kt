@@ -16,7 +16,9 @@ import com.intellij.util.DocumentUtil
 class SqlFormatPreprocessor : PreFormatProcessor {
     override fun process(node: ASTNode, range: TextRange): TextRange {
         val psiElement = node.psi
-        if (psiElement == null || !psiElement.isValid || !psiElement.language.isKindOf(SqlLanguage.INSTANCE)) return range
+        if (psiElement == null || !psiElement.isValid) {
+            return range
+        }
 
         val file = psiElement.containingFile
         val rootSettings: CodeStyleSettings = CodeStyle.getSettings(file)
@@ -24,18 +26,13 @@ class SqlFormatPreprocessor : PreFormatProcessor {
             SqlCodeStyleSettings::class.java
         )
 
-        handleCase(psiElement, customSettings)
-
-        val postFormatProcessorHelper = PostFormatProcessorHelper(rootSettings.getCommonSettings(SqlLanguage.INSTANCE))
-        postFormatProcessorHelper.resultTextRange = range
-
-        val converter = SqlAntiQuotesConverter(psiElement, postFormatProcessorHelper)
-        val document = converter.getDocument()
-        if (document != null) {
-            DocumentUtil.executeInBulk(document, converter)
+        if (!psiElement.language.isKindOf(SqlLanguage.INSTANCE)) {
+            return range
         }
 
-        return postFormatProcessorHelper.resultTextRange
+        handleCase(psiElement, customSettings)
+
+        return handleAntiQuote(psiElement, rootSettings, range)
     }
 
     private fun handleCase(psiElement: PsiElement, customSettings: SqlCodeStyleSettings) {
@@ -52,6 +49,19 @@ class SqlFormatPreprocessor : PreFormatProcessor {
 
             sqlCaseStyle.doModifyKeyword(it)
         }
+    }
+
+    private fun handleAntiQuote(psiElement: PsiElement, rootSettings: CodeStyleSettings, range: TextRange): TextRange {
+        val postFormatProcessorHelper = PostFormatProcessorHelper(rootSettings.getCommonSettings(SqlLanguage.INSTANCE))
+        postFormatProcessorHelper.resultTextRange = range
+
+        val converter = SqlAntiQuotesConverter(psiElement, postFormatProcessorHelper)
+        val document = converter.getDocument()
+        if (document != null) {
+            DocumentUtil.executeInBulk(document, converter)
+        }
+
+        return postFormatProcessorHelper.resultTextRange
     }
 
 }

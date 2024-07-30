@@ -53,8 +53,12 @@ class SqlBlock(
         if (psiElement is SqlBinaryAndExpr || psiElement is SqlBinaryEqualityExpr) {
             val sqlBinaryAndExpr = PsiTreeUtil.getParentOfType(psiElement, SqlBinaryAndExpr::class.java)
             if (sqlBinaryAndExpr != null) {
-                return Indent.getLabelIndent()
+                return Indent.getSpaceIndent(0)
             }
+        }
+
+        if (psiElement is SqlJoinOperator) {
+            return Indent.getSpaceIndent(0)
         }
 
         if (psiElement is SqlResultColumn
@@ -68,11 +72,7 @@ class SqlBlock(
             return Indent.getSpaceIndent(indentOptions.INDENT_SIZE)
         }
 
-        if (psiElement is SqlJoinOperator) {
-            return Indent.getSpaceIndent(0)
-        }
-
-        return Indent.getLabelIndent()
+        return Indent.getSpaceIndent(0)
     }
 
     override fun getAlignment(): Alignment? {
@@ -81,16 +81,16 @@ class SqlBlock(
 
     override fun getSpacing(child1: Block?, child2: Block): Spacing? {
         val leftBlock = child1 as SqlBlock?
-        val leftPsiElement: PsiElement? = leftBlock?.psiElement
+        val leftPsiElement = leftBlock?.psiElement
 
         val rightBlock = child2 as SqlBlock
-        val rightPsiElement: PsiElement = rightBlock.psiElement
-
-        if (rightPsiElement.elementType == SqlTypes.SELECT) {
-            return Spacing.createSpacing(0, 0, 0, false, 0)
-        }
+        val rightPsiElement = rightBlock.psiElement
 
         if (leftPsiElement == null) {
+            return null
+        }
+
+        if (leftPsiElement is PsiComment || rightPsiElement is PsiComment) {
             return null
         }
 
@@ -103,12 +103,12 @@ class SqlBlock(
             return spacing
         }
 
-        spacing = trimSpace(leftPsiElement, rightPsiElement)
+        spacing = removeSpaceBetween(leftPsiElement, rightPsiElement)
         if (spacing != null) {
             return spacing
         }
 
-        spacing = spaceAfterComma(leftPsiElement, rightPsiElement)
+        spacing = addSpaceBetween(leftPsiElement, rightPsiElement)
         if (spacing != null) {
             return spacing
         }
@@ -116,10 +116,24 @@ class SqlBlock(
         return Spacing.createSpacing(0, 2, 0, false, 0)
     }
 
-    private fun spaceAfterComma(leftPsiElement: PsiElement, rightPsiElement: PsiElement): Spacing? {
+    private fun addSpaceBetween(leftPsiElement: PsiElement, rightPsiElement: PsiElement): Spacing? {
         val need = leftPsiElement.elementType == SqlTypes.COMMA
                 || rightPsiElement.elementType == SqlTypes.EQ
                 || leftPsiElement.elementType == SqlTypes.EQ
+                || leftPsiElement.elementType == SqlTypes.FROM
+                || leftPsiElement.elementType == SqlTypes.AS
+                || leftPsiElement is SqlJoinOperator
+
+        if (leftPsiElement is SqlColumnExpr && rightPsiElement.elementType == SqlTypes.AS
+            || leftPsiElement is SqlColumnExpr && rightPsiElement is SqlColumnAlias
+        ) {
+            val sqlSelectStmt = PsiTreeUtil.getParentOfType(leftPsiElement, SqlSelectStmt::class.java)!!
+            val compoundResultColumn = sqlSelectStmt.compoundResultColumn!!
+            val sqlResultColumnList = PsiTreeUtil.getChildrenOfType(compoundResultColumn, SqlResultColumn::class.java)!!
+            val maxLength = sqlResultColumnList.map { it.expr!! }.maxOf { it.textLength }
+            val width = maxLength - leftPsiElement.textLength + 1
+            return Spacing.createSpacing(width, width, 0, false, 0)
+        }
 
         if (need) {
             return if (customSettings.spaceBetweenSymbol) {
@@ -132,7 +146,7 @@ class SqlBlock(
         return null
     }
 
-    private fun trimSpace(leftPsiElement: PsiElement, rightPsiElement: PsiElement): Spacing? {
+    private fun removeSpaceBetween(leftPsiElement: PsiElement, rightPsiElement: PsiElement): Spacing? {
         val need = leftPsiElement is SqlTableName && rightPsiElement.elementType == SqlTypes.DOT
                 || leftPsiElement.elementType == SqlTypes.DOT && rightPsiElement is SqlColumnName
                 || leftPsiElement is SqlOrderingTerm && rightPsiElement.elementType == SqlTypes.COMMA
@@ -145,17 +159,17 @@ class SqlBlock(
     }
 
     private fun lineFeed(leftPsiElement: PsiElement, rightPsiElement: PsiElement): Spacing? {
-        val need = leftPsiElement.elementType == SqlTypes.SELECT && rightPsiElement is SqlResultColumn
-                || leftPsiElement is SqlResultColumn && rightPsiElement.elementType == SqlTypes.FROM
-                || leftPsiElement.elementType == SqlTypes.FROM
+        val need = leftPsiElement.elementType == SqlTypes.SELECT && rightPsiElement is SqlCompoundResultColumn
                 || leftPsiElement.elementType == SqlTypes.COMMA && rightPsiElement is SqlResultColumn
-                || leftPsiElement is SqlJoinClause
-                || leftPsiElement is SqlJoinOperator
-                || rightPsiElement is SqlJoinOperator
+                || leftPsiElement.elementType == SqlTypes.FROM
                 || leftPsiElement.elementType == SqlTypes.WHERE
                 || rightPsiElement.elementType == SqlTypes.ORDER
                 || leftPsiElement.elementType == SqlTypes.BY && rightPsiElement is SqlOrderingTerm
                 || rightPsiElement.elementType == SqlTypes.AND
+                || leftPsiElement is SqlCompoundResultColumn
+                || leftPsiElement is SqlResultColumn && rightPsiElement.elementType == SqlTypes.FROM
+                || leftPsiElement is SqlJoinClause
+                || rightPsiElement is SqlJoinOperator
                 || leftPsiElement is SqlRoot
 
         if (need) {
