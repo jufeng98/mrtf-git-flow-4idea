@@ -9,7 +9,7 @@
                 implementationClass="com.github.xiaolyuh.sql.doc.SqlDocumentationProvider"/>
         <lang.findUsagesProvider language="sql"
                                  implementationClass="com.github.xiaolyuh.sql.usage.SqlFindUsageProvider"/>
-<!--        <annotator language="sql"-->
-<!--                   implementationClass="com.github.xiaolyuh.sql.annotator.SqlAnnotator"/>-->
+        <annotator language="sql"
+                   implementationClass="com.github.xiaolyuh.sql.annotator.SqlAnnotator"/>
     </extensions>
 </idea-plugin>
