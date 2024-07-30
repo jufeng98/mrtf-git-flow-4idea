@@ -1,26 +1,23 @@
-package com.github.xiaolyuh.sql;
+package com.github.xiaolyuh.sql
 
-import com.github.xiaolyuh.sql.psi.SqlTypes;
-import com.intellij.lang.ASTFactory;
-import com.intellij.lang.DefaultASTFactory;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.psi.impl.source.tree.LeafElement;
-import com.intellij.psi.impl.source.tree.LeafPsiElement;
-import com.intellij.psi.tree.IElementType;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import com.github.xiaolyuh.sql.psi.SqlTypes
+import com.intellij.lang.ASTFactory
+import com.intellij.lang.DefaultASTFactory
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.psi.impl.source.tree.LeafElement
+import com.intellij.psi.impl.source.tree.LeafPsiElement
+import com.intellij.psi.tree.IElementType
 
-public class SqlASTFactory extends ASTFactory {
-    private final DefaultASTFactory myDefaultASTFactory = ApplicationManager.getApplication().getService(DefaultASTFactory.class);
+class SqlASTFactory : ASTFactory() {
+    private val myDefaultASTFactory: DefaultASTFactory = ApplicationManager.getApplication().getService(
+        DefaultASTFactory::class.java
+    )
 
-    @Override
-    @Nullable
-    public LeafElement createLeaf(@NotNull final IElementType type, @NotNull CharSequence text) {
-        if (type == SqlTypes.COMMENT) {
-            return myDefaultASTFactory.createComment(type, text);
+    override fun createLeaf(type: IElementType, text: CharSequence): LeafElement {
+        if (type == SqlTypes.COMMENT || type == SqlTypes.BLOCK_COMMENT) {
+            return myDefaultASTFactory.createComment(type, text)
         }
 
-        return new LeafPsiElement(type, text);
+        return LeafPsiElement(type, text)
     }
-
 }

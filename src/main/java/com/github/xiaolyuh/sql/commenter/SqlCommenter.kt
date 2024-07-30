@@ -1,31 +1,25 @@
-package com.github.xiaolyuh.sql.commenter;
+package com.github.xiaolyuh.sql.commenter
 
-import com.intellij.lang.Commenter;
-import org.jetbrains.annotations.Nullable;
+import com.intellij.lang.Commenter
 
-public class SqlCommenter implements Commenter {
-    @Override
-    public @Nullable String getLineCommentPrefix() {
-        return "--";
+class SqlCommenter : Commenter {
+    override fun getLineCommentPrefix(): String {
+        return "--"
     }
 
-    @Override
-    public @Nullable String getBlockCommentPrefix() {
-        return "";
+    override fun getBlockCommentPrefix(): String {
+        return "/*"
     }
 
-    @Override
-    public @Nullable String getBlockCommentSuffix() {
-        return null;
+    override fun getBlockCommentSuffix(): String {
+        return "*/"
     }
 
-    @Override
-    public @Nullable String getCommentedBlockCommentPrefix() {
-        return null;
+    override fun getCommentedBlockCommentPrefix(): String? {
+        return null
     }
 
-    @Override
-    public @Nullable String getCommentedBlockCommentSuffix() {
-        return null;
+    override fun getCommentedBlockCommentSuffix(): String? {
+        return null
     }
 }
