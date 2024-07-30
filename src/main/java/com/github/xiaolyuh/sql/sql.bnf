@@ -157,6 +157,7 @@
         DOLLAR='$'
         space='regexp:\s+'
         comment='regexp:--.*'
+        block_comment='regexp:/\*([^*]|\*+[^*/])*(\*+/)?'
         javadoc='regexp:/\*\*(.|\n)*\*/'
         digit='regexp:\d+(\.\d*)?'
         id='regexp:[a-zA-Z0-9_\`\[\]]+'
@@ -348,7 +349,8 @@ reindex_stmt ::= REINDEX [ collation_name | [ database_name '.' ] ( table_name |
 }
 compound_select_stmt ::= [ with_clause ] select_stmt  ( compound_operator select_stmt ) * [ ORDER BY ordering_term ( ',' ordering_term ) * ] [ LIMIT limiting_term [ ( OFFSET | ',' ) limiting_term ] ]
 limiting_term ::= expr
-select_stmt ::= SELECT [ DISTINCT | ALL ] result_column ( ',' result_column )* [ FROM join_clause ] [ [WHERE] expr ] [ GROUP BY expr ( ',' expr ) * [ HAVING expr ] ] | VALUES values_expression ( ',' values_expression ) * {
+compound_result_column ::= result_column ( ',' result_column )*
+select_stmt ::= SELECT [ DISTINCT | ALL ] compound_result_column [ FROM join_clause ] [ [WHERE] expr ] [ GROUP BY expr ( ',' expr ) * [ HAVING expr ] ] | VALUES values_expression ( ',' values_expression ) * {
     pin = 1
 }
 values_expression ::= '(' expr ( ',' expr ) * ')'

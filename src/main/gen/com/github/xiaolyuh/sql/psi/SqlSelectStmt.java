@@ -7,14 +7,14 @@ import com.intellij.psi.PsiElement;
 
 public interface SqlSelectStmt extends PsiElement {
 
+  @Nullable
+  SqlCompoundResultColumn getCompoundResultColumn();
+
   @NotNull
   List<SqlExpr> getExprList();
 
   @Nullable
   SqlJoinClause getJoinClause();
-
-  @NotNull
-  List<SqlResultColumn> getResultColumnList();
 
   @NotNull
   List<SqlValuesExpression> getValuesExpressionList();

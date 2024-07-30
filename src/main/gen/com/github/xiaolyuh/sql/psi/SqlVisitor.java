@@ -123,6 +123,10 @@ public class SqlVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitCompoundResultColumn(@NotNull SqlCompoundResultColumn o) {
+    visitPsiElement(o);
+  }
+
   public void visitCompoundSelectStmt(@NotNull SqlCompoundSelectStmt o) {
     visitPsiElement(o);
   }

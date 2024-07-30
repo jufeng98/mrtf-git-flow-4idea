@@ -37,6 +37,7 @@ public interface SqlTypes {
   IElementType COLUMN_NAME = new SqlElementType("COLUMN_NAME");
   IElementType COMMIT_STMT = new SqlElementType("COMMIT_STMT");
   IElementType COMPOUND_OPERATOR = new SqlElementType("COMPOUND_OPERATOR");
+  IElementType COMPOUND_RESULT_COLUMN = new SqlElementType("COMPOUND_RESULT_COLUMN");
   IElementType COMPOUND_SELECT_STMT = new SqlElementType("COMPOUND_SELECT_STMT");
   IElementType CONFLICT_CLAUSE = new SqlElementType("CONFLICT_CLAUSE");
   IElementType CREATE_INDEX_STMT = new SqlElementType("CREATE_INDEX_STMT");
@@ -133,6 +134,7 @@ public interface SqlTypes {
   IElementType BITWISE_AND = new SqlTokenType("&");
   IElementType BITWISE_NOT = new SqlTokenType("~");
   IElementType BITWISE_OR = new SqlTokenType("|");
+  IElementType BLOCK_COMMENT = new SqlTokenType("block_comment");
   IElementType BY = new SqlTokenType("BY");
   IElementType CASCADE = new SqlTokenType("CASCADE");
   IElementType CASE = new SqlTokenType("CASE");
@@ -365,6 +367,9 @@ public interface SqlTypes {
       }
       else if (type == COMPOUND_OPERATOR) {
         return new SqlCompoundOperatorImpl(node);
+      }
+      else if (type == COMPOUND_RESULT_COLUMN) {
+        return new SqlCompoundResultColumnImpl(node);
       }
       else if (type == COMPOUND_SELECT_STMT) {
         return new SqlCompoundSelectStmtImpl(node);

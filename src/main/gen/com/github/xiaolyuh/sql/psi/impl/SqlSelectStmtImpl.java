@@ -28,6 +28,12 @@ public class SqlSelectStmtImpl extends SqlPsiElement implements SqlSelectStmt {
   }
 
   @Override
+  @Nullable
+  public SqlCompoundResultColumn getCompoundResultColumn() {
+    return findChildByClass(SqlCompoundResultColumn.class);
+  }
+
+  @Override
   @NotNull
   public List<SqlExpr> getExprList() {
     return PsiTreeUtil.getChildrenOfTypeAsList(this, SqlExpr.class);
@@ -37,12 +43,6 @@ public class SqlSelectStmtImpl extends SqlPsiElement implements SqlSelectStmt {
   @Nullable
   public SqlJoinClause getJoinClause() {
     return findChildByClass(SqlJoinClause.class);
-  }
-
-  @Override
-  @NotNull
-  public List<SqlResultColumn> getResultColumnList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, SqlResultColumn.class);
   }
 
   @Override

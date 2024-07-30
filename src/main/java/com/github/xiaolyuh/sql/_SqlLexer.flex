@@ -137,6 +137,7 @@ UNSIGNED=[Uu][Nn][Ss][Ii][Gg][Nn][Ee][Dd]
 COLUMN_COMMENT=[Cc][Oo][Mm][Mm][Ee][Nn][Tt]
 SPACE=[ \t\n\x0B\f\r]+
 COMMENT=--.*
+BLOCK_COMMENT="/"\*([^*]|\*+[^*/])*(\*+"/")?
 JAVADOC="/"\*\*(.|\n)*\*"/"
 DIGIT=[0-9]+(\.[0-9]*)?
 ID=[a-zA-Z0-9_\`\[\]]+
@@ -305,6 +306,7 @@ MYBATIS_OGNL=[$#]\{[a-zA-Z0-9_@()'.,=\s]+}
   {COLUMN_COMMENT}          { return COLUMN_COMMENT; }
   {SPACE}                   { return SPACE; }
   {COMMENT}                 { return COMMENT; }
+  {BLOCK_COMMENT}           { return BLOCK_COMMENT; }
   {JAVADOC}                 { return JAVADOC; }
   {DIGIT}                   { return DIGIT; }
   {ID}                      { return ID; }
