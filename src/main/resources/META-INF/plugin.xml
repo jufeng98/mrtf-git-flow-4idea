@@ -239,15 +239,15 @@
         <lang.parserDefinition
                 language="sql"
                 implementationClass="com.github.xiaolyuh.sql.parser.SqlParserDefinition"/>
+        <lang.ast.factory language="sql" implementationClass="com.github.xiaolyuh.sql.SqlASTFactory"/>
         <lang.syntaxHighlighterFactory
                 language="sql"
                 implementationClass="com.github.xiaolyuh.sql.highlight.SqlSyntaxHighlighterFactory"/>
-        <lang.ast.factory language="sql" implementationClass="com.github.xiaolyuh.sql.SqlASTFactory"/>
         <multiHostInjector
                 implementation="com.github.xiaolyuh.sql.inject.SqlMultiHostInjector"/>
         <psi.referenceContributor language="sql"
                                   implementation="com.github.xiaolyuh.sql.reference.SqlReferenceContributor"/>
-        <highlightErrorFilter implementation="com.github.xiaolyuh.sql.SqlHighlightErrorFilter"/>
+        <highlightErrorFilter implementation="com.github.xiaolyuh.sql.highlight.SqlHighlightErrorFilter"/>
         <lang.commenter
                 language="sql"
                 implementationClass="com.github.xiaolyuh.sql.commenter.SqlCommenter"/>
@@ -261,6 +261,7 @@
         <langCodeStyleSettingsProvider
                 implementation="com.github.xiaolyuh.sql.codestyle.SqlLanguageCodeStyleSettingsProvider"/>
         <preFormatProcessor implementation="com.github.xiaolyuh.sql.codestyle.SqlFormatPreprocessor"/>
+        <lang.foldingBuilder language="sql" implementationClass="com.github.xiaolyuh.sql.folding.SqlFoldingBuilder"/>
     </extensions>
 
     <projectListeners>
