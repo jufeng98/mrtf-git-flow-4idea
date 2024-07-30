@@ -76,7 +76,7 @@ public class SqlSyntaxHighlighter extends SyntaxHighlighterBase {
             return OGNL;
         }
 
-        if (tokenType.equals(SqlTypes.COMMENT)) {
+        if (tokenType.equals(SqlTypes.COMMENT) || tokenType.equals(SqlTypes.BLOCK_COMMENT)) {
             return COMMENT_KEYS;
         }
 
