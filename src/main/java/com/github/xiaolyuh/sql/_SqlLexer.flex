@@ -135,6 +135,9 @@ CURRENT_TIMESTAMP=[Cc][Uu][Rr][Rr][Ee][Nn][Tt]_[Tt][Ii][Mm][Ee][Ss][Tt][Aa][Mm][
 AUTO_INCREMENT=[Aa][Uu][Tt][Oo]_[Ii][Nn][Cc][Rr][Ee][Mm][Ee][Nn][Tt]
 UNSIGNED=[Uu][Nn][Ss][Ii][Gg][Nn][Ee][Dd]
 COLUMN_COMMENT=[Cc][Oo][Mm][Mm][Ee][Nn][Tt]
+MONTH=[Mm][Oo][Nn][Tt][Hh]
+DAY=[Dd][Aa][Yy]
+HOUR=[Hh][Oo][Uu][Rr]
 SPACE=[ \t\n\x0B\f\r]+
 COMMENT=--.*
 BLOCK_COMMENT="/"\*([^*]|\*+[^*/])*(\*+"/")?
@@ -304,6 +307,9 @@ MYBATIS_OGNL=[$#]\{[a-zA-Z0-9_@()'.,=\s]+}
   {AUTO_INCREMENT}          { return AUTO_INCREMENT; }
   {UNSIGNED}                { return UNSIGNED; }
   {COLUMN_COMMENT}          { return COLUMN_COMMENT; }
+  {MONTH}                   { return MONTH; }
+  {DAY}                     { return DAY; }
+  {HOUR}                    { return HOUR; }
   {SPACE}                   { return SPACE; }
   {COMMENT}                 { return COMMENT; }
   {BLOCK_COMMENT}           { return BLOCK_COMMENT; }

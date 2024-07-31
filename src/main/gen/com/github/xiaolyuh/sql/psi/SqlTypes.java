@@ -70,6 +70,7 @@ public interface SqlTypes {
   IElementType JOIN_CLAUSE = new SqlElementType("JOIN_CLAUSE");
   IElementType JOIN_CONSTRAINT = new SqlElementType("JOIN_CONSTRAINT");
   IElementType JOIN_OPERATOR = new SqlElementType("JOIN_OPERATOR");
+  IElementType KEYWORD_EXPR = new SqlElementType("KEYWORD_EXPR");
   IElementType LIMITING_TERM = new SqlElementType("LIMITING_TERM");
   IElementType LITERAL_EXPR = new SqlElementType("LITERAL_EXPR");
   IElementType LITERAL_VALUE = new SqlElementType("LITERAL_VALUE");
@@ -155,6 +156,7 @@ public interface SqlTypes {
   IElementType CURRENT_TIME = new SqlTokenType("CURRENT_TIME");
   IElementType CURRENT_TIMESTAMP = new SqlTokenType("CURRENT_TIMESTAMP");
   IElementType DATABASE = new SqlTokenType("DATABASE");
+  IElementType DAY = new SqlTokenType("DAY");
   IElementType DEFAULT = new SqlTokenType("DEFAULT");
   IElementType DEFERRABLE = new SqlTokenType("DEFERRABLE");
   IElementType DEFERRED = new SqlTokenType("DEFERRED");
@@ -188,6 +190,7 @@ public interface SqlTypes {
   IElementType GT = new SqlTokenType(">");
   IElementType GTE = new SqlTokenType(">=");
   IElementType HAVING = new SqlTokenType("HAVING");
+  IElementType HOUR = new SqlTokenType("HOUR");
   IElementType ID = new SqlTokenType("id");
   IElementType IF = new SqlTokenType("IF");
   IElementType IGNORE = new SqlTokenType("IGNORE");
@@ -215,6 +218,7 @@ public interface SqlTypes {
   IElementType MATCH = new SqlTokenType("MATCH");
   IElementType MINUS = new SqlTokenType("-");
   IElementType MOD = new SqlTokenType("%");
+  IElementType MONTH = new SqlTokenType("MONTH");
   IElementType MULTIPLY = new SqlTokenType("*");
   IElementType MYBATIS_OGNL = new SqlTokenType("MYBATIS_OGNL");
   IElementType NATURAL = new SqlTokenType("NATURAL");
@@ -463,6 +467,9 @@ public interface SqlTypes {
       }
       else if (type == JOIN_OPERATOR) {
         return new SqlJoinOperatorImpl(node);
+      }
+      else if (type == KEYWORD_EXPR) {
+        return new SqlKeywordExprImpl(node);
       }
       else if (type == LIMITING_TERM) {
         return new SqlLimitingTermImpl(node);

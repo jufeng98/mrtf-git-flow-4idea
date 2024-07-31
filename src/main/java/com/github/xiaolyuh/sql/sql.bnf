@@ -126,6 +126,9 @@
         UNSIGNED='regexp:[Uu][Nn][Ss][Ii][Gg][Nn][Ee][Dd]'
         UNSIGNED='regexp:[Uu][Nn][Ss][Ii][Gg][Nn][Ee][Dd]'
         COLUMN_COMMENT='regexp:[Cc][Oo][Mm][Mm][Ee][Nn][Tt]'
+        MONTH='regexp:[Mm][Oo][Nn][Tt][Hh]'
+        DAY='regexp:[Dd][Aa][Yy]'
+        HOUR='regexp:[Hh][Oo][Uu][Rr]'
 
         SEMI=';'
         EQ='='
@@ -286,8 +289,10 @@ expr ::= ( raise_expr
          | literal_expr
          | column_expr
          | mybatis_expr
+         | keyword_expr
          | bind_expr)
 
+keyword_expr ::= MONTH | HOUR | DAY
 literal_expr ::= literal_value
 bind_expr ::= bind_parameter
 mybatis_expr ::= MYBATIS_OGNL

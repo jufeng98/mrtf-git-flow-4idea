@@ -41,8 +41,8 @@ public class SqlParser implements PsiParser, LightPsiParser {
       BINARY_OR_EXPR, BINARY_PIPE_EXPR, BIND_EXPR, CASE_EXPR,
       CAST_EXPR, COLLATE_EXPR, COLUMN_EXPR, EXISTS_EXPR,
       EXPR, FUNCTION_EXPR, IN_EXPR, IS_EXPR,
-      LITERAL_EXPR, MYBATIS_EXPR, NULL_EXPR, PAREN_EXPR,
-      RAISE_EXPR, UNARY_EXPR),
+      KEYWORD_EXPR, LITERAL_EXPR, MYBATIS_EXPR, NULL_EXPR,
+      PAREN_EXPR, RAISE_EXPR, UNARY_EXPR),
   };
 
   /* ********************************************************** */
@@ -4331,7 +4331,8 @@ public class SqlParser implements PsiParser, LightPsiParser {
   // 21: ATOM(literal_expr)
   // 22: ATOM(column_expr)
   // 23: ATOM(mybatis_expr)
-  // 24: ATOM(bind_expr)
+  // 24: ATOM(keyword_expr)
+  // 25: ATOM(bind_expr)
   public static boolean expr(PsiBuilder b, int l, int g) {
     if (!recursion_guard_(b, l, "expr")) return false;
     addVariant(b, "<expr>");
@@ -4347,6 +4348,7 @@ public class SqlParser implements PsiParser, LightPsiParser {
     if (!r) r = literal_expr(b, l + 1);
     if (!r) r = column_expr(b, l + 1);
     if (!r) r = mybatis_expr(b, l + 1);
+    if (!r) r = keyword_expr(b, l + 1);
     if (!r) r = bind_expr(b, l + 1);
     p = r;
     r = r && expr_0(b, l + 1, g);
@@ -5066,6 +5068,18 @@ public class SqlParser implements PsiParser, LightPsiParser {
     Marker m = enter_section_(b);
     r = consumeTokenSmart(b, MYBATIS_OGNL);
     exit_section_(b, m, MYBATIS_EXPR, r);
+    return r;
+  }
+
+  // MONTH | HOUR | DAY
+  public static boolean keyword_expr(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "keyword_expr")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NONE_, KEYWORD_EXPR, "<keyword expr>");
+    r = consumeTokenSmart(b, MONTH);
+    if (!r) r = consumeTokenSmart(b, HOUR);
+    if (!r) r = consumeTokenSmart(b, DAY);
+    exit_section_(b, l, m, r, false, null);
     return r;
   }
 

@@ -129,7 +129,7 @@ class SqlAnnotator : Annotator {
         val aliasMap = SqlUtils.getAliasMap(sqlJoinClauses)
         val sqlTableAliases = aliasMap[columnTableAliasName.text]
         if (sqlTableAliases == null) {
-            createError("无法解析表别名 " + columnTableAliasName.text, holder, columnTableAliasName.textRange)
+            createError("无法解析表别名 $aliasName", holder, columnTableAliasName.textRange)
         }
     }
 

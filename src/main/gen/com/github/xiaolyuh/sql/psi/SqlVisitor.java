@@ -255,6 +255,10 @@ public class SqlVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitKeywordExpr(@NotNull SqlKeywordExpr o) {
+    visitExpr(o);
+  }
+
   public void visitLimitingTerm(@NotNull SqlLimitingTerm o) {
     visitPsiElement(o);
   }
