@@ -93,9 +93,19 @@ class SqlAnnotator : Annotator {
         val statement = element.statement
 
         val sqlCompoundSelectStmts = PsiTreeUtil.findChildrenOfType(statement, SqlCompoundSelectStmt::class.java)
+
+        val aliasMap: MutableMap<String, List<SqlTableAlias>> = mutableMapOf()
         sqlCompoundSelectStmts.forEach { compoundSelectStmt ->
             compoundSelectStmt?.selectStmtList?.forEach {
-                annotatorSelect(it, holder, tableMap)
+                val sqlJoinClauses = PsiTreeUtil.findChildrenOfType(it, SqlJoinClause::class.java)
+                val map = SqlUtils.getAliasMap(sqlJoinClauses)
+                aliasMap.putAll(map)
+            }
+        }
+
+        sqlCompoundSelectStmts.forEach { compoundSelectStmt ->
+            compoundSelectStmt?.selectStmtList?.forEach {
+                annotatorSelect(it, holder, tableMap, aliasMap)
             }
         }
 
@@ -171,9 +181,9 @@ class SqlAnnotator : Annotator {
         sqlSelectStmt: SqlSelectStmt,
         holder: AnnotationHolder,
         tableMap: Map<String, CacheDbTable>,
+        aliasMap: MutableMap<String, List<SqlTableAlias>>,
     ) {
         val sqlTableNames = PsiTreeUtil.findChildrenOfType(sqlSelectStmt, SqlTableName::class.java)
-        val aliasMap = SqlUtils.getAliasMap(listOf(sqlSelectStmt.joinClause))
         sqlTableNames.forEach {
             if (SqlUtils.isColumnTableAlias(it)) {
                 annotateColumnTableAlias(it, holder, aliasMap)
@@ -202,7 +212,7 @@ class SqlAnnotator : Annotator {
     private fun annotateColumnTableAlias(
         columnTableAliasName: SqlTableName,
         holder: AnnotationHolder,
-        aliasMap: MutableMap<String, MutableList<SqlTableAlias>>,
+        aliasMap: MutableMap<String, List<SqlTableAlias>>,
     ) {
 
         val aliasName = columnTableAliasName.text
