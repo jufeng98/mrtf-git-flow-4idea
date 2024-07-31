@@ -1,11 +1,14 @@
 package com.github.xiaolyuh.sql.reference;
 
 import com.github.xiaolyuh.sql.psi.SqlColumnName;
+import com.github.xiaolyuh.sql.psi.SqlInsertStmt;
 import com.github.xiaolyuh.sql.psi.SqlJoinClause;
 import com.github.xiaolyuh.sql.psi.SqlRoot;
+import com.github.xiaolyuh.sql.psi.SqlSelectStmt;
 import com.github.xiaolyuh.sql.psi.SqlStatement;
 import com.github.xiaolyuh.sql.psi.SqlTableAlias;
 import com.github.xiaolyuh.sql.psi.SqlTableName;
+import com.github.xiaolyuh.sql.psi.SqlUpdateStmtLimited;
 import com.github.xiaolyuh.utils.SqlUtils;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.patterns.PlatformPatterns;
@@ -85,7 +88,7 @@ public class SqlReferenceContributor extends PsiReferenceContributor {
                 return PsiReference.EMPTY_ARRAY;
             }
 
-            List<TableOrColumnPsiReference> columnReferences = createColumnNameReferences(sqlStatement, sqlTableNameList, sqlColumnNames,
+            List<TableOrColumnPsiReference> columnReferences = createColumnNameReferences(sqlStatement, sqlColumnNames,
                     aliasMap, startOffsetInParent);
 
             List<PsiReference> references = Lists.newArrayList();
@@ -97,7 +100,6 @@ public class SqlReferenceContributor extends PsiReferenceContributor {
         }
 
         private List<TableOrColumnPsiReference> createColumnNameReferences(SqlStatement sqlStatement,
-                                                                           List<SqlTableName> sqlTableNames,
                                                                            Collection<SqlColumnName> sqlColumnNames,
                                                                            Map<String, List<SqlTableAlias>> aliasMap,
                                                                            int startOffsetInParent) {
@@ -105,18 +107,33 @@ public class SqlReferenceContributor extends PsiReferenceContributor {
                     .map(sqlColumnName -> {
                         TextRange textRange = sqlColumnName.getTextRange().shiftLeft(startOffsetInParent);
 
-                        if (sqlStatement.getInsertStmt() != null) {
-                            return new TableOrColumnPsiReference(sqlStatement, sqlTableNames, sqlColumnName, textRange);
+                        SqlSelectStmt sqlSelectStmt = PsiTreeUtil.getParentOfType(sqlColumnName, SqlSelectStmt.class);
+                        if (sqlSelectStmt != null) {
+                            SqlTableName columnTableAliasName = SqlUtils.getTableAliasNameOfColumn(sqlColumnName);
+
+                            if (columnTableAliasName != null) {
+                                return createColumnTableReference(sqlColumnName, columnTableAliasName, sqlStatement,
+                                        aliasMap, textRange);
+                            } else {
+                                Collection<SqlJoinClause> sqlJoinClauses = PsiTreeUtil.findChildrenOfType(sqlSelectStmt, SqlJoinClause.class);
+                                List<SqlTableName> tableNames = SqlUtils.getSqlTableNames(sqlJoinClauses);
+                                return new TableOrColumnPsiReference(sqlStatement, tableNames, sqlColumnName, textRange);
+                            }
                         }
 
-                        SqlTableName columnTableAliasName = SqlUtils.getTableAliasNameOfColumn(sqlColumnName);
-
-                        if (columnTableAliasName != null) {
-                            return createColumnTableReference(sqlColumnName, columnTableAliasName, sqlStatement,
-                                    aliasMap, textRange);
-                        } else {
-                            return new TableOrColumnPsiReference(sqlStatement, sqlTableNames, sqlColumnName, textRange);
+                        SqlInsertStmt sqlInsertStmt = PsiTreeUtil.getParentOfType(sqlColumnName, SqlInsertStmt.class);
+                        if (sqlInsertStmt != null) {
+                            SqlTableName tableName = sqlInsertStmt.getTableName();
+                            return new TableOrColumnPsiReference(sqlStatement, List.of(tableName), sqlColumnName, textRange);
                         }
+
+                        SqlUpdateStmtLimited updateStmtLimited = PsiTreeUtil.getParentOfType(sqlColumnName, SqlUpdateStmtLimited.class);
+                        if (updateStmtLimited != null) {
+                            SqlTableName tableName = updateStmtLimited.getQualifiedTableName().getTableName();
+                            return new TableOrColumnPsiReference(sqlStatement, List.of(tableName), sqlColumnName, textRange);
+                        }
+
+                        return null;
                     })
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
@@ -156,7 +173,7 @@ public class SqlReferenceContributor extends PsiReferenceContributor {
             }
 
             return sqlTableNames.stream()
-                    .filter(it -> PsiTreeUtil.getNextSiblingOfType(it, SqlColumnName.class) != null)
+                    .filter(SqlUtils::isColumnTableAlias)
                     .map(columnTableAlias -> {
                         TextRange textRange = columnTableAlias.getTextRange().shiftLeft(startOffsetInParent);
 

@@ -9,7 +9,6 @@ import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.Annotator
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.lang.injection.InjectedLanguageManager
-import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiErrorElement
@@ -20,42 +19,26 @@ import com.intellij.psi.xml.XmlText
 import java.util.*
 
 class SqlAnnotator : Annotator {
-    private val errorHolderKey = Key.create<Pair<PsiErrorElement?, PsiElement?>>("gfp.annotator.errorHolder")
-
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
+        if (element !is SqlRoot) {
+            return
+        }
+
         val injectionHost = InjectedLanguageManager.getInstance(element.project).getInjectionHost(element)
         if (injectionHost !is XmlText) {
+            analyzeSemantics(element, holder)
             return
         }
 
-        val pair = element.project.getUserData(errorHolderKey)
-        if (pair == null) {
-            val errorElement = PsiTreeUtil.findChildOfType(element.containingFile, PsiErrorElement::class.java)
-            if (errorElement != null) {
-                val prevValidSibling = getPrevValidSiblingOfError(errorElement)
-                element.project.putUserData(errorHolderKey, Pair(errorElement, prevValidSibling))
-            } else {
-                element.project.putUserData(errorHolderKey, Pair(null, null))
-            }
+        val errorElement = PsiTreeUtil.findChildOfType(element.containingFile, PsiErrorElement::class.java)
+        if (errorElement == null) {
+            analyzeSemantics(element, holder)
             return
         }
 
-        if (pair.first == null || pair.second == null) {
-            return
-        }
+        val prevValidSibling = getPrevValidSiblingOfError(errorElement) ?: return
 
-        if (pair.second != element) {
-            return
-        }
-
-        element.project.putUserData(errorHolderKey, null)
-
-        analyzeSyntax(pair.first!!, pair.second!!, holder)
-
-        return
-
-        @Suppress("UNREACHABLE_CODE")
-        analyzeSemantics(element, holder)
+        analyzeSyntax(errorElement, prevValidSibling, holder)
     }
 
     private fun getPrevValidSiblingOfError(element: PsiErrorElement): PsiElement? {
@@ -70,7 +53,10 @@ class SqlAnnotator : Annotator {
     }
 
     private fun analyzeSyntax(errorElement: PsiErrorElement, prevSiblingOfError: PsiElement, holder: AnnotationHolder) {
-        if (prevSiblingOfError is SqlCompoundSelectStmt && prevSiblingOfError.selectStmtList.isNotEmpty()) {
+        if (prevSiblingOfError is SqlCompoundSelectStmt
+            && prevSiblingOfError.selectStmtList.isNotEmpty()
+            && errorElement.firstChild.elementType == SqlTypes.AS
+        ) {
             val compoundResultColumn = prevSiblingOfError.selectStmtList[0].compoundResultColumn ?: return
             val lastChild = compoundResultColumn.lastChild
             @Suppress("DialogTitleCapitalization")
@@ -91,19 +77,114 @@ class SqlAnnotator : Annotator {
                 .create()
             return
         }
+
+        if (prevSiblingOfError.elementType == SqlTypes.DOT && prevSiblingOfError.prevSibling is SqlCompoundSelectStmt) {
+            @Suppress("DialogTitleCapitalization")
+            holder.newAnnotation(HighlightSeverity.ERROR, "多余的句号")
+                .range(prevSiblingOfError.textRange)
+                .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+                .create()
+            return
+        }
     }
 
-    private fun analyzeSemantics(element: PsiElement, holder: AnnotationHolder) {
+    private fun analyzeSemantics(element: SqlRoot, holder: AnnotationHolder) {
         val tableMap = getFirstConnCacheDbTables(element.project) ?: return
+        val statement = element.statement
 
-        if (element is SqlTableName) {
-            if (SqlUtils.isColumnTableAlias(element)) {
-                annotateColumnTableAlias(element, holder)
-            } else {
-                annotateTableName(element, holder, tableMap)
+        val sqlCompoundSelectStmts = PsiTreeUtil.findChildrenOfType(statement, SqlCompoundSelectStmt::class.java)
+        sqlCompoundSelectStmts.forEach { compoundSelectStmt ->
+            compoundSelectStmt?.selectStmtList?.forEach {
+                annotatorSelect(it, holder, tableMap)
             }
-        } else if (element is SqlColumnName) {
-            annotateColumnName(element, holder, tableMap)
+        }
+
+        val updateStmt = statement.updateStmtLimited
+        if (updateStmt != null) {
+            annotatorUpdate(updateStmt, holder, tableMap)
+        }
+
+        val sqlInsertStmt = statement.insertStmt
+        if (sqlInsertStmt != null) {
+            annotatorInsert(sqlInsertStmt, holder, tableMap)
+        }
+
+        val deleteStmt = statement.deleteStmtLimited
+        if (deleteStmt != null) {
+            annotatorDelete(deleteStmt, holder, tableMap)
+        }
+
+    }
+
+    private fun annotatorDelete(
+        deleteStmt: SqlDeleteStmtLimited,
+        holder: AnnotationHolder,
+        tableMap: Map<String, CacheDbTable>,
+    ) {
+        val sqlTableNames = PsiTreeUtil.findChildrenOfType(deleteStmt, SqlTableName::class.java)
+        sqlTableNames.forEach {
+            annotateTableName(it, holder, tableMap)
+        }
+
+        val sqlColumnNames = PsiTreeUtil.findChildrenOfType(deleteStmt, SqlColumnName::class.java)
+        sqlColumnNames.forEach {
+            val tableName = deleteStmt.qualifiedTableName.tableName
+            annotateColumnName(it, holder, tableMap, tableName)
+        }
+    }
+
+    private fun annotatorInsert(
+        sqlInsertStmt: SqlInsertStmt,
+        holder: AnnotationHolder,
+        tableMap: Map<String, CacheDbTable>,
+    ) {
+        val sqlTableNames = PsiTreeUtil.findChildrenOfType(sqlInsertStmt, SqlTableName::class.java)
+        sqlTableNames.forEach {
+            annotateTableName(it, holder, tableMap)
+        }
+
+        val sqlColumnNames = PsiTreeUtil.findChildrenOfType(sqlInsertStmt, SqlColumnName::class.java)
+        sqlColumnNames.forEach {
+            val tableName = sqlInsertStmt.tableName
+            annotateColumnName(it, holder, tableMap, tableName)
+        }
+    }
+
+    private fun annotatorUpdate(
+        sqlUpdateStmtLimited: SqlUpdateStmtLimited,
+        holder: AnnotationHolder,
+        tableMap: Map<String, CacheDbTable>,
+    ) {
+        val sqlTableNames = PsiTreeUtil.findChildrenOfType(sqlUpdateStmtLimited, SqlTableName::class.java)
+        sqlTableNames.forEach {
+            annotateTableName(it, holder, tableMap)
+        }
+
+        val sqlColumnNames = PsiTreeUtil.findChildrenOfType(sqlUpdateStmtLimited, SqlColumnName::class.java)
+        sqlColumnNames.forEach {
+            val tableName = sqlUpdateStmtLimited.qualifiedTableName.tableName
+            annotateColumnName(it, holder, tableMap, tableName)
+        }
+    }
+
+    private fun annotatorSelect(
+        sqlSelectStmt: SqlSelectStmt,
+        holder: AnnotationHolder,
+        tableMap: Map<String, CacheDbTable>,
+    ) {
+        val sqlTableNames = PsiTreeUtil.findChildrenOfType(sqlSelectStmt, SqlTableName::class.java)
+        val aliasMap = SqlUtils.getAliasMap(listOf(sqlSelectStmt.joinClause))
+        sqlTableNames.forEach {
+            if (SqlUtils.isColumnTableAlias(it)) {
+                annotateColumnTableAlias(it, holder, aliasMap)
+            } else {
+                annotateTableName(it, holder, tableMap)
+            }
+        }
+
+        val sqlColumnNames = PsiTreeUtil.findChildrenOfType(sqlSelectStmt, SqlColumnName::class.java)
+        sqlColumnNames.forEach {
+            annotateColumnName(it, holder, tableMap, sqlSelectStmt)
         }
     }
 
@@ -121,13 +202,11 @@ class SqlAnnotator : Annotator {
     private fun annotateColumnTableAlias(
         columnTableAliasName: SqlTableName,
         holder: AnnotationHolder,
+        aliasMap: MutableMap<String, MutableList<SqlTableAlias>>,
     ) {
-        val sqlStatement = PsiTreeUtil.getParentOfType(columnTableAliasName, SqlStatement::class.java) ?: return
 
-        val sqlJoinClauses = PsiTreeUtil.findChildrenOfType(sqlStatement, SqlJoinClause::class.java)
-
-        val aliasMap = SqlUtils.getAliasMap(sqlJoinClauses)
-        val sqlTableAliases = aliasMap[columnTableAliasName.text]
+        val aliasName = columnTableAliasName.text
+        val sqlTableAliases = aliasMap[aliasName]
         if (sqlTableAliases == null) {
             createError("无法解析表别名 $aliasName", holder, columnTableAliasName.textRange)
         }
@@ -137,13 +216,30 @@ class SqlAnnotator : Annotator {
         sqlColumnName: SqlColumnName,
         holder: AnnotationHolder,
         tableMap: Map<String, CacheDbTable>,
+        sqlTableName: SqlTableName,
     ) {
-        val sqlStatement = PsiTreeUtil.getParentOfType(sqlColumnName, SqlStatement::class.java) ?: return
+        val cacheDbTable = tableMap[sqlTableName.text] ?: return
+        val cacheDbColumn = cacheDbTable.cacheDbColumnMap[sqlColumnName.text]
+        if (cacheDbColumn == null) {
+            createError("无法解析列名 " + sqlColumnName.text, holder, sqlColumnName.textRange)
+        }
+    }
+
+    private fun annotateColumnName(
+        sqlColumnName: SqlColumnName,
+        holder: AnnotationHolder,
+        tableMap: Map<String, CacheDbTable>,
+        sqlSelectStmt: SqlSelectStmt,
+    ) {
+        val columnAlias = SqlUtils.getColumnAliasIfInOrderBy(sqlColumnName)
+        if (columnAlias != null) {
+            return
+        }
 
         val columnTableAlias = SqlUtils.getTableAliasNameOfColumn(sqlColumnName)
         if (columnTableAlias != null) {
             val sqlJoinClauses = PsiTreeUtil.findChildrenOfType(
-                sqlStatement,
+                sqlSelectStmt,
                 SqlJoinClause::class.java
             )
             val aliasMap = SqlUtils.getAliasMap(sqlJoinClauses)
@@ -157,13 +253,13 @@ class SqlAnnotator : Annotator {
             }
         } else {
             val sqlTableNames = PsiTreeUtil.findChildrenOfType(
-                sqlStatement,
+                sqlSelectStmt,
                 SqlTableName::class.java
             )
 
             val cacheDbTables = sqlTableNames
                 .filter {
-                    PsiTreeUtil.getNextSiblingOfType(it, SqlColumnName::class.java) == null
+                    !SqlUtils.isColumnTableAlias(it)
                 }
                 .map {
                     tableMap[it.text]

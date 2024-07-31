@@ -5,6 +5,7 @@ import com.dbn.cache.CacheDbTable
 import com.github.xiaolyuh.dbn.DbnToolWindowPsiElement
 import com.github.xiaolyuh.dbn.DbnToolWindowPsiElement.Companion.getFirstConnCacheDbTables
 import com.github.xiaolyuh.sql.psi.*
+import com.github.xiaolyuh.utils.SqlUtils
 import com.intellij.codeInsight.completion.InsertionContext
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.codeInsight.lookup.LookupElementBuilder
@@ -26,7 +27,7 @@ class TableOrColumnPsiReference(
     override fun resolve(): PsiElement {
         val tableNames = sqlTableNames.map { it.text }.toSet()
         return if (sqlColumnName != null) {
-            val columnAlias = findColumnAliasIfInOrderBy(sqlColumnName)
+            val columnAlias = SqlUtils.getColumnAliasIfInOrderBy(sqlColumnName)
             if (columnAlias != null) {
                 return columnAlias
             }
@@ -35,18 +36,6 @@ class TableOrColumnPsiReference(
         } else {
             DbnToolWindowPsiElement(tableNames, null, sqlTableNames[0].node)
         }
-    }
-
-    private fun findColumnAliasIfInOrderBy(sqlColumnName: SqlColumnName): SqlColumnAlias? {
-        PsiTreeUtil.getParentOfType(this.sqlColumnName, SqlOrderingTerm::class.java) ?: return null
-
-        val sqlStatement = PsiTreeUtil.getParentOfType(this.sqlColumnName, SqlStatement::class.java) ?: return null
-
-        val columnAliases = PsiTreeUtil.findChildrenOfType(sqlStatement, SqlColumnAlias::class.java)
-        return columnAliases
-            .firstOrNull {
-                it.text == sqlColumnName.text
-            }
     }
 
     override fun getVariants(): Array<Any> {

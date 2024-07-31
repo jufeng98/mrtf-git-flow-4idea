@@ -55,6 +55,7 @@ class SqlDocumentationProvider : AbstractDocumentationProvider() {
             append(column.columnDefault)
             append(" ")
             append(column.columnComment)
+            append(" ")
             append("</span>")
 
             append("<span style='color:gray'>")

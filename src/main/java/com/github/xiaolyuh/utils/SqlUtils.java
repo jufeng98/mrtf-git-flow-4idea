@@ -1,20 +1,26 @@
 package com.github.xiaolyuh.utils;
 
+import com.github.xiaolyuh.sql.psi.SqlColumnAlias;
 import com.github.xiaolyuh.sql.psi.SqlColumnName;
+import com.github.xiaolyuh.sql.psi.SqlCompoundSelectStmt;
 import com.github.xiaolyuh.sql.psi.SqlJoinClause;
+import com.github.xiaolyuh.sql.psi.SqlOrderingTerm;
 import com.github.xiaolyuh.sql.psi.SqlSelectStmt;
 import com.github.xiaolyuh.sql.psi.SqlTableAlias;
 import com.github.xiaolyuh.sql.psi.SqlTableName;
 import com.github.xiaolyuh.sql.psi.SqlTableOrSubquery;
 import com.github.xiaolyuh.sql.psi.SqlTypes;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.psi.util.PsiUtil;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -86,10 +92,47 @@ public class SqlUtils {
     }
 
     /**
-     * 判断element是否属于列名前的表别名
+     * 判断element是否属于列名前的表别名(只适用于select)
      */
     public static boolean isColumnTableAlias(SqlTableName element) {
-        return PsiTreeUtil.getNextSiblingOfType(element, SqlColumnName.class) != null;
+        return PsiTreeUtil.getNextSiblingOfType(element, SqlColumnName.class) != null
+                || getNextSiblingOfType(element, SqlTypes.MULTIPLY) != null;
+    }
+
+    /**
+     * 若sqlColumnName位于order by里,则尝试找到其对应的列别名
+     */
+    public static @Nullable SqlColumnAlias getColumnAliasIfInOrderBy(SqlColumnName sqlColumnName) {
+        SqlOrderingTerm sqlOrderingTerm = PsiTreeUtil.getParentOfType(sqlColumnName, SqlOrderingTerm.class);
+        if (sqlOrderingTerm == null) {
+            return null;
+        }
+
+        SqlCompoundSelectStmt sqlCompoundSelectStmt = PsiTreeUtil.getParentOfType(sqlColumnName, SqlCompoundSelectStmt.class);
+
+        Collection<SqlColumnAlias> columnAliases = PsiTreeUtil.findChildrenOfType(sqlCompoundSelectStmt, SqlColumnAlias.class);
+
+        String text = sqlColumnName.getText();
+        Optional<SqlColumnAlias> optionalSqlColumnAlias = columnAliases.stream()
+                .filter(it -> text.equals(it.getText()))
+                .findFirst();
+
+        return optionalSqlColumnAlias.orElse(null);
+    }
+
+
+    public static PsiElement getNextSiblingOfType(@Nullable PsiElement sibling, IElementType elementType) {
+        if (sibling == null) {
+            return null;
+        }
+
+        for (PsiElement nextSibling = sibling.getNextSibling(); nextSibling != null; nextSibling = nextSibling.getNextSibling()) {
+            if (PsiUtil.getElementType(nextSibling) == elementType) {
+                return nextSibling;
+            }
+        }
+
+        return null;
     }
 
     /**
