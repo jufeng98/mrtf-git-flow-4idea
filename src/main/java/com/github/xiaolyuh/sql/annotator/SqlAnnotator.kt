@@ -38,7 +38,7 @@ class SqlAnnotator : Annotator {
 
         val prevValidSibling = getPrevValidSiblingOfError(errorElement) ?: return
 
-        analyzeSyntax(errorElement, prevValidSibling, holder)
+        analyzeSyntax(errorElement, prevValidSibling, holder, element)
     }
 
     private fun getPrevValidSiblingOfError(element: PsiErrorElement): PsiElement? {
@@ -52,23 +52,30 @@ class SqlAnnotator : Annotator {
         return null
     }
 
-    private fun analyzeSyntax(errorElement: PsiErrorElement, prevSiblingOfError: PsiElement, holder: AnnotationHolder) {
+    private fun analyzeSyntax(
+        errorElement: PsiErrorElement,
+        prevSiblingOfError: PsiElement,
+        holder: AnnotationHolder,
+        sqlRoot: SqlRoot,
+    ) {
         if (prevSiblingOfError is SqlCompoundSelectStmt
             && prevSiblingOfError.selectStmtList.isNotEmpty()
             && errorElement.firstChild.elementType == SqlTypes.AS
+            && sqlRoot.textRange.contains(prevSiblingOfError.textRange)
         ) {
-            val compoundResultColumn = prevSiblingOfError.selectStmtList[0].compoundResultColumn ?: return
-            val lastChild = compoundResultColumn.lastChild
+            val lastElement = SqlUtils.getLastChildElement(prevSiblingOfError)
             @Suppress("DialogTitleCapitalization")
-            holder.newAnnotation(HighlightSeverity.ERROR, "缺少逗号")
-                .range(lastChild.textRange)
-                .withFix(AddCommaQuickFix(lastChild))
+            holder.newAnnotation(HighlightSeverity.ERROR, "有语法错误!")
+                .range(lastElement.textRange)
                 .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
                 .create()
             return
         }
 
-        if (prevSiblingOfError.elementType == SqlTypes.COMMA && errorElement.firstChild.elementType == SqlTypes.FROM) {
+        if (prevSiblingOfError.elementType == SqlTypes.COMMA
+            && errorElement.firstChild.elementType == SqlTypes.FROM
+            && sqlRoot.textRange.contains(prevSiblingOfError.textRange)
+        ) {
             @Suppress("DialogTitleCapitalization")
             holder.newAnnotation(HighlightSeverity.ERROR, "多余的逗号")
                 .range(prevSiblingOfError.textRange)
@@ -78,7 +85,10 @@ class SqlAnnotator : Annotator {
             return
         }
 
-        if (prevSiblingOfError.elementType == SqlTypes.DOT && prevSiblingOfError.prevSibling is SqlCompoundSelectStmt) {
+        if (prevSiblingOfError.elementType == SqlTypes.DOT
+            && prevSiblingOfError.prevSibling is SqlCompoundSelectStmt
+            && sqlRoot.textRange.contains(prevSiblingOfError.textRange)
+        ) {
             @Suppress("DialogTitleCapitalization")
             holder.newAnnotation(HighlightSeverity.ERROR, "多余的句号")
                 .range(prevSiblingOfError.textRange)

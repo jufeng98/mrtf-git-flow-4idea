@@ -203,4 +203,12 @@ public class SqlUtils {
                 .collect(Collectors.groupingBy(SqlTableAlias::getText));
     }
 
+    public static PsiElement getLastChildElement(PsiElement psiElement) {
+        PsiElement lastChild = psiElement.getLastChild();
+        if (lastChild != null) {
+            return getLastChildElement(lastChild);
+        }
+
+        return psiElement;
+    }
 }
