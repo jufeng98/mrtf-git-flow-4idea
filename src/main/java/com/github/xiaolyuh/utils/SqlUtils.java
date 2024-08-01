@@ -3,6 +3,7 @@ package com.github.xiaolyuh.utils;
 import com.github.xiaolyuh.sql.psi.SqlColumnAlias;
 import com.github.xiaolyuh.sql.psi.SqlColumnName;
 import com.github.xiaolyuh.sql.psi.SqlCompoundSelectStmt;
+import com.github.xiaolyuh.sql.psi.SqlGroupingTerm;
 import com.github.xiaolyuh.sql.psi.SqlJoinClause;
 import com.github.xiaolyuh.sql.psi.SqlOrderingTerm;
 import com.github.xiaolyuh.sql.psi.SqlSelectStmt;
@@ -100,11 +101,12 @@ public class SqlUtils {
     }
 
     /**
-     * 若sqlColumnName位于order by里,则尝试找到其对应的列别名
+     * 若sqlColumnName位于order by或group by里,则尝试找到其对应的列别名
      */
-    public static @Nullable SqlColumnAlias getColumnAliasIfInOrderBy(SqlColumnName sqlColumnName) {
+    public static @Nullable SqlColumnAlias getColumnAliasIfInOrderGroupBy(SqlColumnName sqlColumnName) {
         SqlOrderingTerm sqlOrderingTerm = PsiTreeUtil.getParentOfType(sqlColumnName, SqlOrderingTerm.class);
-        if (sqlOrderingTerm == null) {
+        SqlGroupingTerm sqlGroupingTerm = PsiTreeUtil.getParentOfType(sqlColumnName, SqlGroupingTerm.class);
+        if (sqlGroupingTerm == null && sqlOrderingTerm == null) {
             return null;
         }
 

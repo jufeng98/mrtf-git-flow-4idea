@@ -7,19 +7,21 @@ import com.github.xiaolyuh.utils.TooltipUtils
 import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.wm.ToolWindowManager
 
 
 class DbnToolWindowPsiElement(val tableNames: Set<String>, val columnName: String?, node: ASTNode) :
     ASTWrapperPsiElement(node) {
 
     override fun navigate(requestFocus: Boolean) {
-        val browserManager = DatabaseBrowserManager.getInstance(getProject())
+        val browserManager = DatabaseBrowserManager.getInstance(project)
         val dbSchema = browserManager.switchToFirstConnectionAndGetDbScheme(project)
         if (dbSchema == null) {
-            TooltipUtils.showTooltip(
-                "无法跳转DB Browser工具窗口,请先连接数据库,或者打开 Connect Automatically 选项!",
-                project
-            )
+            TooltipUtils.showTooltip("无法跳转DB Browser工具窗口,请先连接数据库!", project)
+
+            val toolWindowManager = ToolWindowManager.getInstance(project)
+            val toolWindow = toolWindowManager.getToolWindow("DB Browser")
+            toolWindow?.show()
             return
         }
 

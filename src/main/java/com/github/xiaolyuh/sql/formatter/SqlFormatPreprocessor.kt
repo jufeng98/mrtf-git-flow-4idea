@@ -1,6 +1,8 @@
-package com.github.xiaolyuh.sql.codestyle
+package com.github.xiaolyuh.sql.formatter
 
 import com.github.xiaolyuh.sql.SqlLanguage
+import com.github.xiaolyuh.sql.codestyle.SqlCaseStyle
+import com.github.xiaolyuh.sql.codestyle.SqlCodeStyleSettings
 import com.github.xiaolyuh.utils.SqlUtils
 import com.intellij.application.options.CodeStyle
 import com.intellij.lang.ASTNode

@@ -4,6 +4,7 @@ import com.dbn.cache.CacheDbColumn
 import com.dbn.cache.CacheDbTable
 import com.github.xiaolyuh.dbn.DbnToolWindowPsiElement
 import com.github.xiaolyuh.dbn.DbnToolWindowPsiElement.Companion.getFirstConnCacheDbTables
+import com.github.xiaolyuh.sql.formatter.SqlAntiQuotesConverter.Companion.ANTI_QUOTE_CHAR
 import com.github.xiaolyuh.sql.psi.*
 import com.github.xiaolyuh.utils.SqlUtils
 import com.intellij.codeInsight.completion.InsertionContext
@@ -25,14 +26,14 @@ class TableOrColumnPsiReference(
     PsiReferenceBase<PsiElement>(sqlStatement, textRange) {
 
     override fun resolve(): PsiElement {
-        val tableNames = sqlTableNames.map { it.text }.toSet()
+        val tableNames = sqlTableNames.map { it.text.replace(ANTI_QUOTE_CHAR, "") }.toSet()
         return if (sqlColumnName != null) {
-            val columnAlias = SqlUtils.getColumnAliasIfInOrderBy(sqlColumnName)
+            val columnAlias = SqlUtils.getColumnAliasIfInOrderGroupBy(sqlColumnName)
             if (columnAlias != null) {
                 return columnAlias
             }
 
-            DbnToolWindowPsiElement(tableNames, sqlColumnName.text, sqlTableNames[0].node)
+            DbnToolWindowPsiElement(tableNames, sqlColumnName.text.replace(ANTI_QUOTE_CHAR, ""), sqlTableNames[0].node)
         } else {
             DbnToolWindowPsiElement(tableNames, null, sqlTableNames[0].node)
         }

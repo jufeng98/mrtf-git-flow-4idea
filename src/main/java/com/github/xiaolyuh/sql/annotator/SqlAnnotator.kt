@@ -2,6 +2,7 @@ package com.github.xiaolyuh.sql.annotator
 
 import com.dbn.cache.CacheDbTable
 import com.github.xiaolyuh.dbn.DbnToolWindowPsiElement.Companion.getFirstConnCacheDbTables
+import com.github.xiaolyuh.sql.formatter.SqlAntiQuotesConverter.Companion.ANTI_QUOTE_CHAR
 import com.github.xiaolyuh.sql.psi.*
 import com.github.xiaolyuh.utils.SqlUtils
 import com.intellij.codeInspection.ProblemHighlightType
@@ -202,9 +203,19 @@ class SqlAnnotator : Annotator {
             }
         }
 
+        val cacheDbTables = sqlTableNames
+            .filter { !SqlUtils.isColumnTableAlias(it) }
+            .map { tableMap[it.text.replace(ANTI_QUOTE_CHAR, "")] }
+            .filter { Objects.nonNull(it) }
+
         val sqlColumnNames = PsiTreeUtil.findChildrenOfType(sqlSelectStmt, SqlColumnName::class.java)
         sqlColumnNames.forEach {
-            annotateColumnName(it, holder, tableMap, sqlSelectStmt)
+            val columnAlias = SqlUtils.getColumnAliasIfInOrderGroupBy(it)
+            if (columnAlias != null) {
+                return@forEach
+            }
+
+            annotateColumnName(it, holder, tableMap, aliasMap, cacheDbTables)
         }
     }
 
@@ -213,9 +224,10 @@ class SqlAnnotator : Annotator {
         holder: AnnotationHolder,
         tableMap: Map<String, CacheDbTable>,
     ) {
-        val cacheDbTable = tableMap[sqlTableName.text]
+        val name = sqlTableName.text.replace("`", "")
+        val cacheDbTable = tableMap[name]
         if (cacheDbTable == null) {
-            createError("无法解析表名 " + sqlTableName.text, holder, sqlTableName.textRange)
+            createError("无法解析表名 $name", holder, sqlTableName.textRange)
         }
     }
 
@@ -238,10 +250,13 @@ class SqlAnnotator : Annotator {
         tableMap: Map<String, CacheDbTable>,
         sqlTableName: SqlTableName,
     ) {
-        val cacheDbTable = tableMap[sqlTableName.text] ?: return
-        val cacheDbColumn = cacheDbTable.cacheDbColumnMap[sqlColumnName.text]
+        val tableName = sqlTableName.text.replace(ANTI_QUOTE_CHAR, "")
+        val cacheDbTable = tableMap[tableName] ?: return
+
+        val columnName = sqlColumnName.text.replace(ANTI_QUOTE_CHAR, "")
+        val cacheDbColumn = cacheDbTable.cacheDbColumnMap[columnName]
         if (cacheDbColumn == null) {
-            createError("无法解析列名 " + sqlColumnName.text, holder, sqlColumnName.textRange)
+            createError("无法解析列名 $columnName", holder, sqlColumnName.textRange)
         }
     }
 
@@ -249,56 +264,37 @@ class SqlAnnotator : Annotator {
         sqlColumnName: SqlColumnName,
         holder: AnnotationHolder,
         tableMap: Map<String, CacheDbTable>,
-        sqlSelectStmt: SqlSelectStmt,
+        aliasMap: MutableMap<String, List<SqlTableAlias>>,
+        cacheDbTables: List<CacheDbTable?>,
     ) {
-        val columnAlias = SqlUtils.getColumnAliasIfInOrderBy(sqlColumnName)
-        if (columnAlias != null) {
-            return
-        }
-
+        val columnName = sqlColumnName.text.replace(ANTI_QUOTE_CHAR, "")
         val columnTableAlias = SqlUtils.getTableAliasNameOfColumn(sqlColumnName)
         if (columnTableAlias != null) {
-            val sqlJoinClauses = PsiTreeUtil.findChildrenOfType(
-                sqlSelectStmt,
-                SqlJoinClause::class.java
-            )
-            val aliasMap = SqlUtils.getAliasMap(sqlJoinClauses)
-
             val sqlTableName = SqlUtils.getTableNameOfAlias(aliasMap, columnTableAlias) ?: return
-
-            val cacheDbTable = tableMap[sqlTableName.text] ?: return
-            val cacheDbColumn = cacheDbTable.cacheDbColumnMap[sqlColumnName.text]
+            val tableName = sqlTableName.text.replace(ANTI_QUOTE_CHAR, "")
+            val cacheDbTable = tableMap[tableName] ?: return
+            val cacheDbColumn = cacheDbTable.cacheDbColumnMap[columnName]
             if (cacheDbColumn == null) {
-                createError("无法解析列名 " + sqlColumnName.text, holder, sqlColumnName.textRange)
+                createError("无法解析列名 $columnName", holder, sqlColumnName.textRange)
             }
         } else {
-            val sqlTableNames = PsiTreeUtil.findChildrenOfType(
-                sqlSelectStmt,
-                SqlTableName::class.java
-            )
+            val columnAlias = SqlUtils.getColumnAliasIfInOrderGroupBy(sqlColumnName)
+            if (columnAlias != null) {
+                return
+            }
 
-            val cacheDbTables = sqlTableNames
-                .filter {
-                    !SqlUtils.isColumnTableAlias(it)
-                }
-                .map {
-                    tableMap[it.text]
-                }
-                .filter { Objects.nonNull(it) }
             if (cacheDbTables.isEmpty()) {
                 return
             }
 
             val cacheDbColumns = cacheDbTables
-                .map {
-                    it!!.cacheDbColumnMap[sqlColumnName.text]
-                }
+                .map { it!!.cacheDbColumnMap[columnName] }
                 .filter { Objects.nonNull(it) }
 
             if (cacheDbColumns.isEmpty()) {
-                createError("无法解析列名 " + sqlColumnName.text, holder, sqlColumnName.textRange)
+                createError("无法解析列名 $columnName", holder, sqlColumnName.textRange)
             } else if (cacheDbColumns.size > 1) {
-                createError("解析到多个列名 " + sqlColumnName.text, holder, sqlColumnName.textRange)
+                createError("解析到多个列名 $columnName", holder, sqlColumnName.textRange)
             }
         }
     }

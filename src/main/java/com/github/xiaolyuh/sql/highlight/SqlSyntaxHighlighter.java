@@ -13,10 +13,28 @@ import com.intellij.psi.tree.IElementType;
 import com.intellij.xdebugger.ui.DebuggerColors;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static com.intellij.openapi.editor.colors.TextAttributesKey.createTextAttributesKey;
 
 
 public class SqlSyntaxHighlighter extends SyntaxHighlighterBase {
+    private final Map<IElementType, TextAttributesKey> ourAttributes = new HashMap<>();
+
+    {
+        fillMap(ourAttributes, IDENTIFIER, SqlTypes.ID);
+        fillMap(ourAttributes, DOT, SqlTypes.DOT);
+        fillMap(ourAttributes, NUMBER, SqlTypes.DIGIT);
+        fillMap(ourAttributes, STRING, SqlTypes.STRING);
+        fillMap(ourAttributes, DebuggerColors.INLINED_VALUES_MODIFIED, SqlTypes.MYBATIS_OGNL);
+        fillMap(ourAttributes, COMMENT, SqlTypes.COMMENT, SqlTypes.BLOCK_COMMENT);
+        fillMap(ourAttributes, BAD_CHARACTER, TokenType.BAD_CHARACTER);
+
+        for (IElementType sqlKeyword : SqlUtils.SQL_KEYWORDS) {
+            ourAttributes.put(sqlKeyword, KEYWORD);
+        }
+    }
 
     public static final TextAttributesKey IDENTIFIER =
             createTextAttributesKey("SQL_IDENTIFIER", DefaultLanguageHighlighterColors.IDENTIFIER);
@@ -34,16 +52,6 @@ public class SqlSyntaxHighlighter extends SyntaxHighlighterBase {
             createTextAttributesKey("SQL_BAD_CHARACTER", HighlighterColors.BAD_CHARACTER);
 
 
-    private static final TextAttributesKey[] IDENTIFIER_KEYS = new TextAttributesKey[]{IDENTIFIER};
-    private static final TextAttributesKey[] KEYWORD_KEYS = new TextAttributesKey[]{KEYWORD};
-    private static final TextAttributesKey[] STRING_KEYS = new TextAttributesKey[]{STRING};
-    private static final TextAttributesKey[] NUMBER_KEYS = new TextAttributesKey[]{NUMBER};
-    private static final TextAttributesKey[] DOT_KEYS = new TextAttributesKey[]{DOT};
-    private static final TextAttributesKey[] OGNL = new TextAttributesKey[]{DebuggerColors.INLINED_VALUES_MODIFIED};
-    private static final TextAttributesKey[] COMMENT_KEYS = new TextAttributesKey[]{COMMENT};
-    private static final TextAttributesKey[] BAD_CHAR_KEYS = new TextAttributesKey[]{BAD_CHARACTER};
-    private static final TextAttributesKey[] EMPTY_KEYS = new TextAttributesKey[0];
-
     @NotNull
     @Override
     public Lexer getHighlightingLexer() {
@@ -52,39 +60,7 @@ public class SqlSyntaxHighlighter extends SyntaxHighlighterBase {
 
     @Override
     public TextAttributesKey @NotNull [] getTokenHighlights(IElementType tokenType) {
-        if (SqlUtils.isKeyword(tokenType)) {
-            return KEYWORD_KEYS;
-        }
-
-        if (tokenType.equals(SqlTypes.ID)) {
-            return IDENTIFIER_KEYS;
-        }
-
-        if (tokenType.equals(SqlTypes.DOT)) {
-            return DOT_KEYS;
-        }
-
-        if (tokenType.equals(SqlTypes.DIGIT)) {
-            return NUMBER_KEYS;
-        }
-
-        if (tokenType.equals(SqlTypes.STRING)) {
-            return STRING_KEYS;
-        }
-
-        if (tokenType.equals(SqlTypes.MYBATIS_OGNL)) {
-            return OGNL;
-        }
-
-        if (tokenType.equals(SqlTypes.COMMENT) || tokenType.equals(SqlTypes.BLOCK_COMMENT)) {
-            return COMMENT_KEYS;
-        }
-
-        if (tokenType.equals(TokenType.BAD_CHARACTER)) {
-            return BAD_CHAR_KEYS;
-        }
-
-        return EMPTY_KEYS;
+        return pack(ourAttributes.get(tokenType));
     }
 
 }

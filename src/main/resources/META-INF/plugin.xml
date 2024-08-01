@@ -243,6 +243,8 @@
         <lang.syntaxHighlighterFactory
                 language="sql"
                 implementationClass="com.github.xiaolyuh.sql.highlight.SqlSyntaxHighlighterFactory"/>
+        <colorSettingsPage
+                implementation="com.github.xiaolyuh.sql.highlight.SqlColorSettingsPage"/>
         <multiHostInjector
                 implementation="com.github.xiaolyuh.sql.inject.SqlMultiHostInjector"/>
         <psi.referenceContributor language="sql"
@@ -260,7 +262,7 @@
                 implementation="com.github.xiaolyuh.sql.codestyle.SqlCodeStyleSettingsProvider"/>
         <langCodeStyleSettingsProvider
                 implementation="com.github.xiaolyuh.sql.codestyle.SqlLanguageCodeStyleSettingsProvider"/>
-        <preFormatProcessor implementation="com.github.xiaolyuh.sql.codestyle.SqlFormatPreprocessor"/>
+        <preFormatProcessor implementation="com.github.xiaolyuh.sql.formatter.SqlFormatPreprocessor"/>
         <lang.foldingBuilder language="sql" implementationClass="com.github.xiaolyuh.sql.folding.SqlFoldingBuilder"/>
     </extensions>
 

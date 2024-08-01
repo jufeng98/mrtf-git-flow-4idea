@@ -1,4 +1,4 @@
-package com.github.xiaolyuh.sql.codestyle
+package com.github.xiaolyuh.sql.formatter
 
 import com.github.xiaolyuh.sql.psi.SqlColumnAlias
 import com.github.xiaolyuh.sql.psi.SqlColumnName
@@ -77,7 +77,7 @@ class SqlAntiQuotesConverter(
     private fun containsQuoteChars(value: PsiElement): Boolean {
         var child = value.firstChild
         while (child != null) {
-            if (StringUtil.contains(child.node.chars, "`")) {
+            if (StringUtil.contains(child.node.chars, ANTI_QUOTE_CHAR)) {
                 return true
             }
             child = child.nextSibling
@@ -87,5 +87,9 @@ class SqlAntiQuotesConverter(
 
     fun getDocument(): Document? {
         return myDocument
+    }
+
+    companion object {
+        const val ANTI_QUOTE_CHAR = "`"
     }
 }

@@ -66,6 +66,7 @@ class SqlBlock(
             || psiElement is SqlBinaryAndExpr
             || psiElement is SqlBinaryEqualityExpr
             || psiElement is SqlOrderingTerm
+            || psiElement is SqlGroupingTerm
             || psiElement is PsiComment
         ) {
             val indentOptions = settings.getLanguageIndentOptions(SqlLanguage.INSTANCE)
@@ -126,6 +127,7 @@ class SqlBlock(
 
         if (leftPsiElement is SqlColumnExpr && rightPsiElement.elementType == SqlTypes.AS
             || leftPsiElement is SqlColumnExpr && rightPsiElement is SqlColumnAlias
+            || leftPsiElement is SqlFunctionExpr && rightPsiElement is SqlColumnAlias
         ) {
             val sqlSelectStmt = PsiTreeUtil.getParentOfType(leftPsiElement, SqlSelectStmt::class.java)!!
             val compoundResultColumn = sqlSelectStmt.compoundResultColumn!!
@@ -165,10 +167,13 @@ class SqlBlock(
                 || leftPsiElement.elementType == SqlTypes.WHERE
                 || rightPsiElement.elementType == SqlTypes.ORDER
                 || leftPsiElement.elementType == SqlTypes.BY && rightPsiElement is SqlOrderingTerm
+                || leftPsiElement.elementType == SqlTypes.BY && rightPsiElement is SqlGroupingTerm
                 || rightPsiElement.elementType == SqlTypes.AND
+                || rightPsiElement.elementType == SqlTypes.GROUP
                 || leftPsiElement is SqlCompoundResultColumn
                 || leftPsiElement is SqlResultColumn && rightPsiElement.elementType == SqlTypes.FROM
                 || leftPsiElement is SqlJoinClause
+                || leftPsiElement is SqlGroupingTerm
                 || rightPsiElement is SqlJoinOperator
                 || leftPsiElement is SqlRoot
 
