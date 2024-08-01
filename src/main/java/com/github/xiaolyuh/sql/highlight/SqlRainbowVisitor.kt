@@ -40,7 +40,7 @@ class SqlRainbowVisitor : RainbowVisitor() {
             getInfo(
                 element.containingFile,
                 element,
-                SqlColumnAlias::class.java.name,
+                element.javaClass.name,
                 null
             )
         )
