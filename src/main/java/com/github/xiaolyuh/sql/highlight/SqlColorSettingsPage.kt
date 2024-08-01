@@ -1,15 +1,22 @@
 package com.github.xiaolyuh.sql.highlight
 
 import com.github.xiaolyuh.sql.SqlIcons
+import com.github.xiaolyuh.sql.SqlLanguage
+import com.google.common.collect.ImmutableMap
+import com.intellij.lang.Language
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.fileTypes.SyntaxHighlighter
 import com.intellij.openapi.options.colors.AttributesDescriptor
 import com.intellij.openapi.options.colors.ColorDescriptor
-import com.intellij.openapi.options.colors.ColorSettingsPage
+import com.intellij.openapi.options.colors.RainbowColorSettingsPage
 import javax.swing.Icon
 
-class SqlColorSettingsPage : ColorSettingsPage {
-    private val attributeDescriptors: MutableList<AttributesDescriptor> = ArrayList(20)
+class SqlColorSettingsPage : RainbowColorSettingsPage {
+    private val stringKey = "string"
+    private val ourAdditionalHighlighting: Map<String, TextAttributesKey> =
+        ImmutableMap.of(stringKey, SqlSyntaxHighlighter.STRING)
+
+    private val attributeDescriptors = mutableListOf<AttributesDescriptor>()
 
     init {
         attributeDescriptors.add(AttributesDescriptor("Comment", SqlSyntaxHighlighter.COMMENT))
@@ -36,8 +43,8 @@ class SqlColorSettingsPage : ColorSettingsPage {
              */
             
             CREATE TABLE mall_sys_dict_entry (
-              DICTTYPEID varchar(50) NOT NULL COMMENT '业务字典子选项',
-              DICTID varchar(100) NOT NULL COMMENT '业务字典子选项编号',
+              DICTTYPEID varchar(50) NOT NULL COMMENT <$stringKey>'业务字典子选项'</$stringKey>,
+              DICTID varchar(100) NOT NULL COMMENT <$stringKey>'业务字典子选项编号'</$stringKey>,
               DICTNAME varchar(200) DEFAULT NULL COMMENT '业务字典子选项名称',
               STATUS int(10) DEFAULT NULL COMMENT '状态（1使用中/0已废弃）',
               SORTNO int(10) DEFAULT NULL COMMENT '排序编码',
@@ -66,8 +73,16 @@ class SqlColorSettingsPage : ColorSettingsPage {
         """.trimIndent()
     }
 
-    override fun getAdditionalHighlightingTagToDescriptorMap(): Map<String, TextAttributesKey>? {
-        return null
+    override fun getAdditionalHighlightingTagToDescriptorMap(): Map<String, TextAttributesKey> {
+        return ourAdditionalHighlighting
+    }
+
+    override fun isRainbowType(type: TextAttributesKey?): Boolean {
+        return SqlSyntaxHighlighter.STRING.equals(type)
+    }
+
+    override fun getLanguage(): Language? {
+        return SqlLanguage.INSTANCE
     }
 
     override fun getAttributeDescriptors(): Array<AttributesDescriptor> {

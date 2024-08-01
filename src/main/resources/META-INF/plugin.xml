@@ -245,6 +245,7 @@
                 implementationClass="com.github.xiaolyuh.sql.highlight.SqlSyntaxHighlighterFactory"/>
         <colorSettingsPage
                 implementation="com.github.xiaolyuh.sql.highlight.SqlColorSettingsPage"/>
+        <highlightVisitor implementation="com.github.xiaolyuh.sql.highlight.SqlRainbowVisitor"/>
         <multiHostInjector
                 implementation="com.github.xiaolyuh.sql.inject.SqlMultiHostInjector"/>
         <psi.referenceContributor language="sql"
