@@ -13,6 +13,7 @@
     psiImplUtilClass="com.github.xiaolyuh.sql.psi.impl.SqlPsiImplUtil"
 
     tokens=[
+        // 关键字
         SELECT='regexp:[Ss][Ee][Ll][Ee][Cc][Tt]'
         DELETE='regexp:[Dd][Ee][Ll][Ee][Tt][Ee]'
         UPDATE='regexp:[Uu][Pp][Dd][Aa][Tt][Ee]'
@@ -131,6 +132,7 @@
         DAY='regexp:[Dd][Aa][Yy]'
         HOUR='regexp:[Hh][Oo][Uu][Rr]'
 
+        // 各类符号
         SEMI=';'
         EQ='='
         LP='('
@@ -159,14 +161,18 @@
         CONCAT='||'
         SHARP='#'
         DOLLAR='$'
+
+        // 标识符
         space='regexp:\s+'
         comment='regexp:--.*'
         block_comment='regexp:/\*([^*]|\*+[^*/])*(\*+/)?'
         javadoc='regexp:/\*\*(.|\n)*\*/'
         digit='regexp:\d+(\.\d*)?'
+        // noinspection RegExpRedundantEscape
         id='regexp:[a-zA-Z0-9_\`\[\]]+'
         string="regexp:('([^'])*'|\"([^\"])*\")"
 
+        // 没有找到办法用代码处理 mybatis mapper.xml 文件里的 ognl 占位符表达式,只好从语言层面将其作为一个合法元素去识别
         MYBATIS_OGNL="regexp:[$#]\{[a-zA-Z0-9_@()'.,=\s]+}"
     ]
   extends(".*expr")=expr
@@ -189,7 +195,8 @@ statement ::= [ EXPLAIN ] (
         getReferences
     ]
 }
-private sql_stmt_recovery ::= !( ';' | ALTER | ANALYZE | ATTACH | BEGIN | COMMIT | END | ROLLBACK | SAVEPOINT | RELEASE | CREATE | DROP | INSERT | WITH | UPDATE | DELETE | SELECT | PRAGMA | REINDEX)
+private sql_stmt_recovery ::= !( ';' | ALTER | ANALYZE | ATTACH | BEGIN | COMMIT | END | ROLLBACK | SAVEPOINT | RELEASE |
+    CREATE | DROP | INSERT | WITH | UPDATE | DELETE | SELECT | PRAGMA | REINDEX)
 alter_table_stmt ::= ALTER TABLE [ database_name '.' ] table_name ( RENAME TO new_table_name | ADD [ COLUMN ] column_def ) {
     pin = 1
 }
@@ -214,11 +221,13 @@ savepoint_stmt ::= SAVEPOINT savepoint_name {
 release_stmt ::= RELEASE [ SAVEPOINT ] savepoint_name {
     pin = 1
 }
-create_index_stmt ::= CREATE [ UNIQUE ] INDEX [ IF NOT EXISTS ] [ database_name '.' ] index_name ON table_name '(' indexed_column ( ',' indexed_column ) * ')' [ WHERE expr ] {
+create_index_stmt ::= CREATE [ UNIQUE ] INDEX [ IF NOT EXISTS ] [ database_name '.' ] index_name
+    ON table_name '(' indexed_column ( ',' indexed_column ) * ')' [ WHERE expr ] {
     pin = 6
 }
 indexed_column ::= column_name [ COLLATE collation_name ] [ ASC | DESC ]
-create_table_stmt ::= CREATE [ TEMP | TEMPORARY ] TABLE [ IF NOT EXISTS ] [ database_name '.' ] table_name ( '(' column_def ( ',' column_def ) * ( ',' table_constraint ) * ')' [ WITHOUT ROWID ] | AS compound_select_stmt ) {
+create_table_stmt ::= CREATE [ TEMP | TEMPORARY ] TABLE [ IF NOT EXISTS ] [ database_name '.' ] table_name
+    ( '(' column_def ( ',' column_def ) * ( ',' table_constraint ) * ')' [ WITHOUT ROWID ] | AS compound_select_stmt ) {
     pin = 6
 }
 column_def ::= column_name type_name ( column_constraint ) *
@@ -227,16 +236,24 @@ column_constraint ::= [ CONSTRAINT identifier ] ( PRIMARY KEY [ ASC | DESC ] con
     UNSIGNED | NOT NULL [conflict_clause] | UNIQUE conflict_clause | CHECK '(' expr ')' | AUTO_INCREMENT |
     DEFAULT ( signed_number | literal_value | '(' expr ')' ) | COLLATE collation_name | foreign_key_clause | COLUMN_COMMENT string )
 signed_number ::= [ '+' | '-' ] numeric_literal
-table_constraint ::= [ CONSTRAINT identifier ] ( ( PRIMARY KEY | UNIQUE ) '(' indexed_column ( ',' indexed_column ) * ')' conflict_clause | CHECK '(' expr ')' | FOREIGN KEY '(' column_name ( ',' column_name ) * ')' foreign_key_clause )
-foreign_key_clause ::= REFERENCES_WORD foreign_table [ '(' column_name ( ',' column_name ) * ')' ] [ ( ON ( DELETE | UPDATE ) ( SET NULL | SET DEFAULT | CASCADE | RESTRICT | NO ACTION ) | MATCH identifier )* ] [ [ NOT ] DEFERRABLE [ INITIALLY DEFERRED | INITIALLY IMMEDIATE ] ]
+table_constraint ::= [ CONSTRAINT identifier ] (
+    ( PRIMARY KEY | UNIQUE ) '(' indexed_column ( ',' indexed_column ) * ')' conflict_clause | CHECK '(' expr ')'
+    | FOREIGN KEY '(' column_name ( ',' column_name ) * ')' foreign_key_clause )
+foreign_key_clause ::= REFERENCES_WORD foreign_table [ '(' column_name ( ',' column_name ) * ')' ]
+    [ ( ON ( DELETE | UPDATE ) ( SET NULL | SET DEFAULT | CASCADE | RESTRICT | NO ACTION ) | MATCH identifier )* ]
+    [ [ NOT ] DEFERRABLE [ INITIALLY DEFERRED | INITIALLY IMMEDIATE ] ]
 conflict_clause ::= [ ON CONFLICT ( ROLLBACK | ABORT | FAIL | IGNORE | REPLACE ) ]
-create_trigger_stmt ::= CREATE [ TEMP | TEMPORARY ] TRIGGER [ IF NOT EXISTS ] [ database_name '.' ] trigger_name [ BEFORE | AFTER | INSTEAD OF ] ( DELETE | INSERT | UPDATE [ OF column_name ( ',' column_name ) * ] ) ON table_name [ FOR EACH ROW] [ WHEN expr ] BEGIN ( (update_stmt | insert_stmt | delete_stmt | compound_select_stmt ) ';' ) + END {
+create_trigger_stmt ::= CREATE [ TEMP | TEMPORARY ] TRIGGER [ IF NOT EXISTS ] [ database_name '.' ] trigger_name
+    [ BEFORE | AFTER | INSTEAD OF ] ( DELETE | INSERT | UPDATE [ OF column_name ( ',' column_name ) * ] )
+    ON table_name [ FOR EACH ROW] [ WHEN expr ] BEGIN ( (update_stmt | insert_stmt | delete_stmt | compound_select_stmt ) ';' ) + END {
     pin = 6
 }
-create_view_stmt ::= CREATE [ TEMP | TEMPORARY ] VIEW [ IF NOT EXISTS ] [ database_name '.' ] view_name [ '(' column_alias ( ',' column_alias ) * ')' ] AS compound_select_stmt {
+create_view_stmt ::= CREATE [ TEMP | TEMPORARY ] VIEW [ IF NOT EXISTS ] [ database_name '.' ] view_name
+    [ '(' column_alias ( ',' column_alias ) * ')' ] AS compound_select_stmt {
     pin = 6
 }
-create_virtual_table_stmt ::= CREATE VIRTUAL TABLE [ IF NOT EXISTS ] [ database_name '.' ] table_name USING module_name [ '(' <<custom_module_argument column_def>> ( ',' <<custom_module_argument column_def>> ) * ')' ] {
+create_virtual_table_stmt ::= CREATE VIRTUAL TABLE [ IF NOT EXISTS ] [ database_name '.' ] table_name
+    USING module_name [ '(' <<custom_module_argument column_def>> ( ',' <<custom_module_argument column_def>> ) * ')' ] {
     pin = 6
 }
 //noinspection BnfUnusedRule
@@ -248,7 +265,8 @@ cte_table_name ::= table_name [ '(' column_alias ( ',' column_alias ) * ')' ]
 delete_stmt ::= [ with_clause ] DELETE FROM qualified_table_name [ WHERE expr ] {
     pin = 4
 }
-delete_stmt_limited ::= [ with_clause ] DELETE FROM qualified_table_name [ WHERE expr ] [ [ ORDER BY ordering_term ( ',' ordering_term ) * ] LIMIT expr [ ( OFFSET | ',' ) expr ] ] {
+delete_stmt_limited ::= [ with_clause ] DELETE FROM qualified_table_name [ WHERE expr ]
+    [ [ ORDER BY ordering_term ( ',' ordering_term ) * ] LIMIT expr [ ( OFFSET | ',' ) expr ] ] {
     pin = 4
 }
 detach_stmt ::= DETACH [ DATABASE ] database_name {
@@ -307,7 +325,7 @@ binary_boolean_expr ::= expr (  '<' | '<=' | '>' | '>=' ) expr
 binary_equality_expr ::= expr ( '=' | '==' | '!=' | '<>' ) expr
 binary_and_expr ::= expr AND expr
 binary_or_expr ::= expr OR expr
-function_expr ::= (function_name | IF) '(' [ [ DISTINCT ] expr ( [','] expr ) * | '*' ] ')'
+function_expr ::= function_name '(' [ [ DISTINCT ] expr ( [ ',' ] expr ) * | '*' ] ')'
 paren_expr ::= '(' expr ')' {
     pin = 1
 }
@@ -319,7 +337,8 @@ binary_like_expr ::= expr [ NOT ] ( binary_like_operator ) expr [ ESCAPE expr ] 
 null_expr ::= expr ( IS NULL | IS NOT NULL )
 is_expr ::= expr IS [ NOT ] expr
 between_expr ::= expr [ NOT ] BETWEEN expr AND expr
-in_expr ::= expr [ NOT ] IN ( '(' [ compound_select_stmt | expr ( ',' expr ) * ] ')' | [ database_name '.' ] table_name | bind_expr | mybatis_expr ) {
+in_expr ::= expr [ NOT ] IN ( '(' [ compound_select_stmt | expr ( ',' expr ) * ] ')' |
+    [ database_name '.' ] table_name | bind_expr | mybatis_expr ) {
     pin = 3
 }
 exists_expr ::= [ [ NOT ] EXISTS ] '(' compound_select_stmt ')'
@@ -328,7 +347,6 @@ case_expr ::= CASE [ expr ] WHEN expr THEN expr ( WHEN expr THEN expr )* [ ELSE 
 }
 raise_expr ::= raise_function
 raise_function ::= RAISE '(' ( IGNORE | ( ROLLBACK | ABORT | FAIL ) ',' error_message ) ')'
-//noinspection BnfSuspiciousToken
 literal_value ::= ( numeric_literal
                   | string_literal
                   | blob_literal
@@ -336,27 +354,27 @@ literal_value ::= ( numeric_literal
                   | CURRENT_TIME
                   | CURRENT_DATE
                   | CURRENT_TIMESTAMP)
-numeric_literal ::= ( ( digit [ '.' ( digit ) * ] | '.' digit )
-                      | TRUE
-                      | FALSE
-                    ) [ E [ '+' | '-' ] digit ]
+numeric_literal ::= ( ( digit [ '.' ( digit ) * ] | '.' digit ) | TRUE | FALSE ) [ E [ '+' | '-' ] digit ]
 
-insert_stmt ::= [ with_clause ] ( INSERT OR REPLACE | REPLACE | INSERT OR ROLLBACK | INSERT OR ABORT | INSERT OR FAIL | INSERT OR IGNORE | INSERT ) INTO [ database_name '.' ] table_name [ '(' column_name ( ',' column_name ) * ')' ] ( VALUES values_expression ( ',' values_expression ) * | compound_select_stmt | DEFAULT VALUES ) {
+insert_stmt ::= [ with_clause ] ( INSERT OR REPLACE | REPLACE | INSERT OR ROLLBACK | INSERT OR ABORT | INSERT OR FAIL |
+    INSERT OR IGNORE | INSERT ) INTO [ database_name '.' ] table_name [ '(' column_name ( ',' column_name ) * ')' ]
+    ( VALUES values_expression ( ',' values_expression ) * | compound_select_stmt | DEFAULT VALUES ) {
     pin = 5
 }
 pragma_stmt ::= PRAGMA [ database_name '.' ] pragma_name [ '=' pragma_value | '(' pragma_value ')' ] {
     pin = 1
 }
-pragma_value ::= ( signed_number
-                 | identifier
-                 | string_literal )
+pragma_value ::= ( signed_number | identifier | string_literal )
 reindex_stmt ::= REINDEX [ collation_name | [ database_name '.' ] ( table_name | index_name ) ] {
     pin = 1
 }
-compound_select_stmt ::= [ with_clause ] select_stmt  ( compound_operator select_stmt ) * [ ORDER BY ordering_term ( ',' ordering_term ) * ] [ LIMIT limiting_term [ ( OFFSET | ',' ) limiting_term ] ]
+compound_select_stmt ::= [ with_clause ] select_stmt  ( compound_operator select_stmt ) *
+    [ ORDER BY ordering_term ( ',' ordering_term ) * ] [ LIMIT limiting_term [ ( OFFSET | ',' ) limiting_term ] ]
 limiting_term ::= expr
 compound_result_column ::= result_column ( ',' result_column )*
-select_stmt ::= SELECT [ DISTINCT | ALL ] compound_result_column [ FROM join_clause ] [ [WHERE] expr ] [ GROUP BY grouping_term ] [ ORDER BY ordering_term ( ',' ordering_term ) * ] | VALUES values_expression ( ',' values_expression ) * {
+// 由于 mybatis mapper.xml 文件有特殊的 where 标签,为了不使 sql 非法,这里的 where 关键字改为可选
+select_stmt ::= SELECT [ DISTINCT | ALL ] compound_result_column [ FROM join_clause ] [ [ WHERE ] expr ] [ GROUP BY grouping_term ]
+    [ ORDER BY ordering_term ( ',' ordering_term ) * ] | VALUES values_expression ( ',' values_expression ) * {
     pin = 1
 }
 values_expression ::= '(' expr ( ',' expr ) * ')'
@@ -364,9 +382,7 @@ join_clause ::= table_or_subquery ( join_operator table_or_subquery join_constra
 table_or_subquery ::= ( [ database_name '.' ] table_name [ [ AS ] table_alias ] [ INDEXED BY index_name | NOT INDEXED ]
                       | '(' ( table_or_subquery ( ',' table_or_subquery ) * | join_clause ) ')'
                       | '(' compound_select_stmt ')' [ [ AS ] table_alias ] )
-result_column ::= ( '*'
-                  | table_name '.' '*'
-                  | expr [ [ AS ] column_alias ] )
+result_column ::= ( '*' | table_name '.' '*' | expr [ [ AS ] column_alias ] )
 join_operator ::= ( ',' | [ NATURAL ] [ LEFT [ OUTER ] | INNER | CROSS ] JOIN )
 join_constraint ::= [ ON expr | USING '(' column_name ( ',' column_name ) * ')' ]
 ordering_term ::= expr [ COLLATE collation_name ] [ ASC | DESC ]
@@ -375,10 +391,13 @@ compound_operator ::= ( UNION ALL
                       | UNION
                       | INTERSECT
                       | EXCEPT)
-update_stmt ::= [ with_clause ] UPDATE [ OR ROLLBACK | OR ABORT | OR REPLACE | OR FAIL | OR IGNORE ] qualified_table_name SET column_name '=' setter_expression update_stmt_subsequent_setter * [ WHERE expr ] {
+update_stmt ::= [ with_clause ] UPDATE [ OR ROLLBACK | OR ABORT | OR REPLACE | OR FAIL | OR IGNORE ] qualified_table_name
+    SET column_name '=' setter_expression update_stmt_subsequent_setter * [ WHERE expr ] {
     pin = 4
 }
-update_stmt_limited ::= [ with_clause ] UPDATE [ OR ROLLBACK | OR ABORT | OR REPLACE | OR FAIL | OR IGNORE ] qualified_table_name SET column_name '=' setter_expression update_stmt_subsequent_setter * [ WHERE expr ] [ [ ORDER BY ordering_term ( ',' ordering_term ) * ] LIMIT expr [ ( OFFSET | ',' ) expr ] ] {
+update_stmt_limited ::= [ with_clause ] UPDATE [ OR ROLLBACK | OR ABORT | OR REPLACE | OR FAIL | OR IGNORE ] qualified_table_name
+    SET column_name '=' setter_expression update_stmt_subsequent_setter * [ WHERE expr ]
+    [ [ ORDER BY ordering_term ( ',' ordering_term ) * ] LIMIT expr [ ( OFFSET | ',' ) expr ] ] {
     pin = 4
 }
 update_stmt_subsequent_setter ::= ',' column_name '=' setter_expression {
@@ -412,7 +431,7 @@ table_alias ::= id {
 foreign_table ::= id
 identifier ::= id
 pragma_name ::= id
-function_name ::= id
+function_name ::= id | IF
 string_literal ::= string
 table_or_index_name ::= id
 new_table_name ::= id
