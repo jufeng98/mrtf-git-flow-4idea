@@ -10,20 +10,23 @@ public interface SqlSelectStmt extends PsiElement {
   @Nullable
   SqlCompoundResultColumn getCompoundResultColumn();
 
-  @NotNull
-  List<SqlExpr> getExprList();
+  @Nullable
+  SqlExpr getExpr();
+
+  @Nullable
+  SqlGroupingTerm getGroupingTerm();
 
   @Nullable
   SqlJoinClause getJoinClause();
+
+  @NotNull
+  List<SqlOrderingTerm> getOrderingTermList();
 
   @NotNull
   List<SqlValuesExpression> getValuesExpressionList();
 
   @Nullable
   PsiElement getAll();
-
-  @Nullable
-  PsiElement getBy();
 
   @Nullable
   PsiElement getDistinct();
@@ -33,6 +36,9 @@ public interface SqlSelectStmt extends PsiElement {
 
   @Nullable
   PsiElement getGroup();
+
+  @Nullable
+  PsiElement getOrder();
 
   @Nullable
   PsiElement getSelect();

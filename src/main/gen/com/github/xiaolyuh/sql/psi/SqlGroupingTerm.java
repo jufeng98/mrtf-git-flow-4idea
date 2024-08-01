@@ -5,15 +5,9 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface SqlColumnAlias extends SqlNamedElement {
+public interface SqlGroupingTerm extends PsiElement {
 
   @NotNull
-  PsiElement getId();
-
-  PsiElement setName(String newName);
-
-  String getName();
-
-  PsiElement getNameIdentifier();
+  List<SqlExpr> getExprList();
 
 }

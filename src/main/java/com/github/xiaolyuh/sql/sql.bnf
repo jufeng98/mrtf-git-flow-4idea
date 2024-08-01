@@ -126,6 +126,7 @@
         UNSIGNED='regexp:[Uu][Nn][Ss][Ii][Gg][Nn][Ee][Dd]'
         UNSIGNED='regexp:[Uu][Nn][Ss][Ii][Gg][Nn][Ee][Dd]'
         COLUMN_COMMENT='regexp:[Cc][Oo][Mm][Mm][Ee][Nn][Tt]'
+        SEPARATOR='regexp:[Ss][Ee][Pp][Aa][Rr][Aa][Tt][Oo][Rr]'
         MONTH='regexp:[Mm][Oo][Nn][Tt][Hh]'
         DAY='regexp:[Dd][Aa][Yy]'
         HOUR='regexp:[Hh][Oo][Uu][Rr]'
@@ -292,7 +293,7 @@ expr ::= ( raise_expr
          | keyword_expr
          | bind_expr)
 
-keyword_expr ::= MONTH | HOUR | DAY
+keyword_expr ::= MONTH | HOUR | DAY | SEPARATOR
 literal_expr ::= literal_value
 bind_expr ::= bind_parameter
 mybatis_expr ::= MYBATIS_OGNL
@@ -306,7 +307,7 @@ binary_boolean_expr ::= expr (  '<' | '<=' | '>' | '>=' ) expr
 binary_equality_expr ::= expr ( '=' | '==' | '!=' | '<>' ) expr
 binary_and_expr ::= expr AND expr
 binary_or_expr ::= expr OR expr
-function_expr ::= (function_name | IF) '(' [ [ DISTINCT ] expr ( ',' expr ) * | '*' ] ')'
+function_expr ::= (function_name | IF) '(' [ [ DISTINCT ] expr ( [','] expr ) * | '*' ] ')'
 paren_expr ::= '(' expr ')' {
     pin = 1
 }
@@ -355,7 +356,7 @@ reindex_stmt ::= REINDEX [ collation_name | [ database_name '.' ] ( table_name |
 compound_select_stmt ::= [ with_clause ] select_stmt  ( compound_operator select_stmt ) * [ ORDER BY ordering_term ( ',' ordering_term ) * ] [ LIMIT limiting_term [ ( OFFSET | ',' ) limiting_term ] ]
 limiting_term ::= expr
 compound_result_column ::= result_column ( ',' result_column )*
-select_stmt ::= SELECT [ DISTINCT | ALL ] compound_result_column [ FROM join_clause ] [ [WHERE] expr ] [ GROUP BY expr ( ',' expr ) * [ HAVING expr ] ] | VALUES values_expression ( ',' values_expression ) * {
+select_stmt ::= SELECT [ DISTINCT | ALL ] compound_result_column [ FROM join_clause ] [ [WHERE] expr ] [ GROUP BY grouping_term ] [ ORDER BY ordering_term ( ',' ordering_term ) * ] | VALUES values_expression ( ',' values_expression ) * {
     pin = 1
 }
 values_expression ::= '(' expr ( ',' expr ) * ')'
@@ -369,6 +370,7 @@ result_column ::= ( '*'
 join_operator ::= ( ',' | [ NATURAL ] [ LEFT [ OUTER ] | INNER | CROSS ] JOIN )
 join_constraint ::= [ ON expr | USING '(' column_name ( ',' column_name ) * ')' ]
 ordering_term ::= expr [ COLLATE collation_name ] [ ASC | DESC ]
+grouping_term ::= expr ( ',' expr ) * [ HAVING expr ]
 compound_operator ::= ( UNION ALL
                       | UNION
                       | INTERSECT
@@ -389,7 +391,15 @@ table_name ::= id
 database_name ::= id
 index_name ::= id
 column_name ::= id | string
-column_alias ::= id
+column_alias ::= id {
+    mixin="com.github.xiaolyuh.sql.psi.impl.SqlNamedElementImpl"
+    implements="com.github.xiaolyuh.sql.psi.SqlNamedElement"
+    methods = [
+        setName
+        getName
+        getNameIdentifier
+    ]
+}
 table_alias ::= id {
     mixin="com.github.xiaolyuh.sql.psi.impl.SqlNamedElementImpl"
     implements="com.github.xiaolyuh.sql.psi.SqlNamedElement"

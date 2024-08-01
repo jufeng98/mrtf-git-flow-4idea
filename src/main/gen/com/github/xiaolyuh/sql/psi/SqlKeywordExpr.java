@@ -16,4 +16,7 @@ public interface SqlKeywordExpr extends SqlExpr {
   @Nullable
   PsiElement getMonth();
 
+  @Nullable
+  PsiElement getSeparator();
+
 }

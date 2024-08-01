@@ -45,4 +45,10 @@ public class SqlKeywordExprImpl extends SqlExprImpl implements SqlKeywordExpr {
     return findChildByType(MONTH);
   }
 
+  @Override
+  @Nullable
+  public PsiElement getSeparator() {
+    return findChildByType(SEPARATOR);
+  }
+
 }

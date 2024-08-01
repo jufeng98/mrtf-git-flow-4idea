@@ -61,6 +61,7 @@ public interface SqlTypes {
   IElementType FOREIGN_TABLE = new SqlElementType("FOREIGN_TABLE");
   IElementType FUNCTION_EXPR = new SqlElementType("FUNCTION_EXPR");
   IElementType FUNCTION_NAME = new SqlElementType("FUNCTION_NAME");
+  IElementType GROUPING_TERM = new SqlElementType("GROUPING_TERM");
   IElementType IDENTIFIER = new SqlElementType("IDENTIFIER");
   IElementType INDEXED_COLUMN = new SqlElementType("INDEXED_COLUMN");
   IElementType INDEX_NAME = new SqlElementType("INDEX_NAME");
@@ -255,6 +256,7 @@ public interface SqlTypes {
   IElementType SAVEPOINT = new SqlTokenType("SAVEPOINT");
   IElementType SELECT = new SqlTokenType("SELECT");
   IElementType SEMI = new SqlTokenType(";");
+  IElementType SEPARATOR = new SqlTokenType("SEPARATOR");
   IElementType SET = new SqlTokenType("SET");
   IElementType SHARP = new SqlTokenType("#");
   IElementType SHIFT_LEFT = new SqlTokenType("<<");
@@ -440,6 +442,9 @@ public interface SqlTypes {
       }
       else if (type == FUNCTION_NAME) {
         return new SqlFunctionNameImpl(node);
+      }
+      else if (type == GROUPING_TERM) {
+        return new SqlGroupingTermImpl(node);
       }
       else if (type == IDENTIFIER) {
         return new SqlIdentifierImpl(node);

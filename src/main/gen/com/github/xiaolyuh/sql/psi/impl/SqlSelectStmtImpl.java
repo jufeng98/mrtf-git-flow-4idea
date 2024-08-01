@@ -34,15 +34,27 @@ public class SqlSelectStmtImpl extends SqlPsiElement implements SqlSelectStmt {
   }
 
   @Override
-  @NotNull
-  public List<SqlExpr> getExprList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, SqlExpr.class);
+  @Nullable
+  public SqlExpr getExpr() {
+    return findChildByClass(SqlExpr.class);
+  }
+
+  @Override
+  @Nullable
+  public SqlGroupingTerm getGroupingTerm() {
+    return findChildByClass(SqlGroupingTerm.class);
   }
 
   @Override
   @Nullable
   public SqlJoinClause getJoinClause() {
     return findChildByClass(SqlJoinClause.class);
+  }
+
+  @Override
+  @NotNull
+  public List<SqlOrderingTerm> getOrderingTermList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, SqlOrderingTerm.class);
   }
 
   @Override
@@ -55,12 +67,6 @@ public class SqlSelectStmtImpl extends SqlPsiElement implements SqlSelectStmt {
   @Nullable
   public PsiElement getAll() {
     return findChildByType(ALL);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getBy() {
-    return findChildByType(BY);
   }
 
   @Override
@@ -79,6 +85,12 @@ public class SqlSelectStmtImpl extends SqlPsiElement implements SqlSelectStmt {
   @Nullable
   public PsiElement getGroup() {
     return findChildByType(GROUP);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getOrder() {
+    return findChildByType(ORDER);
   }
 
   @Override

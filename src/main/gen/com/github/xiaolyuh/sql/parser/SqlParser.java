@@ -2074,6 +2074,59 @@ public class SqlParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
+  // expr ( ',' expr ) * [ HAVING expr ]
+  public static boolean grouping_term(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "grouping_term")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NONE_, GROUPING_TERM, "<grouping term>");
+    r = expr(b, l + 1, -1);
+    r = r && grouping_term_1(b, l + 1);
+    r = r && grouping_term_2(b, l + 1);
+    exit_section_(b, l, m, r, false, null);
+    return r;
+  }
+
+  // ( ',' expr ) *
+  private static boolean grouping_term_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "grouping_term_1")) return false;
+    while (true) {
+      int c = current_position_(b);
+      if (!grouping_term_1_0(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "grouping_term_1", c)) break;
+    }
+    return true;
+  }
+
+  // ',' expr
+  private static boolean grouping_term_1_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "grouping_term_1_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, COMMA);
+    r = r && expr(b, l + 1, -1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // [ HAVING expr ]
+  private static boolean grouping_term_2(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "grouping_term_2")) return false;
+    grouping_term_2_0(b, l + 1);
+    return true;
+  }
+
+  // HAVING expr
+  private static boolean grouping_term_2_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "grouping_term_2_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, HAVING);
+    r = r && expr(b, l + 1, -1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  /* ********************************************************** */
   // id
   public static boolean identifier(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "identifier")) return false;
@@ -3152,7 +3205,7 @@ public class SqlParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // SELECT [ DISTINCT | ALL ] compound_result_column [ FROM join_clause ] [ [WHERE] expr ] [ GROUP BY expr ( ',' expr ) * [ HAVING expr ] ] | VALUES values_expression ( ',' values_expression ) *
+  // SELECT [ DISTINCT | ALL ] compound_result_column [ FROM join_clause ] [ [WHERE] expr ] [ GROUP BY grouping_term ] [ ORDER BY ordering_term ( ',' ordering_term ) * ] | VALUES values_expression ( ',' values_expression ) *
   public static boolean select_stmt(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "select_stmt")) return false;
     if (!nextTokenIs(b, "<select stmt>", SELECT, VALUES)) return false;
@@ -3164,7 +3217,7 @@ public class SqlParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // SELECT [ DISTINCT | ALL ] compound_result_column [ FROM join_clause ] [ [WHERE] expr ] [ GROUP BY expr ( ',' expr ) * [ HAVING expr ] ]
+  // SELECT [ DISTINCT | ALL ] compound_result_column [ FROM join_clause ] [ [WHERE] expr ] [ GROUP BY grouping_term ] [ ORDER BY ordering_term ( ',' ordering_term ) * ]
   private static boolean select_stmt_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "select_stmt_0")) return false;
     boolean r;
@@ -3175,6 +3228,7 @@ public class SqlParser implements PsiParser, LightPsiParser {
     r = r && select_stmt_0_3(b, l + 1);
     r = r && select_stmt_0_4(b, l + 1);
     r = r && select_stmt_0_5(b, l + 1);
+    r = r && select_stmt_0_6(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
   }
@@ -3238,62 +3292,61 @@ public class SqlParser implements PsiParser, LightPsiParser {
     return true;
   }
 
-  // [ GROUP BY expr ( ',' expr ) * [ HAVING expr ] ]
+  // [ GROUP BY grouping_term ]
   private static boolean select_stmt_0_5(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "select_stmt_0_5")) return false;
     select_stmt_0_5_0(b, l + 1);
     return true;
   }
 
-  // GROUP BY expr ( ',' expr ) * [ HAVING expr ]
+  // GROUP BY grouping_term
   private static boolean select_stmt_0_5_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "select_stmt_0_5_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = consumeTokens(b, 0, GROUP, BY);
-    r = r && expr(b, l + 1, -1);
-    r = r && select_stmt_0_5_0_3(b, l + 1);
-    r = r && select_stmt_0_5_0_4(b, l + 1);
+    r = r && grouping_term(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
   }
 
-  // ( ',' expr ) *
-  private static boolean select_stmt_0_5_0_3(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "select_stmt_0_5_0_3")) return false;
+  // [ ORDER BY ordering_term ( ',' ordering_term ) * ]
+  private static boolean select_stmt_0_6(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "select_stmt_0_6")) return false;
+    select_stmt_0_6_0(b, l + 1);
+    return true;
+  }
+
+  // ORDER BY ordering_term ( ',' ordering_term ) *
+  private static boolean select_stmt_0_6_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "select_stmt_0_6_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeTokens(b, 0, ORDER, BY);
+    r = r && ordering_term(b, l + 1);
+    r = r && select_stmt_0_6_0_3(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // ( ',' ordering_term ) *
+  private static boolean select_stmt_0_6_0_3(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "select_stmt_0_6_0_3")) return false;
     while (true) {
       int c = current_position_(b);
-      if (!select_stmt_0_5_0_3_0(b, l + 1)) break;
-      if (!empty_element_parsed_guard_(b, "select_stmt_0_5_0_3", c)) break;
+      if (!select_stmt_0_6_0_3_0(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "select_stmt_0_6_0_3", c)) break;
     }
     return true;
   }
 
-  // ',' expr
-  private static boolean select_stmt_0_5_0_3_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "select_stmt_0_5_0_3_0")) return false;
+  // ',' ordering_term
+  private static boolean select_stmt_0_6_0_3_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "select_stmt_0_6_0_3_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, COMMA);
-    r = r && expr(b, l + 1, -1);
-    exit_section_(b, m, null, r);
-    return r;
-  }
-
-  // [ HAVING expr ]
-  private static boolean select_stmt_0_5_0_4(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "select_stmt_0_5_0_4")) return false;
-    select_stmt_0_5_0_4_0(b, l + 1);
-    return true;
-  }
-
-  // HAVING expr
-  private static boolean select_stmt_0_5_0_4_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "select_stmt_0_5_0_4_0")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = consumeToken(b, HAVING);
-    r = r && expr(b, l + 1, -1);
+    r = r && ordering_term(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
   }
@@ -4717,7 +4770,7 @@ public class SqlParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // (function_name | IF) '(' [ [ DISTINCT ] expr ( ',' expr ) * | '*' ] ')'
+  // (function_name | IF) '(' [ [ DISTINCT ] expr ( [','] expr ) * | '*' ] ')'
   public static boolean function_expr(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "function_expr")) return false;
     if (!nextTokenIsSmart(b, ID, IF)) return false;
@@ -4740,14 +4793,14 @@ public class SqlParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // [ [ DISTINCT ] expr ( ',' expr ) * | '*' ]
+  // [ [ DISTINCT ] expr ( [','] expr ) * | '*' ]
   private static boolean function_expr_2(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "function_expr_2")) return false;
     function_expr_2_0(b, l + 1);
     return true;
   }
 
-  // [ DISTINCT ] expr ( ',' expr ) * | '*'
+  // [ DISTINCT ] expr ( [','] expr ) * | '*'
   private static boolean function_expr_2_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "function_expr_2_0")) return false;
     boolean r;
@@ -4758,7 +4811,7 @@ public class SqlParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // [ DISTINCT ] expr ( ',' expr ) *
+  // [ DISTINCT ] expr ( [','] expr ) *
   private static boolean function_expr_2_0_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "function_expr_2_0_0")) return false;
     boolean r;
@@ -4777,7 +4830,7 @@ public class SqlParser implements PsiParser, LightPsiParser {
     return true;
   }
 
-  // ( ',' expr ) *
+  // ( [','] expr ) *
   private static boolean function_expr_2_0_0_2(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "function_expr_2_0_0_2")) return false;
     while (true) {
@@ -4788,15 +4841,22 @@ public class SqlParser implements PsiParser, LightPsiParser {
     return true;
   }
 
-  // ',' expr
+  // [','] expr
   private static boolean function_expr_2_0_0_2_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "function_expr_2_0_0_2_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = consumeTokenSmart(b, COMMA);
+    r = function_expr_2_0_0_2_0_0(b, l + 1);
     r = r && expr(b, l + 1, -1);
     exit_section_(b, m, null, r);
     return r;
+  }
+
+  // [',']
+  private static boolean function_expr_2_0_0_2_0_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "function_expr_2_0_0_2_0_0")) return false;
+    consumeTokenSmart(b, COMMA);
+    return true;
   }
 
   // [ NOT ] IN ( '(' [ compound_select_stmt | expr ( ',' expr ) * ] ')' | [ database_name '.' ] table_name | bind_expr | mybatis_expr )
@@ -5071,7 +5131,7 @@ public class SqlParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // MONTH | HOUR | DAY
+  // MONTH | HOUR | DAY | SEPARATOR
   public static boolean keyword_expr(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "keyword_expr")) return false;
     boolean r;
@@ -5079,6 +5139,7 @@ public class SqlParser implements PsiParser, LightPsiParser {
     r = consumeTokenSmart(b, MONTH);
     if (!r) r = consumeTokenSmart(b, HOUR);
     if (!r) r = consumeTokenSmart(b, DAY);
+    if (!r) r = consumeTokenSmart(b, SEPARATOR);
     exit_section_(b, l, m, r, false, null);
     return r;
   }

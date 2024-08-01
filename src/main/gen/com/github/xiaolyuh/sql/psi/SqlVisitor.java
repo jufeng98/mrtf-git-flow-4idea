@@ -96,7 +96,7 @@ public class SqlVisitor extends PsiElementVisitor {
   }
 
   public void visitColumnAlias(@NotNull SqlColumnAlias o) {
-    visitPsiElement(o);
+    visitNamedElement(o);
   }
 
   public void visitColumnConstraint(@NotNull SqlColumnConstraint o) {
@@ -216,6 +216,10 @@ public class SqlVisitor extends PsiElementVisitor {
   }
 
   public void visitFunctionName(@NotNull SqlFunctionName o) {
+    visitPsiElement(o);
+  }
+
+  public void visitGroupingTerm(@NotNull SqlGroupingTerm o) {
     visitPsiElement(o);
   }
 
