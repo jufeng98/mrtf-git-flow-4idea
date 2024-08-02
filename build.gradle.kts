@@ -25,14 +25,16 @@ sourceSets["main"].java.srcDirs("src/main/gen")
 intellij {
     version.set("2022.1.2")
     type.set("IC")
-    plugins.set(listOf(
-        "Git4Idea",
-        "tasks",
-        "com.intellij.java",
-        "com.intellij.properties",
+    plugins.set(
+        listOf(
+            "Git4Idea",
+            "tasks",
+            "com.intellij.java",
+            "com.intellij.properties",
 //        "DBN:3.4.4179.0",
-        file("D:\\my_opensource_project\\dbn\\build\\distributions\\DBN-MASTER")
-    ))
+            file("D:\\my_opensource_project\\dbn\\build\\distributions\\DBN-MASTER")
+        )
+    )
     intellij.updateSinceUntilBuild.set(false)
 }
 
@@ -48,7 +50,11 @@ tasks {
     }
 
     runIde {
-        jvmArgs("-Xmx2048m", "-XX:ReservedCodeCacheSize=512m", "-Xms1024m")
+        systemProperties["idea.auto.reload.plugins"] = true
+        jvmArgs = listOf(
+            "-Xms1024m",
+            "-Xmx2048m",
+        )
     }
 
     patchPluginXml {
