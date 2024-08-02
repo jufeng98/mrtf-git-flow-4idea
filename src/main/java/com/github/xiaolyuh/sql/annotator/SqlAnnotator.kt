@@ -2,7 +2,6 @@ package com.github.xiaolyuh.sql.annotator
 
 import com.dbn.cache.CacheDbTable
 import com.github.xiaolyuh.dbn.DbnToolWindowPsiElement.Companion.getFirstConnCacheDbTables
-import com.github.xiaolyuh.sql.formatter.SqlAntiQuotesConverter.Companion.ANTI_QUOTE_CHAR
 import com.github.xiaolyuh.sql.psi.*
 import com.github.xiaolyuh.utils.SqlUtils
 import com.intellij.codeInspection.ProblemHighlightType
@@ -21,6 +20,11 @@ import java.util.*
 
 class SqlAnnotator : Annotator {
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
+        if (element is SqlStringLiteral) {
+            analyzeStringQuote(element, holder)
+            return
+        }
+
         if (element !is SqlRoot) {
             return
         }
@@ -51,6 +55,18 @@ class SqlAnnotator : Annotator {
             prevSibling = prevSibling.prevSibling
         }
         return null
+    }
+
+    private fun analyzeStringQuote(element: SqlStringLiteral, holder: AnnotationHolder) {
+        val text = element.text
+        if (text.length != 1 && text[0] == text[text.length - 1]) return
+
+        @Suppress("DialogTitleCapitalization")
+        holder.newAnnotation(HighlightSeverity.ERROR, "缺少右引号")
+            .range(element.textRange)
+            .withFix(AddQuoteQuickFix(element, text[0].toString()))
+            .highlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+            .create()
     }
 
     private fun analyzeSyntax(
@@ -105,12 +121,19 @@ class SqlAnnotator : Annotator {
 
         val sqlCompoundSelectStmts = PsiTreeUtil.findChildrenOfType(statement, SqlCompoundSelectStmt::class.java)
 
-        val aliasMap: MutableMap<String, List<SqlTableAlias>> = mutableMapOf()
+        val aliasMap: MutableMap<String, MutableList<SqlTableAlias>> = mutableMapOf()
         sqlCompoundSelectStmts.forEach { compoundSelectStmt ->
-            compoundSelectStmt?.selectStmtList?.forEach {
-                val sqlJoinClauses = PsiTreeUtil.findChildrenOfType(it, SqlJoinClause::class.java)
+            compoundSelectStmt?.selectStmtList?.forEach { sqlSelectStmt ->
+                val sqlJoinClauses = PsiTreeUtil.findChildrenOfType(sqlSelectStmt, SqlJoinClause::class.java)
                 val map = SqlUtils.getAliasMap(sqlJoinClauses)
-                aliasMap.putAll(map)
+                map.entries.forEach {
+                    val list = aliasMap[it.key]
+                    if (list == null) {
+                        aliasMap[it.key] = it.value
+                    } else {
+                        list.addAll(it.value)
+                    }
+                }
             }
         }
 
@@ -192,7 +215,7 @@ class SqlAnnotator : Annotator {
         sqlSelectStmt: SqlSelectStmt,
         holder: AnnotationHolder,
         tableMap: Map<String, CacheDbTable>,
-        aliasMap: MutableMap<String, List<SqlTableAlias>>,
+        aliasMap: MutableMap<String, MutableList<SqlTableAlias>>,
     ) {
         val sqlTableNames = PsiTreeUtil.findChildrenOfType(sqlSelectStmt, SqlTableName::class.java)
         sqlTableNames.forEach {
@@ -203,11 +226,6 @@ class SqlAnnotator : Annotator {
             }
         }
 
-        val cacheDbTables = sqlTableNames
-            .filter { !SqlUtils.isColumnTableAlias(it) }
-            .map { tableMap[it.text.replace(ANTI_QUOTE_CHAR, "")] }
-            .filter { Objects.nonNull(it) }
-
         val sqlColumnNames = PsiTreeUtil.findChildrenOfType(sqlSelectStmt, SqlColumnName::class.java)
         sqlColumnNames.forEach {
             val columnAlias = SqlUtils.getColumnAliasIfInOrderGroupBy(it)
@@ -215,7 +233,7 @@ class SqlAnnotator : Annotator {
                 return@forEach
             }
 
-            annotateColumnName(it, holder, tableMap, aliasMap, cacheDbTables)
+            annotateColumnName(it, holder, tableMap, aliasMap)
         }
     }
 
@@ -234,10 +252,10 @@ class SqlAnnotator : Annotator {
     private fun annotateColumnTableAlias(
         columnTableAliasName: SqlTableName,
         holder: AnnotationHolder,
-        aliasMap: MutableMap<String, List<SqlTableAlias>>,
+        aliasMap: MutableMap<String, MutableList<SqlTableAlias>>,
     ) {
 
-        val aliasName = columnTableAliasName.text
+        val aliasName = columnTableAliasName.name
         val sqlTableAliases = aliasMap[aliasName]
         if (sqlTableAliases == null) {
             createError("无法解析表别名 $aliasName", holder, columnTableAliasName.textRange)
@@ -250,10 +268,10 @@ class SqlAnnotator : Annotator {
         tableMap: Map<String, CacheDbTable>,
         sqlTableName: SqlTableName,
     ) {
-        val tableName = sqlTableName.text.replace(ANTI_QUOTE_CHAR, "")
+        val tableName = sqlTableName.name
         val cacheDbTable = tableMap[tableName] ?: return
 
-        val columnName = sqlColumnName.text.replace(ANTI_QUOTE_CHAR, "")
+        val columnName = sqlColumnName.name
         val cacheDbColumn = cacheDbTable.cacheDbColumnMap[columnName]
         if (cacheDbColumn == null) {
             createError("无法解析列名 $columnName", holder, sqlColumnName.textRange)
@@ -264,39 +282,53 @@ class SqlAnnotator : Annotator {
         sqlColumnName: SqlColumnName,
         holder: AnnotationHolder,
         tableMap: Map<String, CacheDbTable>,
-        aliasMap: MutableMap<String, List<SqlTableAlias>>,
-        cacheDbTables: List<CacheDbTable?>,
+        aliasMap: MutableMap<String, MutableList<SqlTableAlias>>,
     ) {
-        val columnName = sqlColumnName.text.replace(ANTI_QUOTE_CHAR, "")
+        val columnName = sqlColumnName.name
         val columnTableAlias = SqlUtils.getTableAliasNameOfColumn(sqlColumnName)
         if (columnTableAlias != null) {
             val sqlTableName = SqlUtils.getTableNameOfAlias(aliasMap, columnTableAlias) ?: return
-            val tableName = sqlTableName.text.replace(ANTI_QUOTE_CHAR, "")
+            val tableName = sqlTableName.name
             val cacheDbTable = tableMap[tableName] ?: return
             val cacheDbColumn = cacheDbTable.cacheDbColumnMap[columnName]
             if (cacheDbColumn == null) {
                 createError("无法解析列名 $columnName", holder, sqlColumnName.textRange)
             }
-        } else {
-            val columnAlias = SqlUtils.getColumnAliasIfInOrderGroupBy(sqlColumnName)
-            if (columnAlias != null) {
-                return
-            }
-
-            if (cacheDbTables.isEmpty()) {
-                return
-            }
-
-            val cacheDbColumns = cacheDbTables
-                .map { it!!.cacheDbColumnMap[columnName] }
-                .filter { Objects.nonNull(it) }
-
-            if (cacheDbColumns.isEmpty()) {
-                createError("无法解析列名 $columnName", holder, sqlColumnName.textRange)
-            } else if (cacheDbColumns.size > 1) {
-                createError("解析到多个列名 $columnName", holder, sqlColumnName.textRange)
-            }
+            return
         }
+
+        val columnAlias = SqlUtils.getColumnAliasIfInOrderGroupBy(sqlColumnName)
+        if (columnAlias != null) {
+            return
+        }
+
+        val sqlSelectStmtCurrent = PsiTreeUtil.getParentOfType(sqlColumnName, SqlSelectStmt::class.java)
+        val sqlJoinClauses = PsiTreeUtil.findChildrenOfType(sqlSelectStmtCurrent, SqlJoinClause::class.java)
+        val tableNames = SqlUtils.getSqlTableNames(sqlJoinClauses)
+
+        val cacheDbTables = tableNames
+            .filter { !SqlUtils.isColumnTableAlias(it) }
+            .map { tableMap[it.name] }
+            .filter { Objects.nonNull(it) }
+
+        if (cacheDbTables.isEmpty()) {
+            return
+        }
+
+        val cacheDbColumns = cacheDbTables
+            .map { it!!.cacheDbColumnMap[columnName] }
+            .filter { Objects.nonNull(it) }
+
+        if (cacheDbColumns.isEmpty()) {
+            createError("无法解析列名 $columnName", holder, sqlColumnName.textRange)
+            return
+        }
+
+        if (cacheDbColumns.size == 1) {
+            return
+        }
+
+        createError("解析到多个列名 $columnName", holder, sqlColumnName.textRange)
     }
 
     private fun createError(tip: String, holder: AnnotationHolder, textRange: TextRange) {

@@ -4,6 +4,7 @@ import com.github.xiaolyuh.sql.psi.SqlColumnAlias
 import com.github.xiaolyuh.sql.psi.SqlColumnName
 import com.github.xiaolyuh.sql.psi.SqlTableAlias
 import com.github.xiaolyuh.sql.psi.SqlTableName
+import com.github.xiaolyuh.sql.psi.impl.SqlPsiImplUtil.ANTI_QUOTE_CHAR
 import com.github.xiaolyuh.visitor.PsiElementRecursiveVisitor
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.util.TextRange
@@ -89,7 +90,4 @@ class SqlAntiQuotesConverter(
         return myDocument
     }
 
-    companion object {
-        const val ANTI_QUOTE_CHAR = "`"
-    }
 }
