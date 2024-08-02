@@ -138,8 +138,6 @@
         EQ='='
         LP='('
         RP=')'
-        LB='{'
-        RB='}'
         DOT='.'
         COMMA=','
         PLUS='+'
