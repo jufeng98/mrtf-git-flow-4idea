@@ -39,4 +39,9 @@ public class SqlColumnNameImpl extends SqlPsiElement implements SqlColumnName {
     return findChildByType(STRING);
   }
 
+  @Override
+  public String getName() {
+    return SqlPsiImplUtil.getName(this);
+  }
+
 }

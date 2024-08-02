@@ -209,7 +209,6 @@ public interface SqlTypes {
   IElementType JAVADOC = new SqlTokenType("javadoc");
   IElementType JOIN = new SqlTokenType("JOIN");
   IElementType KEY = new SqlTokenType("KEY");
-  IElementType LB = new SqlTokenType("{");
   IElementType LEFT = new SqlTokenType("LEFT");
   IElementType LIKE = new SqlTokenType("LIKE");
   IElementType LIMIT = new SqlTokenType("LIMIT");
@@ -218,6 +217,7 @@ public interface SqlTypes {
   IElementType LTE = new SqlTokenType("<=");
   IElementType MATCH = new SqlTokenType("MATCH");
   IElementType MINUS = new SqlTokenType("-");
+  IElementType MINUTE = new SqlTokenType("MINUTE");
   IElementType MOD = new SqlTokenType("%");
   IElementType MONTH = new SqlTokenType("MONTH");
   IElementType MULTIPLY = new SqlTokenType("*");
@@ -240,7 +240,6 @@ public interface SqlTypes {
   IElementType PRIMARY = new SqlTokenType("PRIMARY");
   IElementType QUERY = new SqlTokenType("QUERY");
   IElementType RAISE = new SqlTokenType("RAISE");
-  IElementType RB = new SqlTokenType("}");
   IElementType RECURSIVE = new SqlTokenType("RECURSIVE");
   IElementType REFERENCES_WORD = new SqlTokenType("REFERENCES_WORD");
   IElementType REGEXP = new SqlTokenType("REGEXP");

@@ -131,6 +131,7 @@
         MONTH='regexp:[Mm][Oo][Nn][Tt][Hh]'
         DAY='regexp:[Dd][Aa][Yy]'
         HOUR='regexp:[Hh][Oo][Uu][Rr]'
+        MINUTE='regexp:[Mm][Ii][Nn][Uu][Tt][Ee]'
 
         // 各类符号
         SEMI=';'
@@ -170,7 +171,7 @@
         digit='regexp:\d+(\.\d*)?'
         // noinspection RegExpRedundantEscape
         id='regexp:[a-zA-Z0-9_\`\[\]]+'
-        string="regexp:('([^'])*'|\"([^\"])*\")"
+        string="regexp:('([^'])*'?|\"([^\"])*\"?)"
 
         // 没有找到办法用代码处理 mybatis mapper.xml 文件里的 ognl 占位符表达式,只好从语言层面将其作为一个合法元素去识别
         MYBATIS_OGNL="regexp:[$#]\{[a-zA-Z0-9_@()'.,=\s]+}"
@@ -311,7 +312,7 @@ expr ::= ( raise_expr
          | keyword_expr
          | bind_expr)
 
-keyword_expr ::= MONTH | HOUR | DAY | SEPARATOR
+keyword_expr ::= MONTH | DAY | HOUR | MINUTE | SEPARATOR
 literal_expr ::= literal_value
 bind_expr ::= bind_parameter
 mybatis_expr ::= MYBATIS_OGNL
@@ -403,10 +404,18 @@ update_stmt_subsequent_setter ::= ',' column_name '=' setter_expression {
 setter_expression ::= expr
 qualified_table_name ::= [ database_name '.' ] table_name [ INDEXED BY index_name | NOT INDEXED ]
 vacuum_stmt ::= VACUUM
-table_name ::= id
+table_name ::= id {
+    methods = [
+        getName
+    ]
+}
 database_name ::= id
 index_name ::= id
-column_name ::= id | string
+column_name ::= id | string {
+    methods = [
+        getName
+    ]
+}
 column_alias ::= id {
     mixin="com.github.xiaolyuh.sql.psi.impl.SqlNamedElementImpl"
     implements="com.github.xiaolyuh.sql.psi.SqlNamedElement"

@@ -33,4 +33,9 @@ public class SqlTableNameImpl extends SqlPsiElement implements SqlTableName {
     return findNotNullChildByType(ID);
   }
 
+  @Override
+  public String getName() {
+    return SqlPsiImplUtil.getName(this);
+  }
+
 }

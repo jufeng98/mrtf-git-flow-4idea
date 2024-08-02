@@ -41,6 +41,12 @@ public class SqlKeywordExprImpl extends SqlExprImpl implements SqlKeywordExpr {
 
   @Override
   @Nullable
+  public PsiElement getMinute() {
+    return findChildByType(MINUTE);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getMonth() {
     return findChildByType(MONTH);
   }

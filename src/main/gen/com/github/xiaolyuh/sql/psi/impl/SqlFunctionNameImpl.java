@@ -28,9 +28,15 @@ public class SqlFunctionNameImpl extends SqlPsiElement implements SqlFunctionNam
   }
 
   @Override
-  @NotNull
+  @Nullable
+  public PsiElement getIf() {
+    return findChildByType(IF);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getId() {
-    return findNotNullChildByType(ID);
+    return findChildByType(ID);
   }
 
 }

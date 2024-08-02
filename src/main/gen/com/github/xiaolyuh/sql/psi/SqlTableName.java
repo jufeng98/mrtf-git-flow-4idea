@@ -10,4 +10,6 @@ public interface SqlTableName extends PsiElement {
   @NotNull
   PsiElement getId();
 
+  String getName();
+
 }

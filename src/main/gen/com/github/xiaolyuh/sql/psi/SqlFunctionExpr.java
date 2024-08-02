@@ -10,13 +10,10 @@ public interface SqlFunctionExpr extends SqlExpr {
   @NotNull
   List<SqlExpr> getExprList();
 
-  @Nullable
+  @NotNull
   SqlFunctionName getFunctionName();
 
   @Nullable
   PsiElement getDistinct();
-
-  @Nullable
-  PsiElement getIf();
 
 }

@@ -13,4 +13,6 @@ public interface SqlColumnName extends PsiElement {
   @Nullable
   PsiElement getString();
 
+  String getName();
+
 }

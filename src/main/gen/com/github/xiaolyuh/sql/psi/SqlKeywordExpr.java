@@ -14,6 +14,9 @@ public interface SqlKeywordExpr extends SqlExpr {
   PsiElement getHour();
 
   @Nullable
+  PsiElement getMinute();
+
+  @Nullable
   PsiElement getMonth();
 
   @Nullable

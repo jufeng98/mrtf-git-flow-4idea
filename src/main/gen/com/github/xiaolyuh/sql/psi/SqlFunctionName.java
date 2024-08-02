@@ -7,7 +7,10 @@ import com.intellij.psi.PsiElement;
 
 public interface SqlFunctionName extends PsiElement {
 
-  @NotNull
+  @Nullable
+  PsiElement getIf();
+
+  @Nullable
   PsiElement getId();
 
 }

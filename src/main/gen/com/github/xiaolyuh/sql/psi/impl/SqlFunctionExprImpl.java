@@ -34,21 +34,15 @@ public class SqlFunctionExprImpl extends SqlExprImpl implements SqlFunctionExpr 
   }
 
   @Override
-  @Nullable
+  @NotNull
   public SqlFunctionName getFunctionName() {
-    return findChildByClass(SqlFunctionName.class);
+    return findNotNullChildByClass(SqlFunctionName.class);
   }
 
   @Override
   @Nullable
   public PsiElement getDistinct() {
     return findChildByType(DISTINCT);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getIf() {
-    return findChildByType(IF);
   }
 
 }
