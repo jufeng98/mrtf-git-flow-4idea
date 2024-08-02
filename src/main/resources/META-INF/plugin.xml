@@ -246,6 +246,9 @@
         <colorSettingsPage
                 implementation="com.github.xiaolyuh.sql.highlight.SqlColorSettingsPage"/>
         <highlightVisitor implementation="com.github.xiaolyuh.sql.highlight.SqlRainbowVisitor"/>
+        <lang.braceMatcher language="sql"
+                           implementationClass="com.github.xiaolyuh.sql.bracematcher.SqlPairedBraceMatcher"/>
+        <quoteHandler fileType="SQL" className="com.github.xiaolyuh.sql.quotehandler.SqlQuoteHandler"/>
         <multiHostInjector
                 implementation="com.github.xiaolyuh.sql.inject.SqlMultiHostInjector"/>
         <psi.referenceContributor language="sql"
