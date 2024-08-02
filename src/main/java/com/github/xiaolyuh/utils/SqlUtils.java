@@ -141,7 +141,8 @@ public class SqlUtils {
      * 获取列名前的表别名对应的表别名元素
      */
     public static @Nullable SqlTableAlias getTableAliasOfColumn(Map<String, List<SqlTableAlias>> aliasMap, SqlTableName columnTableAliasName) {
-        List<SqlTableAlias> sqlTableAliases = aliasMap.get(columnTableAliasName.getText());
+        String name = columnTableAliasName.getName();
+        List<SqlTableAlias> sqlTableAliases = aliasMap.get(name);
         if (sqlTableAliases == null) {
             return null;
         }
@@ -193,6 +194,7 @@ public class SqlUtils {
     }
 
     public static Map<String, List<SqlTableAlias>> getAliasMap(Collection<SqlJoinClause> sqlJoinClauses) {
+        //noinspection DataFlowIssue
         return sqlJoinClauses.stream()
                 .map(sqlJoinClause -> {
                     List<SqlTableOrSubquery> tableOrSubqueryList = sqlJoinClause.getTableOrSubqueryList();
@@ -202,7 +204,7 @@ public class SqlUtils {
                             .collect(Collectors.toList());
                 })
                 .flatMap(Collection::stream)
-                .collect(Collectors.groupingBy(SqlTableAlias::getText));
+                .collect(Collectors.groupingBy(SqlTableAlias::getName));
     }
 
     public static PsiElement getLastChildElement(PsiElement psiElement) {
