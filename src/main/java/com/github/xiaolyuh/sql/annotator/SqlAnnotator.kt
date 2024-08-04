@@ -1,7 +1,7 @@
 package com.github.xiaolyuh.sql.annotator
 
 import com.dbn.cache.CacheDbTable
-import com.github.xiaolyuh.dbn.DbnToolWindowPsiElement.Companion.getFirstConnCacheDbTables
+import com.dbn.navigation.psi.DbnToolWindowPsiElement.Companion.getFirstConnCacheDbTables
 import com.github.xiaolyuh.sql.psi.*
 import com.github.xiaolyuh.utils.SqlUtils
 import com.intellij.codeInspection.ProblemHighlightType

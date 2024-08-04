@@ -2,12 +2,12 @@ package com.github.xiaolyuh.sql.doc
 
 import com.dbn.cache.CacheDbColumn
 import com.dbn.cache.CacheDbTable
-import com.github.xiaolyuh.dbn.DbnToolWindowPsiElement
+import com.dbn.navigation.psi.DbnToolWindowPsiElement
 import com.intellij.lang.documentation.AbstractDocumentationProvider
 import com.intellij.lang.documentation.DocumentationMarkup.*
 import com.intellij.psi.PsiElement
 import java.util.*
-import kotlin.streams.toList
+import java.util.stream.Collectors
 
 class SqlDocumentationProvider : AbstractDocumentationProvider() {
 
@@ -32,7 +32,7 @@ class SqlDocumentationProvider : AbstractDocumentationProvider() {
                     generateColumnDoc(cacheDbTable, cacheDbColumn)
                 }
                 .filter(Objects::nonNull)
-                .toList()
+                .collect(Collectors.toList())
 
             return if (columnDocList.isEmpty()) {
                 "<div style='color:red'>错误: 在${element.tableNames}中未能解析列${element.columnName}!</div>"

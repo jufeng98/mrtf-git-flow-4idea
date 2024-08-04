@@ -2,7 +2,7 @@ package com.github.xiaolyuh.sql.completion;
 
 import com.dbn.cache.CacheDbTable;
 import com.dbn.common.util.Naming;
-import com.github.xiaolyuh.dbn.DbnToolWindowPsiElement;
+import com.dbn.navigation.psi.DbnToolWindowPsiElement;
 import com.github.xiaolyuh.sql.parser.SqlFile;
 import com.github.xiaolyuh.sql.psi.SqlColumnName;
 import com.github.xiaolyuh.sql.psi.SqlStatement;

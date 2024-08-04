@@ -2,8 +2,8 @@ package com.github.xiaolyuh.sql.reference
 
 import com.dbn.cache.CacheDbColumn
 import com.dbn.cache.CacheDbTable
-import com.github.xiaolyuh.dbn.DbnToolWindowPsiElement
-import com.github.xiaolyuh.dbn.DbnToolWindowPsiElement.Companion.getFirstConnCacheDbTables
+import com.dbn.navigation.psi.DbnToolWindowPsiElement
+import com.dbn.navigation.psi.DbnToolWindowPsiElement.Companion.getFirstConnCacheDbTables
 import com.github.xiaolyuh.sql.psi.*
 import com.github.xiaolyuh.utils.SqlUtils
 import com.intellij.codeInsight.completion.InsertionContext
@@ -14,7 +14,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiReferenceBase
 import com.intellij.psi.util.PsiTreeUtil
 import java.util.*
-import kotlin.streams.toList
+import java.util.stream.Collectors
 
 class TableOrColumnPsiReference(
     sqlStatement: SqlStatement,
@@ -95,7 +95,7 @@ class TableOrColumnPsiReference(
                             .bold()
                     }
             }
-            .toList()
+            .collect(Collectors.toList())
             .flatten()
             .toTypedArray()
     }
