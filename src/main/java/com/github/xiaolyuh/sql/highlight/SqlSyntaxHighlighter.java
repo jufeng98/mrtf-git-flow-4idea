@@ -1,5 +1,6 @@
 package com.github.xiaolyuh.sql.highlight;
 
+import com.dbn.code.sql.color.SQLTextAttributesKeys;
 import com.github.xiaolyuh.sql.parser.SqlAdapter;
 import com.github.xiaolyuh.sql.psi.SqlTypes;
 import com.github.xiaolyuh.utils.SqlUtils;
@@ -10,7 +11,6 @@ import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.fileTypes.SyntaxHighlighterBase;
 import com.intellij.psi.TokenType;
 import com.intellij.psi.tree.IElementType;
-import com.intellij.xdebugger.ui.DebuggerColors;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -27,7 +27,7 @@ public class SqlSyntaxHighlighter extends SyntaxHighlighterBase {
         fillMap(ourAttributes, DOT, SqlTypes.DOT);
         fillMap(ourAttributes, NUMBER, SqlTypes.DIGIT);
         fillMap(ourAttributes, STRING, SqlTypes.STRING);
-        fillMap(ourAttributes, DebuggerColors.INLINED_VALUES_MODIFIED, SqlTypes.MYBATIS_OGNL);
+        fillMap(ourAttributes, SQLTextAttributesKeys.PARAMETER, SqlTypes.MYBATIS_OGNL);
         fillMap(ourAttributes, COMMENT, SqlTypes.COMMENT, SqlTypes.BLOCK_COMMENT);
         fillMap(ourAttributes, BAD_CHARACTER, TokenType.BAD_CHARACTER);
 
