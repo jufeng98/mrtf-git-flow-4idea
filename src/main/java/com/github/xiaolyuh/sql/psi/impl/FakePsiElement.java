@@ -1,6 +1,6 @@
 package com.github.xiaolyuh.sql.psi.impl;
 
-import com.github.xiaolyuh.utils.TooltipUtils;
+import com.dbn.utils.TooltipUtils;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.psi.PsiElement;
 
@@ -14,6 +14,6 @@ public class FakePsiElement extends ASTWrapperPsiElement {
 
     @Override
     public void navigate(boolean requestFocus) {
-        TooltipUtils.showTooltip("无法找到要跳转的声明", element.getProject());
+        TooltipUtils.INSTANCE.showTooltip("无法找到要跳转的声明", element.getProject());
     }
 }
