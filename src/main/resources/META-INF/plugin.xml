@@ -249,10 +249,13 @@
         <lang.braceMatcher language="sql"
                            implementationClass="com.github.xiaolyuh.sql.bracematcher.SqlPairedBraceMatcher"/>
         <quoteHandler fileType="SQL" className="com.github.xiaolyuh.sql.quotehandler.SqlQuoteHandler"/>
+        <lang.namesValidator language="sql" implementationClass="com.github.xiaolyuh.sql.name.SqlNamesValidator"/>
         <multiHostInjector
                 implementation="com.github.xiaolyuh.sql.inject.SqlMultiHostInjector"/>
         <psi.referenceContributor language="sql"
                                   implementation="com.github.xiaolyuh.sql.reference.SqlReferenceContributor"/>
+        <lang.findUsagesProvider language="sql"
+                                 implementationClass="com.github.xiaolyuh.sql.usage.SqlFindUsageProvider"/>
         <highlightErrorFilter implementation="com.github.xiaolyuh.sql.highlight.SqlHighlightErrorFilter"/>
         <lang.commenter
                 language="sql"
@@ -268,6 +271,12 @@
                 implementation="com.github.xiaolyuh.sql.codestyle.SqlLanguageCodeStyleSettingsProvider"/>
         <preFormatProcessor implementation="com.github.xiaolyuh.sql.formatter.SqlFormatPreprocessor"/>
         <lang.foldingBuilder language="sql" implementationClass="com.github.xiaolyuh.sql.folding.SqlFoldingBuilder"/>
+        <spellchecker.support language="sql"
+                              implementationClass="com.github.xiaolyuh.sql.spell.SqlSpellcheckerStrategy"/>
+        <lang.psiStructureViewFactory language="sql"
+                                      implementationClass="com.github.xiaolyuh.sql.structure.SqlStructureViewBuilderProvider"/>
+        <lang.elementManipulator forClass="com.github.xiaolyuh.sql.psi.SqlStatement"
+                                 implementationClass="com.github.xiaolyuh.sql.manipulator.SqlManipulator"/>
     </extensions>
 
     <projectListeners>

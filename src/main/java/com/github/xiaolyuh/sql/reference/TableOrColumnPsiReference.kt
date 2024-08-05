@@ -72,7 +72,7 @@ class TableOrColumnPsiReference(
                 ""
             }
 
-        return sqlTableNames.stream()
+        val lookupElementBuilders: Array<Any> = sqlTableNames.stream()
             .map {
                 tableMap[it.text]
             }
@@ -98,5 +98,20 @@ class TableOrColumnPsiReference(
             .collect(Collectors.toList())
             .flatten()
             .toTypedArray()
+
+        if (SqlUtils.isInOrderGroupBy(sqlColumnName)) {
+            val sqlColumnAliases = SqlUtils.getSqlColumnAliases(sqlColumnName)
+            val builderList: Array<Any> = sqlColumnAliases
+                .map {
+                    val typeText = PsiTreeUtil.getPrevSiblingOfType(it, SqlColumnExpr::class.java)?.text + " 列别名"
+                    LookupElementBuilder.create(it.name!!)
+                        .withTypeText(typeText, true)
+                        .bold()
+                }
+                .toTypedArray()
+            return arrayOf(*lookupElementBuilders, *builderList)
+        }
+
+        return lookupElementBuilders
     }
 }

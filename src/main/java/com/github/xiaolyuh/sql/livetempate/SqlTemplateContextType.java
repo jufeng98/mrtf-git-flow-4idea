@@ -1,38 +1,21 @@
 package com.github.xiaolyuh.sql.livetempate;
 
-import com.dbn.language.common.psi.LeafPsiElement;
-import com.dbn.language.common.psi.PsiUtil;
-import com.github.xiaolyuh.sql.SqlLanguage;
-import com.github.xiaolyuh.sql.highlight.SqlSyntaxHighlighter;
+import com.github.xiaolyuh.sql.SqlFileType;
+import com.github.xiaolyuh.sql.parser.SqlFile;
+import com.intellij.codeInsight.template.FileTypeBasedContextType;
 import com.intellij.codeInsight.template.TemplateActionContext;
-import com.intellij.codeInsight.template.TemplateContextType;
-import com.intellij.lang.Language;
-import com.intellij.openapi.fileTypes.SyntaxHighlighter;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-public class SqlTemplateContextType extends TemplateContextType {
+public class SqlTemplateContextType extends FileTypeBasedContextType {
     protected SqlTemplateContextType() {
-        super("gfp-sql", "SQL (GitFlowPlus)");
+        super("gfp-sql", "SQL", SqlFileType.INSTANCE);
     }
 
     @Override
     public boolean isInContext(@NotNull TemplateActionContext templateActionContext) {
         PsiFile psiFile = templateActionContext.getFile();
-        int startOffset = templateActionContext.getStartOffset();
-        Language language = psiFile.getLanguage();
-        if (!(language instanceof SqlLanguage)) {
-            return false;
-        }
-
-        LeafPsiElement<?> leafPsiElement = PsiUtil.lookupLeafBeforeOffset(psiFile, startOffset);
-        return leafPsiElement == null;
+        return psiFile instanceof SqlFile;
     }
 
-    @Nullable
-    @Override
-    public SyntaxHighlighter createHighlighter() {
-        return new SqlSyntaxHighlighter();
-    }
 }

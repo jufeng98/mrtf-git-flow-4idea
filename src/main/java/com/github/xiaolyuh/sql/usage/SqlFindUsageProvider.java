@@ -2,6 +2,7 @@ package com.github.xiaolyuh.sql.usage;
 
 import com.github.xiaolyuh.sql.psi.SqlNamedElement;
 import com.intellij.json.JsonBundle;
+import com.intellij.lang.HelpID;
 import com.intellij.lang.findUsages.FindUsagesProvider;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
@@ -19,7 +20,7 @@ public class SqlFindUsageProvider implements FindUsagesProvider {
 
     @Override
     public @Nullable @NonNls String getHelpId(@NotNull PsiElement psiElement) {
-        return null;
+        return HelpID.FIND_OTHER_USAGES;
     }
 
     @Override

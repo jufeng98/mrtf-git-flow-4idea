@@ -81,7 +81,11 @@ public class SqlUtils {
             SqlTypes.GROUP
     );
 
-    public static boolean isKeyword(IElementType tokenType) {
+    public static boolean isKeyword(@Nullable IElementType tokenType) {
+        if (tokenType == null) {
+            return false;
+        }
+
         return SqlUtils.SQL_KEYWORDS.contains(tokenType);
     }
 
@@ -100,19 +104,26 @@ public class SqlUtils {
                 || getNextSiblingOfType(element, SqlTypes.MULTIPLY) != null;
     }
 
+    public static boolean isInOrderGroupBy(SqlColumnName sqlColumnName) {
+        SqlOrderingTerm sqlOrderingTerm = PsiTreeUtil.getParentOfType(sqlColumnName, SqlOrderingTerm.class);
+        SqlGroupingTerm sqlGroupingTerm = PsiTreeUtil.getParentOfType(sqlColumnName, SqlGroupingTerm.class);
+        return sqlGroupingTerm != null || sqlOrderingTerm != null;
+    }
+
+    public static Collection<SqlColumnAlias> getSqlColumnAliases(SqlColumnName sqlColumnName) {
+        SqlCompoundSelectStmt sqlCompoundSelectStmt = PsiTreeUtil.getParentOfType(sqlColumnName, SqlCompoundSelectStmt.class);
+        return PsiTreeUtil.findChildrenOfType(sqlCompoundSelectStmt, SqlColumnAlias.class);
+    }
+
     /**
      * 若sqlColumnName位于order by或group by里,则尝试找到其对应的列别名
      */
     public static @Nullable SqlColumnAlias getColumnAliasIfInOrderGroupBy(SqlColumnName sqlColumnName) {
-        SqlOrderingTerm sqlOrderingTerm = PsiTreeUtil.getParentOfType(sqlColumnName, SqlOrderingTerm.class);
-        SqlGroupingTerm sqlGroupingTerm = PsiTreeUtil.getParentOfType(sqlColumnName, SqlGroupingTerm.class);
-        if (sqlGroupingTerm == null && sqlOrderingTerm == null) {
+        if (!isInOrderGroupBy(sqlColumnName)) {
             return null;
         }
 
-        SqlCompoundSelectStmt sqlCompoundSelectStmt = PsiTreeUtil.getParentOfType(sqlColumnName, SqlCompoundSelectStmt.class);
-
-        Collection<SqlColumnAlias> columnAliases = PsiTreeUtil.findChildrenOfType(sqlCompoundSelectStmt, SqlColumnAlias.class);
+        Collection<SqlColumnAlias> columnAliases = getSqlColumnAliases(sqlColumnName);
 
         String text = sqlColumnName.getText();
         Optional<SqlColumnAlias> optionalSqlColumnAlias = columnAliases.stream()

@@ -1,6 +1,6 @@
 package com.github.xiaolyuh.sql.psi.impl;
 
-import com.dbn.language.sql.SqlElementFactory;
+import com.github.xiaolyuh.sql.SqlElementFactory;
 import com.github.xiaolyuh.sql.psi.SqlColumnAlias;
 import com.github.xiaolyuh.sql.psi.SqlColumnName;
 import com.github.xiaolyuh.sql.psi.SqlStatement;
@@ -9,20 +9,21 @@ import com.github.xiaolyuh.sql.psi.SqlTableName;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.impl.source.resolve.reference.ReferenceProvidersRegistry;
-import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 
 public class SqlPsiImplUtil {
     public static final String ANTI_QUOTE_CHAR = "`";
 
     public static PsiElement setName(SqlTableAlias element, String newName) {
-        PsiElement psiElement = SqlElementFactory.createSqlElement(element.getProject(), "select * from table " + newName);
-        return PsiTreeUtil.findChildOfType(psiElement, SqlTableAlias.class);
+        SqlTableAlias sqlTableAlias = SqlElementFactory.INSTANCE.createSqlTableAlias(element.getProject(), newName);
+        element.replace(sqlTableAlias);
+        return sqlTableAlias;
     }
 
     public static PsiElement setName(SqlColumnAlias element, String newName) {
-        PsiElement psiElement = SqlElementFactory.createSqlElement(element.getProject(), "select id as " + newName + " from table");
-        return PsiTreeUtil.findChildOfType(psiElement, SqlColumnAlias.class);
+        SqlColumnAlias sqlColumnAlias = SqlElementFactory.INSTANCE.createSqlColumnAlias(element.getProject(), newName);
+        element.replace(sqlColumnAlias);
+        return sqlColumnAlias;
     }
 
     public static String getName(SqlTableAlias element) {
