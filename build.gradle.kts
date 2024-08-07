@@ -58,6 +58,8 @@ tasks {
     }
 
     patchPluginXml {
+        sinceBuild.set("221")
+        untilBuild.set("242.*")
         changeNotes.set(
             """
         <em>1.1.21<em></br

@@ -48,8 +48,6 @@
     <depends>com.intellij.properties</depends>
     <depends optional="true" config-file="gitflow-plus-dbn.xml">DBN</depends>
 
-    <idea-version since-build="221" until-build="242.*"/>
-
     <extensions defaultExtensionNs="com.intellij">
         <statusBarWidgetFactory implementation="com.github.xiaolyuh.ui.GitFlowPlusStatusBarWidgetFactory"
                                 id="GitFlowPlusStatusBarWidgetFactory" order="last"/>
