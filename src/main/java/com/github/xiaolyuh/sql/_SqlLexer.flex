@@ -134,8 +134,9 @@ CURRENT_DATE=[Cc][Uu][Rr][Rr][Ee][Nn][Tt]_[Dd][Aa][Tt][Ee]
 CURRENT_TIMESTAMP=[Cc][Uu][Rr][Rr][Ee][Nn][Tt]_[Tt][Ii][Mm][Ee][Ss][Tt][Aa][Mm][Pp]
 AUTO_INCREMENT=[Aa][Uu][Tt][Oo]_[Ii][Nn][Cc][Rr][Ee][Mm][Ee][Nn][Tt]
 UNSIGNED=[Uu][Nn][Ss][Ii][Gg][Nn][Ee][Dd]
-COLUMN_COMMENT=[Cc][Oo][Mm][Mm][Ee][Nn][Tt]
+COMMENT_WORD=[Cc][Oo][Mm][Mm][Ee][Nn][Tt]
 SEPARATOR=[Ss][Ee][Pp][Aa][Rr][Aa][Tt][Oo][Rr]
+INTERVAL=[Ii][Nn][Tt][Ee][Rr][Vv][Aa][Ll]
 MONTH=[Mm][Oo][Nn][Tt][Hh]
 DAY=[Dd][Aa][Yy]
 HOUR=[Hh][Oo][Uu][Rr]
@@ -306,8 +307,9 @@ MYBATIS_OGNL=[$#]\{[a-zA-Z0-9_@()'.,=\s]+}
   {CURRENT_TIMESTAMP}       { return CURRENT_TIMESTAMP; }
   {AUTO_INCREMENT}          { return AUTO_INCREMENT; }
   {UNSIGNED}                { return UNSIGNED; }
-  {COLUMN_COMMENT}          { return COLUMN_COMMENT; }
+  {COMMENT_WORD}            { return COMMENT_WORD; }
   {SEPARATOR}               { return SEPARATOR; }
+  {INTERVAL}                { return INTERVAL; }
   {MONTH}                   { return MONTH; }
   {DAY}                     { return DAY; }
   {HOUR}                    { return HOUR; }

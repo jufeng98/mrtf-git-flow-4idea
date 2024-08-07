@@ -126,8 +126,9 @@
         AUTO_INCREMENT='regexp:[Aa][Uu][Tt][Oo]_[Ii][Nn][Cc][Rr][Ee][Mm][Ee][Nn][Tt]'
         UNSIGNED='regexp:[Uu][Nn][Ss][Ii][Gg][Nn][Ee][Dd]'
         UNSIGNED='regexp:[Uu][Nn][Ss][Ii][Gg][Nn][Ee][Dd]'
-        COLUMN_COMMENT='regexp:[Cc][Oo][Mm][Mm][Ee][Nn][Tt]'
+        COMMENT_WORD='regexp:[Cc][Oo][Mm][Mm][Ee][Nn][Tt]'
         SEPARATOR='regexp:[Ss][Ee][Pp][Aa][Rr][Aa][Tt][Oo][Rr]'
+        INTERVAL='regexp:[Ii][Nn][Tt][Ee][Rr][Vv][Aa][Ll]'
         MONTH='regexp:[Mm][Oo][Nn][Tt][Hh]'
         DAY='regexp:[Dd][Aa][Yy]'
         HOUR='regexp:[Hh][Oo][Uu][Rr]'
@@ -226,17 +227,18 @@ create_index_stmt ::= CREATE [ UNIQUE ] INDEX [ IF NOT EXISTS ] [ database_name 
 }
 indexed_column ::= column_name [ COLLATE collation_name ] [ ASC | DESC ]
 create_table_stmt ::= CREATE [ TEMP | TEMPORARY ] TABLE [ IF NOT EXISTS ] [ database_name '.' ] table_name
-    ( '(' column_def ( ',' column_def ) * ( ',' table_constraint ) * ')' [ WITHOUT ROWID ] | AS compound_select_stmt ) {
+    ( '(' column_def ( ',' column_def ) * ( ',' table_constraint ) * ')' table_attr * [ WITHOUT ROWID ] | AS compound_select_stmt ) {
     pin = 6
 }
+table_attr ::= attr_name [ '=' attr_value ]
 column_def ::= column_name type_name ( column_constraint ) *
 type_name ::= identifier [ '(' signed_number ')' | '(' signed_number ',' signed_number ')' ]
 column_constraint ::= [ CONSTRAINT identifier ] ( PRIMARY KEY [ ASC | DESC ] conflict_clause [ AUTOINCREMENT ] |
     UNSIGNED | NOT NULL [conflict_clause] | UNIQUE conflict_clause | CHECK '(' expr ')' | AUTO_INCREMENT |
-    DEFAULT ( signed_number | literal_value | '(' expr ')' ) | COLLATE collation_name | foreign_key_clause | COLUMN_COMMENT string )
+    DEFAULT ( signed_number | literal_value | '(' expr ')' ) | COLLATE collation_name | foreign_key_clause | COMMENT_WORD string )
 signed_number ::= [ '+' | '-' ] numeric_literal
 table_constraint ::= [ CONSTRAINT identifier ] (
-    ( PRIMARY KEY | UNIQUE ) '(' indexed_column ( ',' indexed_column ) * ')' conflict_clause | CHECK '(' expr ')'
+    ( PRIMARY KEY | UNIQUE | KEY ) [ index_name ] '(' indexed_column ( ',' indexed_column ) * ')' conflict_clause | CHECK '(' expr ')'
     | FOREIGN KEY '(' column_name ( ',' column_name ) * ')' foreign_key_clause )
 foreign_key_clause ::= REFERENCES_WORD foreign_table [ '(' column_name ( ',' column_name ) * ')' ]
     [ ( ON ( DELETE | UPDATE ) ( SET NULL | SET DEFAULT | CASCADE | RESTRICT | NO ACTION ) | MATCH identifier )* ]
@@ -310,7 +312,7 @@ expr ::= ( raise_expr
          | keyword_expr
          | bind_expr)
 
-keyword_expr ::= MONTH | DAY | HOUR | MINUTE | SEPARATOR
+keyword_expr ::= MONTH | DAY | HOUR | MINUTE | SEPARATOR | INTERVAL
 literal_expr ::= literal_value
 bind_expr ::= bind_parameter
 mybatis_expr ::= MYBATIS_OGNL
@@ -434,6 +436,8 @@ table_alias ::= id {
 }
 foreign_table ::= id
 identifier ::= id
+attr_name ::= id | AUTO_INCREMENT | DEFAULT | COMMENT_WORD
+attr_value ::= id | string | digit
 pragma_name ::= id
 function_name ::= id | IF
 string_literal ::= string

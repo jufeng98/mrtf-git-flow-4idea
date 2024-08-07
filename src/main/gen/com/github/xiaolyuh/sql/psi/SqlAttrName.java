@@ -5,24 +5,18 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface SqlKeywordExpr extends SqlExpr {
+public interface SqlAttrName extends PsiElement {
 
   @Nullable
-  PsiElement getDay();
+  PsiElement getAutoIncrement();
 
   @Nullable
-  PsiElement getHour();
+  PsiElement getCommentWord();
 
   @Nullable
-  PsiElement getInterval();
+  PsiElement getDefault();
 
   @Nullable
-  PsiElement getMinute();
-
-  @Nullable
-  PsiElement getMonth();
-
-  @Nullable
-  PsiElement getSeparator();
+  PsiElement getId();
 
 }

@@ -19,6 +19,14 @@ public class SqlVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitAttrName(@NotNull SqlAttrName o) {
+    visitPsiElement(o);
+  }
+
+  public void visitAttrValue(@NotNull SqlAttrValue o) {
+    visitPsiElement(o);
+  }
+
   public void visitBeginStmt(@NotNull SqlBeginStmt o) {
     visitPsiElement(o);
   }
@@ -381,6 +389,10 @@ public class SqlVisitor extends PsiElementVisitor {
 
   public void visitTableAlias(@NotNull SqlTableAlias o) {
     visitNamedElement(o);
+  }
+
+  public void visitTableAttr(@NotNull SqlTableAttr o) {
+    visitPsiElement(o);
   }
 
   public void visitTableConstraint(@NotNull SqlTableConstraint o) {

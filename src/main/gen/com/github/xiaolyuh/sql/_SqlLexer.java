@@ -130,21 +130,21 @@ public class _SqlLexer implements FlexLexer {
     "\1\142\3\25\1\143\3\25\1\144\1\25\1\145\1\146"+
     "\1\25\1\147\2\25\1\150\3\25\1\151\1\25\1\152"+
     "\2\25\1\153\5\25\1\154\1\155\1\25\1\156\1\157"+
-    "\1\25\1\160\2\25\1\161\1\162\3\25\1\163\2\25"+
+    "\1\25\1\160\2\25\1\161\1\162\3\25\1\163\3\25"+
     "\1\164\1\25\1\165\1\166\3\25\1\167\2\25\1\170"+
     "\4\25\1\171\4\25\1\172\1\25\1\173\1\174\1\175"+
     "\2\25\1\176\2\25\1\177\1\200\1\201\1\202\4\25"+
     "\1\203\4\25\1\204\1\205\1\25\1\206\1\25\1\207"+
-    "\1\25\1\210\1\211\2\25\1\212\1\213\1\214\6\25"+
+    "\2\25\1\210\1\211\2\25\1\212\1\213\1\214\6\25"+
     "\1\215\1\25\1\216\1\217\2\25\1\220\2\25\1\221"+
-    "\1\25\1\222\1\223\6\25\1\224\1\225\4\25\1\226"+
-    "\6\25\1\227\1\230\1\231\1\232\1\233\1\25\1\234"+
-    "\1\235\1\236\3\25\1\237\2\25\1\240\1\241\5\25"+
-    "\1\242\2\25\1\243\1\244\1\245\2\25\1\246\3\25"+
-    "\1\247";
+    "\1\25\1\222\1\223\4\25\1\224\2\25\1\225\1\226"+
+    "\4\25\1\227\6\25\1\230\1\231\1\232\1\233\1\234"+
+    "\1\25\1\235\1\236\1\237\3\25\1\240\2\25\1\241"+
+    "\1\242\5\25\1\243\2\25\1\244\1\245\1\246\2\25"+
+    "\1\247\3\25\1\250";
 
   private static int [] zzUnpackAction() {
-    int [] result = new int[625];
+    int [] result = new int[628];
     int offset = 0;
     offset = zzUnpackAction(ZZ_ACTION_PACKED_0, offset, result);
     return result;
@@ -230,27 +230,27 @@ public class _SqlLexer implements FlexLexer {
     "\0\u7416\0\u7464\0\u74b2\0\u0af8\0\u7500\0\u0af8\0\u754e\0\u759c"+
     "\0\u0af8\0\u75ea\0\u7638\0\u7686\0\u76d4\0\u7722\0\u0af8\0\u0af8"+
     "\0\u7770\0\u0af8\0\u0af8\0\u77be\0\u0af8\0\u780c\0\u785a\0\u0af8"+
-    "\0\u0af8\0\u78a8\0\u78f6\0\u7944\0\u0af8\0\u7992\0\u79e0\0\u0af8"+
-    "\0\u7a2e\0\u0af8\0\u0af8\0\u7a7c\0\u7aca\0\u7b18\0\u0af8\0\u7b66"+
-    "\0\u7bb4\0\u0af8\0\u7c02\0\u7c50\0\u7c9e\0\u7cec\0\u0af8\0\u7d3a"+
-    "\0\u7d88\0\u7dd6\0\u7e24\0\u0af8\0\u7e72\0\u0af8\0\u0af8\0\u0af8"+
-    "\0\u7ec0\0\u7f0e\0\u0af8\0\u7f5c\0\u7faa\0\u0af8\0\u0af8\0\u0af8"+
-    "\0\u0af8\0\u7ff8\0\u8046\0\u8094\0\u80e2\0\u0af8\0\u8130\0\u817e"+
-    "\0\u81cc\0\u821a\0\u0af8\0\u0af8\0\u8268\0\u0af8\0\u82b6\0\u0af8"+
-    "\0\u8304\0\u0af8\0\u0af8\0\u8352\0\u83a0\0\u0af8\0\u0af8\0\u0af8"+
-    "\0\u83ee\0\u843c\0\u848a\0\u84d8\0\u8526\0\u8574\0\u0af8\0\u85c2"+
-    "\0\u0af8\0\u0af8\0\u8610\0\u865e\0\u0af8\0\u86ac\0\u86fa\0\u0af8"+
-    "\0\u8748\0\u0af8\0\u0af8\0\u8796\0\u87e4\0\u8832\0\u8880\0\u88ce"+
-    "\0\u891c\0\u0af8\0\u0af8\0\u896a\0\u89b8\0\u8a06\0\u8a54\0\u0af8"+
-    "\0\u8aa2\0\u8af0\0\u8b3e\0\u8b8c\0\u8bda\0\u8c28\0\u0af8\0\u0af8"+
-    "\0\u0af8\0\u0af8\0\u0af8\0\u8c76\0\u0af8\0\u0af8\0\u0af8\0\u8cc4"+
-    "\0\u8d12\0\u8d60\0\u0af8\0\u8dae\0\u8dfc\0\u0af8\0\u0af8\0\u8e4a"+
-    "\0\u8e98\0\u8ee6\0\u8f34\0\u8f82\0\u0af8\0\u8fd0\0\u901e\0\u0af8"+
-    "\0\u906c\0\u0af8\0\u90ba\0\u9108\0\u0af8\0\u9156\0\u91a4\0\u91f2"+
-    "\0\u0af8";
+    "\0\u0af8\0\u78a8\0\u78f6\0\u7944\0\u0af8\0\u7992\0\u79e0\0\u7a2e"+
+    "\0\u0af8\0\u7a7c\0\u0af8\0\u0af8\0\u7aca\0\u7b18\0\u7b66\0\u0af8"+
+    "\0\u7bb4\0\u7c02\0\u0af8\0\u7c50\0\u7c9e\0\u7cec\0\u7d3a\0\u0af8"+
+    "\0\u7d88\0\u7dd6\0\u7e24\0\u7e72\0\u0af8\0\u7ec0\0\u0af8\0\u0af8"+
+    "\0\u0af8\0\u7f0e\0\u7f5c\0\u0af8\0\u7faa\0\u7ff8\0\u0af8\0\u0af8"+
+    "\0\u0af8\0\u0af8\0\u8046\0\u8094\0\u80e2\0\u8130\0\u0af8\0\u817e"+
+    "\0\u81cc\0\u821a\0\u8268\0\u0af8\0\u0af8\0\u82b6\0\u0af8\0\u8304"+
+    "\0\u0af8\0\u8352\0\u83a0\0\u0af8\0\u0af8\0\u83ee\0\u843c\0\u0af8"+
+    "\0\u0af8\0\u0af8\0\u848a\0\u84d8\0\u8526\0\u8574\0\u85c2\0\u8610"+
+    "\0\u0af8\0\u865e\0\u0af8\0\u0af8\0\u86ac\0\u86fa\0\u0af8\0\u8748"+
+    "\0\u8796\0\u0af8\0\u87e4\0\u0af8\0\u0af8\0\u8832\0\u8880\0\u88ce"+
+    "\0\u891c\0\u0af8\0\u896a\0\u89b8\0\u0af8\0\u0af8\0\u8a06\0\u8a54"+
+    "\0\u8aa2\0\u8af0\0\u0af8\0\u8b3e\0\u8b8c\0\u8bda\0\u8c28\0\u8c76"+
+    "\0\u8cc4\0\u0af8\0\u0af8\0\u0af8\0\u0af8\0\u0af8\0\u8d12\0\u0af8"+
+    "\0\u0af8\0\u0af8\0\u8d60\0\u8dae\0\u8dfc\0\u0af8\0\u8e4a\0\u8e98"+
+    "\0\u0af8\0\u0af8\0\u8ee6\0\u8f34\0\u8f82\0\u8fd0\0\u901e\0\u0af8"+
+    "\0\u906c\0\u90ba\0\u0af8\0\u9108\0\u0af8\0\u9156\0\u91a4\0\u0af8"+
+    "\0\u91f2\0\u9240\0\u928e\0\u0af8";
 
   private static int [] zzUnpackRowMap() {
-    int [] result = new int[625];
+    int [] result = new int[628];
     int offset = 0;
     offset = zzUnpackRowMap(ZZ_ROWMAP_PACKED_0, offset, result);
     return result;
@@ -664,132 +664,135 @@ public class _SqlLexer implements FlexLexer {
     "\17\57\30\0\1\57\5\0\1\u01ec\57\57\30\0\1\57"+
     "\5\0\23\57\1\u01ed\27\57\1\u01ed\4\57\30\0\1\57"+
     "\5\0\1\u01ee\57\57\30\0\1\57\5\0\22\57\1\u01ef"+
-    "\27\57\1\u01ef\5\57\30\0\1\57\5\0\4\57\1\u01f0"+
-    "\33\57\1\u01f0\17\57\30\0\1\57\5\0\1\u01f1\33\57"+
-    "\1\u01f1\23\57\30\0\1\57\5\0\23\57\1\u01f2\27\57"+
-    "\1\u01f2\4\57\30\0\1\57\5\0\1\u01f3\33\57\1\u01f3"+
-    "\23\57\30\0\1\57\5\0\21\57\1\u01f4\27\57\1\u01f4"+
-    "\6\57\30\0\1\57\5\0\22\57\1\u01f5\27\57\1\u01f5"+
-    "\5\57\30\0\1\57\5\0\4\57\1\u01f6\33\57\1\u01f6"+
-    "\17\57\30\0\1\57\5\0\17\57\1\u01f7\30\57\1\u01f7"+
-    "\7\57\30\0\1\57\5\0\4\57\1\u01f8\33\57\1\u01f8"+
-    "\17\57\30\0\1\57\5\0\22\57\1\u01f9\27\57\1\u01f9"+
-    "\5\57\30\0\1\57\5\0\4\57\1\u01fa\33\57\1\u01fa"+
-    "\17\57\30\0\1\57\5\0\2\57\1\u01fb\55\57\30\0"+
-    "\1\57\5\0\10\57\1\u01fc\33\57\1\u01fc\13\57\30\0"+
-    "\1\57\5\0\1\u01fd\33\57\1\u01fd\23\57\30\0\1\57"+
-    "\5\0\16\57\1\u01fe\30\57\1\u01fe\10\57\30\0\1\57"+
-    "\5\0\23\57\1\u01ff\27\57\1\u01ff\4\57\30\0\1\57"+
-    "\5\0\1\u0200\33\57\1\u0200\23\57\30\0\1\57\5\0"+
-    "\21\57\1\u0201\27\57\1\u0201\6\57\30\0\1\57\5\0"+
-    "\1\u0202\33\57\1\u0202\23\57\30\0\1\57\5\0\4\57"+
-    "\1\u0203\53\57\30\0\1\57\5\0\4\57\1\u0204\33\57"+
-    "\1\u0204\17\57\30\0\1\57\5\0\15\57\1\u0205\30\57"+
-    "\1\u0205\11\57\30\0\1\57\5\0\4\57\1\u0206\33\57"+
-    "\1\u0206\17\57\30\0\1\57\5\0\14\57\1\u0207\43\57"+
-    "\30\0\1\57\5\0\22\57\1\u0208\27\57\1\u0208\5\57"+
-    "\30\0\1\57\5\0\1\u0209\57\57\30\0\1\57\5\0"+
-    "\24\57\1\u020a\27\57\1\u020a\3\57\30\0\1\57\5\0"+
-    "\4\57\1\u020b\33\57\1\u020b\17\57\30\0\1\57\5\0"+
-    "\2\57\1\u020c\33\57\1\u020c\21\57\30\0\1\57\5\0"+
-    "\15\57\1\u020d\30\57\1\u020d\11\57\30\0\1\57\5\0"+
-    "\15\57\1\u020e\30\57\1\u020e\11\57\30\0\1\57\5\0"+
-    "\4\57\1\u020f\33\57\1\u020f\17\57\30\0\1\57\5\0"+
-    "\4\57\1\u0210\33\57\1\u0210\17\57\30\0\1\57\5\0"+
-    "\23\57\1\u0211\27\57\1\u0211\4\57\30\0\1\57\5\0"+
-    "\2\57\1\u0212\55\57\30\0\1\57\5\0\1\u0213\33\57"+
-    "\1\u0213\23\57\30\0\1\57\5\0\23\57\1\u0214\27\57"+
-    "\1\u0214\4\57\30\0\1\57\5\0\22\57\1\u0215\27\57"+
-    "\1\u0215\5\57\30\0\1\57\5\0\23\57\1\u0216\27\57"+
-    "\1\u0216\4\57\30\0\1\57\5\0\1\u0217\3\57\1\u0218"+
-    "\33\57\1\u0218\17\57\30\0\1\57\5\0\4\57\1\u0218"+
-    "\33\57\1\u0218\17\57\30\0\1\57\5\0\2\57\1\u0219"+
-    "\33\57\1\u0219\21\57\30\0\1\57\5\0\10\57\1\u021a"+
-    "\33\57\1\u021a\13\57\30\0\1\57\5\0\15\57\1\u021b"+
-    "\30\57\1\u021b\11\57\30\0\1\57\5\0\15\57\1\u021c"+
-    "\30\57\1\u021c\11\57\30\0\1\57\5\0\1\u021d\33\57"+
-    "\1\u021d\23\57\30\0\1\57\5\0\3\57\1\u021e\33\57"+
-    "\1\u021e\20\57\30\0\1\57\5\0\13\57\1\u021f\44\57"+
-    "\30\0\1\57\5\0\3\57\1\u0220\54\57\30\0\1\57"+
-    "\5\0\4\57\1\u0221\33\57\1\u0221\17\57\30\0\1\57"+
-    "\5\0\13\57\1\u0222\31\57\1\u0222\12\57\30\0\1\57"+
-    "\5\0\30\57\1\u0223\26\57\1\u0223\30\0\1\57\5\0"+
-    "\10\57\1\u0224\33\57\1\u0224\13\57\30\0\1\57\5\0"+
-    "\15\57\1\u0225\30\57\1\u0225\11\57\30\0\1\57\5\0"+
-    "\27\57\1\u0226\30\57\30\0\1\57\5\0\4\57\1\u0227"+
-    "\33\57\1\u0227\17\57\30\0\1\57\5\0\4\57\1\u0228"+
-    "\53\57\30\0\1\57\5\0\2\57\1\u0229\33\57\1\u0229"+
-    "\21\57\30\0\1\57\5\0\2\57\1\u022a\33\57\1\u022a"+
-    "\21\57\30\0\1\57\5\0\10\57\1\u022b\33\57\1\u022b"+
-    "\13\57\30\0\1\57\5\0\23\57\1\u022c\27\57\1\u022c"+
-    "\4\57\30\0\1\57\5\0\1\u022d\33\57\1\u022d\23\57"+
-    "\30\0\1\57\5\0\2\57\1\u022e\33\57\1\u022e\21\57"+
-    "\30\0\1\57\5\0\21\57\1\u022f\36\57\30\0\1\57"+
-    "\5\0\4\57\1\u0230\33\57\1\u0230\17\57\30\0\1\57"+
-    "\5\0\13\57\1\u0231\44\57\30\0\1\57\5\0\23\57"+
-    "\1\u0232\27\57\1\u0232\4\57\30\0\1\57\5\0\21\57"+
-    "\1\u0233\27\57\1\u0233\6\57\30\0\1\57\5\0\2\57"+
-    "\1\u0234\33\57\1\u0234\21\57\30\0\1\57\5\0\23\57"+
-    "\1\u0235\34\57\30\0\1\57\5\0\10\57\1\u0236\33\57"+
-    "\1\u0236\13\57\30\0\1\57\5\0\33\57\1\u0237\24\57"+
-    "\30\0\1\57\5\0\4\57\1\u0238\33\57\1\u0238\17\57"+
-    "\30\0\1\57\5\0\1\57\1\u0239\56\57\30\0\1\57"+
-    "\5\0\3\57\1\u023a\33\57\1\u023a\20\57\30\0\1\57"+
-    "\5\0\23\57\1\u023b\27\57\1\u023b\4\57\30\0\1\57"+
-    "\5\0\25\57\1\u023c\27\57\1\u023c\2\57\30\0\1\57"+
-    "\5\0\23\57\1\u023d\27\57\1\u023d\4\57\30\0\1\57"+
-    "\5\0\13\57\1\u023e\44\57\30\0\1\57\5\0\2\57"+
-    "\1\u023f\33\57\1\u023f\21\57\30\0\1\57\5\0\25\57"+
-    "\1\u0240\27\57\1\u0240\2\57\30\0\1\57\5\0\2\57"+
-    "\1\u0241\33\57\1\u0241\21\57\30\0\1\57\5\0\23\57"+
-    "\1\u0242\27\57\1\u0242\4\57\30\0\1\57\5\0\12\57"+
-    "\1\u0243\45\57\30\0\1\57\5\0\15\57\1\u0244\30\57"+
-    "\1\u0244\11\57\30\0\1\57\5\0\16\57\1\u0245\30\57"+
-    "\1\u0245\10\57\30\0\1\57\5\0\21\57\1\u0246\27\57"+
-    "\1\u0246\6\57\30\0\1\57\5\0\23\57\1\u0247\27\57"+
-    "\1\u0247\4\57\30\0\1\57\5\0\3\57\1\u0248\33\57"+
-    "\1\u0248\20\57\30\0\1\57\5\0\4\57\1\u0249\33\57"+
-    "\1\u0249\17\57\30\0\1\57\5\0\21\57\1\u024a\27\57"+
-    "\1\u024a\6\57\30\0\1\57\5\0\15\57\1\u024b\30\57"+
-    "\1\u024b\11\57\30\0\1\57\5\0\3\57\1\u024c\17\57"+
-    "\1\u024d\13\57\1\u024c\13\57\1\u024d\4\57\30\0\1\57"+
-    "\5\0\13\57\1\u024e\44\57\30\0\1\57\5\0\4\57"+
-    "\1\u024f\33\57\1\u024f\17\57\30\0\1\57\5\0\4\57"+
-    "\1\u0250\33\57\1\u0250\17\57\30\0\1\57\5\0\30\57"+
-    "\1\u0251\27\57\30\0\1\57\5\0\23\57\1\u0252\27\57"+
-    "\1\u0252\4\57\30\0\1\57\5\0\4\57\1\u0253\33\57"+
-    "\1\u0253\17\57\30\0\1\57\5\0\4\57\1\u0254\33\57"+
-    "\1\u0254\17\57\30\0\1\57\5\0\23\57\1\u0255\27\57"+
-    "\1\u0255\4\57\30\0\1\57\5\0\21\57\1\u0256\27\57"+
-    "\1\u0256\6\57\30\0\1\57\5\0\30\57\1\u0257\26\57"+
-    "\1\u0257\30\0\1\57\5\0\10\57\1\u0258\33\57\1\u0258"+
-    "\13\57\30\0\1\57\5\0\14\57\1\u0259\43\57\30\0"+
-    "\1\57\5\0\4\57\1\u025a\33\57\1\u025a\17\57\30\0"+
-    "\1\57\5\0\23\57\1\u025b\27\57\1\u025b\4\57\30\0"+
-    "\1\57\5\0\1\u025c\33\57\1\u025c\23\57\30\0\1\57"+
-    "\5\0\10\57\1\u025d\33\57\1\u025d\13\57\30\0\1\57"+
-    "\5\0\4\57\1\u025e\53\57\30\0\1\57\5\0\22\57"+
-    "\1\u025f\27\57\1\u025f\5\57\30\0\1\57\5\0\16\57"+
-    "\1\u0260\30\57\1\u0260\10\57\30\0\1\57\5\0\4\57"+
-    "\1\u0261\33\57\1\u0261\17\57\30\0\1\57\5\0\14\57"+
-    "\1\u0262\43\57\30\0\1\57\5\0\23\57\1\u0263\27\57"+
-    "\1\u0263\4\57\30\0\1\57\5\0\14\57\1\u0264\43\57"+
-    "\30\0\1\57\5\0\15\57\1\u0265\30\57\1\u0265\11\57"+
-    "\30\0\1\57\5\0\15\57\1\u0266\30\57\1\u0266\11\57"+
-    "\30\0\1\57\5\0\4\57\1\u0267\33\57\1\u0267\17\57"+
-    "\30\0\1\57\5\0\4\57\1\u0268\33\57\1\u0268\17\57"+
-    "\30\0\1\57\5\0\4\57\1\u0269\33\57\1\u0269\17\57"+
-    "\30\0\1\57\5\0\23\57\1\u026a\27\57\1\u026a\4\57"+
-    "\30\0\1\57\5\0\15\57\1\u026b\30\57\1\u026b\11\57"+
-    "\30\0\1\57\5\0\22\57\1\u026c\27\57\1\u026c\5\57"+
-    "\30\0\1\57\5\0\23\57\1\u026d\27\57\1\u026d\4\57"+
-    "\30\0\1\57\5\0\23\57\1\u026e\27\57\1\u026e\4\57"+
-    "\30\0\1\57\5\0\1\u026f\33\57\1\u026f\23\57\30\0"+
-    "\1\57\5\0\14\57\1\u0270\43\57\30\0\1\57\5\0"+
-    "\17\57\1\u0271\30\57\1\u0271\7\57\5\0";
+    "\2\57\1\u01f0\24\57\1\u01ef\2\57\1\u01f0\2\57\30\0"+
+    "\1\57\5\0\4\57\1\u01f1\33\57\1\u01f1\17\57\30\0"+
+    "\1\57\5\0\1\u01f2\33\57\1\u01f2\23\57\30\0\1\57"+
+    "\5\0\23\57\1\u01f3\27\57\1\u01f3\4\57\30\0\1\57"+
+    "\5\0\1\u01f4\33\57\1\u01f4\23\57\30\0\1\57\5\0"+
+    "\21\57\1\u01f5\27\57\1\u01f5\6\57\30\0\1\57\5\0"+
+    "\22\57\1\u01f6\27\57\1\u01f6\5\57\30\0\1\57\5\0"+
+    "\4\57\1\u01f7\33\57\1\u01f7\17\57\30\0\1\57\5\0"+
+    "\17\57\1\u01f8\30\57\1\u01f8\7\57\30\0\1\57\5\0"+
+    "\4\57\1\u01f9\33\57\1\u01f9\17\57\30\0\1\57\5\0"+
+    "\22\57\1\u01fa\27\57\1\u01fa\5\57\30\0\1\57\5\0"+
+    "\4\57\1\u01fb\33\57\1\u01fb\17\57\30\0\1\57\5\0"+
+    "\2\57\1\u01fc\55\57\30\0\1\57\5\0\10\57\1\u01fd"+
+    "\33\57\1\u01fd\13\57\30\0\1\57\5\0\1\u01fe\33\57"+
+    "\1\u01fe\23\57\30\0\1\57\5\0\16\57\1\u01ff\30\57"+
+    "\1\u01ff\10\57\30\0\1\57\5\0\23\57\1\u0200\27\57"+
+    "\1\u0200\4\57\30\0\1\57\5\0\1\u0201\33\57\1\u0201"+
+    "\23\57\30\0\1\57\5\0\21\57\1\u0202\27\57\1\u0202"+
+    "\6\57\30\0\1\57\5\0\1\u0203\33\57\1\u0203\23\57"+
+    "\30\0\1\57\5\0\4\57\1\u0204\53\57\30\0\1\57"+
+    "\5\0\4\57\1\u0205\33\57\1\u0205\17\57\30\0\1\57"+
+    "\5\0\15\57\1\u0206\30\57\1\u0206\11\57\30\0\1\57"+
+    "\5\0\4\57\1\u0207\33\57\1\u0207\17\57\30\0\1\57"+
+    "\5\0\14\57\1\u0208\43\57\30\0\1\57\5\0\22\57"+
+    "\1\u0209\27\57\1\u0209\5\57\30\0\1\57\5\0\1\u020a"+
+    "\57\57\30\0\1\57\5\0\24\57\1\u020b\27\57\1\u020b"+
+    "\3\57\30\0\1\57\5\0\4\57\1\u020c\33\57\1\u020c"+
+    "\17\57\30\0\1\57\5\0\2\57\1\u020d\33\57\1\u020d"+
+    "\21\57\30\0\1\57\5\0\15\57\1\u020e\30\57\1\u020e"+
+    "\11\57\30\0\1\57\5\0\15\57\1\u020f\30\57\1\u020f"+
+    "\11\57\30\0\1\57\5\0\4\57\1\u0210\33\57\1\u0210"+
+    "\17\57\30\0\1\57\5\0\4\57\1\u0211\33\57\1\u0211"+
+    "\17\57\30\0\1\57\5\0\23\57\1\u0212\27\57\1\u0212"+
+    "\4\57\30\0\1\57\5\0\2\57\1\u0213\55\57\30\0"+
+    "\1\57\5\0\1\u0214\33\57\1\u0214\23\57\30\0\1\57"+
+    "\5\0\23\57\1\u0215\27\57\1\u0215\4\57\30\0\1\57"+
+    "\5\0\22\57\1\u0216\27\57\1\u0216\5\57\30\0\1\57"+
+    "\5\0\23\57\1\u0217\27\57\1\u0217\4\57\30\0\1\57"+
+    "\5\0\1\u0218\3\57\1\u0219\33\57\1\u0219\17\57\30\0"+
+    "\1\57\5\0\4\57\1\u0219\33\57\1\u0219\17\57\30\0"+
+    "\1\57\5\0\2\57\1\u021a\33\57\1\u021a\21\57\30\0"+
+    "\1\57\5\0\10\57\1\u021b\33\57\1\u021b\13\57\30\0"+
+    "\1\57\5\0\15\57\1\u021c\30\57\1\u021c\11\57\30\0"+
+    "\1\57\5\0\15\57\1\u021d\30\57\1\u021d\11\57\30\0"+
+    "\1\57\5\0\1\u021e\33\57\1\u021e\23\57\30\0\1\57"+
+    "\5\0\3\57\1\u021f\33\57\1\u021f\20\57\30\0\1\57"+
+    "\5\0\13\57\1\u0220\44\57\30\0\1\57\5\0\3\57"+
+    "\1\u0221\54\57\30\0\1\57\5\0\4\57\1\u0222\33\57"+
+    "\1\u0222\17\57\30\0\1\57\5\0\1\u0223\33\57\1\u0223"+
+    "\23\57\30\0\1\57\5\0\13\57\1\u0224\31\57\1\u0224"+
+    "\12\57\30\0\1\57\5\0\30\57\1\u0225\26\57\1\u0225"+
+    "\30\0\1\57\5\0\10\57\1\u0226\33\57\1\u0226\13\57"+
+    "\30\0\1\57\5\0\15\57\1\u0227\30\57\1\u0227\11\57"+
+    "\30\0\1\57\5\0\27\57\1\u0228\30\57\30\0\1\57"+
+    "\5\0\4\57\1\u0229\33\57\1\u0229\17\57\30\0\1\57"+
+    "\5\0\4\57\1\u022a\53\57\30\0\1\57\5\0\2\57"+
+    "\1\u022b\33\57\1\u022b\21\57\30\0\1\57\5\0\2\57"+
+    "\1\u022c\33\57\1\u022c\21\57\30\0\1\57\5\0\10\57"+
+    "\1\u022d\33\57\1\u022d\13\57\30\0\1\57\5\0\23\57"+
+    "\1\u022e\27\57\1\u022e\4\57\30\0\1\57\5\0\1\u022f"+
+    "\33\57\1\u022f\23\57\30\0\1\57\5\0\2\57\1\u0230"+
+    "\33\57\1\u0230\21\57\30\0\1\57\5\0\21\57\1\u0231"+
+    "\36\57\30\0\1\57\5\0\4\57\1\u0232\33\57\1\u0232"+
+    "\17\57\30\0\1\57\5\0\13\57\1\u0233\44\57\30\0"+
+    "\1\57\5\0\23\57\1\u0234\27\57\1\u0234\4\57\30\0"+
+    "\1\57\5\0\21\57\1\u0235\27\57\1\u0235\6\57\30\0"+
+    "\1\57\5\0\2\57\1\u0236\33\57\1\u0236\21\57\30\0"+
+    "\1\57\5\0\23\57\1\u0237\34\57\30\0\1\57\5\0"+
+    "\10\57\1\u0238\33\57\1\u0238\13\57\30\0\1\57\5\0"+
+    "\33\57\1\u0239\24\57\30\0\1\57\5\0\4\57\1\u023a"+
+    "\33\57\1\u023a\17\57\30\0\1\57\5\0\1\57\1\u023b"+
+    "\56\57\30\0\1\57\5\0\3\57\1\u023c\33\57\1\u023c"+
+    "\20\57\30\0\1\57\5\0\23\57\1\u023d\27\57\1\u023d"+
+    "\4\57\30\0\1\57\5\0\25\57\1\u023e\27\57\1\u023e"+
+    "\2\57\30\0\1\57\5\0\23\57\1\u023f\27\57\1\u023f"+
+    "\4\57\30\0\1\57\5\0\13\57\1\u0240\44\57\30\0"+
+    "\1\57\5\0\2\57\1\u0241\33\57\1\u0241\21\57\30\0"+
+    "\1\57\5\0\13\57\1\u0242\31\57\1\u0242\12\57\30\0"+
+    "\1\57\5\0\25\57\1\u0243\27\57\1\u0243\2\57\30\0"+
+    "\1\57\5\0\2\57\1\u0244\33\57\1\u0244\21\57\30\0"+
+    "\1\57\5\0\23\57\1\u0245\27\57\1\u0245\4\57\30\0"+
+    "\1\57\5\0\12\57\1\u0246\45\57\30\0\1\57\5\0"+
+    "\15\57\1\u0247\30\57\1\u0247\11\57\30\0\1\57\5\0"+
+    "\16\57\1\u0248\30\57\1\u0248\10\57\30\0\1\57\5\0"+
+    "\21\57\1\u0249\27\57\1\u0249\6\57\30\0\1\57\5\0"+
+    "\23\57\1\u024a\27\57\1\u024a\4\57\30\0\1\57\5\0"+
+    "\3\57\1\u024b\33\57\1\u024b\20\57\30\0\1\57\5\0"+
+    "\4\57\1\u024c\33\57\1\u024c\17\57\30\0\1\57\5\0"+
+    "\21\57\1\u024d\27\57\1\u024d\6\57\30\0\1\57\5\0"+
+    "\15\57\1\u024e\30\57\1\u024e\11\57\30\0\1\57\5\0"+
+    "\3\57\1\u024f\17\57\1\u0250\13\57\1\u024f\13\57\1\u0250"+
+    "\4\57\30\0\1\57\5\0\13\57\1\u0251\44\57\30\0"+
+    "\1\57\5\0\4\57\1\u0252\33\57\1\u0252\17\57\30\0"+
+    "\1\57\5\0\4\57\1\u0253\33\57\1\u0253\17\57\30\0"+
+    "\1\57\5\0\30\57\1\u0254\27\57\30\0\1\57\5\0"+
+    "\23\57\1\u0255\27\57\1\u0255\4\57\30\0\1\57\5\0"+
+    "\4\57\1\u0256\33\57\1\u0256\17\57\30\0\1\57\5\0"+
+    "\4\57\1\u0257\33\57\1\u0257\17\57\30\0\1\57\5\0"+
+    "\23\57\1\u0258\27\57\1\u0258\4\57\30\0\1\57\5\0"+
+    "\21\57\1\u0259\27\57\1\u0259\6\57\30\0\1\57\5\0"+
+    "\30\57\1\u025a\26\57\1\u025a\30\0\1\57\5\0\10\57"+
+    "\1\u025b\33\57\1\u025b\13\57\30\0\1\57\5\0\14\57"+
+    "\1\u025c\43\57\30\0\1\57\5\0\4\57\1\u025d\33\57"+
+    "\1\u025d\17\57\30\0\1\57\5\0\23\57\1\u025e\27\57"+
+    "\1\u025e\4\57\30\0\1\57\5\0\1\u025f\33\57\1\u025f"+
+    "\23\57\30\0\1\57\5\0\10\57\1\u0260\33\57\1\u0260"+
+    "\13\57\30\0\1\57\5\0\4\57\1\u0261\53\57\30\0"+
+    "\1\57\5\0\22\57\1\u0262\27\57\1\u0262\5\57\30\0"+
+    "\1\57\5\0\16\57\1\u0263\30\57\1\u0263\10\57\30\0"+
+    "\1\57\5\0\4\57\1\u0264\33\57\1\u0264\17\57\30\0"+
+    "\1\57\5\0\14\57\1\u0265\43\57\30\0\1\57\5\0"+
+    "\23\57\1\u0266\27\57\1\u0266\4\57\30\0\1\57\5\0"+
+    "\14\57\1\u0267\43\57\30\0\1\57\5\0\15\57\1\u0268"+
+    "\30\57\1\u0268\11\57\30\0\1\57\5\0\15\57\1\u0269"+
+    "\30\57\1\u0269\11\57\30\0\1\57\5\0\4\57\1\u026a"+
+    "\33\57\1\u026a\17\57\30\0\1\57\5\0\4\57\1\u026b"+
+    "\33\57\1\u026b\17\57\30\0\1\57\5\0\4\57\1\u026c"+
+    "\33\57\1\u026c\17\57\30\0\1\57\5\0\23\57\1\u026d"+
+    "\27\57\1\u026d\4\57\30\0\1\57\5\0\15\57\1\u026e"+
+    "\30\57\1\u026e\11\57\30\0\1\57\5\0\22\57\1\u026f"+
+    "\27\57\1\u026f\5\57\30\0\1\57\5\0\23\57\1\u0270"+
+    "\27\57\1\u0270\4\57\30\0\1\57\5\0\23\57\1\u0271"+
+    "\27\57\1\u0271\4\57\30\0\1\57\5\0\1\u0272\33\57"+
+    "\1\u0272\23\57\30\0\1\57\5\0\14\57\1\u0273\43\57"+
+    "\30\0\1\57\5\0\17\57\1\u0274\30\57\1\u0274\7\57"+
+    "\5\0";
 
   private static int [] zzUnpacktrans() {
-    int [] result = new int[37440];
+    int [] result = new int[37596];
     int offset = 0;
     offset = zzUnpacktrans(ZZ_TRANS_PACKED_0, offset, result);
     return result;
@@ -830,10 +833,10 @@ public class _SqlLexer implements FlexLexer {
     "\1\0\1\11\5\1\2\11\1\1\5\11\1\1\1\11"+
     "\2\1\1\11\47\1\3\11\1\0\3\1\6\11\122\1"+
     "\1\11\1\0\1\1\1\0\150\1\1\11\1\0\151\1"+
-    "\1\11\2\0\375\1";
+    "\1\11\2\0\u0100\1";
 
   private static int [] zzUnpackAttribute() {
-    int [] result = new int[625];
+    int [] result = new int[628];
     int offset = 0;
     offset = zzUnpackAttribute(ZZ_ATTRIBUTE_PACKED_0, offset, result);
     return result;
@@ -1151,837 +1154,842 @@ public class _SqlLexer implements FlexLexer {
             { return BAD_CHARACTER;
             }
           // fall through
-          case 168: break;
+          case 169: break;
           case 2:
             { return WHITE_SPACE;
             }
           // fall through
-          case 169: break;
+          case 170: break;
           case 3:
             { return STRING;
             }
           // fall through
-          case 170: break;
+          case 171: break;
           case 4:
             { return SHARP;
             }
           // fall through
-          case 171: break;
+          case 172: break;
           case 5:
             { return DOLLAR;
             }
           // fall through
-          case 172: break;
+          case 173: break;
           case 6:
             { return MOD;
             }
           // fall through
-          case 173: break;
+          case 174: break;
           case 7:
             { return BITWISE_AND;
             }
           // fall through
-          case 174: break;
+          case 175: break;
           case 8:
             { return LP;
             }
           // fall through
-          case 175: break;
+          case 176: break;
           case 9:
             { return RP;
             }
           // fall through
-          case 176: break;
+          case 177: break;
           case 10:
             { return MULTIPLY;
             }
           // fall through
-          case 177: break;
+          case 178: break;
           case 11:
             { return PLUS;
             }
           // fall through
-          case 178: break;
+          case 179: break;
           case 12:
             { return COMMA;
             }
           // fall through
-          case 179: break;
+          case 180: break;
           case 13:
             { return MINUS;
             }
           // fall through
-          case 180: break;
+          case 181: break;
           case 14:
             { return DOT;
             }
           // fall through
-          case 181: break;
+          case 182: break;
           case 15:
             { return DIVIDE;
             }
           // fall through
-          case 182: break;
+          case 183: break;
           case 16:
             { return DIGIT;
             }
           // fall through
-          case 183: break;
+          case 184: break;
           case 17:
             { return SEMI;
             }
           // fall through
-          case 184: break;
+          case 185: break;
           case 18:
             { return LT;
             }
           // fall through
-          case 185: break;
+          case 186: break;
           case 19:
             { return EQ;
             }
           // fall through
-          case 186: break;
+          case 187: break;
           case 20:
             { return GT;
             }
           // fall through
-          case 187: break;
+          case 188: break;
           case 21:
             { return ID;
             }
           // fall through
-          case 188: break;
+          case 189: break;
           case 22:
             { return E;
             }
           // fall through
-          case 189: break;
+          case 190: break;
           case 23:
             { return BITWISE_OR;
             }
           // fall through
-          case 190: break;
+          case 191: break;
           case 24:
             { return BITWISE_NOT;
             }
           // fall through
-          case 191: break;
+          case 192: break;
           case 25:
             { return NEQ;
             }
           // fall through
-          case 192: break;
+          case 193: break;
           case 26:
             { return COMMENT;
             }
           // fall through
-          case 193: break;
+          case 194: break;
           case 27:
             { return BLOCK_COMMENT;
             }
           // fall through
-          case 194: break;
+          case 195: break;
           case 28:
             { return SHIFT_LEFT;
             }
           // fall through
-          case 195: break;
+          case 196: break;
           case 29:
             { return LTE;
             }
           // fall through
-          case 196: break;
+          case 197: break;
           case 30:
             { return NEQ2;
             }
           // fall through
-          case 197: break;
+          case 198: break;
           case 31:
             { return EQ2;
             }
           // fall through
-          case 198: break;
+          case 199: break;
           case 32:
             { return GTE;
             }
           // fall through
-          case 199: break;
+          case 200: break;
           case 33:
             { return SHIFT_RIGHT;
             }
           // fall through
-          case 200: break;
+          case 201: break;
           case 34:
             { return AS;
             }
           // fall through
-          case 201: break;
+          case 202: break;
           case 35:
             { return BY;
             }
           // fall through
-          case 202: break;
+          case 203: break;
           case 36:
             { return IF;
             }
           // fall through
-          case 203: break;
+          case 204: break;
           case 37:
             { return IN;
             }
           // fall through
-          case 204: break;
+          case 205: break;
           case 38:
             { return IS;
             }
           // fall through
-          case 205: break;
+          case 206: break;
           case 39:
             { return NO;
             }
           // fall through
-          case 206: break;
+          case 207: break;
           case 40:
             { return OF;
             }
           // fall through
-          case 207: break;
+          case 208: break;
           case 41:
             { return ON;
             }
           // fall through
-          case 208: break;
+          case 209: break;
           case 42:
             { return OR;
             }
           // fall through
-          case 209: break;
+          case 210: break;
           case 43:
             { return TO;
             }
           // fall through
-          case 210: break;
+          case 211: break;
           case 44:
             { return CONCAT;
             }
           // fall through
-          case 211: break;
+          case 212: break;
           case 45:
             { return ADD;
             }
           // fall through
-          case 212: break;
+          case 213: break;
           case 46:
             { return ALL;
             }
           // fall through
-          case 213: break;
+          case 214: break;
           case 47:
             { return AND;
             }
           // fall through
-          case 214: break;
+          case 215: break;
           case 48:
             { return ASC;
             }
           // fall through
-          case 215: break;
+          case 216: break;
           case 49:
             { return DAY;
             }
           // fall through
-          case 216: break;
+          case 217: break;
           case 50:
             { return END;
             }
           // fall through
-          case 217: break;
+          case 218: break;
           case 51:
             { return FOR;
             }
           // fall through
-          case 218: break;
+          case 219: break;
           case 52:
             { return KEY;
             }
           // fall through
-          case 219: break;
+          case 220: break;
           case 53:
             { return NOT;
             }
           // fall through
-          case 220: break;
+          case 221: break;
           case 54:
             { return ROW;
             }
           // fall through
-          case 221: break;
+          case 222: break;
           case 55:
             { return SET;
             }
           // fall through
-          case 222: break;
+          case 223: break;
           case 56:
             { return MYBATIS_OGNL;
             }
           // fall through
-          case 223: break;
+          case 224: break;
           case 57:
             { return CASE;
             }
           // fall through
-          case 224: break;
+          case 225: break;
           case 58:
             { return CAST;
             }
           // fall through
-          case 225: break;
+          case 226: break;
           case 59:
             { return DESC;
             }
           // fall through
-          case 226: break;
+          case 227: break;
           case 60:
             { return DROP;
             }
           // fall through
-          case 227: break;
+          case 228: break;
           case 61:
             { return EACH;
             }
           // fall through
-          case 228: break;
+          case 229: break;
           case 62:
             { return ELSE;
             }
           // fall through
-          case 229: break;
+          case 230: break;
           case 63:
             { return FAIL;
             }
           // fall through
-          case 230: break;
+          case 231: break;
           case 64:
             { return FROM;
             }
           // fall through
-          case 231: break;
+          case 232: break;
           case 65:
             { return GLOB;
             }
           // fall through
-          case 232: break;
+          case 233: break;
           case 66:
             { return HOUR;
             }
           // fall through
-          case 233: break;
+          case 234: break;
           case 67:
             { return INTO;
             }
           // fall through
-          case 234: break;
+          case 235: break;
           case 68:
             { return JOIN;
             }
           // fall through
-          case 235: break;
+          case 236: break;
           case 69:
             { return LEFT;
             }
           // fall through
-          case 236: break;
+          case 237: break;
           case 70:
             { return LIKE;
             }
           // fall through
-          case 237: break;
+          case 238: break;
           case 71:
             { return NULL;
             }
           // fall through
-          case 238: break;
+          case 239: break;
           case 72:
             { return PLAN;
             }
           // fall through
-          case 239: break;
+          case 240: break;
           case 73:
             { return TEMP;
             }
           // fall through
-          case 240: break;
+          case 241: break;
           case 74:
             { return THEN;
             }
           // fall through
-          case 241: break;
+          case 242: break;
           case 75:
             { return TRUE;
             }
           // fall through
-          case 242: break;
+          case 243: break;
           case 76:
             { return VIEW;
             }
           // fall through
-          case 243: break;
+          case 244: break;
           case 77:
             { return WHEN;
             }
           // fall through
-          case 244: break;
+          case 245: break;
           case 78:
             { return WITH;
             }
           // fall through
-          case 245: break;
+          case 246: break;
           case 79:
             { return ABORT;
             }
           // fall through
-          case 246: break;
+          case 247: break;
           case 80:
             { return AFTER;
             }
           // fall through
-          case 247: break;
+          case 248: break;
           case 81:
             { return ALTER;
             }
           // fall through
-          case 248: break;
+          case 249: break;
           case 82:
             { return BEGIN;
             }
           // fall through
-          case 249: break;
+          case 250: break;
           case 83:
             { return CHECK;
             }
           // fall through
-          case 250: break;
+          case 251: break;
           case 84:
             { return CROSS;
             }
           // fall through
-          case 251: break;
+          case 252: break;
           case 85:
             { return FALSE;
             }
           // fall through
-          case 252: break;
+          case 253: break;
           case 86:
             { return GROUP;
             }
           // fall through
-          case 253: break;
+          case 254: break;
           case 87:
             { return INDEX;
             }
           // fall through
-          case 254: break;
+          case 255: break;
           case 88:
             { return INNER;
             }
           // fall through
-          case 255: break;
+          case 256: break;
           case 89:
             { return LIMIT;
             }
           // fall through
-          case 256: break;
+          case 257: break;
           case 90:
             { return MATCH;
             }
           // fall through
-          case 257: break;
+          case 258: break;
           case 91:
             { return MONTH;
             }
           // fall through
-          case 258: break;
+          case 259: break;
           case 92:
             { return ORDER;
             }
           // fall through
-          case 259: break;
+          case 260: break;
           case 93:
             { return OUTER;
             }
           // fall through
-          case 260: break;
+          case 261: break;
           case 94:
             { return QUERY;
             }
           // fall through
-          case 261: break;
+          case 262: break;
           case 95:
             { return RAISE;
             }
           // fall through
-          case 262: break;
+          case 263: break;
           case 96:
             { return ROWID;
             }
           // fall through
-          case 263: break;
+          case 264: break;
           case 97:
             { return TABLE;
             }
           // fall through
-          case 264: break;
+          case 265: break;
           case 98:
             { return UNION;
             }
           // fall through
-          case 265: break;
+          case 266: break;
           case 99:
             { return USING;
             }
           // fall through
-          case 266: break;
+          case 267: break;
           case 100:
             { return WHERE;
             }
           // fall through
-          case 267: break;
+          case 268: break;
           case 101:
             { return JAVADOC;
             }
           // fall through
-          case 268: break;
+          case 269: break;
           case 102:
             { return ACTION;
             }
           // fall through
-          case 269: break;
+          case 270: break;
           case 103:
             { return ATTACH;
             }
           // fall through
-          case 270: break;
+          case 271: break;
           case 104:
             { return BEFORE;
             }
           // fall through
-          case 271: break;
+          case 272: break;
           case 105:
             { return COLUMN;
             }
           // fall through
-          case 272: break;
+          case 273: break;
           case 106:
             { return COMMIT;
             }
           // fall through
-          case 273: break;
+          case 274: break;
           case 107:
             { return CREATE;
             }
           // fall through
-          case 274: break;
+          case 275: break;
           case 108:
             { return DELETE;
             }
           // fall through
-          case 275: break;
+          case 276: break;
           case 109:
             { return DETACH;
             }
           // fall through
-          case 276: break;
+          case 277: break;
           case 110:
             { return ESCAPE;
             }
           // fall through
-          case 277: break;
+          case 278: break;
           case 111:
             { return EXCEPT;
             }
           // fall through
-          case 278: break;
+          case 279: break;
           case 112:
             { return EXISTS;
             }
           // fall through
-          case 279: break;
+          case 280: break;
           case 113:
             { return HAVING;
             }
           // fall through
-          case 280: break;
+          case 281: break;
           case 114:
             { return IGNORE;
             }
           // fall through
-          case 281: break;
+          case 282: break;
           case 115:
             { return INSERT;
             }
           // fall through
-          case 282: break;
+          case 283: break;
           case 116:
             { return MINUTE;
             }
           // fall through
-          case 283: break;
+          case 284: break;
           case 117:
             { return OFFSET;
             }
           // fall through
-          case 284: break;
+          case 285: break;
           case 118:
             { return PRAGMA;
             }
           // fall through
-          case 285: break;
+          case 286: break;
           case 119:
             { return REGEXP;
             }
           // fall through
-          case 286: break;
+          case 287: break;
           case 120:
             { return RENAME;
             }
           // fall through
-          case 287: break;
+          case 288: break;
           case 121:
             { return SELECT;
             }
           // fall through
-          case 288: break;
+          case 289: break;
           case 122:
             { return UNIQUE;
             }
           // fall through
-          case 289: break;
+          case 290: break;
           case 123:
             { return UPDATE;
             }
           // fall through
-          case 290: break;
+          case 291: break;
           case 124:
             { return VACUUM;
             }
           // fall through
-          case 291: break;
+          case 292: break;
           case 125:
             { return VALUES;
             }
           // fall through
-          case 292: break;
+          case 293: break;
           case 126:
             { return ANALYZE;
             }
           // fall through
-          case 293: break;
+          case 294: break;
           case 127:
             { return BETWEEN;
             }
           // fall through
-          case 294: break;
+          case 295: break;
           case 128:
             { return CASCADE;
             }
           // fall through
-          case 295: break;
+          case 296: break;
           case 129:
             { return COLLATE;
             }
           // fall through
-          case 296: break;
+          case 297: break;
           case 130:
-            { return COLUMN_COMMENT;
+            { return COMMENT_WORD;
             }
           // fall through
-          case 297: break;
+          case 298: break;
           case 131:
             { return DEFAULT;
             }
           // fall through
-          case 298: break;
+          case 299: break;
           case 132:
             { return EXPLAIN;
             }
           // fall through
-          case 299: break;
+          case 300: break;
           case 133:
             { return FOREIGN;
             }
           // fall through
-          case 300: break;
+          case 301: break;
           case 134:
             { return INDEXED;
             }
           // fall through
-          case 301: break;
+          case 302: break;
           case 135:
             { return INSTEAD;
             }
           // fall through
-          case 302: break;
+          case 303: break;
           case 136:
             { return NATURAL;
             }
           // fall through
-          case 303: break;
+          case 304: break;
           case 137:
             { return PRIMARY;
             }
           // fall through
-          case 304: break;
+          case 305: break;
           case 138:
             { return REINDEX;
             }
           // fall through
-          case 305: break;
+          case 306: break;
           case 139:
             { return RELEASE;
             }
           // fall through
-          case 306: break;
+          case 307: break;
           case 140:
             { return REPLACE;
             }
           // fall through
-          case 307: break;
+          case 308: break;
           case 141:
             { return TRIGGER;
             }
           // fall through
-          case 308: break;
+          case 309: break;
           case 142:
             { return VIRTUAL;
             }
           // fall through
-          case 309: break;
+          case 310: break;
           case 143:
             { return WITHOUT;
             }
           // fall through
-          case 310: break;
+          case 311: break;
           case 144:
             { return CONFLICT;
             }
           // fall through
-          case 311: break;
+          case 312: break;
           case 145:
             { return DATABASE;
             }
           // fall through
-          case 312: break;
+          case 313: break;
           case 146:
             { return DEFERRED;
             }
           // fall through
-          case 313: break;
+          case 314: break;
           case 147:
             { return DISTINCT;
             }
           // fall through
-          case 314: break;
-          case 148:
-            { return RESTRICT;
-            }
-          // fall through
           case 315: break;
-          case 149:
-            { return ROLLBACK;
+          case 148:
+            { return INTERVAL;
             }
           // fall through
           case 316: break;
-          case 150:
-            { return UNSIGNED;
+          case 149:
+            { return RESTRICT;
             }
           // fall through
           case 317: break;
-          case 151:
-            { return EXCLUSIVE;
+          case 150:
+            { return ROLLBACK;
             }
           // fall through
           case 318: break;
-          case 152:
-            { return IMMEDIATE;
+          case 151:
+            { return UNSIGNED;
             }
           // fall through
           case 319: break;
-          case 153:
-            { return INITIALLY;
+          case 152:
+            { return EXCLUSIVE;
             }
           // fall through
           case 320: break;
-          case 154:
-            { return INTERSECT;
+          case 153:
+            { return IMMEDIATE;
             }
           // fall through
           case 321: break;
-          case 155:
-            { return RECURSIVE;
+          case 154:
+            { return INITIALLY;
             }
           // fall through
           case 322: break;
-          case 156:
-            { return SAVEPOINT;
+          case 155:
+            { return INTERSECT;
             }
           // fall through
           case 323: break;
-          case 157:
-            { return SEPARATOR;
+          case 156:
+            { return RECURSIVE;
             }
           // fall through
           case 324: break;
-          case 158:
-            { return TEMPORARY;
+          case 157:
+            { return SAVEPOINT;
             }
           // fall through
           case 325: break;
-          case 159:
-            { return CONSTRAINT;
+          case 158:
+            { return SEPARATOR;
             }
           // fall through
           case 326: break;
-          case 160:
-            { return DEFERRABLE;
+          case 159:
+            { return TEMPORARY;
             }
           // fall through
           case 327: break;
-          case 161:
-            { return REFERENCES_WORD;
+          case 160:
+            { return CONSTRAINT;
             }
           // fall through
           case 328: break;
-          case 162:
-            { return TRANSACTION;
+          case 161:
+            { return DEFERRABLE;
             }
           // fall through
           case 329: break;
-          case 163:
-            { return CURRENT_DATE;
+          case 162:
+            { return REFERENCES_WORD;
             }
           // fall through
           case 330: break;
-          case 164:
-            { return CURRENT_TIME;
+          case 163:
+            { return TRANSACTION;
             }
           // fall through
           case 331: break;
-          case 165:
-            { return AUTOINCREMENT;
+          case 164:
+            { return CURRENT_DATE;
             }
           // fall through
           case 332: break;
-          case 166:
-            { return AUTO_INCREMENT;
+          case 165:
+            { return CURRENT_TIME;
             }
           // fall through
           case 333: break;
-          case 167:
-            { return CURRENT_TIMESTAMP;
+          case 166:
+            { return AUTOINCREMENT;
             }
           // fall through
           case 334: break;
+          case 167:
+            { return AUTO_INCREMENT;
+            }
+          // fall through
+          case 335: break;
+          case 168:
+            { return CURRENT_TIMESTAMP;
+            }
+          // fall through
+          case 336: break;
           default:
             zzScanError(ZZ_NO_MATCH);
           }

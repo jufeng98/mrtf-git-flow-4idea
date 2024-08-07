@@ -11,6 +11,8 @@ public interface SqlTypes {
   IElementType ALTER_TABLE_STMT = new SqlElementType("ALTER_TABLE_STMT");
   IElementType ANALYZE_STMT = new SqlElementType("ANALYZE_STMT");
   IElementType ATTACH_STMT = new SqlElementType("ATTACH_STMT");
+  IElementType ATTR_NAME = new SqlElementType("ATTR_NAME");
+  IElementType ATTR_VALUE = new SqlElementType("ATTR_VALUE");
   IElementType BEGIN_STMT = new SqlElementType("BEGIN_STMT");
   IElementType BETWEEN_EXPR = new SqlElementType("BETWEEN_EXPR");
   IElementType BINARY_ADD_EXPR = new SqlElementType("BINARY_ADD_EXPR");
@@ -102,6 +104,7 @@ public interface SqlTypes {
   IElementType STATEMENT = new SqlElementType("STATEMENT");
   IElementType STRING_LITERAL = new SqlElementType("STRING_LITERAL");
   IElementType TABLE_ALIAS = new SqlElementType("TABLE_ALIAS");
+  IElementType TABLE_ATTR = new SqlElementType("TABLE_ATTR");
   IElementType TABLE_CONSTRAINT = new SqlElementType("TABLE_CONSTRAINT");
   IElementType TABLE_NAME = new SqlElementType("TABLE_NAME");
   IElementType TABLE_OR_INDEX_NAME = new SqlElementType("TABLE_OR_INDEX_NAME");
@@ -144,9 +147,9 @@ public interface SqlTypes {
   IElementType CHECK = new SqlTokenType("CHECK");
   IElementType COLLATE = new SqlTokenType("COLLATE");
   IElementType COLUMN = new SqlTokenType("COLUMN");
-  IElementType COLUMN_COMMENT = new SqlTokenType("COLUMN_COMMENT");
   IElementType COMMA = new SqlTokenType(",");
   IElementType COMMENT = new SqlTokenType("comment");
+  IElementType COMMENT_WORD = new SqlTokenType("COMMENT_WORD");
   IElementType COMMIT = new SqlTokenType("COMMIT");
   IElementType CONCAT = new SqlTokenType("||");
   IElementType CONFLICT = new SqlTokenType("CONFLICT");
@@ -204,6 +207,7 @@ public interface SqlTypes {
   IElementType INSERT = new SqlTokenType("INSERT");
   IElementType INSTEAD = new SqlTokenType("INSTEAD");
   IElementType INTERSECT = new SqlTokenType("INTERSECT");
+  IElementType INTERVAL = new SqlTokenType("INTERVAL");
   IElementType INTO = new SqlTokenType("INTO");
   IElementType IS = new SqlTokenType("IS");
   IElementType JAVADOC = new SqlTokenType("javadoc");
@@ -294,6 +298,12 @@ public interface SqlTypes {
       }
       else if (type == ATTACH_STMT) {
         return new SqlAttachStmtImpl(node);
+      }
+      else if (type == ATTR_NAME) {
+        return new SqlAttrNameImpl(node);
+      }
+      else if (type == ATTR_VALUE) {
+        return new SqlAttrValueImpl(node);
       }
       else if (type == BEGIN_STMT) {
         return new SqlBeginStmtImpl(node);
@@ -564,6 +574,9 @@ public interface SqlTypes {
       }
       else if (type == TABLE_ALIAS) {
         return new SqlTableAliasImpl(node);
+      }
+      else if (type == TABLE_ATTR) {
+        return new SqlTableAttrImpl(node);
       }
       else if (type == TABLE_CONSTRAINT) {
         return new SqlTableConstraintImpl(node);

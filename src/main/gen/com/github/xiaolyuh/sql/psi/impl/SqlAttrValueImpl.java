@@ -8,17 +8,17 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static com.github.xiaolyuh.sql.psi.SqlTypes.*;
+import com.github.xiaolyuh.sql.SqlPsiElement;
 import com.github.xiaolyuh.sql.psi.*;
 
-public class SqlKeywordExprImpl extends SqlExprImpl implements SqlKeywordExpr {
+public class SqlAttrValueImpl extends SqlPsiElement implements SqlAttrValue {
 
-  public SqlKeywordExprImpl(@NotNull ASTNode node) {
+  public SqlAttrValueImpl(@NotNull ASTNode node) {
     super(node);
   }
 
-  @Override
   public void accept(@NotNull SqlVisitor visitor) {
-    visitor.visitKeywordExpr(this);
+    visitor.visitAttrValue(this);
   }
 
   @Override
@@ -29,38 +29,20 @@ public class SqlKeywordExprImpl extends SqlExprImpl implements SqlKeywordExpr {
 
   @Override
   @Nullable
-  public PsiElement getDay() {
-    return findChildByType(DAY);
+  public PsiElement getDigit() {
+    return findChildByType(DIGIT);
   }
 
   @Override
   @Nullable
-  public PsiElement getHour() {
-    return findChildByType(HOUR);
+  public PsiElement getId() {
+    return findChildByType(ID);
   }
 
   @Override
   @Nullable
-  public PsiElement getInterval() {
-    return findChildByType(INTERVAL);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getMinute() {
-    return findChildByType(MINUTE);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getMonth() {
-    return findChildByType(MONTH);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getSeparator() {
-    return findChildByType(SEPARATOR);
+  public PsiElement getString() {
+    return findChildByType(STRING);
   }
 
 }

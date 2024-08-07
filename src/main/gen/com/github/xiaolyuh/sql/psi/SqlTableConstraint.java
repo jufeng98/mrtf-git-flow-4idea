@@ -22,6 +22,9 @@ public interface SqlTableConstraint extends PsiElement {
   @Nullable
   SqlIdentifier getIdentifier();
 
+  @Nullable
+  SqlIndexName getIndexName();
+
   @NotNull
   List<SqlIndexedColumn> getIndexedColumnList();
 

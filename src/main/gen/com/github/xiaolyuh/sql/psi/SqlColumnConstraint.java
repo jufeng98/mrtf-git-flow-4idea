@@ -44,7 +44,7 @@ public interface SqlColumnConstraint extends PsiElement {
   PsiElement getCollate();
 
   @Nullable
-  PsiElement getColumnComment();
+  PsiElement getCommentWord();
 
   @Nullable
   PsiElement getConstraint();

@@ -58,6 +58,12 @@ public class SqlTableConstraintImpl extends SqlPsiElement implements SqlTableCon
   }
 
   @Override
+  @Nullable
+  public SqlIndexName getIndexName() {
+    return findChildByClass(SqlIndexName.class);
+  }
+
+  @Override
   @NotNull
   public List<SqlIndexedColumn> getIndexedColumnList() {
     return PsiTreeUtil.getChildrenOfTypeAsList(this, SqlIndexedColumn.class);

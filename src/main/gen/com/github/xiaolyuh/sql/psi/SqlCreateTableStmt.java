@@ -17,6 +17,9 @@ public interface SqlCreateTableStmt extends PsiElement {
   SqlDatabaseName getDatabaseName();
 
   @NotNull
+  List<SqlTableAttr> getTableAttrList();
+
+  @NotNull
   List<SqlTableConstraint> getTableConstraintList();
 
   @NotNull

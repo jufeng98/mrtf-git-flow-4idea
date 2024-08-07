@@ -47,6 +47,12 @@ public class SqlCreateTableStmtImpl extends SqlPsiElement implements SqlCreateTa
 
   @Override
   @NotNull
+  public List<SqlTableAttr> getTableAttrList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, SqlTableAttr.class);
+  }
+
+  @Override
+  @NotNull
   public List<SqlTableConstraint> getTableConstraintList() {
     return PsiTreeUtil.getChildrenOfTypeAsList(this, SqlTableConstraint.class);
   }
