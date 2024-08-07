@@ -52,7 +52,7 @@ public class SqlUtils {
             SqlTypes.FOR,
             SqlTypes.OR,
             SqlTypes.COLUMN,
-            SqlTypes.COLUMN_COMMENT,
+            SqlTypes.COMMENT_WORD,
             SqlTypes.DEFAULT,
             SqlTypes.LIKE,
             SqlTypes.ELSE,
