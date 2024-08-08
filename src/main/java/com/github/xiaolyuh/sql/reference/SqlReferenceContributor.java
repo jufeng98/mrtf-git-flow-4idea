@@ -115,7 +115,7 @@ public class SqlReferenceContributor extends PsiReferenceContributor {
                                 return createColumnTableReference(sqlColumnName, columnTableAliasName, sqlStatement,
                                         aliasMap, textRange);
                             } else {
-                                Collection<SqlJoinClause> sqlJoinClauses = PsiTreeUtil.findChildrenOfType(sqlSelectStmt, SqlJoinClause.class);
+                                List<SqlJoinClause> sqlJoinClauses = PsiTreeUtil.getChildrenOfTypeAsList(sqlSelectStmt, SqlJoinClause.class);
                                 List<SqlTableName> tableNames = SqlUtils.getSqlTableNames(sqlJoinClauses);
                                 return new TableOrColumnPsiReference(sqlStatement, tableNames, sqlColumnName, textRange);
                             }

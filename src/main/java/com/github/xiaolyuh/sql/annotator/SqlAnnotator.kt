@@ -303,7 +303,7 @@ class SqlAnnotator : Annotator {
         }
 
         val sqlSelectStmtCurrent = PsiTreeUtil.getParentOfType(sqlColumnName, SqlSelectStmt::class.java)
-        val sqlJoinClauses = PsiTreeUtil.findChildrenOfType(sqlSelectStmtCurrent, SqlJoinClause::class.java)
+        val sqlJoinClauses = PsiTreeUtil.getChildrenOfTypeAsList(sqlSelectStmtCurrent, SqlJoinClause::class.java)
         val tableNames = SqlUtils.getSqlTableNames(sqlJoinClauses)
 
         val cacheDbTables = tableNames
