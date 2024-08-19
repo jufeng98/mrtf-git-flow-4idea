@@ -25,7 +25,7 @@ class HttpLineMarkerProvider : RelatedItemLineMarkerProvider() {
             element.getTextRange(),
             icon,
             ConstantFunction("执行请求"),
-            HttpGutterIconNavigationHandler(),
+            HttpGutterIconNavigationHandler(element),
             GutterIconRenderer.Alignment.CENTER
         ) {
             GotoRelatedItem.createItems(
