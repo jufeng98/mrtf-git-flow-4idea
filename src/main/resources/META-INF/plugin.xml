@@ -295,6 +295,8 @@
         <codeInsight.lineMarkerProvider
                 language="http"
                 implementationClass="com.github.xiaolyuh.http.gutter.HttpLineMarkerProvider"/>
+        <toolWindow id="Http Execution Console" icon="com.dbn.common.icon.Icons.WINDOW_EXECUTION_CONSOLE" anchor="bottom"
+                    factoryClass="com.github.xiaolyuh.http.ui.HttpExecutionConsoleToolWindowFactory"/>
     </extensions>
 
     <projectListeners>
