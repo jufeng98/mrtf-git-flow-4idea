@@ -11,6 +11,7 @@ public interface HttpTypes {
   IElementType BODY = new HttpElementType("BODY");
   IElementType FILE = new HttpElementType("FILE");
   IElementType HEADER = new HttpElementType("HEADER");
+  IElementType HEADERS = new HttpElementType("HEADERS");
   IElementType METHOD = new HttpElementType("METHOD");
   IElementType MULTIPART_BODY = new HttpElementType("MULTIPART_BODY");
   IElementType MULTIPART_CONTENT = new HttpElementType("MULTIPART_CONTENT");
@@ -47,6 +48,9 @@ public interface HttpTypes {
       }
       else if (type == HEADER) {
         return new HttpHeaderImpl(node);
+      }
+      else if (type == HEADERS) {
+        return new HttpHeadersImpl(node);
       }
       else if (type == METHOD) {
         return new HttpMethodImpl(node);

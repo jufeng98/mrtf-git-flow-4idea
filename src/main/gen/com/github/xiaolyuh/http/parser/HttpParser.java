@@ -72,6 +72,20 @@ public class HttpParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
+  // header*
+  public static boolean headers(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "headers")) return false;
+    Marker m = enter_section_(b, l, _NONE_, HEADERS, "<headers>");
+    while (true) {
+      int c = current_position_(b);
+      if (!header(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "headers", c)) break;
+    }
+    exit_section_(b, l, m, true, false, null);
+    return true;
+  }
+
+  /* ********************************************************** */
   // request*
   static boolean httpFile(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "httpFile")) return false;
@@ -161,7 +175,7 @@ public class HttpParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // method url version? header* body?
+  // method url version? headers? body?
   public static boolean request(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "request")) return false;
     boolean r, p;
@@ -183,14 +197,10 @@ public class HttpParser implements PsiParser, LightPsiParser {
     return true;
   }
 
-  // header*
+  // headers?
   private static boolean request_3(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "request_3")) return false;
-    while (true) {
-      int c = current_position_(b);
-      if (!header(b, l + 1)) break;
-      if (!empty_element_parsed_guard_(b, "request_3", c)) break;
-    }
+    headers(b, l + 1);
     return true;
   }
 
@@ -214,13 +224,13 @@ public class HttpParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // 'HTTP/1.0' | 'HTTP/1.1'
+  // 'HTTP/1.1' | 'HTTP/2.0'
   public static boolean version(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "version")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, VERSION, "<version>");
-    r = consumeToken(b, "HTTP/1.0");
-    if (!r) r = consumeToken(b, "HTTP/1.1");
+    r = consumeToken(b, "HTTP/1.1");
+    if (!r) r = consumeToken(b, "HTTP/2.0");
     exit_section_(b, l, m, r, false, null);
     return r;
   }

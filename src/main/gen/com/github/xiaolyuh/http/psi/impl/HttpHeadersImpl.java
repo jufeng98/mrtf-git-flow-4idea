@@ -11,14 +11,14 @@ import static com.github.xiaolyuh.http.psi.HttpTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.github.xiaolyuh.http.psi.*;
 
-public class HttpRequestImpl extends ASTWrapperPsiElement implements HttpRequest {
+public class HttpHeadersImpl extends ASTWrapperPsiElement implements HttpHeaders {
 
-  public HttpRequestImpl(@NotNull ASTNode node) {
+  public HttpHeadersImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull HttpVisitor visitor) {
-    visitor.visitRequest(this);
+    visitor.visitHeaders(this);
   }
 
   @Override
@@ -28,33 +28,9 @@ public class HttpRequestImpl extends ASTWrapperPsiElement implements HttpRequest
   }
 
   @Override
-  @Nullable
-  public HttpBody getBody() {
-    return findChildByClass(HttpBody.class);
-  }
-
-  @Override
-  @Nullable
-  public HttpHeaders getHeaders() {
-    return findChildByClass(HttpHeaders.class);
-  }
-
-  @Override
   @NotNull
-  public HttpMethod getMethod() {
-    return findNotNullChildByClass(HttpMethod.class);
-  }
-
-  @Override
-  @Nullable
-  public HttpUrl getUrl() {
-    return findChildByClass(HttpUrl.class);
-  }
-
-  @Override
-  @Nullable
-  public HttpVersion getVersion() {
-    return findChildByClass(HttpVersion.class);
+  public List<HttpHeader> getHeaderList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, HttpHeader.class);
   }
 
 }

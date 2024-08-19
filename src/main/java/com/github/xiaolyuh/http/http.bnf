@@ -31,12 +31,13 @@
   ]
 }
 httpFile ::= request*
-request ::= method url version? header* body? {
-    pin=1
+request ::= method url version? headers? body? {
+    pin = 1
 }
 url ::= URL_DESC
-version ::= 'HTTP/1.0' | 'HTTP/1.1'
+version ::= 'HTTP/1.1' | 'HTTP/2.0'
 method ::= GET | POST | DELETE | PUT
+headers ::= header*
 header ::= HEADER_DESC
 body ::= ordinary_content | multipart_content
 ordinary_content ::= file | URL_FORM_ENCODE | JSON_TEXT |XML_TEXT {
