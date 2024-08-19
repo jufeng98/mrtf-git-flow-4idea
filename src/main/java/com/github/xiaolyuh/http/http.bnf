@@ -1,0 +1,47 @@
+{
+  parserClass="com.github.xiaolyuh.http.parser.HttpParser"
+  parserUtilClass="com.github.xiaolyuh.http.parser.HttpParserUtil"
+
+  extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+
+  psiClassPrefix="Http"
+  psiImplClassSuffix="Impl"
+  psiPackage="com.github.xiaolyuh.http.psi"
+  psiImplPackage="com.github.xiaolyuh.http.psi.impl"
+
+  elementTypeHolderClass="com.github.xiaolyuh.http.psi.HttpTypes"
+  elementTypeClass="com.github.xiaolyuh.http.psi.HttpElementType"
+  tokenTypeClass="com.github.xiaolyuh.http.psi.HttpTokenType"
+  psiImplUtilClass="com.github.xiaolyuh.http.psi.impl.HttpPsiImplUtil"
+
+  tokens=[
+    T_LT='<'
+    PATH='regexp:([a-zA-Z0-9_\-./]+/?)+'
+    URL_DESC='regexp:https?://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]'
+    HEADER_DESC='regexp:[a-zA-Z\-]+:[a-zA-Z=;\\".\-/ ]+'
+    REQUEST_COMMENT='regexp:#.*'
+    LINE_COMMENT='regexp://.*'
+    URL_FORM_ENCODE="regexp:[a-zA-Z0-9&=]*"
+    JSON_TEXT="regexp:[{\[][a-zA-Z0-9._,\":'&{}\[\]\s]*"
+    XML_TEXT="regexp:<[a-zA-Z0-9]*"
+    MULTIPART_SEPERATE='regexp:--[^-]+'
+    MULTIPART_SEPERATE_END='regexp:--[^-]+--'
+    VARIABLE='regexp:\{\{[a-zA-Z0-9]+}}'
+    SPACE='regexp:\s+'
+  ]
+}
+httpFile ::= request*
+request ::= method url version? header* body? {
+    pin=1
+}
+url ::= URL_DESC
+version ::= 'HTTP/1.0' | 'HTTP/1.1'
+method ::= GET | POST | DELETE | PUT
+header ::= HEADER_DESC
+body ::= ordinary_content | multipart_content
+ordinary_content ::= file | URL_FORM_ENCODE | JSON_TEXT |XML_TEXT {
+    mixin = "com.github.xiaolyuh.http.inject.HttpPsiLanguageInjectionHost"
+}
+file ::= T_LT PATH
+multipart_content ::= multipart_body* MULTIPART_SEPERATE_END
+multipart_body ::= MULTIPART_SEPERATE header* ordinary_content

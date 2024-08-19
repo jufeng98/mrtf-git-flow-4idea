@@ -275,12 +275,34 @@
                                       implementationClass="com.github.xiaolyuh.sql.structure.SqlStructureViewBuilderProvider"/>
         <lang.elementManipulator forClass="com.github.xiaolyuh.sql.psi.SqlStatement"
                                  implementationClass="com.github.xiaolyuh.sql.manipulator.SqlManipulator"/>
+
+
+        <fileType
+                name="HTTP"
+                implementationClass="com.github.xiaolyuh.http.HttpFileType"
+                fieldName="INSTANCE"
+                language="http"
+                extensions="http"/>
+        <lang.parserDefinition
+                language="http"
+                implementationClass="com.github.xiaolyuh.http.parser.HttpParserDefinition"/>
+        <lang.ast.factory language="http" implementationClass="com.github.xiaolyuh.http.HttpASTFactory"/>
+        <lang.syntaxHighlighterFactory
+                language="http"
+                implementationClass="com.github.xiaolyuh.http.highlight.HttpSyntaxHighlighterFactory"/>
+        <multiHostInjector
+                implementation="com.github.xiaolyuh.http.inject.HttpInjectionContributor"/>
+        <codeInsight.lineMarkerProvider
+                language="http"
+                implementationClass="com.github.xiaolyuh.http.gutter.HttpLineMarkerProvider"/>
     </extensions>
 
     <projectListeners>
         <listener
                 class="com.github.xiaolyuh.listener.GitFlowPlusListener"
                 topic="com.intellij.openapi.project.ProjectManagerListener"/>
+        <listener topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"
+                  class="com.github.xiaolyuh.http.editor.HttpEditorListener"/>
     </projectListeners>
 
     <applicationListeners>
