@@ -165,7 +165,7 @@ public class KubesphereUtils {
     }
 
     public static Pair<byte[], byte[]> getBuildErrorInfo(String url, Project project) {
-        String urlPush = url + "log/?start=0";
+        String urlPush = url + "/log/?start=0";
         CompletableFuture<byte[]> futurePush = CompletableFuture.supplyAsync(() ->
         {
             try {
@@ -175,7 +175,12 @@ public class KubesphereUtils {
             }
         }).exceptionally(e -> ExceptionUtils.getStackTrace(e).getBytes(StandardCharsets.UTF_8));
 
-        String urlCompile = url + "nodes/33/steps/36/log/?start=0";
+        String compileLogPath = ConfigUtil.getCompileLogPath(project);
+        if (StringUtils.isBlank(compileLogPath)) {
+            throw new RuntimeException("未配置compileLogPath参数");
+        }
+
+        String urlCompile = url + compileLogPath;
         CompletableFuture<byte[]> futureCompile = CompletableFuture.supplyAsync(() ->
         {
             try {

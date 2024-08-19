@@ -11,6 +11,7 @@ public class K8sOptions {
     private String cluster;
     private String runsPath;
     private String crumbissuerPath;
+    private String compileLogPath;
     private String podsPath;
     private String logsPath;
     private String logDir;
@@ -47,6 +48,10 @@ public class K8sOptions {
 
     public String getCrumbissuerPath() {
         return crumbissuerPath;
+    }
+
+    public String getCompileLogPath() {
+        return compileLogPath;
     }
 
     public String getPodsPath() {

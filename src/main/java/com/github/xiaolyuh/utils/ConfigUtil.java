@@ -202,6 +202,11 @@ public class ConfigUtil {
         return MessageFormat.format(runsUrl, k8sOptions.getCluster(), k8sOptions.getNamespace());
     }
 
+    public static String getCompileLogPath(Project project) {
+        K8sOptions k8sOptions = getK8sOptions(project);
+        return k8sOptions.getCompileLogPath();
+    }
+
     public static String getPodsUrl(Project project, String serviceName) {
         K8sOptions k8sOptions = getK8sOptions(project);
         String podsUrl = k8sOptions.getHost() + k8sOptions.getPodsPath();

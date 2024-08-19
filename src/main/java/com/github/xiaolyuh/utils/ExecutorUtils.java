@@ -42,8 +42,8 @@ public class ExecutorUtils {
     private static RunTask createMonitorBuildTaskReal(String id, String selectService, Project project) {
         return () -> {
             try {
-                String url = ConfigUtil.getRunsUrl(project) + "/" + id + "/";
-                JsonObject resObj = HttpClientUtil.getForObjectWithToken(url, null, JsonObject.class, project);
+                String url = ConfigUtil.getRunsUrl(project) + "/" + id;
+                JsonObject resObj = HttpClientUtil.getForObjectWithToken(url + "/", null, JsonObject.class, project);
                 String state = resObj.get("state").getAsString();
                 if (!"FINISHED".equals(state)) {
                     sleep(10);
