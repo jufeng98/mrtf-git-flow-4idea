@@ -1,13 +1,15 @@
 package com.github.xiaolyuh.http
 
-import com.github.xiaolyuh.http.psi.*
+import com.github.xiaolyuh.http.psi.HttpBody
+import com.github.xiaolyuh.http.psi.HttpHeaders
+import com.github.xiaolyuh.http.psi.HttpMethod
+import com.github.xiaolyuh.http.psi.HttpTypes
 import com.github.xiaolyuh.utils.HttpClientUtil
-import com.google.gson.JsonArray
-import com.google.gson.JsonObject
+import com.google.gson.JsonElement
 import com.intellij.psi.util.PsiUtilCore
 import com.intellij.psi.util.elementType
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import org.apache.commons.io.FileUtils
+import java.io.File
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpClient.Version
@@ -24,7 +26,7 @@ enum class HttpRequestEnum {
             url: String,
             version: Version,
             reqHeaderMap: MutableMap<String, String>,
-            bodyPublisher: HttpRequest.BodyPublisher?
+            bodyPublisher: HttpRequest.BodyPublisher?,
         ): HttpRequest {
             val builder = HttpRequest.newBuilder()
                 .version(Version.HTTP_1_1)
@@ -42,7 +44,7 @@ enum class HttpRequestEnum {
             url: String,
             version: Version,
             reqHeaderMap: MutableMap<String, String>,
-            bodyPublisher: HttpRequest.BodyPublisher?
+            bodyPublisher: HttpRequest.BodyPublisher?,
         ): HttpRequest {
             val builder = HttpRequest.newBuilder()
                 .version(Version.HTTP_1_1)
@@ -60,26 +62,30 @@ enum class HttpRequestEnum {
     },
     ;
 
-    suspend fun executeAsync(httpUrl: HttpUrl, httpHeaders: HttpHeaders?, httpBody: HttpBody?): Pair<List<String>, Any> {
-        val url = httpUrl.text
-        val version = Version.HTTP_1_1
-
-        val headerMap = convertToReqHeaderMap(httpHeaders)
-
-        val bodyPublisher = convertToReqBodyPublisher(httpBody)
-
-        val request = createRequest(url, version, headerMap, bodyPublisher)
+    fun execute(
+        url: String,
+        version: Version,
+        reqHttpHeaders: MutableMap<String, String>,
+        bodyPublisher: HttpRequest.BodyPublisher?,
+    ): Pair<List<String>, Any> {
+        val start = System.currentTimeMillis()
+        val request = createRequest(url, version, reqHttpHeaders, bodyPublisher)
 
         val client = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(6))
             .build()
 
-        val response = withContext(Dispatchers.IO) {
-            client.send(request, HttpResponse.BodyHandlers.ofByteArray())
-        }
+        val response = client.send(request, HttpResponse.BodyHandlers.ofByteArray())
+        val size = response.body().size / 1024.0
 
         val headerDescList = convertToResHeaderDescList(response)
         val resObj = convertToResObj(response)
+
+        val consumeTimes = System.currentTimeMillis() - start
+        headerDescList.add(
+            0,
+            "版本:${response.version().name} status:${response.statusCode()} 耗时:${consumeTimes}ms 大小:${size}kb"
+        )
 
         return Pair(headerDescList, resObj)
     }
@@ -88,7 +94,7 @@ enum class HttpRequestEnum {
         url: String,
         version: Version,
         reqHeaderMap: MutableMap<String, String>,
-        bodyPublisher: HttpRequest.BodyPublisher?
+        bodyPublisher: HttpRequest.BodyPublisher?,
     ): HttpRequest
 
     companion object {
@@ -120,6 +126,19 @@ enum class HttpRequestEnum {
                 if (elementType == HttpTypes.JSON_TEXT || elementType == HttpTypes.XML_TEXT) {
                     return HttpRequest.BodyPublishers.ofString(ordinaryContent.text, StandardCharsets.UTF_8)
                 }
+
+                val httpFile = ordinaryContent.file
+                if (httpFile != null) {
+                    val path = httpBody.containingFile.virtualFile.path
+                    val filePath = httpFile.filePath.text
+                    val file = File(File(path).parentFile, filePath)
+                    if (!file.exists()) {
+                        throw IllegalArgumentException("文件${file}不存在")
+                    }
+
+                    val str = FileUtils.readFileToString(file, StandardCharsets.UTF_8)
+                    return HttpRequest.BodyPublishers.ofString(str, StandardCharsets.UTF_8)
+                }
             }
 
             return null
@@ -127,7 +146,12 @@ enum class HttpRequestEnum {
 
         fun convertToResHeaderDescList(response: HttpResponse<ByteArray>): MutableList<String> {
             val headerDescList = mutableListOf<String>()
-            headerDescList.add(response.version().name + " " + response.statusCode())
+
+            val uri = response.uri()
+            headerDescList.add("host:${uri.host}")
+            headerDescList.add("path:${uri.path}")
+            headerDescList.add("query:${uri.query ?: ""}")
+
             val headers = response.headers()
             headers.map()
                 .forEach { (t, u) ->
@@ -145,18 +169,24 @@ enum class HttpRequestEnum {
 
             if (contentType.contains("json")) {
                 val jsonStr = String(resBody, StandardCharsets.UTF_8)
-                return if (jsonStr.startsWith("{")) {
-                    HttpClientUtil.gson.fromJson(jsonStr, JsonObject::class.java)
-                } else {
-                    HttpClientUtil.gson.fromJson(jsonStr, JsonArray::class.java)
-                }
+                val jsonElement = HttpClientUtil.gson.fromJson(jsonStr, JsonElement::class.java)
+                val jsonStrPretty = HttpClientUtil.gson.toJson(jsonElement)
+                return Pair("json", jsonStrPretty.toByteArray(StandardCharsets.UTF_8))
+            }
+
+            if (contentType.contains("html")) {
+                return Pair("html", resBody)
+            }
+
+            if (contentType.contains("xml")) {
+                return Pair("xml", resBody)
             }
 
             if (contentType.contains("jpg") || contentType.contains("jpeg") || contentType.contains("png")) {
                 return ImageIO.read(resBody.inputStream())
             }
 
-            return String(resBody, StandardCharsets.UTF_8)
+            return Pair("txt", resBody)
         }
 
         fun getInstance(httpMethod: HttpMethod): HttpRequestEnum {
