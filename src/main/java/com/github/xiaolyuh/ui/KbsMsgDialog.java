@@ -236,7 +236,7 @@ public class KbsMsgDialog extends DialogWrapper {
     private TextEditor createTextEditorAndSetText(Project project, byte[] txtBytes) {
         final TextEditor[] textEditors = new TextEditor[1];
         WriteAction.runAndWait(() -> {
-            VirtualFile virtualFile = VirtualFileUtils.createVirtualFileFromText(txtBytes);
+            VirtualFile virtualFile = VirtualFileUtils.createlogVirtualFileFromText(txtBytes);
 
             TextEditor textEditor = (TextEditor) TextEditorProvider.getInstance().createEditor(project, virtualFile);
             Editor editor = textEditor.getEditor();
