@@ -16,6 +16,7 @@
 
   tokens=[
     T_LT='<'
+    T_RT='>'
     PATH='regexp:([a-zA-Z0-9_\-./]+/?)+'
     URL_DESC='regexp:https?://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]'
     HEADER_DESC='regexp:[a-zA-Z\-]+:[a-zA-Z=;\\".\-/ ]+'
@@ -27,11 +28,12 @@
     MULTIPART_SEPERATE='regexp:--[^-]+'
     MULTIPART_SEPERATE_END='regexp:--[^-]+--'
     VARIABLE='regexp:\{\{[a-zA-Z0-9]+}}'
+    JS_SCRIPT='regexp:\{%[^~]*%}'
     SPACE='regexp:\s+'
   ]
 }
 httpFile ::= request*
-request ::= method url version? headers? body? {
+request ::= method url version? headers? body? script? {
     pin = 1
 }
 url ::= URL_DESC
@@ -40,6 +42,7 @@ method ::= GET | POST | DELETE | PUT
 headers ::= header*
 header ::= HEADER_DESC
 body ::= ordinary_content | multipart_content
+script ::= T_RT JS_SCRIPT
 ordinary_content ::= file | URL_FORM_ENCODE | JSON_TEXT |XML_TEXT {
     mixin = "com.github.xiaolyuh.http.inject.HttpPsiLanguageInjectionHost"
 }
