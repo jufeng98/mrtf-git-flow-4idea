@@ -48,14 +48,27 @@ public class HttpParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // T_LT PATH
+  // T_LT file_path
   public static boolean file(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "file")) return false;
     if (!nextTokenIs(b, T_LT)) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = consumeTokens(b, 0, T_LT, PATH);
+    r = consumeToken(b, T_LT);
+    r = r && file_path(b, l + 1);
     exit_section_(b, m, FILE, r);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // PATH
+  public static boolean file_path(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "file_path")) return false;
+    if (!nextTokenIs(b, PATH)) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, PATH);
+    exit_section_(b, m, FILE_PATH, r);
     return r;
   }
 

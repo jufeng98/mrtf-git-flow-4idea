@@ -17,16 +17,16 @@
   tokens=[
     T_LT='<'
     PATH='regexp:([a-zA-Z0-9_\-./]+/?)+'
-    URL_DESC='regexp:https?://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]'
-    HEADER_DESC='regexp:[a-zA-Z\-]+:[a-zA-Z=;\\".\-/ ]+'
+    URL_DESC='regexp:https?://[-a-zA-Z0-9+&@${}#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@${}#/%=~_|]'
+    HEADER_DESC='regexp:[a-zA-Z\-]+:[a-zA-Z0-9=;\\".\-/ ]+'
     REQUEST_COMMENT='regexp:#.*'
     LINE_COMMENT='regexp://.*'
-    URL_FORM_ENCODE="regexp:[a-zA-Z0-9&=]*"
-    JSON_TEXT="regexp:[{\[][a-zA-Z0-9._,\":'&{}\[\]\s]*"
-    XML_TEXT="regexp:<[a-zA-Z0-9]*"
+    URL_FORM_ENCODE="regexp:[a-zA-Z0-9&$={}]*"
+    JSON_TEXT="regexp:[{\[][a-zA-Z0-9._,\":'&${}\[\]\s]*"
+    XML_TEXT="regexp:<[a-zA-Z0-9$/<>]*"
     MULTIPART_SEPERATE='regexp:--[^-]+'
     MULTIPART_SEPERATE_END='regexp:--[^-]+--'
-    VARIABLE='regexp:\{\{[a-zA-Z0-9]+}}'
+    VARIABLE='regexp:\{\{[a-zA-Z0-9$]+}}'
     SPACE='regexp:\s+'
   ]
 }
@@ -43,6 +43,7 @@ body ::= ordinary_content | multipart_content
 ordinary_content ::= file | URL_FORM_ENCODE | JSON_TEXT |XML_TEXT {
     mixin = "com.github.xiaolyuh.http.inject.HttpPsiLanguageInjectionHost"
 }
-file ::= T_LT PATH
+file ::= T_LT file_path
+file_path ::= PATH
 multipart_content ::= multipart_body* MULTIPART_SEPERATE_END
 multipart_body ::= MULTIPART_SEPERATE header* ordinary_content

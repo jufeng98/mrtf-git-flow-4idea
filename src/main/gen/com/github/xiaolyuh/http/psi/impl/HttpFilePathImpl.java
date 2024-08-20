@@ -11,14 +11,14 @@ import static com.github.xiaolyuh.http.psi.HttpTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.github.xiaolyuh.http.psi.*;
 
-public class HttpFileImpl extends ASTWrapperPsiElement implements HttpFile {
+public class HttpFilePathImpl extends ASTWrapperPsiElement implements HttpFilePath {
 
-  public HttpFileImpl(@NotNull ASTNode node) {
+  public HttpFilePathImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull HttpVisitor visitor) {
-    visitor.visitFile(this);
+    visitor.visitFilePath(this);
   }
 
   @Override
@@ -29,8 +29,8 @@ public class HttpFileImpl extends ASTWrapperPsiElement implements HttpFile {
 
   @Override
   @NotNull
-  public HttpFilePath getFilePath() {
-    return findNotNullChildByClass(HttpFilePath.class);
+  public PsiElement getPath() {
+    return findNotNullChildByType(PATH);
   }
 
 }

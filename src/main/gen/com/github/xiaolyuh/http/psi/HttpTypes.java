@@ -10,6 +10,7 @@ public interface HttpTypes {
 
   IElementType BODY = new HttpElementType("BODY");
   IElementType FILE = new HttpElementType("FILE");
+  IElementType FILE_PATH = new HttpElementType("FILE_PATH");
   IElementType HEADER = new HttpElementType("HEADER");
   IElementType HEADERS = new HttpElementType("HEADERS");
   IElementType METHOD = new HttpElementType("METHOD");
@@ -45,6 +46,9 @@ public interface HttpTypes {
       }
       else if (type == FILE) {
         return new HttpFileImpl(node);
+      }
+      else if (type == FILE_PATH) {
+        return new HttpFilePathImpl(node);
       }
       else if (type == HEADER) {
         return new HttpHeaderImpl(node);
