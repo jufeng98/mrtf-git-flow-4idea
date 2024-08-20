@@ -49,6 +49,9 @@
     <depends optional="true" config-file="gitflow-plus-dbn.xml">DBN</depends>
 
     <extensions defaultExtensionNs="com.intellij">
+        <highlightErrorFilter implementation="com.github.xiaolyuh.suppress.MyHighlightErrorFilter"/>
+        <lang.inspectionSuppressor language="JSON" implementationClass="com.github.xiaolyuh.suppress.MyInspectionSuppressor"/>
+
         <statusBarWidgetFactory implementation="com.github.xiaolyuh.ui.GitFlowPlusStatusBarWidgetFactory"
                                 id="GitFlowPlusStatusBarWidgetFactory" order="last"/>
 
@@ -254,7 +257,6 @@
                                   implementation="com.github.xiaolyuh.sql.reference.SqlReferenceContributor"/>
         <lang.findUsagesProvider language="sql"
                                  implementationClass="com.github.xiaolyuh.sql.usage.SqlFindUsageProvider"/>
-        <highlightErrorFilter implementation="com.github.xiaolyuh.sql.highlight.SqlHighlightErrorFilter"/>
         <lang.commenter
                 language="sql"
                 implementationClass="com.github.xiaolyuh.sql.commenter.SqlCommenter"/>
@@ -295,7 +297,10 @@
         <codeInsight.lineMarkerProvider
                 language="http"
                 implementationClass="com.github.xiaolyuh.http.gutter.HttpLineMarkerProvider"/>
-        <toolWindow id="Http Execution Console" icon="com.dbn.common.icon.Icons.WINDOW_EXECUTION_CONSOLE" anchor="bottom"
+        <toolWindow id="Http Execution"
+                    icon="com.dbn.common.icon.Icons.WINDOW_EXECUTION_CONSOLE"
+                    anchor="right"
+                    canCloseContents="true"
                     factoryClass="com.github.xiaolyuh.http.ui.HttpExecutionConsoleToolWindowFactory"/>
     </extensions>
 
