@@ -30,20 +30,8 @@ public class HttpExecutionConsoleToolWindow {
         }
 
         List<String> component1 = resPair.component1();
-        int lastIndex = component1.size() - 1;
-        for (int i = 0; i < component1.size(); i++) {
-            String res = component1.get(i);
-            if (i == 0) {
-                headerTextArea.append(res + "\r\n" + "\r\n");
-                continue;
-            }
-
-            if (i == lastIndex) {
-                headerTextArea.append(res);
-                continue;
-            }
-
-            headerTextArea.append(res + "\r\n");
+        for (String res : component1) {
+            headerTextArea.append(res);
         }
 
         TextEditor textEditor = null;

@@ -4,6 +4,7 @@ import com.github.xiaolyuh.http.psi.HttpBody
 import com.github.xiaolyuh.http.psi.HttpHeaders
 import com.github.xiaolyuh.http.psi.HttpMethod
 import com.github.xiaolyuh.http.psi.HttpTypes
+import com.github.xiaolyuh.http.resolve.VariableResolver
 import com.github.xiaolyuh.utils.HttpClientUtil
 import com.google.gson.JsonElement
 import com.intellij.psi.util.PsiUtilCore
@@ -67,8 +68,10 @@ enum class HttpRequestEnum {
         version: Version,
         reqHttpHeaders: MutableMap<String, String>,
         bodyPublisher: HttpRequest.BodyPublisher?,
+        variableMap: MutableMap<String, Any>,
     ): Pair<List<String>, Any> {
         val start = System.currentTimeMillis()
+
         val request = createRequest(url, version, reqHttpHeaders, bodyPublisher)
 
         val client = HttpClient.newBuilder()
@@ -78,13 +81,13 @@ enum class HttpRequestEnum {
         val response = client.send(request, HttpResponse.BodyHandlers.ofByteArray())
         val size = response.body().size / 1024.0
 
-        val headerDescList = convertToResHeaderDescList(response)
+        val headerDescList = convertToResHeaderDescList(response, variableMap)
         val resObj = convertToResObj(response)
 
         val consumeTimes = System.currentTimeMillis() - start
         headerDescList.add(
             0,
-            "版本:${response.version().name} status:${response.statusCode()} 耗时:${consumeTimes}ms 大小:${size}kb"
+            "版本:${response.version().name} status:${response.statusCode()} 耗时:${consumeTimes}ms 大小:${size}kb\r\n\r\n"
         )
 
         return Pair(headerDescList, resObj)
@@ -98,7 +101,10 @@ enum class HttpRequestEnum {
     ): HttpRequest
 
     companion object {
-        fun convertToReqHeaderMap(httpHeaders: HttpHeaders?): MutableMap<String, String> {
+        fun convertToReqHeaderMap(
+            httpHeaders: HttpHeaders?,
+            variableResolver: VariableResolver,
+        ): MutableMap<String, String> {
             val map = mutableMapOf<String, String>()
             if (httpHeaders != null) {
                 val headerList = httpHeaders.headerList
@@ -109,13 +115,13 @@ enum class HttpRequestEnum {
                         if (split.size != 2) {
                             throw IllegalArgumentException("请求头${text}有错误")
                         }
-                        map[split[0]] = split[1]
+                        map[split[0]] = variableResolver.resolve(split[1])
                     }
             }
             return map
         }
 
-        fun convertToReqBodyPublisher(httpBody: HttpBody?): HttpRequest.BodyPublisher? {
+        fun convertToReqBodyPublisher(httpBody: HttpBody?, variableResolver: VariableResolver): HttpRequest.BodyPublisher? {
             if (httpBody == null) {
                 return null
             }
@@ -124,7 +130,8 @@ enum class HttpRequestEnum {
             if (ordinaryContent != null) {
                 val elementType = ordinaryContent.firstChild.elementType
                 if (elementType == HttpTypes.JSON_TEXT || elementType == HttpTypes.XML_TEXT) {
-                    return HttpRequest.BodyPublishers.ofString(ordinaryContent.text, StandardCharsets.UTF_8)
+                    val resolve = variableResolver.resolve(ordinaryContent.text)
+                    return HttpRequest.BodyPublishers.ofString(resolve, StandardCharsets.UTF_8)
                 }
 
                 val httpFile = ordinaryContent.file
@@ -137,26 +144,39 @@ enum class HttpRequestEnum {
                     }
 
                     val str = FileUtils.readFileToString(file, StandardCharsets.UTF_8)
-                    return HttpRequest.BodyPublishers.ofString(str, StandardCharsets.UTF_8)
+                    val resolve = variableResolver.resolve(str)
+                    return HttpRequest.BodyPublishers.ofString(resolve, StandardCharsets.UTF_8)
                 }
             }
 
             return null
         }
 
-        fun convertToResHeaderDescList(response: HttpResponse<ByteArray>): MutableList<String> {
+        fun convertToResHeaderDescList(
+            response: HttpResponse<ByteArray>,
+            variableMap: MutableMap<String, Any>,
+        ): MutableList<String> {
             val headerDescList = mutableListOf<String>()
 
             val uri = response.uri()
-            headerDescList.add("host:${uri.host}")
-            headerDescList.add("path:${uri.path}")
-            headerDescList.add("query:${uri.query ?: ""}")
+            headerDescList.add("host:${uri.host}\r\n")
+            headerDescList.add("path:${uri.path}\r\n")
+            headerDescList.add("query:${uri.query ?: ""}\r\n")
+            headerDescList.add("\r\n")
+
+            if (variableMap.isNotEmpty()) {
+                headerDescList.add("变量\r\n")
+                variableMap.forEach {
+                    headerDescList.add("${it.key} = ${it.value}\r\n")
+                }
+                headerDescList.add("\r\n")
+            }
 
             val headers = response.headers()
             headers.map()
                 .forEach { (t, u) ->
                     u.forEach {
-                        headerDescList.add("$t : $it")
+                        headerDescList.add("$t : $it\r\n")
                     }
                 }
             return headerDescList

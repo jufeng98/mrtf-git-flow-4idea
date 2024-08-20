@@ -8,6 +8,7 @@ import com.github.xiaolyuh.http.psi.HttpBody
 import com.github.xiaolyuh.http.psi.HttpHeaders
 import com.github.xiaolyuh.http.psi.HttpMethod
 import com.github.xiaolyuh.http.psi.HttpUrl
+import com.github.xiaolyuh.http.resolve.VariableResolver
 import com.github.xiaolyuh.http.ui.HttpExecutionConsoleToolWindow
 import com.intellij.codeInsight.daemon.GutterIconNavigationHandler
 import com.intellij.openapi.application.runInEdt
@@ -36,12 +37,14 @@ class HttpGutterIconNavigationHandler(val element: HttpMethod) : GutterIconNavig
 
         val httpRequestEnum = HttpRequestEnum.getInstance(element)
 
-        val url = httpUrl.text!!
+        val variableResolver = VariableResolver()
+
+        val url = variableResolver.resolve(httpUrl.text!!)
         val version = Version.HTTP_1_1
-        val reqHeaderMap = convertToReqHeaderMap(httpHeaders)
+        val reqHeaderMap = convertToReqHeaderMap(httpHeaders, variableResolver)
         val bodyPublisher: HttpRequest.BodyPublisher?
         try {
-            bodyPublisher = convertToReqBodyPublisher(httpBody)
+            bodyPublisher = convertToReqBodyPublisher(httpBody, variableResolver)
         } catch (e: IllegalArgumentException) {
             showTooltip(e.message!!, element.project)
             return
@@ -51,11 +54,10 @@ class HttpGutterIconNavigationHandler(val element: HttpMethod) : GutterIconNavig
         val loadingRemover = component.setLoadingIconForCurrentGutterMark()!!
 
         CompletableFuture.supplyAsync {
-            httpRequestEnum.execute(url, version, reqHeaderMap, bodyPublisher)
+            httpRequestEnum.execute(url, version, reqHeaderMap, bodyPublisher, variableResolver.variableMap)
         }.whenComplete { resPair, throwable ->
             runInEdt {
                 loadingRemover.run()
-                println(throwable.message + "")
                 if (throwable is IllegalArgumentException) {
                     showTooltip(throwable.message!!, element.project)
                     return@runInEdt
