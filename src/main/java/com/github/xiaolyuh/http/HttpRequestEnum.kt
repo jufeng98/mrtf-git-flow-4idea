@@ -177,7 +177,7 @@ enum class HttpRequestEnum {
             headerDescList.add("query:${uri.query ?: ""}\r\n")
 
             if (variableMap.isNotEmpty()) {
-                headerDescList.add("变量\r\n")
+                headerDescList.add("请求变量:\r\n")
                 variableMap.forEach {
                     headerDescList.add("${it.key} = ${it.value}\r\n")
                 }

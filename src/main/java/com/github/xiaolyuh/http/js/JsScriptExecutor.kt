@@ -1,5 +1,6 @@
 package com.github.xiaolyuh.http.js
 
+import com.github.xiaolyuh.utils.HttpClientUtil
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
 import java.net.http.HttpResponse
@@ -28,7 +29,7 @@ class JsScriptExecutor {
                     },
                     set: function(key,val) {
                       this[key] = val;
-                      client.log(key + '已设置为:' + val);
+                      client.log(key + ' 已设置为: ' + val);
                     }
                   },
                   test: function(successMsg, assertCallback) {
@@ -41,42 +42,71 @@ class JsScriptExecutor {
                     if(!success) {                      
                       this.log("断言失败: " + failMsg);
                     }
-                    return success
+                    return success;
                   }                
                 }
                 function getLog() {
-                    var tmp = client.fullMsg
-                    client.fullMsg = ''
-                    return tmp
+                    var tmp = client.fullMsg;
+                    client.fullMsg = '';
+                    return tmp;
+                }
+                function getVariable(key) {
+                    return client.global.get(key);
                 }
         """.trimIndent()
         )
     }
 
-    fun evalJs(jsScript: String?, response: HttpResponse<ByteArray>, resObj: Any): Any? {
-        if (jsScript == null) {
-            return null
+    fun evalJsBeforeRequest(beforeJsScripts: List<String>): List<String> {
+        if (beforeJsScripts.isEmpty()) {
+            return arrayListOf()
         }
+
+        val resList = mutableListOf("前置js执行结果:\r\n")
+
+        val list = beforeJsScripts
+            .map { evalJs(it) }
+            .filter { it.isNotEmpty() }
+
+        resList.addAll(list)
+        return resList
+    }
+
+    fun evalJsAfterRequest(jsScript: String?, response: HttpResponse<ByteArray>, resObj: Any): String {
+        if (jsScript == null) {
+            return ""
+        }
+
+        val headerJsonStr = HttpClientUtil.gson.toJson(response.headers().map())
 
         if (resObj is Pair<*, *> && resObj.first == "json") {
             val bytes = resObj.second as ByteArray
-            val jsonStr = String(bytes,StandardCharsets.UTF_8)
+            val jsonStr = String(bytes, StandardCharsets.UTF_8)
             val js = """
                       response = {
                         status: ${response.statusCode()},
                         body: $jsonStr,
-                        headers: {}
+                        headers: $headerJsonStr
                       };
                       $jsScript;
             """.trimIndent()
 
-            engine.eval(js)
-
-            val invocable = engine as Invocable
-            return invocable.invokeFunction("getLog")
+            return evalJs(js)
         }
 
-        return null
+        return ""
+    }
+
+    private fun evalJs(jsScript: String?): String {
+        engine.eval(jsScript)
+
+        val invocable = engine as Invocable
+        return invocable.invokeFunction("getLog") as String
+    }
+
+    fun getGlobalVariable(key: String): String? {
+        val invocable = engine as Invocable
+        return invocable.invokeFunction("getVariable", key) as String?
     }
 
     companion object {

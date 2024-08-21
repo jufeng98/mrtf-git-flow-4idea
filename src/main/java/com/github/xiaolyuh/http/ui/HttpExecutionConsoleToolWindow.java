@@ -22,17 +22,17 @@ public class HttpExecutionConsoleToolWindow {
 
     private JTextArea headerTextArea;
 
-    public TextEditor initPanelData(Pair<List<String>, Object> resPair, Throwable throwable, Project project) {
+    public TextEditor initPanelData(List<String> beforeJsResList, Pair<List<String>, Object> resPair,
+                                    Throwable throwable, Project project) {
+        beforeJsResList.forEach(it -> headerTextArea.append(it));
+
         if (throwable != null) {
             String exceptionMsg = ExceptionUtils.getStackTrace(throwable);
             headerTextArea.append(exceptionMsg);
             return null;
         }
 
-        List<String> component1 = resPair.component1();
-        for (String res : component1) {
-            headerTextArea.append(res);
-        }
+        resPair.component1().forEach(it -> headerTextArea.append(it));
 
         TextEditor textEditor = null;
         JComponent jComponent;

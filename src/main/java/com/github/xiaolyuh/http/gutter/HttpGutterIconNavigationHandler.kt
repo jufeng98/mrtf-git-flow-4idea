@@ -36,25 +36,39 @@ class HttpGutterIconNavigationHandler(val element: HttpMethod) : GutterIconNavig
         val httpScript = PsiTreeUtil.getNextSiblingOfType(httpUrl, HttpScript::class.java)
 
         val httpRequestEnum = HttpRequestEnum.getInstance(element)
-
-        val variableResolver = VariableResolver()
+        val jsScriptExecutor = JsScriptExecutor.getService(element.project)
+        val variableResolver = VariableResolver(jsScriptExecutor)
 
         val url = variableResolver.resolve(httpUrl.text!!)
         val version = Version.HTTP_1_1
-        val reqHeaderMap = convertToReqHeaderMap(httpHeaders, variableResolver)
+
+        val reqHeaderMap: MutableMap<String, String>
         val bodyPublisher: HttpRequest.BodyPublisher?
         try {
+            reqHeaderMap = convertToReqHeaderMap(httpHeaders, variableResolver)
             bodyPublisher = convertToReqBodyPublisher(httpBody, variableResolver)
         } catch (e: IllegalArgumentException) {
             showTooltip(e.message!!, element.project)
             return
         }
+
+        val httpFile = element.containingFile
+        val httpRequests =
+            PsiTreeUtil.getChildrenOfType(httpFile, com.github.xiaolyuh.http.psi.HttpRequest::class.java)!!
+        val beforeJsScripts = httpRequests
+            .filter { it.script != null && it.script!!.prevSibling == null }
+            .mapNotNull {
+                val text = it.script!!.text
+                text.substring(4, text.length - 2)
+            }
+
+        val beforeJsResList = jsScriptExecutor.evalJsBeforeRequest(beforeJsScripts)
+
         var jsScriptStr: String? = null
         if (httpScript != null) {
             val text = httpScript.text
             jsScriptStr = text.substring(4, text.length - 2)
         }
-        val jsScriptExecutor = JsScriptExecutor.getService(element.project)
 
         val component = e.component as EditorGutterComponentEx
         val loadingRemover = component.setLoadingIconForCurrentGutterMark()!!
@@ -72,10 +86,6 @@ class HttpGutterIconNavigationHandler(val element: HttpMethod) : GutterIconNavig
         }.whenComplete { resPair, throwable ->
             runInEdt {
                 loadingRemover.run()
-                if (throwable is IllegalArgumentException) {
-                    showTooltip(throwable.message!!, element.project)
-                    return@runInEdt
-                }
 
                 val toolWindowManager = ToolWindowManager.getInstance(element.project)
                 val toolWindow = toolWindowManager.getToolWindow("Http Execution")!!
@@ -86,7 +96,9 @@ class HttpGutterIconNavigationHandler(val element: HttpMethod) : GutterIconNavig
                         val contentManager = toolWindow.contentManager
 
                         val form = HttpExecutionConsoleToolWindow()
-                        val textEditor = form.initPanelData(resPair, throwable, element.project)
+
+                        val textEditor = form.initPanelData(beforeJsResList, resPair, throwable, element.project)
+
                         val content = contentManager.factory.createContent(form.mainPanel, element.text, false)
 
                         content.setDisposer(Disposer.newDisposable())
