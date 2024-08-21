@@ -36,6 +36,7 @@ XML_TEXT=<[a-zA-Z0-9.()$/,<>]*
 MULTIPART_SEPERATE=--[^-]+
 MULTIPART_SEPERATE_END=--[^-]+--
 VARIABLE=\{\{[a-zA-Z0-9.(),$]+}}
+JS_SCRIPT=\{%[^#]*%}
 SPACE=[ \t\n\x0B\f\r]+
 
 %%
@@ -43,6 +44,7 @@ SPACE=[ \t\n\x0B\f\r]+
   {WHITE_SPACE}                  { return WHITE_SPACE; }
 
   "<"                            { return T_LT; }
+  ">"                            { return T_RT; }
   "GET"                          { return GET; }
   "POST"                         { return POST; }
   "DELETE"                       { return DELETE; }
@@ -59,6 +61,7 @@ SPACE=[ \t\n\x0B\f\r]+
   {MULTIPART_SEPERATE}           { return MULTIPART_SEPERATE; }
   {MULTIPART_SEPERATE_END}       { return MULTIPART_SEPERATE_END; }
   {VARIABLE}                     { return VARIABLE; }
+  {JS_SCRIPT}                    { return JS_SCRIPT; }
   {SPACE}                        { return SPACE; }
 
 }

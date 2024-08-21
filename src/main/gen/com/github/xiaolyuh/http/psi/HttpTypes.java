@@ -18,6 +18,7 @@ public interface HttpTypes {
   IElementType MULTIPART_CONTENT = new HttpElementType("MULTIPART_CONTENT");
   IElementType ORDINARY_CONTENT = new HttpElementType("ORDINARY_CONTENT");
   IElementType REQUEST = new HttpElementType("REQUEST");
+  IElementType SCRIPT = new HttpElementType("SCRIPT");
   IElementType URL = new HttpElementType("URL");
   IElementType VERSION = new HttpElementType("VERSION");
 
@@ -25,6 +26,7 @@ public interface HttpTypes {
   IElementType GET = new HttpTokenType("GET");
   IElementType HEADER_DESC = new HttpTokenType("HEADER_DESC");
   IElementType JSON_TEXT = new HttpTokenType("JSON_TEXT");
+  IElementType JS_SCRIPT = new HttpTokenType("JS_SCRIPT");
   IElementType LINE_COMMENT = new HttpTokenType("LINE_COMMENT");
   IElementType MULTIPART_SEPERATE = new HttpTokenType("MULTIPART_SEPERATE");
   IElementType MULTIPART_SEPERATE_END = new HttpTokenType("MULTIPART_SEPERATE_END");
@@ -33,6 +35,7 @@ public interface HttpTypes {
   IElementType PUT = new HttpTokenType("PUT");
   IElementType REQUEST_COMMENT = new HttpTokenType("REQUEST_COMMENT");
   IElementType T_LT = new HttpTokenType("<");
+  IElementType T_RT = new HttpTokenType(">");
   IElementType URL_DESC = new HttpTokenType("URL_DESC");
   IElementType URL_FORM_ENCODE = new HttpTokenType("URL_FORM_ENCODE");
   IElementType VARIABLE = new HttpTokenType("VARIABLE");
@@ -70,6 +73,9 @@ public interface HttpTypes {
       }
       else if (type == REQUEST) {
         return new HttpRequestImpl(node);
+      }
+      else if (type == SCRIPT) {
+        return new HttpScriptImpl(node);
       }
       else if (type == URL) {
         return new HttpUrlImpl(node);

@@ -188,7 +188,7 @@ public class HttpParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // method url version? headers? body?
+  // method url version? headers? body? script?
   public static boolean request(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "request")) return false;
     boolean r, p;
@@ -198,7 +198,8 @@ public class HttpParser implements PsiParser, LightPsiParser {
     r = r && report_error_(b, url(b, l + 1));
     r = p && report_error_(b, request_2(b, l + 1)) && r;
     r = p && report_error_(b, request_3(b, l + 1)) && r;
-    r = p && request_4(b, l + 1) && r;
+    r = p && report_error_(b, request_4(b, l + 1)) && r;
+    r = p && request_5(b, l + 1) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
@@ -222,6 +223,25 @@ public class HttpParser implements PsiParser, LightPsiParser {
     if (!recursion_guard_(b, l, "request_4")) return false;
     body(b, l + 1);
     return true;
+  }
+
+  // script?
+  private static boolean request_5(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "request_5")) return false;
+    script(b, l + 1);
+    return true;
+  }
+
+  /* ********************************************************** */
+  // T_RT JS_SCRIPT
+  public static boolean script(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "script")) return false;
+    if (!nextTokenIs(b, T_RT)) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeTokens(b, 0, T_RT, JS_SCRIPT);
+    exit_section_(b, m, SCRIPT, r);
+    return r;
   }
 
   /* ********************************************************** */

@@ -28,7 +28,7 @@
     MULTIPART_SEPERATE='regexp:--[^-]+'
     MULTIPART_SEPERATE_END='regexp:--[^-]+--'
     VARIABLE='regexp:\{\{[a-zA-Z0-9.(),$]+}}'
-    JS_SCRIPT='regexp:\{%[^~]*%}'
+    JS_SCRIPT='regexp:\{%[^#]*%}'
     SPACE='regexp:\s+'
   ]
 }
@@ -42,7 +42,9 @@ method ::= GET | POST | DELETE | PUT
 headers ::= header*
 header ::= HEADER_DESC
 body ::= ordinary_content | multipart_content
-script ::= T_RT JS_SCRIPT
+script ::= T_RT JS_SCRIPT {
+    mixin = "com.github.xiaolyuh.http.inject.HttpPsiLanguageInjectionHost"
+}
 ordinary_content ::= file | URL_FORM_ENCODE | JSON_TEXT |XML_TEXT {
     mixin = "com.github.xiaolyuh.http.inject.HttpPsiLanguageInjectionHost"
 }
