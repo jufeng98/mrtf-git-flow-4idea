@@ -33,7 +33,7 @@
   ]
 }
 httpFile ::= request*
-request ::= method url version? headers? body? script? {
+request ::= method url version? headers? body? script? | script {
     pin = 1
 }
 url ::= URL_DESC

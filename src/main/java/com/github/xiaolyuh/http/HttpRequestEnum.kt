@@ -91,13 +91,13 @@ enum class HttpRequestEnum {
         val consumeTimes = System.currentTimeMillis() - start
         headerDescList.add(
             0,
-            "版本:${response.version().name} status:${response.statusCode()} 耗时:${consumeTimes}ms 大小:${size}kb\r\n\r\n"
+            "响应http版本: ${response.version().name} status: ${response.statusCode()} 耗时: ${consumeTimes}ms 大小: ${size}kb\r\n"
         )
 
-        val evalJs = jsScriptExecutor.evalJs(jsScriptStr, response, resObj)
-        if (evalJs != null) {
-            headerDescList.add("\r\n后置处理结果:\r\n")
-            headerDescList.add(evalJs.toString())
+        val evalJsRes = jsScriptExecutor.evalJsAfterRequest(jsScriptStr, response, resObj)
+        if (evalJsRes.isNotEmpty()) {
+            headerDescList.add("后置js执行结果:\r\n")
+            headerDescList.add(evalJsRes)
         }
 
         return Pair(headerDescList, resObj)
@@ -175,17 +175,16 @@ enum class HttpRequestEnum {
             headerDescList.add("host:${uri.host}\r\n")
             headerDescList.add("path:${uri.path}\r\n")
             headerDescList.add("query:${uri.query ?: ""}\r\n")
-            headerDescList.add("\r\n")
 
             if (variableMap.isNotEmpty()) {
                 headerDescList.add("变量\r\n")
                 variableMap.forEach {
                     headerDescList.add("${it.key} = ${it.value}\r\n")
                 }
-                headerDescList.add("\r\n")
             }
 
             val headers = response.headers()
+            headerDescList.add("响应头:\r\n")
             headers.map()
                 .forEach { (t, u) ->
                     u.forEach {

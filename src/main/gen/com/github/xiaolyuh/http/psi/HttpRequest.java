@@ -13,7 +13,7 @@ public interface HttpRequest extends PsiElement {
   @Nullable
   HttpHeaders getHeaders();
 
-  @NotNull
+  @Nullable
   HttpMethod getMethod();
 
   @Nullable
