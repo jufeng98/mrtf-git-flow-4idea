@@ -18,12 +18,12 @@
     T_LT='<'
     T_RT='>'
     PATH='regexp:([a-zA-Z0-9_\-./]+/?)+'
-    URL_DESC='regexp:https?://[-a-zA-Z0-9+&@${}()#/%?=~_|!:,.;]*[-a-zA-Z0-9+,&@${}()#/%=~_|]'
+    URL_DESC='regexp:(https|http|\{\{)[-a-zA-Z0-9+&@${}()#/%?=~_|!:,.;]*[-a-zA-Z0-9+,&@${}()#/%=~_|]'
     HEADER_DESC='regexp:[a-zA-Z\-]+:[a-zA-Z0-9,${}()=;\\".\-/ ]+'
     REQUEST_COMMENT='regexp:#.*'
     LINE_COMMENT='regexp://.*'
     URL_FORM_ENCODE="regexp:[a-zA-Z0-9,&$={}()]*"
-    JSON_TEXT="regexp:[{\[][\u4E00-\u9FA5a-zA-Z0-9._,\":'&$【】~{}()\[\]\s\-/]*"
+    JSON_TEXT="regexp:[{\[][\u4E00-\u9FA5a-zA-Z0-9._,\":'&$【】~{}()\[\]\s\-/：（）+=]*"
     XML_TEXT="regexp:<[a-zA-Z0-9.()$/,<>]*"
     MULTIPART_SEPERATE='regexp:--[^-]+'
     MULTIPART_SEPERATE_END='regexp:--[^-]+--'

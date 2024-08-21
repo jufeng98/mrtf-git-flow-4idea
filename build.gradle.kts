@@ -49,6 +49,11 @@ tasks {
         kotlinOptions.jvmTarget = "11"
     }
 
+    jar {
+        // kt文件不知道被哪个配置影响导致被编译了两次,所以这里暂时配置下
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    }
+
     runIde {
         systemProperties["idea.auto.reload.plugins"] = true
         jvmArgs = listOf(

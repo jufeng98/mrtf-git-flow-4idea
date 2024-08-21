@@ -13,7 +13,7 @@ import javax.script.ScriptEngineManager
 @Service(Service.Level.PROJECT)
 class JsScriptExecutor {
     private var manager: ScriptEngineManager = ScriptEngineManager()
-    private var engine: ScriptEngine = manager.getEngineByName("nashorn")
+    private var engine: ScriptEngine = manager.getEngineByName("JavaScript")
 
     init {
         engine.eval(

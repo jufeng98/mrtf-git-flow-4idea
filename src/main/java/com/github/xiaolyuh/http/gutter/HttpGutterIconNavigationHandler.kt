@@ -39,12 +39,13 @@ class HttpGutterIconNavigationHandler(val element: HttpMethod) : GutterIconNavig
         val jsScriptExecutor = JsScriptExecutor.getService(element.project)
         val variableResolver = VariableResolver(jsScriptExecutor)
 
-        val url = variableResolver.resolve(httpUrl.text!!)
         val version = Version.HTTP_1_1
 
+        val url: String
         val reqHeaderMap: MutableMap<String, String>
         val bodyPublisher: HttpRequest.BodyPublisher?
         try {
+            url = variableResolver.resolve(httpUrl.text!!)
             reqHeaderMap = convertToReqHeaderMap(httpHeaders, variableResolver)
             bodyPublisher = convertToReqBodyPublisher(httpBody, variableResolver)
         } catch (e: IllegalArgumentException) {
