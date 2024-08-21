@@ -50,7 +50,8 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <highlightErrorFilter implementation="com.github.xiaolyuh.suppress.MyHighlightErrorFilter"/>
-        <lang.inspectionSuppressor language="JSON" implementationClass="com.github.xiaolyuh.suppress.MyInspectionSuppressor"/>
+        <lang.inspectionSuppressor language="JSON" implementationClass="com.github.xiaolyuh.suppress.JsonInspectionSuppressor"/>
+        <lang.inspectionSuppressor language="JAVA" implementationClass="com.github.xiaolyuh.suppress.JavaInspectionSuppressor"/>
 
         <statusBarWidgetFactory implementation="com.github.xiaolyuh.ui.GitFlowPlusStatusBarWidgetFactory"
                                 id="GitFlowPlusStatusBarWidgetFactory" order="last"/>

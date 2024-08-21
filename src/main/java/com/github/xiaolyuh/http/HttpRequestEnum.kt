@@ -1,5 +1,6 @@
 package com.github.xiaolyuh.http
 
+import com.github.xiaolyuh.http.js.JsScriptExecutor
 import com.github.xiaolyuh.http.psi.HttpBody
 import com.github.xiaolyuh.http.psi.HttpHeaders
 import com.github.xiaolyuh.http.psi.HttpMethod
@@ -69,6 +70,8 @@ enum class HttpRequestEnum {
         reqHttpHeaders: MutableMap<String, String>,
         bodyPublisher: HttpRequest.BodyPublisher?,
         variableMap: MutableMap<String, Any>,
+        jsScriptStr: String?,
+        jsScriptExecutor: JsScriptExecutor,
     ): Pair<List<String>, Any> {
         val start = System.currentTimeMillis()
 
@@ -82,6 +85,7 @@ enum class HttpRequestEnum {
         val size = response.body().size / 1024.0
 
         val headerDescList = convertToResHeaderDescList(response, variableMap)
+
         val resObj = convertToResObj(response)
 
         val consumeTimes = System.currentTimeMillis() - start
@@ -89,6 +93,12 @@ enum class HttpRequestEnum {
             0,
             "版本:${response.version().name} status:${response.statusCode()} 耗时:${consumeTimes}ms 大小:${size}kb\r\n\r\n"
         )
+
+        val evalJs = jsScriptExecutor.evalJs(jsScriptStr, response, resObj)
+        if (evalJs != null) {
+            headerDescList.add("\r\n后置处理结果:\r\n")
+            headerDescList.add(evalJs.toString())
+        }
 
         return Pair(headerDescList, resObj)
     }
@@ -121,7 +131,10 @@ enum class HttpRequestEnum {
             return map
         }
 
-        fun convertToReqBodyPublisher(httpBody: HttpBody?, variableResolver: VariableResolver): HttpRequest.BodyPublisher? {
+        fun convertToReqBodyPublisher(
+            httpBody: HttpBody?,
+            variableResolver: VariableResolver,
+        ): HttpRequest.BodyPublisher? {
             if (httpBody == null) {
                 return null
             }

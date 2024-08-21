@@ -29,7 +29,7 @@ class VariableResolver {
             return innerVariable
         }
 
-        return "null"
+        throw IllegalArgumentException("无法解析变量${variable}")
     }
 
     private fun resolveInnerVariable(variable: String): String? {

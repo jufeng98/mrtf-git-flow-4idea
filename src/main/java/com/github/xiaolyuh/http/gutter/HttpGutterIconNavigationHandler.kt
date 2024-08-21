@@ -4,10 +4,8 @@ import com.dbn.utils.TooltipUtils.showTooltip
 import com.github.xiaolyuh.http.HttpRequestEnum
 import com.github.xiaolyuh.http.HttpRequestEnum.Companion.convertToReqBodyPublisher
 import com.github.xiaolyuh.http.HttpRequestEnum.Companion.convertToReqHeaderMap
-import com.github.xiaolyuh.http.psi.HttpBody
-import com.github.xiaolyuh.http.psi.HttpHeaders
-import com.github.xiaolyuh.http.psi.HttpMethod
-import com.github.xiaolyuh.http.psi.HttpUrl
+import com.github.xiaolyuh.http.js.JsScriptExecutor
+import com.github.xiaolyuh.http.psi.*
 import com.github.xiaolyuh.http.resolve.VariableResolver
 import com.github.xiaolyuh.http.ui.HttpExecutionConsoleToolWindow
 import com.intellij.codeInsight.daemon.GutterIconNavigationHandler
@@ -35,6 +33,8 @@ class HttpGutterIconNavigationHandler(val element: HttpMethod) : GutterIconNavig
 
         val httpBody = PsiTreeUtil.getNextSiblingOfType(httpUrl, HttpBody::class.java)
 
+        val httpScript = PsiTreeUtil.getNextSiblingOfType(httpUrl, HttpScript::class.java)
+
         val httpRequestEnum = HttpRequestEnum.getInstance(element)
 
         val variableResolver = VariableResolver()
@@ -49,12 +49,26 @@ class HttpGutterIconNavigationHandler(val element: HttpMethod) : GutterIconNavig
             showTooltip(e.message!!, element.project)
             return
         }
+        var jsScriptStr: String? = null
+        if (httpScript != null) {
+            val text = httpScript.text
+            jsScriptStr = text.substring(4, text.length - 2)
+        }
+        val jsScriptExecutor = JsScriptExecutor.getService(element.project)
 
         val component = e.component as EditorGutterComponentEx
         val loadingRemover = component.setLoadingIconForCurrentGutterMark()!!
 
         CompletableFuture.supplyAsync {
-            httpRequestEnum.execute(url, version, reqHeaderMap, bodyPublisher, variableResolver.variableMap)
+            httpRequestEnum.execute(
+                url,
+                version,
+                reqHeaderMap,
+                bodyPublisher,
+                variableResolver.variableMap,
+                jsScriptStr,
+                jsScriptExecutor
+            )
         }.whenComplete { resPair, throwable ->
             runInEdt {
                 loadingRemover.run()
