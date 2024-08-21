@@ -5,6 +5,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.LiteralTextEscaper
 import com.intellij.psi.PsiLanguageInjectionHost
 import com.intellij.psi.impl.source.tree.LeafElement
+import com.intellij.psi.impl.source.tree.injected.StringLiteralEscaper
 
 open class HttpPsiLanguageInjectionHost(node: ASTNode) : ASTWrapperPsiElement(node), PsiLanguageInjectionHost {
     override fun isValidHost(): Boolean {
@@ -19,6 +20,6 @@ open class HttpPsiLanguageInjectionHost(node: ASTNode) : ASTWrapperPsiElement(no
     }
 
     override fun createLiteralTextEscaper(): LiteralTextEscaper<out PsiLanguageInjectionHost> {
-        return HttpStringLiteralEscaper(this)
+        return StringLiteralEscaper(this)
     }
 }
