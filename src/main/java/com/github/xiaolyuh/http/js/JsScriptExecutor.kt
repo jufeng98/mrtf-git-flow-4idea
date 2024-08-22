@@ -21,7 +21,8 @@ class JsScriptExecutor {
                 client = {
                   fullMsg: '',
                   log: function(msg) {
-                    this.fullMsg = this.fullMsg + '# ' + msg + '\r\n';
+                    var prefix = msg !== '' ? '# ' : ''
+                    this.fullMsg = this.fullMsg + prefix + msg + '\r\n';
                   },
                   global: {
                     get: function(key) {
