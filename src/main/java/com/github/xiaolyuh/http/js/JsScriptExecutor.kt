@@ -21,7 +21,7 @@ class JsScriptExecutor {
                 client = {
                   fullMsg: '',
                   log: function(msg) {
-                    this.fullMsg = this.fullMsg + msg + '\r\n';
+                    this.fullMsg = this.fullMsg + '# ' + msg + '\r\n';
                   },
                   global: {
                     get: function(key) {
@@ -62,7 +62,7 @@ class JsScriptExecutor {
             return arrayListOf()
         }
 
-        val resList = mutableListOf("前置js执行结果:\r\n")
+        val resList = mutableListOf("# 前置js执行结果:\r\n")
 
         val list = beforeJsScripts
             .map { evalJs(it) }
@@ -72,15 +72,19 @@ class JsScriptExecutor {
         return resList
     }
 
-    fun evalJsAfterRequest(jsScript: String?, response: HttpResponse<ByteArray>, resObj: Any): String {
+    fun evalJsAfterRequest(
+        jsScript: String?,
+        response: HttpResponse<ByteArray>,
+        resPair: Pair<String, ByteArray>
+    ): String? {
         if (jsScript == null) {
-            return ""
+            return null
         }
 
         val headerJsonStr = HttpClientUtil.gson.toJson(response.headers().map())
 
-        if (resObj is Pair<*, *> && resObj.first == "json") {
-            val bytes = resObj.second as ByteArray
+        if (resPair.first != "image") {
+            val bytes = resPair.second
             val jsonStr = String(bytes, StandardCharsets.UTF_8)
             val js = """
                       response = {
@@ -94,7 +98,7 @@ class JsScriptExecutor {
             return evalJs(js)
         }
 
-        return ""
+        return null
     }
 
     private fun evalJs(jsScript: String?): String {

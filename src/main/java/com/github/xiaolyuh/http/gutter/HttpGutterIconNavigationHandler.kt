@@ -2,7 +2,7 @@ package com.github.xiaolyuh.http.gutter
 
 import com.dbn.utils.TooltipUtils.showTooltip
 import com.github.xiaolyuh.http.HttpRequestEnum
-import com.github.xiaolyuh.http.HttpRequestEnum.Companion.convertToReqBodyPublisher
+import com.github.xiaolyuh.http.HttpRequestEnum.Companion.convertToReqBody
 import com.github.xiaolyuh.http.HttpRequestEnum.Companion.convertToReqHeaderMap
 import com.github.xiaolyuh.http.js.JsScriptExecutor
 import com.github.xiaolyuh.http.psi.*
@@ -18,14 +18,14 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import java.awt.event.MouseEvent
 import java.net.http.HttpClient.Version
-import java.net.http.HttpRequest
 import java.util.concurrent.CompletableFuture
 
 class HttpGutterIconNavigationHandler(val element: HttpMethod) : GutterIconNavigationHandler<PsiElement> {
     override fun navigate(e: MouseEvent, elt: PsiElement) {
+        val project = element.project
         val httpUrl = PsiTreeUtil.getNextSiblingOfType(element, HttpUrl::class.java)
         if (httpUrl == null) {
-            showTooltip("url不正确!", element.project)
+            showTooltip("url不正确!", project)
             return
         }
 
@@ -36,20 +36,20 @@ class HttpGutterIconNavigationHandler(val element: HttpMethod) : GutterIconNavig
         val httpScript = PsiTreeUtil.getNextSiblingOfType(httpUrl, HttpScript::class.java)
 
         val httpRequestEnum = HttpRequestEnum.getInstance(element)
-        val jsScriptExecutor = JsScriptExecutor.getService(element.project)
+        val jsScriptExecutor = JsScriptExecutor.getService(project)
         val variableResolver = VariableResolver(jsScriptExecutor)
 
         val version = Version.HTTP_1_1
 
         val url: String
         val reqHeaderMap: MutableMap<String, String>
-        val bodyPublisher: HttpRequest.BodyPublisher?
+        val reqBody: Any?
         try {
             url = variableResolver.resolve(httpUrl.text!!)
             reqHeaderMap = convertToReqHeaderMap(httpHeaders, variableResolver)
-            bodyPublisher = convertToReqBodyPublisher(httpBody, variableResolver)
+            reqBody = convertToReqBody(httpBody, variableResolver)
         } catch (e: IllegalArgumentException) {
-            showTooltip(e.message!!, element.project)
+            showTooltip(e.message!!, project)
             return
         }
 
@@ -59,17 +59,15 @@ class HttpGutterIconNavigationHandler(val element: HttpMethod) : GutterIconNavig
         val beforeJsScripts = httpRequests
             .filter { it.script != null && it.script!!.prevSibling == null }
             .mapNotNull {
-                val text = it.script!!.text
-                text.substring(4, text.length - 2)
+                getJsScript(it.script)
             }
 
         val beforeJsResList = jsScriptExecutor.evalJsBeforeRequest(beforeJsScripts)
 
-        var jsScriptStr: String? = null
-        if (httpScript != null) {
-            val text = httpScript.text
-            jsScriptStr = text.substring(4, text.length - 2)
-        }
+        val httpReqDescList: MutableList<String> = mutableListOf()
+        httpReqDescList.addAll(beforeJsResList)
+
+        val jsScriptStr = getJsScript(httpScript)
 
         val component = e.component as EditorGutterComponentEx
         val loadingRemover = component.setLoadingIconForCurrentGutterMark()!!
@@ -79,16 +77,16 @@ class HttpGutterIconNavigationHandler(val element: HttpMethod) : GutterIconNavig
                 url,
                 version,
                 reqHeaderMap,
-                bodyPublisher,
-                variableResolver.variableMap,
+                reqBody,
                 jsScriptStr,
-                jsScriptExecutor
+                jsScriptExecutor,
+                httpReqDescList
             )
-        }.whenComplete { resPair, throwable ->
+        }.whenComplete { httpInfo, throwable ->
             runInEdt {
                 loadingRemover.run()
 
-                val toolWindowManager = ToolWindowManager.getInstance(element.project)
+                val toolWindowManager = ToolWindowManager.getInstance(project)
                 val toolWindow = toolWindowManager.getToolWindow("Http Execution")!!
                 toolWindow.isAvailable = true
 
@@ -96,17 +94,15 @@ class HttpGutterIconNavigationHandler(val element: HttpMethod) : GutterIconNavig
                     runWriteActionAndWait {
                         val contentManager = toolWindow.contentManager
 
+                        val parentDisposer = Disposer.newDisposable()
+
                         val form = HttpExecutionConsoleToolWindow()
 
-                        val textEditor = form.initPanelData(beforeJsResList, resPair, throwable, element.project)
+                        form.initPanelData(httpInfo, throwable, project, parentDisposer)
 
                         val content = contentManager.factory.createContent(form.mainPanel, element.text, false)
 
-                        content.setDisposer(Disposer.newDisposable())
-                        val parentDisposer = content.disposer!!
-                        if (textEditor != null) {
-                            Disposer.register(parentDisposer, textEditor)
-                        }
+                        content.setDisposer(parentDisposer)
 
                         contentManager.addContent(content)
                         contentManager.setSelectedContent(content)
@@ -115,5 +111,14 @@ class HttpGutterIconNavigationHandler(val element: HttpMethod) : GutterIconNavig
             }
         }
 
+    }
+
+    private fun getJsScript(httpScript: HttpScript?): String? {
+        if (httpScript == null) {
+            return null
+        }
+
+        val text = httpScript.text
+        return text.substring(4, text.length - 2)
     }
 }

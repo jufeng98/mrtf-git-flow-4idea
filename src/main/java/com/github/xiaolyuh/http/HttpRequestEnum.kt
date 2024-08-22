@@ -19,7 +19,6 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.nio.charset.StandardCharsets
 import java.time.Duration
-import javax.imageio.ImageIO
 import kotlin.jvm.optionals.getOrElse
 
 enum class HttpRequestEnum {
@@ -68,13 +67,17 @@ enum class HttpRequestEnum {
         url: String,
         version: Version,
         reqHttpHeaders: MutableMap<String, String>,
-        bodyPublisher: HttpRequest.BodyPublisher?,
-        variableMap: MutableMap<String, Any>,
+        reqBody: Any?,
         jsScriptStr: String?,
         jsScriptExecutor: JsScriptExecutor,
-    ): Pair<List<String>, Any> {
+        httpReqDescList: MutableList<String>,
+    ): HttpInfo {
         val start = System.currentTimeMillis()
 
+        var bodyPublisher: HttpRequest.BodyPublisher? = null
+        if (reqBody is String) {
+            bodyPublisher = HttpRequest.BodyPublishers.ofString(reqBody)
+        }
         val request = createRequest(url, version, reqHttpHeaders, bodyPublisher)
 
         val client = HttpClient.newBuilder()
@@ -82,25 +85,44 @@ enum class HttpRequestEnum {
             .build()
 
         val response = client.send(request, HttpResponse.BodyHandlers.ofByteArray())
-        val size = response.body().size / 1024.0
 
-        val headerDescList = convertToResHeaderDescList(response, variableMap)
-
-        val resObj = convertToResObj(response)
-
-        val consumeTimes = System.currentTimeMillis() - start
-        headerDescList.add(
-            0,
-            "响应http版本: ${response.version().name} status: ${response.statusCode()} 耗时: ${consumeTimes}ms 大小: ${size}kb\r\n"
-        )
-
-        val evalJsRes = jsScriptExecutor.evalJsAfterRequest(jsScriptStr, response, resObj)
-        if (evalJsRes.isNotEmpty()) {
-            headerDescList.add("后置js执行结果:\r\n")
-            headerDescList.add(evalJsRes)
+        val req = response.request()
+        httpReqDescList.add(req.method() + " " + req.uri().toString() + " " + "\r\n")
+        req.headers().map().forEach { entry ->
+            entry.value.forEach {
+                httpReqDescList.add(entry.key + ": " + it + "\r\n")
+            }
+        }
+        httpReqDescList.add("\r\n")
+        if (reqBody is String) {
+            httpReqDescList.add(reqBody)
         }
 
-        return Pair(headerDescList, resObj)
+        val size = response.body().size / 1024.0
+        val consumeTimes = System.currentTimeMillis() - start
+
+        val resHeaderList = convertToResHeaderDescList(response)
+
+        val resPair = convertToResPair(response)
+
+        val httpResDescList =
+            mutableListOf("# status: ${response.statusCode()} 耗时: ${consumeTimes}ms 大小: ${size}kb\r\n")
+
+        val evalJsRes = jsScriptExecutor.evalJsAfterRequest(jsScriptStr, response, resPair)
+        if (!evalJsRes.isNullOrEmpty()) {
+            httpResDescList.add("# 后置js执行结果:\r\n")
+            httpResDescList.add("# $evalJsRes")
+        }
+
+        httpResDescList.add(req.method() + " " + response.uri().toString() + "\r\n")
+
+        httpResDescList.addAll(resHeaderList)
+
+        if (resPair.first != "image") {
+            httpResDescList.add(String(resPair.second, StandardCharsets.UTF_8))
+        }
+
+        return HttpInfo(httpReqDescList, httpResDescList, resPair.first, resPair.second)
     }
 
     abstract fun createRequest(
@@ -131,10 +153,10 @@ enum class HttpRequestEnum {
             return map
         }
 
-        fun convertToReqBodyPublisher(
+        fun convertToReqBody(
             httpBody: HttpBody?,
             variableResolver: VariableResolver,
-        ): HttpRequest.BodyPublisher? {
+        ): Any? {
             if (httpBody == null) {
                 return null
             }
@@ -143,8 +165,7 @@ enum class HttpRequestEnum {
             if (ordinaryContent != null) {
                 val elementType = ordinaryContent.firstChild.elementType
                 if (elementType == HttpTypes.JSON_TEXT || elementType == HttpTypes.XML_TEXT) {
-                    val resolve = variableResolver.resolve(ordinaryContent.text)
-                    return HttpRequest.BodyPublishers.ofString(resolve, StandardCharsets.UTF_8)
+                    return variableResolver.resolve(ordinaryContent.text)
                 }
 
                 val httpFile = ordinaryContent.file
@@ -157,8 +178,7 @@ enum class HttpRequestEnum {
                     }
 
                     val str = FileUtils.readFileToString(file, StandardCharsets.UTF_8)
-                    val resolve = variableResolver.resolve(str)
-                    return HttpRequest.BodyPublishers.ofString(resolve, StandardCharsets.UTF_8)
+                    return variableResolver.resolve(str)
                 }
             }
 
@@ -167,34 +187,20 @@ enum class HttpRequestEnum {
 
         fun convertToResHeaderDescList(
             response: HttpResponse<ByteArray>,
-            variableMap: MutableMap<String, Any>,
         ): MutableList<String> {
             val headerDescList = mutableListOf<String>()
-
-            val uri = response.uri()
-            headerDescList.add("host:${uri.host}\r\n")
-            headerDescList.add("path:${uri.path}\r\n")
-            headerDescList.add("query:${uri.query ?: ""}\r\n")
-
-            if (variableMap.isNotEmpty()) {
-                headerDescList.add("请求变量:\r\n")
-                variableMap.forEach {
-                    headerDescList.add("${it.key} = ${it.value}\r\n")
-                }
-            }
-
             val headers = response.headers()
-            headerDescList.add("响应头:\r\n")
             headers.map()
                 .forEach { (t, u) ->
                     u.forEach {
-                        headerDescList.add("$t : $it\r\n")
+                        headerDescList.add("$t: $it\r\n")
                     }
                 }
+            headerDescList.add("\r\n")
             return headerDescList
         }
 
-        fun convertToResObj(response: HttpResponse<ByteArray>): Any {
+        fun convertToResPair(response: HttpResponse<ByteArray>): Pair<String, ByteArray> {
             val resBody = response.body()
             val resHeaders = response.headers()
             val contentType = resHeaders.firstValue(org.apache.http.HttpHeaders.CONTENT_TYPE).getOrElse { "text/plain" }
@@ -215,7 +221,7 @@ enum class HttpRequestEnum {
             }
 
             if (contentType.contains("jpg") || contentType.contains("jpeg") || contentType.contains("png")) {
-                return ImageIO.read(resBody.inputStream())
+                return Pair("image", resBody)
             }
 
             return Pair("txt", resBody)

@@ -1,59 +1,77 @@
 package com.github.xiaolyuh.http.ui;
 
+import com.github.xiaolyuh.http.HttpInfo;
 import com.github.xiaolyuh.utils.VirtualFileUtils;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.TextEditor;
 import com.intellij.openapi.fileEditor.impl.text.TextEditorProvider;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
-import kotlin.Pair;
+import lombok.Cleanup;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.image.BufferedImage;
-import java.util.List;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 public class HttpExecutionConsoleToolWindow {
     public JPanel mainPanel;
 
-    private JPanel bodyPanel;
+    private JPanel responsePanel;
+    private JPanel requestPanel;
 
-    private JTextArea headerTextArea;
-
-    public TextEditor initPanelData(List<String> beforeJsResList, Pair<List<String>, Object> resPair,
-                                    Throwable throwable, Project project) {
-        beforeJsResList.forEach(it -> headerTextArea.append(it));
+    public void initPanelData(HttpInfo httpInfo, Throwable throwable, Project project, Disposable parentDisposer) {
+        GridLayoutManager layout = (GridLayoutManager) requestPanel.getParent().getLayout();
+        GridConstraints constraints = layout.getConstraintsForComponent(requestPanel);
 
         if (throwable != null) {
-            String exceptionMsg = ExceptionUtils.getStackTrace(throwable);
-            headerTextArea.append(exceptionMsg);
-            return null;
+            JTextArea jTextArea = new JTextArea(ExceptionUtils.getStackTrace(throwable));
+            requestPanel.add(jTextArea, constraints);
+            return;
         }
 
-        resPair.component1().forEach(it -> headerTextArea.append(it));
+        byte[] reqBytes = String.join("", httpInfo.getHttpReqDescList())
+                .getBytes(StandardCharsets.UTF_8);
 
-        TextEditor textEditor = null;
-        JComponent jComponent;
-        Object obj = resPair.component2();
-        if (obj instanceof BufferedImage) {
-            BufferedImage bufferedImage = (BufferedImage) obj;
-            jComponent = new JLabel(new ImageIcon(bufferedImage));
-        } else {
-            @SuppressWarnings("unchecked")
-            Pair<String, byte[]> pair = (Pair<String, byte[]>) obj;
-            VirtualFile virtualFile = VirtualFileUtils.createVirtualFileFromText(pair.getSecond(), pair.getFirst());
-            textEditor = (TextEditor) TextEditorProvider.getInstance().createEditor(project, virtualFile);
-            Editor editor = textEditor.getEditor();
-            editor.getDocument().setReadOnly(true);
-            jComponent = editor.getComponent();
+        JComponent reqComponent = createEditor(reqBytes, project, parentDisposer);
+        requestPanel.add(reqComponent, constraints);
+
+        if (httpInfo.getType().equals("image")) {
+            try {
+                @Cleanup
+                ByteArrayInputStream inputStream = new ByteArrayInputStream((httpInfo.getByteArray()));
+                BufferedImage bufferedImage = ImageIO.read(inputStream);
+                JLabel jComponent = new JLabel(new ImageIcon(bufferedImage));
+                responsePanel.add(jComponent, constraints);
+                return;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
 
-        GridLayoutManager layout = (GridLayoutManager) bodyPanel.getParent().getLayout();
-        GridConstraints constraints = layout.getConstraintsForComponent(bodyPanel);
-        bodyPanel.add(jComponent, constraints);
+        byte[] resBytes = String.join("", httpInfo.getHttpResDescList())
+                .getBytes(StandardCharsets.UTF_8);
 
-        return textEditor;
+        GridLayoutManager layout1 = (GridLayoutManager) responsePanel.getParent().getLayout();
+        GridConstraints constraints1 = layout1.getConstraintsForComponent(responsePanel);
+        JComponent resComponent = createEditor(resBytes, project, parentDisposer);
+        responsePanel.add(resComponent, constraints1);
     }
+
+    public JComponent createEditor(byte[] bytes, Project project, Disposable parentDisposer) {
+        VirtualFile virtualFile = VirtualFileUtils.createVirtualFileFromText(bytes, "http");
+        TextEditor textEditor = (TextEditor) TextEditorProvider.getInstance().createEditor(project, virtualFile);
+        Disposer.register(parentDisposer, textEditor);
+        Editor editor = textEditor.getEditor();
+        editor.getDocument().setReadOnly(true);
+        return editor.getComponent();
+    }
+
 }

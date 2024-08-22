@@ -2,7 +2,6 @@ package com.github.xiaolyuh.http.resolve
 
 import com.dbn.common.util.UUIDs
 import com.github.xiaolyuh.http.js.JsScriptExecutor
-import com.google.common.collect.Maps
 import org.apache.commons.lang.math.RandomUtils
 import org.apache.commons.lang3.RandomStringUtils
 import java.util.regex.Pattern
@@ -10,7 +9,6 @@ import java.util.regex.Pattern
 class VariableResolver(private val jsScriptExecutor: JsScriptExecutor) {
     private val pattern = Pattern.compile("(\\{\\{[a-zA-Z0-9.(),\$]+}})", Pattern.MULTILINE)
     private val pattern1 = Pattern.compile("\\D")
-    val variableMap: MutableMap<String, Any> = Maps.newLinkedHashMap()
 
     fun resolve(str: String): String {
         val matcher = pattern.matcher(str)
@@ -26,13 +24,11 @@ class VariableResolver(private val jsScriptExecutor: JsScriptExecutor) {
     private fun resolveVariable(variable: String): String {
         var innerVariable = resolveInnerVariable(variable)
         if (innerVariable != null) {
-            variableMap[variable] = innerVariable
             return innerVariable
         }
 
         innerVariable = jsScriptExecutor.getGlobalVariable(variable)
         if (innerVariable != null) {
-            variableMap[variable] = innerVariable
             return innerVariable
         }
 
