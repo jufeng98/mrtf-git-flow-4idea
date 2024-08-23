@@ -8,20 +8,21 @@ import com.google.common.collect.Lists;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.editor.Caret;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.ScrollType;
-import com.intellij.openapi.fileEditor.TextEditor;
-import com.intellij.openapi.fileEditor.impl.text.TextEditorProvider;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.ArrayUtil;
+import com.intellij.psi.PsiDocumentManager;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.util.PsiUtil;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -29,10 +30,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.Future;
 
@@ -55,8 +53,8 @@ public class KbsMsgDialog extends DialogWrapper {
     private boolean insRefreshOpen = false;
     private Future<?> insRefreshFuture;
     private int tailLines = 500;
-    private TextEditor textEditor;
-    private final List<TextEditor> releaseEditorList = Lists.newArrayList();
+    private Editor editor;
+    private final List<Editor> releaseEditorList = Lists.newArrayList();
 
     {
         setOKButtonText("关闭");
@@ -115,16 +113,16 @@ public class KbsMsgDialog extends DialogWrapper {
         });
 
         swBtn.addActionListener(e -> {
-            EditorSettings settings = textEditor.getEditor().getSettings();
+            EditorSettings settings = editor.getSettings();
             boolean useSoftWraps = settings.isUseSoftWraps();
             String tip = useSoftWraps ? "开启软换行" : "关闭软换行";
             swBtn.setText(tip);
             settings.setUseSoftWraps(!useSoftWraps);
         });
 
-        topBtn.addActionListener(e -> scrollToTop(textEditor.getEditor()));
+        topBtn.addActionListener(e -> scrollToTop(editor));
 
-        bottomBtn.addActionListener(e -> scrollToBottom(textEditor.getEditor()));
+        bottomBtn.addActionListener(e -> scrollToBottom(editor));
 
         fillEditorWithRunningTxt(project, textBytes, false);
     }
@@ -155,15 +153,9 @@ public class KbsMsgDialog extends DialogWrapper {
         if (insRefreshFuture != null) {
             insRefreshFuture.cancel(true);
         }
-        releaseEditorList.forEach(editor -> {
-            String filePath = editor.getFile().getPath();
-            Disposer.dispose(editor);
-            try {
-                Files.delete(Path.of(filePath));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
+
+        EditorFactory editorFactory = EditorFactory.getInstance();
+        releaseEditorList.forEach(editorFactory::releaseEditor);
     }
 
     private void refreshRunningData(int tailLines, boolean previews) {
@@ -204,52 +196,52 @@ public class KbsMsgDialog extends DialogWrapper {
     }
 
     private void addTab(String tabTitle, byte[] txtBytes) {
-        TextEditor textEditor = createTextEditorAndSetText(project, txtBytes);
+        Editor textEditor = createTextEditorAndSetText(project, txtBytes);
         jTabbedPane.addTab(tabTitle, textEditor.getComponent());
     }
 
     private void fillEditorWithRunningTxt(Project project, byte[] txtBytes, boolean append) {
         ApplicationManager.getApplication().runWriteAction(() -> {
-            if (textEditor != null) {
+            if (editor != null) {
                 try {
+                    Document document = editor.getDocument();
+                    String res = new String(txtBytes, StandardCharsets.UTF_8);
                     if (append) {
-                        InputStream inputStream = textEditor.getFile().getInputStream();
-                        byte[] bytes = inputStream.readAllBytes();
-                        inputStream.close();
-                        byte[] newBytes = ArrayUtil.mergeArrays(bytes, txtBytes);
-                        textEditor.getFile().setBinaryContent(newBytes);
+                        document.setText(document.getText() + res);
                     } else {
-                        textEditor.getFile().setBinaryContent(txtBytes);
+                        document.setText(res);
                     }
-                    scrollToBottom(textEditor.getEditor());
+                    scrollToBottom(editor);
                 } catch (Throwable ignored) {
 
                 }
                 return;
             }
-            textEditor = createTextEditorAndSetText(project, txtBytes);
+            editor = createTextEditorAndSetText(project, txtBytes);
 
-            jTabbedPane.addTab("容器日志", textEditor.getComponent());
+            jTabbedPane.addTab("容器日志", editor.getComponent());
         });
     }
 
-    private TextEditor createTextEditorAndSetText(Project project, byte[] txtBytes) {
-        final TextEditor[] textEditors = new TextEditor[1];
-        WriteAction.runAndWait(() -> {
-            VirtualFile virtualFile = VirtualFileUtils.createlogVirtualFileFromText(txtBytes);
+    private Editor createTextEditorAndSetText(Project project, byte[] txtBytes) {
+        return WriteAction.computeAndWait(() -> {
+            VirtualFile virtualFile = VirtualFileUtils.createLogVirtualFileFromText(txtBytes);
+            PsiFile psiFile = PsiUtil.getPsiFile(project, virtualFile);
+            Document document = PsiDocumentManager.getInstance(project).getDocument(psiFile);
 
-            TextEditor textEditor = (TextEditor) TextEditorProvider.getInstance().createEditor(project, virtualFile);
-            Editor editor = textEditor.getEditor();
+            EditorFactory editorFactory = EditorFactory.getInstance();
+            @SuppressWarnings("DataFlowIssue")
+            Editor editor = editorFactory.createEditor(document, project, virtualFile, true);
 
-            editor.getDocument().setReadOnly(true);
-
-            scrollToBottom(editor);
-
-            textEditors[0] = textEditor;
-
-            releaseEditorList.add(textEditor);
+            releaseEditorList.add(editor);
+            return editor;
         });
-        return textEditors[0];
+    }
+
+    @Override
+    public void show() {
+        super.show();
+        scrollToBottom(editor);
     }
 
     private void scrollToTop(@NotNull Editor editor) {
