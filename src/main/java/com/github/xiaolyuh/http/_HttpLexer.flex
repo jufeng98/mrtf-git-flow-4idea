@@ -26,13 +26,13 @@ EOL=\R
 WHITE_SPACE=\s+
 
 PATH=([a-zA-Z0-9_\-./]+"/"?)+
-URL_DESC=https?:"//"[-a-zA-Z0-9+&@${}()#/%?=~_|!:,.;]*[-a-zA-Z0-9+,&@${}()#/%=~_|]
-HEADER_DESC=[a-zA-Z\-]+:[a-zA-Z0-9,${}()=;\\\".\-/ ]+
+URL_DESC=(https|http|\{\{)[-a-zA-Z0-9+&@${}()#/%?=~_|!:,.; ]*[-a-zA-Z0-9+,&@${}()#/%=~_| ]
+HEADER_DESC=[a-zA-Z\-]+:[a-zA-Z0-9,${}()=;\\\".\-*:/ ]+
 REQUEST_COMMENT=#.*
 LINE_COMMENT="//".*
 URL_FORM_ENCODE=[a-zA-Z0-9,&$={}()]*
-JSON_TEXT=[{\[][\u4E00-\u9FA5a-zA-Z0-9._,\":'&$【】~{}()\[\]\s\-/]*
-XML_TEXT=<[a-zA-Z0-9.()$/,<>]*
+JSON_TEXT=[{\[][\u4E00-\u9FA5a-zA-Z0-9._,\":'&$【】~{}()\[\]\s\-/：（）、!！+=，]*
+XML_TEXT=(<| <)[^#]*
 MULTIPART_SEPERATE=--[^-]+
 MULTIPART_SEPERATE_END=--[^-]+--
 VARIABLE=\{\{[a-zA-Z0-9.(),$]+}}
