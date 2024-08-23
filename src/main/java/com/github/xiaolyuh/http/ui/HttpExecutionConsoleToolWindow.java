@@ -11,6 +11,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDocumentManager;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiUtil;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
@@ -33,7 +34,7 @@ public class HttpExecutionConsoleToolWindow implements Disposable {
 
     private final List<Editor> editorList = Lists.newArrayList();
 
-    public void initPanelData(HttpInfo httpInfo, Throwable throwable, Project project, Disposable parentDisposer) {
+    public void initPanelData(HttpInfo httpInfo, Throwable throwable, String tabName, Project project, Disposable parentDisposer) {
         Disposer.register(parentDisposer, this);
 
         GridLayoutManager layout = (GridLayoutManager) requestPanel.getParent().getLayout();
@@ -41,7 +42,7 @@ public class HttpExecutionConsoleToolWindow implements Disposable {
 
         if (throwable != null) {
             String msg = ExceptionUtils.getStackTrace(throwable);
-            JComponent jComponent = createEditor(msg.getBytes(StandardCharsets.UTF_8), "log", project);
+            JComponent jComponent = createEditor(msg.getBytes(StandardCharsets.UTF_8), "log", project, tabName);
             requestPanel.add(jComponent, constraints);
             return;
         }
@@ -49,7 +50,7 @@ public class HttpExecutionConsoleToolWindow implements Disposable {
         byte[] reqBytes = String.join("", httpInfo.getHttpReqDescList())
                 .getBytes(StandardCharsets.UTF_8);
 
-        JComponent reqComponent = createEditor(reqBytes, "req.http", project);
+        JComponent reqComponent = createEditor(reqBytes, "req.http", project, tabName);
         requestPanel.add(reqComponent, constraints);
 
         if (httpInfo.getType().equals("image")) {
@@ -70,13 +71,15 @@ public class HttpExecutionConsoleToolWindow implements Disposable {
 
         GridLayoutManager layoutRes = (GridLayoutManager) responsePanel.getParent().getLayout();
         GridConstraints constraintsRes = layoutRes.getConstraintsForComponent(responsePanel);
-        JComponent resComponent = createEditor(resBytes, "res.http", project);
+        JComponent resComponent = createEditor(resBytes, "res.http", project, tabName);
         responsePanel.add(resComponent, constraintsRes);
     }
 
-    public JComponent createEditor(byte[] bytes, String suffix, Project project) {
-        VirtualFile virtualFile = VirtualFileUtils.createHttpVirtualFileFromText(bytes, suffix, project);
-        Document document = PsiDocumentManager.getInstance(project).getDocument(PsiUtil.getPsiFile(project, virtualFile));
+    public JComponent createEditor(byte[] bytes, String suffix, Project project, String tabName) {
+        VirtualFile virtualFile = VirtualFileUtils.createHttpVirtualFileFromText(bytes, suffix, project, tabName);
+        PsiDocumentManager psiDocumentManager = PsiDocumentManager.getInstance(project);
+        PsiFile psiFile = PsiUtil.getPsiFile(project, virtualFile);
+        Document document = psiDocumentManager.getDocument(psiFile);
 
         EditorFactory editorFactory = EditorFactory.getInstance();
         @SuppressWarnings("DataFlowIssue")

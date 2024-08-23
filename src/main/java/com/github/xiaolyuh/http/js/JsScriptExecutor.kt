@@ -25,7 +25,7 @@ class JsScriptExecutor {
                   },
                   global: {
                     get: function(key) {
-                      return this[key];
+                      return this[key] !== undefined ? this[key] : null;
                     },
                     set: function(key, val) {
                       this[key] = val;

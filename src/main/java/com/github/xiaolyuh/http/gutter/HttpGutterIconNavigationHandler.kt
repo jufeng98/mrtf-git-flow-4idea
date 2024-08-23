@@ -102,7 +102,7 @@ class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : Gutt
 
                         val tabName = getTabName(httpMethod)
 
-                        form.initPanelData(httpInfo, throwable, project, parentDisposer)
+                        form.initPanelData(httpInfo, throwable,tabName, project, parentDisposer)
 
                         var content: Content?
                         if (tabName == null) {
