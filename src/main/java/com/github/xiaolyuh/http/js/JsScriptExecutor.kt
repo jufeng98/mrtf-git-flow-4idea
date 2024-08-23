@@ -24,13 +24,24 @@ class JsScriptExecutor {
                     this.fullMsg = this.fullMsg + '# ' + msg + '\r\n';
                   },
                   global: {
+                    dataHolder: {},
+                    isEmpty: function() {
+                      return Object.keys(this.dataHolder).length === 0;
+                    },
                     get: function(key) {
-                      return this[key] !== undefined ? this[key] : null;
+                      return this.dataHolder[key] !== undefined ? this.dataHolder[key] : null;
+                    },
+                    clear: function(key) {
+                      return delete this.dataHolder[key];
+                    },
+                    clearAll: function() {
+                      this.dataHolder = {};
+                      return true;
                     },
                     set: function(key, val) {
-                      this[key] = val;
+                      this.dataHolder[key] = val;
                       client.log(key + ' 已设置为: ' + val);
-                    }
+                    },
                   },
                   test: function(successMsg, assertCallback) {
                     var success = assertCallback();                    
@@ -89,7 +100,7 @@ class JsScriptExecutor {
             val jsonStr = String(bytes, StandardCharsets.UTF_8)
             body = jsonStr
         } else {
-            body = "{}"
+            body = "'" + String(resPair.second, StandardCharsets.UTF_8) + "'"
         }
 
         val js = """
