@@ -2,28 +2,30 @@ package com.github.xiaolyuh.http.gutter
 
 import com.dbn.utils.TooltipUtils.showTooltip
 import com.github.xiaolyuh.http.HttpRequestEnum
-import com.github.xiaolyuh.http.HttpRequestEnum.Companion.convertToReqBody
-import com.github.xiaolyuh.http.HttpRequestEnum.Companion.convertToReqHeaderMap
 import com.github.xiaolyuh.http.js.JsScriptExecutor
 import com.github.xiaolyuh.http.psi.*
 import com.github.xiaolyuh.http.resolve.VariableResolver
 import com.github.xiaolyuh.http.ui.HttpExecutionConsoleToolWindow
+import com.github.xiaolyuh.utils.HttpUtils.convertToReqBody
+import com.github.xiaolyuh.utils.HttpUtils.convertToReqHeaderMap
 import com.intellij.codeInsight.daemon.GutterIconNavigationHandler
 import com.intellij.openapi.application.runInEdt
 import com.intellij.openapi.application.runWriteActionAndWait
 import com.intellij.openapi.editor.ex.EditorGutterComponentEx
-import com.intellij.openapi.util.Disposer
+import com.intellij.openapi.util.Disposer.newDisposable
 import com.intellij.openapi.wm.ToolWindowManager
+import com.intellij.psi.PsiComment
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.ui.content.Content
 import java.awt.event.MouseEvent
 import java.net.http.HttpClient.Version
 import java.util.concurrent.CompletableFuture
 
-class HttpGutterIconNavigationHandler(val element: HttpMethod) : GutterIconNavigationHandler<PsiElement> {
+class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : GutterIconNavigationHandler<PsiElement> {
     override fun navigate(e: MouseEvent, elt: PsiElement) {
-        val project = element.project
-        val httpUrl = PsiTreeUtil.getNextSiblingOfType(element, HttpUrl::class.java)
+        val project = httpMethod.project
+        val httpUrl = PsiTreeUtil.getNextSiblingOfType(httpMethod, HttpUrl::class.java)
         if (httpUrl == null) {
             showTooltip("url不正确!", project)
             return
@@ -35,7 +37,7 @@ class HttpGutterIconNavigationHandler(val element: HttpMethod) : GutterIconNavig
 
         val httpScript = PsiTreeUtil.getNextSiblingOfType(httpUrl, HttpScript::class.java)
 
-        val httpRequestEnum = HttpRequestEnum.getInstance(element)
+        val httpRequestEnum = HttpRequestEnum.getInstance(httpMethod)
         val jsScriptExecutor = JsScriptExecutor.getService(project)
         val variableResolver = VariableResolver(jsScriptExecutor)
 
@@ -53,7 +55,7 @@ class HttpGutterIconNavigationHandler(val element: HttpMethod) : GutterIconNavig
             return
         }
 
-        val httpFile = element.containingFile
+        val httpFile = httpMethod.containingFile
         val httpRequests =
             PsiTreeUtil.getChildrenOfType(httpFile, com.github.xiaolyuh.http.psi.HttpRequest::class.java)!!
         val beforeJsScripts = httpRequests
@@ -94,15 +96,27 @@ class HttpGutterIconNavigationHandler(val element: HttpMethod) : GutterIconNavig
                     runWriteActionAndWait {
                         val contentManager = toolWindow.contentManager
 
-                        val parentDisposer = Disposer.newDisposable()
+                        val parentDisposer = newDisposable()
 
                         val form = HttpExecutionConsoleToolWindow()
 
+                        val tabName = getTabName(httpMethod)
+
                         form.initPanelData(httpInfo, throwable, project, parentDisposer)
 
-                        val content = contentManager.factory.createContent(form.mainPanel, element.text, false)
-
-                        content.setDisposer(parentDisposer)
+                        var content: Content?
+                        if (tabName == null) {
+                            content = contentManager.factory.createContent(form.mainPanel, httpMethod.text, false)
+                            content.setDisposer(parentDisposer)
+                        } else {
+                            content = contentManager.findContent(tabName)
+                            if (content != null) {
+                                content.component = form.mainPanel
+                            } else {
+                                content = contentManager.factory.createContent(form.mainPanel, tabName, false)
+                                content.setDisposer(parentDisposer)
+                            }
+                        }
 
                         contentManager.addContent(content)
                         contentManager.setSelectedContent(content)
@@ -111,6 +125,12 @@ class HttpGutterIconNavigationHandler(val element: HttpMethod) : GutterIconNavig
             }
         }
 
+    }
+
+    private fun getTabName(httpMethod: HttpMethod): String? {
+        val httpRequest = PsiTreeUtil.getParentOfType(httpMethod, com.github.xiaolyuh.http.psi.HttpRequest::class.java)!!
+        val psiComment = PsiTreeUtil.getPrevSiblingOfType(httpRequest, PsiComment::class.java) ?: return null
+        return httpMethod.text + " " + psiComment.text.replace("#", "").trim()
     }
 
     private fun getJsScript(httpScript: HttpScript?): String? {

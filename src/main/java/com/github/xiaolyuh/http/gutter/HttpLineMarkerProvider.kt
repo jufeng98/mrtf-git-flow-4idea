@@ -8,6 +8,7 @@ import com.intellij.navigation.GotoRelatedItem
 import com.intellij.openapi.editor.markup.GutterIconRenderer
 import com.intellij.openapi.project.DumbAware
 import com.intellij.psi.PsiElement
+import com.intellij.psi.util.PsiUtil
 import com.intellij.util.ConstantFunction
 
 class HttpLineMarkerProvider : RelatedItemLineMarkerProvider(), DumbAware {
@@ -18,6 +19,12 @@ class HttpLineMarkerProvider : RelatedItemLineMarkerProvider(), DumbAware {
         if (element !is HttpMethod) {
             return
         }
+
+        val virtualFile = PsiUtil.getVirtualFile(element)
+        if (virtualFile?.name?.startsWith("http") == true) {
+            return
+        }
+
 
         val navigationHandler = HttpGutterIconNavigationHandler(element)
 

@@ -65,6 +65,11 @@ class VariableResolver(private val jsScriptExecutor: JsScriptExecutor) {
             return RandomStringUtils.randomAlphanumeric(count.toInt())
         }
 
+        if (variable.startsWith("\$random.numeric")) {
+            val count = pattern1.matcher(variable).replaceAll("")
+            return RandomStringUtils.randomNumeric(count.toInt())
+        }
+
         return null
     }
 

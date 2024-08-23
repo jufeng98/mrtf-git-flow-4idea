@@ -21,14 +21,13 @@ class JsScriptExecutor {
                 client = {
                   fullMsg: '',
                   log: function(msg) {
-                    var prefix = msg !== '' ? '# ' : ''
-                    this.fullMsg = this.fullMsg + prefix + msg + '\r\n';
+                    this.fullMsg = this.fullMsg + '# ' + msg + '\r\n';
                   },
                   global: {
                     get: function(key) {
                       return this[key];
                     },
-                    set: function(key,val) {
+                    set: function(key, val) {
                       this[key] = val;
                       client.log(key + ' 已设置为: ' + val);
                     }
@@ -76,7 +75,7 @@ class JsScriptExecutor {
     fun evalJsAfterRequest(
         jsScript: String?,
         response: HttpResponse<ByteArray>,
-        resPair: Pair<String, ByteArray>
+        resPair: Pair<String, ByteArray>,
     ): String? {
         if (jsScript == null) {
             return null
@@ -84,22 +83,25 @@ class JsScriptExecutor {
 
         val headerJsonStr = HttpClientUtil.gson.toJson(response.headers().map())
 
-        if (resPair.first != "image") {
+        val body: String
+        if (resPair.first == "json") {
             val bytes = resPair.second
             val jsonStr = String(bytes, StandardCharsets.UTF_8)
-            val js = """
-                      response = {
-                        status: ${response.statusCode()},
-                        body: $jsonStr,
-                        headers: $headerJsonStr
-                      };
-                      $jsScript;
-            """.trimIndent()
-
-            return evalJs(js)
+            body = jsonStr
+        } else {
+            body = "{}"
         }
 
-        return null
+        val js = """
+              response = {
+                status: ${response.statusCode()},
+                body: $body,
+                headers: $headerJsonStr
+              };
+              $jsScript;
+            """.trimIndent()
+
+        return evalJs(js)
     }
 
     private fun evalJs(jsScript: String?): String {
