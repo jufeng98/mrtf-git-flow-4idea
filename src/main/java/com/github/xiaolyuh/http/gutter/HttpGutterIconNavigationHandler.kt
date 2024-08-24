@@ -40,22 +40,10 @@ class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : Gutt
 
         val httpRequestEnum = HttpRequestEnum.getInstance(httpMethod)
         val jsScriptExecutor = JsScriptExecutor.getService(project)
-        val variableResolver = VariableResolver(jsScriptExecutor, project)
+        val variableResolver = VariableResolver.getService(project)
         val toolWindowManager = ToolWindowManager.getInstance(project)
 
-        val version = Version.HTTP_1_1
-
-        val url: String
-        val reqHeaderMap: MutableMap<String, String>
-        val reqBody: Any?
-        try {
-            url = variableResolver.resolve(httpUrl.text!!)
-            reqHeaderMap = convertToReqHeaderMap(httpHeaders, variableResolver)
-            reqBody = convertToReqBody(httpBody, variableResolver)
-        } catch (e: IllegalArgumentException) {
-            toolWindowManager.notifyByBalloon(TOOL_WINDOW_ID, MessageType.WARNING, "<div>${e.message}</div>")
-            return
-        }
+        jsScriptExecutor.prepareJsRequestObj()
 
         val httpFile = httpMethod.containingFile
         val httpRequests =
@@ -70,6 +58,19 @@ class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : Gutt
 
         val httpReqDescList: MutableList<String> = mutableListOf()
         httpReqDescList.addAll(beforeJsResList)
+
+        val version = Version.HTTP_1_1
+        val url: String
+        val reqHeaderMap: MutableMap<String, String>
+        val reqBody: Any?
+        try {
+            url = variableResolver.resolve(httpUrl.text!!)
+            reqHeaderMap = convertToReqHeaderMap(httpHeaders, variableResolver)
+            reqBody = convertToReqBody(httpBody, variableResolver)
+        } catch (e: IllegalArgumentException) {
+            toolWindowManager.notifyByBalloon(TOOL_WINDOW_ID, MessageType.WARNING, "<div>${e.message}</div>")
+            return
+        }
 
         val jsScriptStr = getJsScript(httpScript)
 
@@ -89,6 +90,8 @@ class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : Gutt
         }.whenComplete { httpInfo, throwable ->
             runInEdt {
                 loadingRemover.run()
+
+                jsScriptExecutor.clearJsRequestObj()
 
                 val toolWindow = toolWindowManager.getToolWindow(TOOL_WINDOW_ID)!!
                 toolWindow.isAvailable = true
@@ -145,6 +148,6 @@ class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : Gutt
     }
 
     companion object {
-        val TOOL_WINDOW_ID: String = "Http Execution"
+        const val TOOL_WINDOW_ID: String = "Http Execution"
     }
 }

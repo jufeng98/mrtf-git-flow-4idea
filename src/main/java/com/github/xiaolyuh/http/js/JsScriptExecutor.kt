@@ -40,7 +40,7 @@ class JsScriptExecutor {
                     },
                     set: function(key, val) {
                       this.dataHolder[key] = val;
-                      client.log(key + ' 已设置为: ' + val);
+                      client.log(key + ' 已设置为(global): ' + val);
                     },
                   },
                   test: function(successMsg, assertCallback) {
@@ -64,8 +64,36 @@ class JsScriptExecutor {
                 function getGlobalVariable(key) {
                     return client.global.get(key);
                 }
+                function getRequestVariable(key) {
+                    return request.variables.get(key);
+                }
         """.trimIndent()
         )
+    }
+
+    fun prepareJsRequestObj() {
+        val js = """
+            request = {
+              variables: {
+                dataHolder: {},
+                get: function(key) {
+                  return this.dataHolder[key] !== undefined ? this.dataHolder[key] : null;
+                },
+                set: function(key, val) {
+                  this.dataHolder[key] = val;
+                  client.log(key + ' 已设置为(request): ' + val);
+                },
+              }
+            };
+            """.trimIndent()
+        engine.eval(js)
+    }
+
+    fun clearJsRequestObj() {
+        val js = """
+              request = null;
+            """.trimIndent()
+        engine.eval(js)
     }
 
     fun evalJsBeforeRequest(beforeJsScripts: List<String>): List<String> {
@@ -120,6 +148,11 @@ class JsScriptExecutor {
 
         val invocable = engine as Invocable
         return invocable.invokeFunction("getLog") as String
+    }
+
+    fun getRequestVariable(key: String): String? {
+        val invocable = engine as Invocable
+        return invocable.invokeFunction("getRequestVariable", key) as String?
     }
 
     fun getGlobalVariable(key: String): String? {

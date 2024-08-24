@@ -4,12 +4,14 @@ import com.dbn.common.util.UUIDs
 import com.github.xiaolyuh.http.js.JsScriptExecutor
 import com.github.xiaolyuh.http.service.EnvFileService
 import com.github.xiaolyuh.http.ui.HttpEditorTopForm
+import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
 import org.apache.commons.lang.math.RandomUtils
 import org.apache.commons.lang3.RandomStringUtils
 import java.util.regex.Pattern
 
-class VariableResolver(private val jsScriptExecutor: JsScriptExecutor, private val project: Project) {
+@Service(Service.Level.PROJECT)
+class VariableResolver(private val project: Project) {
     private val pattern = Pattern.compile("(\\{\\{[a-zA-Z0-9.()\\-,\$]+}})", Pattern.MULTILINE)
     private val patternNotNumber = Pattern.compile("\\D")
 
@@ -26,6 +28,12 @@ class VariableResolver(private val jsScriptExecutor: JsScriptExecutor, private v
 
     private fun resolveVariable(variable: String): String {
         var innerVariable = resolveInnerVariable(variable)
+        if (innerVariable != null) {
+            return innerVariable
+        }
+
+        val jsScriptExecutor = JsScriptExecutor.getService(project)
+        innerVariable = jsScriptExecutor.getRequestVariable(variable)
         if (innerVariable != null) {
             return innerVariable
         }
@@ -83,4 +91,9 @@ class VariableResolver(private val jsScriptExecutor: JsScriptExecutor, private v
         return null
     }
 
+    companion object {
+        fun getService(project: Project): VariableResolver {
+            return project.getService(VariableResolver::class.java)
+        }
+    }
 }
