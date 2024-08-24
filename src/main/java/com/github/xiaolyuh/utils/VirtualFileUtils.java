@@ -45,7 +45,7 @@ public class VirtualFileUtils {
             }
 
             String str = StringUtils.defaultString(tabName) + "-" + DateFormatUtils.format(date, "hhmmss");
-            Path path = Path.of(parentDir.toString(), "http-" + str + "." + suffix);
+            Path path = Path.of(parentDir.toString(), "tmp-" + str + "." + suffix);
             tempFile = Files.createFile(path);
             File file = tempFile.toFile();
             VirtualFile virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByPath(file.getAbsolutePath());

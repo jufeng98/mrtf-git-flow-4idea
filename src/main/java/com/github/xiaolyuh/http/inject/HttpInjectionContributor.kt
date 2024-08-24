@@ -5,10 +5,10 @@ import com.github.xiaolyuh.http.psi.HttpScript
 import com.github.xiaolyuh.http.psi.HttpTypes
 import com.intellij.json.JsonLanguage
 import com.intellij.lang.Language
+import com.intellij.lang.html.HTMLLanguage
 import com.intellij.lang.injection.MultiHostInjector
 import com.intellij.lang.injection.MultiHostRegistrar
 import com.intellij.lang.java.JShellLanguage
-import com.intellij.lang.xml.XMLLanguage
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiLanguageInjectionHost
@@ -24,7 +24,7 @@ class HttpInjectionContributor : MultiHostInjector {
             language = JsonLanguage.INSTANCE
             textRange = innerRange(context)
         } else if (elementType == HttpTypes.XML_TEXT) {
-            language = XMLLanguage.INSTANCE
+            language = HTMLLanguage.INSTANCE
             textRange = innerRange(context)
         } else if (context is HttpScript) {
             language = JShellLanguage.INSTANCE

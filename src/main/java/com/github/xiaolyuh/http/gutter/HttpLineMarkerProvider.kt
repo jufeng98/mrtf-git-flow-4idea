@@ -21,7 +21,7 @@ class HttpLineMarkerProvider : RelatedItemLineMarkerProvider(), DumbAware {
         }
 
         val virtualFile = PsiUtil.getVirtualFile(element)
-        if (virtualFile?.name?.startsWith("http") == true) {
+        if (virtualFile?.name?.startsWith("tmp") == true) {
             return
         }
 

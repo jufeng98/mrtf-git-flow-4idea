@@ -134,6 +134,14 @@ class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : Gutt
     private fun getTabName(httpMethod: HttpMethod): String? {
         val httpRequest =
             PsiTreeUtil.getParentOfType(httpMethod, com.github.xiaolyuh.http.psi.HttpRequest::class.java)!!
+        if (PsiTreeUtil.findChildOfType(
+                httpRequest,
+                PsiComment::class.java
+            ) != null || httpRequest.prevSibling is HttpRequest
+        ) {
+            return null
+        }
+
         val psiComment = PsiTreeUtil.getPrevSiblingOfType(httpRequest, PsiComment::class.java) ?: return null
         return httpMethod.text + " " + psiComment.text.replace("#", "").trim()
     }

@@ -54,7 +54,7 @@ class VariableResolver(private val project: Project) {
     }
 
     private fun resolveInnerVariable(variable: String): String? {
-        if (variable == "\$uuid") {
+        if (variable == "\$random.uuid") {
             return UUIDs.compact()
         }
 
@@ -68,6 +68,10 @@ class VariableResolver(private val project: Project) {
 
         if (variable.startsWith("\$random.integer")) {
             val split = variable.split(",")
+            if (split.size == 1) {
+                return RandomUtils.nextInt(1001).toString()
+            }
+
             val start = patternNotNumber.matcher(split[0]).replaceAll("")
             val end = patternNotNumber.matcher(split[1]).replaceAll("")
             return (start.toInt() + RandomUtils.nextInt(end.toInt())).toString()

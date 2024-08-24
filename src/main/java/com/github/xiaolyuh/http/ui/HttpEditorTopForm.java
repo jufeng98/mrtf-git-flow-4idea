@@ -13,6 +13,7 @@ public class HttpEditorTopForm extends JComponent {
     public static final Key<HttpEditorTopForm> KEY = Key.create("gitflowplus.httpEditorTopForm");
     private JComboBox<String> envComboBox;
     public JPanel mainPanel;
+    private JComboBox exampleComboBox;
 
     public void initData(EnvFileService envFileService) {
         Set<String> presetEnvSet = envFileService.getPresetEnvList();

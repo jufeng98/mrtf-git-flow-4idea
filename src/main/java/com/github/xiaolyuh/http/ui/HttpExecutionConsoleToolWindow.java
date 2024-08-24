@@ -47,13 +47,22 @@ public class HttpExecutionConsoleToolWindow implements Disposable {
             return;
         }
 
-        byte[] reqBytes = String.join("", httpInfo.getHttpReqDescList())
-                .getBytes(StandardCharsets.UTF_8);
+        boolean imageType = httpInfo.getType().equals("image");
+
+        byte[] reqBytes;
+        if (imageType) {
+            List<String> list = Lists.newArrayList();
+            list.addAll(httpInfo.getHttpReqDescList());
+            list.addAll(httpInfo.getHttpResDescList());
+            reqBytes = String.join("", list).getBytes(StandardCharsets.UTF_8);
+        } else {
+            reqBytes = String.join("", httpInfo.getHttpReqDescList()).getBytes(StandardCharsets.UTF_8);
+        }
 
         JComponent reqComponent = createEditor(reqBytes, "req.http", project, tabName);
         requestPanel.add(reqComponent, constraints);
 
-        if (httpInfo.getType().equals("image")) {
+        if (imageType) {
             try {
                 @Cleanup
                 ByteArrayInputStream inputStream = new ByteArrayInputStream((httpInfo.getByteArray()));
