@@ -12,6 +12,7 @@ import com.intellij.codeInsight.daemon.GutterIconNavigationHandler
 import com.intellij.openapi.application.runInEdt
 import com.intellij.openapi.application.runWriteActionAndWait
 import com.intellij.openapi.editor.ex.EditorGutterComponentEx
+import com.intellij.openapi.ui.MessageType
 import com.intellij.openapi.util.Disposer.newDisposable
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.psi.PsiComment
@@ -40,6 +41,7 @@ class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : Gutt
         val httpRequestEnum = HttpRequestEnum.getInstance(httpMethod)
         val jsScriptExecutor = JsScriptExecutor.getService(project)
         val variableResolver = VariableResolver(jsScriptExecutor, project)
+        val toolWindowManager = ToolWindowManager.getInstance(project)
 
         val version = Version.HTTP_1_1
 
@@ -51,7 +53,7 @@ class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : Gutt
             reqHeaderMap = convertToReqHeaderMap(httpHeaders, variableResolver)
             reqBody = convertToReqBody(httpBody, variableResolver)
         } catch (e: IllegalArgumentException) {
-            showTooltip(e.message!!, project)
+            toolWindowManager.notifyByBalloon(TOOL_WINDOW_ID, MessageType.WARNING, "<div>${e.message}</div>")
             return
         }
 
@@ -88,40 +90,39 @@ class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : Gutt
             runInEdt {
                 loadingRemover.run()
 
-                val toolWindowManager = ToolWindowManager.getInstance(project)
-                val toolWindow = toolWindowManager.getToolWindow("Http Execution")!!
+                val toolWindow = toolWindowManager.getToolWindow(TOOL_WINDOW_ID)!!
                 toolWindow.isAvailable = true
 
-                toolWindow.activate {
-                    runWriteActionAndWait {
-                        val contentManager = toolWindow.contentManager
+                runWriteActionAndWait {
+                    val contentManager = toolWindow.contentManager
 
-                        val parentDisposer = newDisposable()
+                    val parentDisposer = newDisposable()
 
-                        val form = HttpExecutionConsoleToolWindow()
+                    val form = HttpExecutionConsoleToolWindow()
 
-                        val tabName = getTabName(httpMethod)
+                    val tabName = getTabName(httpMethod)
 
-                        form.initPanelData(httpInfo, throwable, tabName, project, parentDisposer)
+                    form.initPanelData(httpInfo, throwable, tabName, project, parentDisposer)
 
-                        var content: Content?
-                        if (tabName == null) {
-                            content = contentManager.factory.createContent(form.mainPanel, httpMethod.text, false)
-                            content.setDisposer(parentDisposer)
+                    var content: Content?
+                    if (tabName == null) {
+                        content = contentManager.factory.createContent(form.mainPanel, httpMethod.text, false)
+                        content.setDisposer(parentDisposer)
+                    } else {
+                        content = contentManager.findContent(tabName)
+                        if (content != null) {
+                            content.component = form.mainPanel
                         } else {
-                            content = contentManager.findContent(tabName)
-                            if (content != null) {
-                                content.component = form.mainPanel
-                            } else {
-                                content = contentManager.factory.createContent(form.mainPanel, tabName, false)
-                                content.setDisposer(parentDisposer)
-                            }
+                            content = contentManager.factory.createContent(form.mainPanel, tabName, false)
+                            content.setDisposer(parentDisposer)
                         }
-
-                        contentManager.addContent(content)
-                        contentManager.setSelectedContent(content)
                     }
+
+                    contentManager.addContent(content)
+                    contentManager.setSelectedContent(content)
                 }
+
+                toolWindow.activate {}
             }
         }
 
@@ -141,5 +142,9 @@ class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : Gutt
 
         val text = httpScript.text
         return text.substring(4, text.length - 2)
+    }
+
+    companion object {
+        val TOOL_WINDOW_ID: String = "Http Execution"
     }
 }
