@@ -94,7 +94,6 @@ class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : Gutt
                 jsScriptExecutor.clearJsRequestObj()
 
                 val toolWindow = toolWindowManager.getToolWindow(TOOL_WINDOW_ID)!!
-                toolWindow.isAvailable = true
 
                 runWriteActionAndWait {
                     val contentManager = toolWindow.contentManager

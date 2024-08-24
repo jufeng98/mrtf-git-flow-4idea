@@ -9,8 +9,4 @@ class HttpExecutionConsoleToolWindowFactory : ToolWindowFactory, DumbAware {
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
     }
 
-    override fun shouldBeAvailable(project: Project): Boolean {
-        return false
-    }
-
 }
