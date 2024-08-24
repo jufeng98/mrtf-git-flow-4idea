@@ -1,6 +1,7 @@
 package com.github.xiaolyuh.http.editor
 
 import com.github.xiaolyuh.http.HttpFileType
+import com.github.xiaolyuh.http.service.EnvFileService
 import com.github.xiaolyuh.http.ui.HttpEditorTopForm
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.FileEditorManagerListener
@@ -13,9 +14,13 @@ class HttpEditorListener : FileEditorManagerListener {
         }
 
         val fileEditor = source.getSelectedEditor(file)!!
-        val httpEditorTopForm = HttpEditorTopForm()
+        val envFileService = EnvFileService.getService(source.project)
 
-        val editorManager = FileEditorManager.getInstance(source.project)
-        editorManager.addTopComponent(fileEditor, httpEditorTopForm.mainPanel)
+        val httpEditorTopForm = HttpEditorTopForm()
+        httpEditorTopForm.initData(envFileService)
+
+        fileEditor.putUserData(HttpEditorTopForm.KEY, httpEditorTopForm)
+
+        source.addTopComponent(fileEditor, httpEditorTopForm.mainPanel)
     }
 }

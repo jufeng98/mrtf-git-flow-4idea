@@ -2,13 +2,16 @@ package com.github.xiaolyuh.http.resolve
 
 import com.dbn.common.util.UUIDs
 import com.github.xiaolyuh.http.js.JsScriptExecutor
+import com.github.xiaolyuh.http.service.EnvFileService
+import com.github.xiaolyuh.http.ui.HttpEditorTopForm
+import com.intellij.openapi.project.Project
 import org.apache.commons.lang.math.RandomUtils
 import org.apache.commons.lang3.RandomStringUtils
 import java.util.regex.Pattern
 
-class VariableResolver(private val jsScriptExecutor: JsScriptExecutor) {
-    private val pattern = Pattern.compile("(\\{\\{[a-zA-Z0-9.(),\$]+}})", Pattern.MULTILINE)
-    private val pattern1 = Pattern.compile("\\D")
+class VariableResolver(private val jsScriptExecutor: JsScriptExecutor, private val project: Project) {
+    private val pattern = Pattern.compile("(\\{\\{[a-zA-Z0-9.()\\-,\$]+}})", Pattern.MULTILINE)
+    private val patternNotNumber = Pattern.compile("\\D")
 
     fun resolve(str: String): String {
         val matcher = pattern.matcher(str)
@@ -32,6 +35,13 @@ class VariableResolver(private val jsScriptExecutor: JsScriptExecutor) {
             return innerVariable
         }
 
+        val selectedEnv = HttpEditorTopForm.getSelectedEnv(project)
+        val envFileService = EnvFileService.getService(project)
+        val envValue = envFileService.getEnvValue(variable, selectedEnv)
+        if (envValue != null) {
+            return envValue
+        }
+
         throw IllegalArgumentException("无法解析变量${variable}")
     }
 
@@ -50,23 +60,23 @@ class VariableResolver(private val jsScriptExecutor: JsScriptExecutor) {
 
         if (variable.startsWith("\$random.integer")) {
             val split = variable.split(",")
-            val start = pattern1.matcher(split[0]).replaceAll("")
-            val end = pattern1.matcher(split[1]).replaceAll("")
+            val start = patternNotNumber.matcher(split[0]).replaceAll("")
+            val end = patternNotNumber.matcher(split[1]).replaceAll("")
             return (start.toInt() + RandomUtils.nextInt(end.toInt())).toString()
         }
 
         if (variable.startsWith("\$random.alphabetic")) {
-            val count = pattern1.matcher(variable).replaceAll("")
+            val count = patternNotNumber.matcher(variable).replaceAll("")
             return RandomStringUtils.randomAlphabetic(count.toInt())
         }
 
         if (variable.startsWith("\$random.alphanumeric")) {
-            val count = pattern1.matcher(variable).replaceAll("")
+            val count = patternNotNumber.matcher(variable).replaceAll("")
             return RandomStringUtils.randomAlphanumeric(count.toInt())
         }
 
         if (variable.startsWith("\$random.numeric")) {
-            val count = pattern1.matcher(variable).replaceAll("")
+            val count = patternNotNumber.matcher(variable).replaceAll("")
             return RandomStringUtils.randomNumeric(count.toInt())
         }
 

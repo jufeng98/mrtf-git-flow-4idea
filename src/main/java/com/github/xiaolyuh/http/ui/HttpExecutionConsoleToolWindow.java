@@ -42,7 +42,7 @@ public class HttpExecutionConsoleToolWindow implements Disposable {
 
         if (throwable != null) {
             String msg = ExceptionUtils.getStackTrace(throwable);
-            JComponent jComponent = createEditor(msg.getBytes(StandardCharsets.UTF_8), "log", project, tabName);
+            JComponent jComponent = createEditor(msg.getBytes(StandardCharsets.UTF_8), "error.log", project, tabName);
             requestPanel.add(jComponent, constraints);
             return;
         }

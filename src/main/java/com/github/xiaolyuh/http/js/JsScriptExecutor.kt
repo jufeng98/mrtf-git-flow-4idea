@@ -61,7 +61,7 @@ class JsScriptExecutor {
                     client.fullMsg = '';
                     return tmp;
                 }
-                function getVariable(key) {
+                function getGlobalVariable(key) {
                     return client.global.get(key);
                 }
         """.trimIndent()
@@ -124,7 +124,7 @@ class JsScriptExecutor {
 
     fun getGlobalVariable(key: String): String? {
         val invocable = engine as Invocable
-        return invocable.invokeFunction("getVariable", key) as String?
+        return invocable.invokeFunction("getGlobalVariable", key) as String?
     }
 
     companion object {

@@ -39,7 +39,7 @@ class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : Gutt
 
         val httpRequestEnum = HttpRequestEnum.getInstance(httpMethod)
         val jsScriptExecutor = JsScriptExecutor.getService(project)
-        val variableResolver = VariableResolver(jsScriptExecutor)
+        val variableResolver = VariableResolver(jsScriptExecutor, project)
 
         val version = Version.HTTP_1_1
 
@@ -102,7 +102,7 @@ class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : Gutt
 
                         val tabName = getTabName(httpMethod)
 
-                        form.initPanelData(httpInfo, throwable,tabName, project, parentDisposer)
+                        form.initPanelData(httpInfo, throwable, tabName, project, parentDisposer)
 
                         var content: Content?
                         if (tabName == null) {
@@ -128,7 +128,8 @@ class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : Gutt
     }
 
     private fun getTabName(httpMethod: HttpMethod): String? {
-        val httpRequest = PsiTreeUtil.getParentOfType(httpMethod, com.github.xiaolyuh.http.psi.HttpRequest::class.java)!!
+        val httpRequest =
+            PsiTreeUtil.getParentOfType(httpMethod, com.github.xiaolyuh.http.psi.HttpRequest::class.java)!!
         val psiComment = PsiTreeUtil.getPrevSiblingOfType(httpRequest, PsiComment::class.java) ?: return null
         return httpMethod.text + " " + psiComment.text.replace("#", "").trim()
     }
