@@ -1,0 +1,68 @@
+### Tip: clear global variables before the request
+> {%
+client.global.clearAll()
+%}
+
+### Successful test: check response status is 200
+GET https://ijhttp-examples.jetbrains.com/status/200
+
+> {%
+    client.test("Request executed successfully", function () {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+### Failed test
+GET https://ijhttp-examples.jetbrains.com/status/404
+
+> {%
+    client.test("Request executed successfully", function () {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+### Check response status and content-type
+GET https://ijhttp-examples.jetbrains.com/get
+
+> {%
+    client.test("Request executed successfully", function () {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+
+    client.test("Response content-type is json", function () {
+        const type = response.contentType.mimeType;
+        client.assert(type === "application/json", `Expected 'application/json' but received '${type}'`);
+    });
+%}
+
+### Check response body
+GET https://ijhttp-examples.jetbrains.com/get
+
+> {%
+    client.test("Headers option exists", function () {
+        client.assert(response.body.hasOwnProperty("headers"), "Cannot find 'headers' option in response");
+    });
+%}
+
+### Check Content-Type from headers
+GET https://ijhttp-examples.jetbrains.com/get
+
+> {%
+    client.test("Content-Type is application/json", () => {
+        const contentType = response.headers.valueOf("content-type");
+        client.assert(contentType == "application/json",
+            `Expected Content-Type is application/json, but actual is ${contentType}`)
+    })
+%}
+
+###
+POST https://ijhttp-examples.jetbrains.com/post
+Content-Type: application/json
+
+{
+    "my-temp-variable": "{{my-temp-variable}}"
+}
+
+> {%
+    client.global.set("my-temp-variable", "I will be deleted soon!")
+%}

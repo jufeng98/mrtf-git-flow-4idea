@@ -1,0 +1,19 @@
+### GET request with a header
+GET https://ijhttp-examples.jetbrains.com/ip
+Accept: application/json
+
+### GET request with parameter
+GET https://ijhttp-examples.jetbrains.com/get?show_env=1
+Accept: application/json
+
+### GET request with environment variables
+// Tip: putting scheme:// + host to {{host}} allows switching schemes between different environments
+GET {{host}}/get?show_env={{show_env}}
+Accept: application/json
+
+### GET request with cookie passed through headers
+GET https://ijhttp-examples.jetbrains.com/cookies
+Cookie: theme=darcula; last_searched_location=IJburg
+
+### GET request with dynamic variables
+GET https://ijhttp-examples.jetbrains.com/anything?id={{$random.uuid}}&ts={{$timestamp}}

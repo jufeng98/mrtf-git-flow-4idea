@@ -1,0 +1,25 @@
+### Send POST request with json body
+POST https://ijhttp-examples.jetbrains.com/post
+Content-Type: application/json
+
+{
+  "id": 999,
+  "value": "content"
+}
+
+### Send request with dynamic variables in request's body
+POST https://ijhttp-examples.jetbrains.com/post
+Content-Type: application/json
+
+{
+  "id": {{$random.uuid}},
+  "price": {{$random.integer()}},
+  "price1": {{$randomInt}},
+  "desc": "{{$random.alphabetic(10)}}",
+  "desc1": "{{$random.alphanumeric(10)}}",
+  "desc2": "{{$random.numeric(10)}}",
+  "ts": {{$timestamp}},
+  "value": "content"
+}
+
+###
