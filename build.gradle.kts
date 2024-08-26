@@ -16,6 +16,7 @@ repositories {
 }
 
 dependencies {
+    implementation("org.openjdk.nashorn:nashorn-core:15.4")
     testImplementation("com.jcraft:jsch:0.1.54")
     testImplementation("junit:junit:4.13.1")
 }
