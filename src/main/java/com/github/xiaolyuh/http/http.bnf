@@ -23,7 +23,7 @@
     REQUEST_COMMENT='regexp:#.*'
     LINE_COMMENT='regexp://.*'
     URL_FORM_ENCODE="regexp:[a-zA-Z0-9,&$={}()]*"
-    JSON_TEXT="regexp:[{\[][\u4E00-\u9FA5a-zA-Z0-9._,\":'&$【】~{}()\[\]\s\-/：（）、!！+=，]*"
+    JSON_TEXT="regexp:[{\[][\u4E00-\u9FA5a-zA-Z0-9._,\":'&$【】~{}()\[\]\s\-/；：（）、!！*+=，]*"
     XML_TEXT="regexp:(<| <)[^#]*"
     MULTIPART_SEPERATE='regexp:--[^-]+'
     MULTIPART_SEPERATE_END='regexp:--[^-]+--'

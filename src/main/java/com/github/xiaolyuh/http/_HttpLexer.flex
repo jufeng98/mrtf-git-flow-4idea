@@ -31,7 +31,7 @@ HEADER_DESC=[a-zA-Z\-]+:[a-zA-Z0-9,${}()_=;\\\".\-*:/ ]+
 REQUEST_COMMENT=#.*
 LINE_COMMENT="//".*
 URL_FORM_ENCODE=[a-zA-Z0-9,&$={}()]*
-JSON_TEXT=[{\[][\u4E00-\u9FA5a-zA-Z0-9._,\":'&$【】~{}()\[\]\s\-/：（）、!！+=，]*
+JSON_TEXT=[{\[][\u4E00-\u9FA5a-zA-Z0-9._,\":'&$【】~{}()\[\]\s\-/；：（）、!！*+=，]*
 XML_TEXT=(<| <)[^#]*
 MULTIPART_SEPERATE=--[^-]+
 MULTIPART_SEPERATE_END=--[^-]+--
