@@ -3,17 +3,16 @@ package com.github.xiaolyuh.http.js
 import com.github.xiaolyuh.utils.HttpClientUtil
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
+import org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory
 import java.net.http.HttpResponse
 import java.nio.charset.StandardCharsets
 import javax.script.Invocable
 import javax.script.ScriptEngine
-import javax.script.ScriptEngineManager
 
 
 @Service(Service.Level.PROJECT)
 class JsScriptExecutor {
-    private var manager: ScriptEngineManager = ScriptEngineManager()
-    private var engine: ScriptEngine = manager.getEngineByName("JavaScript")
+    private var engine: ScriptEngine = NashornScriptEngineFactory().getScriptEngine("Nashorn")
 
     init {
         engine.eval(
