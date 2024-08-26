@@ -1,10 +1,13 @@
 package com.github.xiaolyuh.http
 
+import java.lang.Exception
+
 data class HttpInfo(
     val httpReqDescList: MutableList<String>,
     val httpResDescList: MutableList<String>,
-    val type: String,
-    val byteArray: ByteArray
+    val type: String?,
+    val byteArray: ByteArray?,
+    val httpException: Exception?
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

@@ -25,6 +25,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Objects;
 
 public class HttpExecutionConsoleToolWindow implements Disposable {
     public JPanel mainPanel;
@@ -47,10 +48,12 @@ public class HttpExecutionConsoleToolWindow implements Disposable {
             return;
         }
 
-        boolean imageType = httpInfo.getType().equals("image");
+        boolean imageType = Objects.equals(httpInfo.getType(), "image");
+        Exception httpException = httpInfo.getHttpException();
+        boolean hasError = httpException != null;
 
         byte[] reqBytes;
-        if (imageType) {
+        if (imageType || hasError) {
             List<String> list = Lists.newArrayList();
             list.addAll(httpInfo.getHttpReqDescList());
             list.addAll(httpInfo.getHttpResDescList());
@@ -62,10 +65,18 @@ public class HttpExecutionConsoleToolWindow implements Disposable {
         JComponent reqComponent = createEditor(reqBytes, "req.http", project, tabName);
         requestPanel.add(reqComponent, constraints);
 
+        if (hasError) {
+            String msg = ExceptionUtils.getStackTrace(httpException);
+            JComponent jComponent = createEditor(msg.getBytes(StandardCharsets.UTF_8), "error.log", project, tabName);
+            responsePanel.add(jComponent, constraints);
+            return;
+        }
+
         if (imageType) {
             try {
+                @SuppressWarnings("DataFlowIssue")
                 @Cleanup
-                ByteArrayInputStream inputStream = new ByteArrayInputStream((httpInfo.getByteArray()));
+                ByteArrayInputStream inputStream = new ByteArrayInputStream(httpInfo.getByteArray());
                 BufferedImage bufferedImage = ImageIO.read(inputStream);
                 JLabel jComponent = new JLabel(new ImageIcon(bufferedImage));
                 responsePanel.add(jComponent, constraints);

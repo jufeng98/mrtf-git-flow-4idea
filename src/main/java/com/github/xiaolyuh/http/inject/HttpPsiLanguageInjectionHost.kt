@@ -1,11 +1,10 @@
 package com.github.xiaolyuh.http.inject
 
 import com.intellij.extapi.psi.ASTWrapperPsiElement
+import com.intellij.json.psi.impl.JSStringLiteralEscaper
 import com.intellij.lang.ASTNode
-import com.intellij.psi.LiteralTextEscaper
 import com.intellij.psi.PsiLanguageInjectionHost
 import com.intellij.psi.impl.source.tree.LeafElement
-import com.intellij.psi.impl.source.tree.injected.StringLiteralEscaper
 
 open class HttpPsiLanguageInjectionHost(node: ASTNode) : ASTWrapperPsiElement(node), PsiLanguageInjectionHost {
     override fun isValidHost(): Boolean {
@@ -19,7 +18,15 @@ open class HttpPsiLanguageInjectionHost(node: ASTNode) : ASTWrapperPsiElement(no
         return this
     }
 
-    override fun createLiteralTextEscaper(): LiteralTextEscaper<out PsiLanguageInjectionHost> {
-        return StringLiteralEscaper(this)
+    override fun createLiteralTextEscaper(): JSStringLiteralEscaper<PsiLanguageInjectionHost?> {
+        return object : JSStringLiteralEscaper<PsiLanguageInjectionHost?>(this) {
+            override fun isRegExpLiteral(): Boolean {
+                return false
+            }
+
+            override fun isOneLine(): Boolean {
+                return false
+            }
+        }
     }
 }

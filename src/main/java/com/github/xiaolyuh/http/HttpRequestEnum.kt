@@ -77,7 +77,12 @@ enum class HttpRequestEnum {
             .connectTimeout(Duration.ofSeconds(6))
             .build()
 
-        val response = client.send(request, HttpResponse.BodyHandlers.ofByteArray())
+        val response: HttpResponse<ByteArray>?
+        try {
+            response = client.send(request, HttpResponse.BodyHandlers.ofByteArray())
+        } catch (e: Exception) {
+            return HttpInfo(httpReqDescList, mutableListOf(), null, null, e)
+        }
 
         val req = response.request()
         httpReqDescList.add(req.method() + " " + req.uri().toString() + " " + "\r\n")
@@ -120,7 +125,7 @@ enum class HttpRequestEnum {
             httpResDescList.add(String(resPair.second, StandardCharsets.UTF_8))
         }
 
-        return HttpInfo(httpReqDescList, httpResDescList, resPair.first, resPair.second)
+        return HttpInfo(httpReqDescList, httpResDescList, resPair.first, resPair.second, null)
     }
 
     abstract fun createRequest(
