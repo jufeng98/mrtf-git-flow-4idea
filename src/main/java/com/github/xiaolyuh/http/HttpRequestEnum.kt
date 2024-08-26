@@ -77,28 +77,27 @@ enum class HttpRequestEnum {
             .connectTimeout(Duration.ofSeconds(6))
             .build()
 
-        val response: HttpResponse<ByteArray>?
-        try {
-            response = client.send(request, HttpResponse.BodyHandlers.ofByteArray())
-        } catch (e: Exception) {
-            return HttpInfo(httpReqDescList, mutableListOf(), null, null, e)
-        }
-
-        val req = response.request()
-        httpReqDescList.add(req.method() + " " + req.uri().toString() + " " + "\r\n")
-        req.headers()
+        httpReqDescList.add(request.method() + " " + request.uri().toString() + " " + "\r\n")
+        request.headers()
             .map()
             .forEach { entry ->
                 entry.value.forEach {
                     httpReqDescList.add(entry.key + ": " + it + "\r\n")
                 }
             }
-        if (req.bodyPublisher().isPresent) {
-            httpReqDescList.add("Content-Length: " + req.bodyPublisher().get().contentLength() + "\r\n")
+        if (request.bodyPublisher().isPresent) {
+            httpReqDescList.add("Content-Length: " + request.bodyPublisher().get().contentLength() + "\r\n")
         }
         httpReqDescList.add("\r\n")
         if (reqBody is String) {
             httpReqDescList.add(reqBody)
+        }
+
+        val response: HttpResponse<ByteArray>?
+        try {
+            response = client.send(request, HttpResponse.BodyHandlers.ofByteArray())
+        } catch (e: Exception) {
+            return HttpInfo(httpReqDescList, mutableListOf(), null, null, e)
         }
 
         val size = response.body().size / 1024.0
@@ -117,7 +116,7 @@ enum class HttpRequestEnum {
             httpResDescList.add("$evalJsRes")
         }
 
-        httpResDescList.add(req.method() + " " + response.uri().toString() + "\r\n")
+        httpResDescList.add(request.method() + " " + response.uri().toString() + "\r\n")
 
         httpResDescList.addAll(resHeaderList)
 
