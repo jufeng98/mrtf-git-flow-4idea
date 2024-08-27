@@ -6,12 +6,11 @@ import com.intellij.codeInsight.daemon.RelatedItemLineMarkerProvider
 import com.intellij.icons.AllIcons
 import com.intellij.navigation.GotoRelatedItem
 import com.intellij.openapi.editor.markup.GutterIconRenderer
-import com.intellij.openapi.project.DumbAware
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiUtil
 import com.intellij.util.ConstantFunction
 
-class HttpLineMarkerProvider : RelatedItemLineMarkerProvider(), DumbAware {
+class HttpLineMarkerProvider : RelatedItemLineMarkerProvider() {
     override fun collectNavigationMarkers(
         element: PsiElement,
         result: MutableCollection<in RelatedItemLineMarkerInfo<*>>,
@@ -24,7 +23,6 @@ class HttpLineMarkerProvider : RelatedItemLineMarkerProvider(), DumbAware {
         if (virtualFile?.name?.startsWith("tmp") == true) {
             return
         }
-
 
         val navigationHandler = HttpGutterIconNavigationHandler(element)
 

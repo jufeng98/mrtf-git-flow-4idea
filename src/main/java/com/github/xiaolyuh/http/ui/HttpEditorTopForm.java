@@ -10,6 +10,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 
 import javax.swing.*;
 import java.net.URL;
+import java.util.Objects;
 import java.util.Set;
 
 public class HttpEditorTopForm extends JComponent {
@@ -25,15 +26,15 @@ public class HttpEditorTopForm extends JComponent {
             Object selectedItem = exampleComboBox.getSelectedItem();
 
             URL url = null;
-            if (selectedItem.equals("GET requests")) {
+            if (Objects.equals(selectedItem, "GET requests")) {
                 url = classLoader.getResource("examples/get-requests.http");
-            } else if (selectedItem.equals("POST requests")) {
+            } else if (Objects.equals(selectedItem, "POST requests")) {
                 url = classLoader.getResource("examples/post-requests.http");
-            } else if (selectedItem.equals("Request with Authorization")) {
+            } else if (Objects.equals(selectedItem, "Request with Authorization")) {
                 url = classLoader.getResource("examples/requests-with-authorization.http");
-            } else if (selectedItem.equals("Request with tests and Scripts")) {
+            } else if (Objects.equals(selectedItem, "Request with tests and Scripts")) {
                 url = classLoader.getResource("examples/requests-with-scripts.http");
-            } else if (selectedItem.equals("Response presentations")) {
+            } else if (Objects.equals(selectedItem, "Response presentations")) {
                 url = classLoader.getResource("examples/responses-presentation.http");
             }
             if (url != null) {

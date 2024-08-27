@@ -6,14 +6,12 @@ import com.intellij.codeInspection.ui.actions.LOG
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.openapi.vfs.VirtualFileManager
-import com.intellij.openapi.vfs.newvfs.BulkFileListener
-import com.intellij.openapi.vfs.newvfs.events.VFileEvent
 import com.intellij.psi.search.FilenameIndex
 import com.intellij.psi.search.GlobalSearchScope
 import org.apache.commons.io.FileUtils
 import java.io.File
 import java.nio.charset.StandardCharsets
+import java.util.*
 
 /**
  * @author yudong
@@ -23,27 +21,8 @@ class EnvFileService(val project: Project) {
     private lateinit var envJsonObj: JsonObject
     private lateinit var privateEnvJsonObj: JsonObject
 
-    private val envFileName = "http-client.env.json"
-    private val privateEnvFileName = "http-client.private.env.json"
-
     init {
         initEnv()
-
-        project.messageBus.connect().subscribe(
-            VirtualFileManager.VFS_CHANGES,
-            object : BulkFileListener {
-
-                override fun after(events: MutableList<out VFileEvent>) {
-                    events.forEach {
-                        if (envFileName == it.file?.name) {
-                            envJsonObj = initEnvObj(it.file!!)
-                        } else if (privateEnvFileName == it.file?.name) {
-                            privateEnvJsonObj = initEnvObj(it.file!!)
-                        }
-                    }
-                }
-
-            })
     }
 
     fun getPresetEnvList(): Set<String> {
@@ -75,9 +54,19 @@ class EnvFileService(val project: Project) {
     }
 
     private fun initEnv() {
-        envJsonObj = initEnvObj(envFileName)
+        envJsonObj = initEnvObj(ENV_FILE_NAME)
 
-        privateEnvJsonObj = initEnvObj(privateEnvFileName)
+        privateEnvJsonObj = initEnvObj(PRIVATE_ENV_FILE_NAME)
+    }
+
+    fun initEnv(fileName: String, content: CharSequence) {
+        val jsonObject = HttpClientUtil.gson.fromJson(content.toString(), JsonObject::class.java)
+        LOG.warn("环境文件发生变化,env size:" + jsonObject.size())
+        if (Objects.equals(fileName, ENV_FILE_NAME)) {
+            envJsonObj = jsonObject
+        } else if (Objects.equals(fileName, PRIVATE_ENV_FILE_NAME)) {
+            privateEnvJsonObj = jsonObject
+        }
     }
 
     private fun initEnvObj(envFileName: String): JsonObject {
@@ -100,6 +89,8 @@ class EnvFileService(val project: Project) {
     }
 
     companion object {
+        const val ENV_FILE_NAME = "http-client.env.json"
+        const val PRIVATE_ENV_FILE_NAME = "http-client.private.env.json"
         fun getService(project: Project): EnvFileService {
             return project.getService(EnvFileService::class.java)
         }
