@@ -16,6 +16,8 @@ class HttpEditorListener : FileEditorManagerListener {
         val fileEditor = source.getSelectedEditor(file)!!
         val envFileService = EnvFileService.getService(source.project)
 
+        envFileService.initEnv(file.parent.path)
+
         val httpEditorTopForm = HttpEditorTopForm()
         httpEditorTopForm.initData(envFileService)
 

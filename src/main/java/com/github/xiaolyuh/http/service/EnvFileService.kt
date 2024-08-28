@@ -5,9 +5,6 @@ import com.google.gson.JsonObject
 import com.intellij.codeInspection.ui.actions.LOG
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.search.FilenameIndex
-import com.intellij.psi.search.GlobalSearchScope
 import org.apache.commons.io.FileUtils
 import java.io.File
 import java.nio.charset.StandardCharsets
@@ -18,12 +15,10 @@ import java.util.*
  */
 @Service(Service.Level.PROJECT)
 class EnvFileService(val project: Project) {
-    private lateinit var envJsonObj: JsonObject
-    private lateinit var privateEnvJsonObj: JsonObject
+    private var initialed = false
 
-    init {
-        initEnv()
-    }
+    private var envJsonObj: JsonObject = JsonObject()
+    private var privateEnvJsonObj: JsonObject = JsonObject()
 
     fun getPresetEnvList(): Set<String> {
         val keySet1 = envJsonObj.keySet()
@@ -53,39 +48,33 @@ class EnvFileService(val project: Project) {
         return str
     }
 
-    private fun initEnv() {
-        envJsonObj = initEnvObj(ENV_FILE_NAME)
+    fun initEnv(envDir: String) {
+        if (initialed) {
+            return
+        }
+        initialed = true
 
-        privateEnvJsonObj = initEnvObj(PRIVATE_ENV_FILE_NAME)
+        var file = File(envDir, ENV_FILE_NAME)
+        if (file.exists()) {
+            val jsonStr = FileUtils.readFileToString(file, StandardCharsets.UTF_8)
+            initEnv(ENV_FILE_NAME, jsonStr)
+        }
+
+        file = File(envDir, PRIVATE_ENV_FILE_NAME)
+        if (file.exists()) {
+            val jsonStr = FileUtils.readFileToString(file, StandardCharsets.UTF_8)
+            initEnv(PRIVATE_ENV_FILE_NAME, jsonStr)
+        }
     }
 
     fun initEnv(fileName: String, content: CharSequence) {
         val jsonObject = HttpClientUtil.gson.fromJson(content.toString(), JsonObject::class.java)
-        LOG.warn("环境文件发生变化,env size:" + jsonObject.size())
+        LOG.warn("初始化环境,env size:" + jsonObject.size())
         if (Objects.equals(fileName, ENV_FILE_NAME)) {
             envJsonObj = jsonObject
         } else if (Objects.equals(fileName, PRIVATE_ENV_FILE_NAME)) {
             privateEnvJsonObj = jsonObject
         }
-    }
-
-    private fun initEnvObj(envFileName: String): JsonObject {
-        val envFiles =
-            FilenameIndex.getVirtualFilesByName(envFileName, GlobalSearchScope.projectScope(project))
-        if (envFiles.isEmpty()) {
-            return JsonObject()
-        }
-
-        val envFile = envFiles.iterator().next()
-
-        return initEnvObj(envFile)
-    }
-
-    private fun initEnvObj(envFile: VirtualFile): JsonObject {
-        val jsonStr = FileUtils.readFileToString(File(envFile.path), StandardCharsets.UTF_8)
-        val jsonObject = HttpClientUtil.gson.fromJson(jsonStr, JsonObject::class.java)
-        LOG.warn("完成初始化环境文件,env size:" + jsonObject.size())
-        return jsonObject
     }
 
     companion object {

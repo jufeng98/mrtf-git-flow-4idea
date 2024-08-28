@@ -143,7 +143,11 @@ class JsScriptExecutor {
     }
 
     private fun evalJs(jsScript: String?): String {
-        engine.eval(jsScript)
+        try {
+            engine.eval(jsScript)
+        } catch (e: Exception) {
+            return "# " + e.message + "\r\n"
+        }
 
         val invocable = engine as Invocable
         return invocable.invokeFunction("getLog") as String
