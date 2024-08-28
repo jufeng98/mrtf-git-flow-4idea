@@ -26,7 +26,7 @@ EOL=\R
 WHITE_SPACE=\s+
 
 PATH=([a-zA-Z0-9_\-./]+"/"?)+
-URL_DESC=(https|http|\{\{)[-a-zA-Z0-9+&@${}()#/%?=~_|!:,.; ]*[-a-zA-Z0-9+,&@${}()#/%=~_| ]
+URL_DESC=(https|http|wss|ws|\{\{)[-a-zA-Z0-9+&@${}()#/%?=~_|!:,.; ]*[-a-zA-Z0-9+,&@${}()#/%=~_| ]
 HEADER_DESC=[a-zA-Z\-]+:[a-zA-Z0-9,${}()_=;\\\".\-*:/ ]+
 REQUEST_COMMENT=#.*
 LINE_COMMENT="//".*
