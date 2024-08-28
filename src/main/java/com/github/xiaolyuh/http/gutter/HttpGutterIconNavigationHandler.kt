@@ -6,12 +6,15 @@ import com.github.xiaolyuh.http.js.JsScriptExecutor
 import com.github.xiaolyuh.http.psi.*
 import com.github.xiaolyuh.http.resolve.VariableResolver
 import com.github.xiaolyuh.http.ui.HttpExecutionConsoleToolWindow
+import com.github.xiaolyuh.http.ws.WsRequest
 import com.github.xiaolyuh.utils.HttpUtils.convertToReqBody
 import com.github.xiaolyuh.utils.HttpUtils.convertToReqHeaderMap
 import com.intellij.codeInsight.daemon.GutterIconNavigationHandler
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.runInEdt
 import com.intellij.openapi.application.runWriteActionAndWait
 import com.intellij.openapi.editor.ex.EditorGutterComponentEx
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.MessageType
 import com.intellij.openapi.util.Disposer.newDisposable
 import com.intellij.openapi.wm.ToolWindowManager
@@ -41,7 +44,6 @@ class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : Gutt
         val httpRequestEnum = HttpRequestEnum.getInstance(httpMethod)
         val jsScriptExecutor = JsScriptExecutor.getService(project)
         val variableResolver = VariableResolver.getService(project)
-        val toolWindowManager = ToolWindowManager.getInstance(project)
 
         jsScriptExecutor.prepareJsRequestObj()
 
@@ -68,7 +70,14 @@ class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : Gutt
             reqHeaderMap = convertToReqHeaderMap(httpHeaders, variableResolver)
             reqBody = convertToReqBody(httpBody, variableResolver)
         } catch (e: IllegalArgumentException) {
+            val toolWindowManager = ToolWindowManager.getInstance(project)
             toolWindowManager.notifyByBalloon(TOOL_WINDOW_ID, MessageType.WARNING, "<div>${e.message}</div>")
+            return
+        }
+
+        if (url.startsWith("ws")) {
+            val wsRequest = WsRequest(url, reqHeaderMap, project)
+            wsRequest.handleWsConnect()
             return
         }
 
@@ -93,11 +102,7 @@ class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : Gutt
 
                 jsScriptExecutor.clearJsRequestObj()
 
-                val toolWindow = toolWindowManager.getToolWindow(TOOL_WINDOW_ID)!!
-
                 runWriteActionAndWait {
-                    val contentManager = toolWindow.contentManager
-
                     val parentDisposer = newDisposable()
 
                     val form = HttpExecutionConsoleToolWindow()
@@ -106,28 +111,41 @@ class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : Gutt
 
                     form.initPanelData(httpInfo, throwable, tabName, project, parentDisposer)
 
-                    var content: Content?
-                    if (tabName == null) {
-                        content = contentManager.factory.createContent(form.mainPanel, httpMethod.text, false)
-                        content.setDisposer(parentDisposer)
-                    } else {
-                        content = contentManager.findContent(tabName)
-                        if (content != null) {
-                            content.component = form.mainPanel
-                        } else {
-                            content = contentManager.factory.createContent(form.mainPanel, tabName, false)
-                            content.setDisposer(parentDisposer)
-                        }
-                    }
-
-                    contentManager.addContent(content)
-                    contentManager.setSelectedContent(content)
+                    initAndShowTabContent(tabName, form, parentDisposer, project)
                 }
-
-                toolWindow.activate {}
             }
         }
 
+    }
+
+    private fun initAndShowTabContent(
+        tabName: String?,
+        form: HttpExecutionConsoleToolWindow,
+        parentDisposer: Disposable,
+        project: Project,
+    ) {
+        val toolWindowManager = ToolWindowManager.getInstance(project)
+        val toolWindow = toolWindowManager.getToolWindow(TOOL_WINDOW_ID)!!
+        val contentManager = toolWindow.contentManager
+
+        var content: Content?
+        if (tabName == null) {
+            content = contentManager.factory.createContent(form.mainPanel, httpMethod.text, false)
+            content.setDisposer(parentDisposer)
+        } else {
+            content = contentManager.findContent(tabName)
+            if (content != null) {
+                content.component = form.mainPanel
+            } else {
+                content = contentManager.factory.createContent(form.mainPanel, tabName, false)
+                content.setDisposer(parentDisposer)
+            }
+        }
+
+        contentManager.addContent(content)
+        contentManager.setSelectedContent(content)
+
+        toolWindow.activate {}
     }
 
     private fun getTabName(httpMethod: HttpMethod): String? {
