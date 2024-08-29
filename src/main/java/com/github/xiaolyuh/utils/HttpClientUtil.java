@@ -52,7 +52,7 @@ public class HttpClientUtil {
 
     public static <T> T postForObjectWithToken(String url, String reqBody, Map<String, String> headers,
                                                Class<T> resType, Project project) throws Exception {
-        String kubesphereToken = ConfigUtil.getKubesphereToken();
+        String kubesphereToken = ConfigUtil.getKubesphereToken(project);
         if (headers == null) {
             headers = Maps.newHashMap();
         }
@@ -70,7 +70,7 @@ public class HttpClientUtil {
 
     public static <T> T getForObjectWithToken(String url, Map<String, String> headers,
                                               Class<T> resType, Project project) throws Exception {
-        String kubesphereToken = ConfigUtil.getKubesphereToken();
+        String kubesphereToken = ConfigUtil.getKubesphereToken(project);
         if (headers == null) {
             headers = Maps.newHashMap();
         }
@@ -105,6 +105,11 @@ public class HttpClientUtil {
             if (request.uri().toString().equals(ConfigUtil.getLoginUrl(project))) {
                 throw new RuntimeException(response.body() + "");
             }
+
+            if (ConfigUtil.isUseKubesphereTokenGroup(project)) {
+                throw new RuntimeException("无效token");
+            }
+
             KubesphereUtils.loginAndSaveToken(project);
             return getForObjectWithToken(request.uri().toString(), headers, resType, project);
         }
@@ -117,7 +122,7 @@ public class HttpClientUtil {
 
     public static <T> T getForObjectWithTokenUseUrl(String url, Map<String, String> headers,
                                                     Class<T> resType, Project project) throws Exception {
-        String kubesphereToken = ConfigUtil.getKubesphereToken();
+        String kubesphereToken = ConfigUtil.getKubesphereToken(project);
         if (headers == null) {
             headers = Maps.newHashMap();
         }
@@ -127,7 +132,7 @@ public class HttpClientUtil {
 
     public static <T> void getForObjectWithTokenUseUrl(String url, Map<String, String> headers, Class<T> resType,
                                                        Consumer<T> consumer, Project project) throws Exception {
-        String kubesphereToken = ConfigUtil.getKubesphereToken();
+        String kubesphereToken = ConfigUtil.getKubesphereToken(project);
         if (headers == null) {
             headers = Maps.newHashMap();
         }
@@ -154,6 +159,11 @@ public class HttpClientUtil {
                     String body = new String(bytes);
                     throw new RuntimeException(body);
                 }
+
+                if (ConfigUtil.isUseKubesphereTokenGroup(project)) {
+                    throw new RuntimeException("无效token");
+                }
+
                 KubesphereUtils.loginAndSaveToken(project);
                 return getForObjectWithTokenUseUrl(url, headers, resType, project);
             }
@@ -200,6 +210,11 @@ public class HttpClientUtil {
                     String body = new String(bytes);
                     throw new RuntimeException(body);
                 }
+
+                if (ConfigUtil.isUseKubesphereTokenGroup(project)) {
+                    throw new RuntimeException("无效token");
+                }
+
                 KubesphereUtils.loginAndSaveToken(project);
                 getForObjectWithTokenUseUrl(url, headers, resType, project);
                 return;

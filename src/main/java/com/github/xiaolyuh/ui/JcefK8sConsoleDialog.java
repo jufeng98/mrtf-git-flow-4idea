@@ -33,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public class JcefK8sConsoleDialog extends DialogWrapper {
+    private final Project project;
     private JPanel contentPanel;
     private JPanel mainPanel;
     private JButton logBtn;
@@ -44,8 +45,9 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
     private JButton copyBtn;
     private JButton pasteBtn;
 
-    public JcefK8sConsoleDialog(InstanceVo instanceVo, @Nullable Project project, String selectService) {
+    public JcefK8sConsoleDialog(InstanceVo instanceVo, Project project, String selectService) {
         super(project);
+        this.project = project;
         setModal(false);
         selectService = selectService.toLowerCase();
         setTitle(instanceVo.getDesc() + ":" + instanceVo.getName());
@@ -169,7 +171,8 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
     }
 
     private void setTokenCookie(JBCefBrowser jbCefBrowser, String url) {
-        String kubesphereToken = ConfigUtil.getKubesphereToken();
+        String kubesphereToken = ConfigUtil.getKubesphereToken(project);
+
         CefCookie cefCookie = new CefCookie("token", kubesphereToken,
                 "host-kslb.mh.bluemoon.com.cn", "/", false, true,
                 null, null, false, null);

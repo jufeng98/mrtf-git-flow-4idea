@@ -47,6 +47,7 @@ public class InitPluginDialog extends DialogWrapper {
     private JLabel featureBranchPrefixLabel;
     private JLabel hotfixBranchPrefixLabel;
     private JLabel tagNamePrefixLabel;
+    private JPasswordField kubesphereTokenGroupPasswordField;
 
     public InitPluginDialog(Project project) {
         super(project);
@@ -90,6 +91,7 @@ public class InitPluginDialog extends DialogWrapper {
         options.setDingtalkToken(dingtalkTokenTextField.getText());
         options.setKubesphereUsername(kubesphereUsernameTextField.getText());
         options.setKubespherePassword(String.valueOf(kubespherePasswordTextField.getPassword()));
+        options.setKubesphereTokenGroup(String.valueOf(kubesphereTokenGroupPasswordField.getPassword()));
         options.setLanguage(LanguageEnum.getByLanguage((String) languageComboBox.getSelectedItem()));
 
         return options;
@@ -117,6 +119,7 @@ public class InitPluginDialog extends DialogWrapper {
             dingtalkTokenTextField.setText(options.get().getDingtalkToken());
             kubesphereUsernameTextField.setText(options.get().getKubesphereUsername());
             kubespherePasswordTextField.setText(options.get().getKubespherePassword());
+            kubesphereTokenGroupPasswordField.setText(options.get().getKubesphereTokenGroup());
 
             languageSwitch(LanguageEnum.getByLanguage((String) languageComboBox.getSelectedItem()));
         } else {
@@ -155,12 +158,6 @@ public class InitPluginDialog extends DialogWrapper {
         }
         if (StringUtil.isEmptyOrSpaces(hotfixPrefixTextField.getText())) {
             return new ValidationInfo(I18n.getContent(I18nKey.INIT_PLUGIN_DIALOG$HOTFIX_PREFIX_REQUIRED), hotfixPrefixTextField);
-        }
-        if (StringUtil.isEmptyOrSpaces(kubesphereUsernameTextField.getText())) {
-            return new ValidationInfo(I18n.getContent(I18nKey.INIT_PLUGIN_DIALOG$KUBESPHERE_USERNAME_REQUIRED), kubesphereUsernameTextField);
-        }
-        if (StringUtil.isEmptyOrSpaces(String.valueOf(kubespherePasswordTextField.getPassword()))) {
-            return new ValidationInfo(I18n.getContent(I18nKey.INIT_PLUGIN_DIALOG$KUBESPHERE_PASSWORD_REQUIRED), kubespherePasswordTextField);
         }
         return null;
     }

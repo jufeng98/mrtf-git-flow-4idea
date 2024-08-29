@@ -46,12 +46,26 @@ public class ConfigUtil {
         return new Pair<>(PREFERENCES.get("kubesphereUsername", ""), PREFERENCES.get("kubespherePassword", ""));
     }
 
-    public static void saveKubesphereUser(String name, String pwd) {
+    public static void saveKubesphereUser(String name, String pwd, String kubesphereTokenGroup, Project project) {
         PREFERENCES.put("kubesphereUsername", name);
         PREFERENCES.put("kubespherePassword", pwd);
+        PREFERENCES.put("kubesphereTokenGroup:" + project.getName(), kubesphereTokenGroup);
     }
 
-    public static String getKubesphereToken() {
+    public static boolean isUseKubesphereTokenGroup(Project project) {
+        return StringUtils.isNotBlank(getKubesphereTokenGroup(project));
+    }
+
+    public static String getKubesphereTokenGroup(Project project) {
+        return PREFERENCES.get("kubesphereTokenGroup:" + project.getName(), "");
+    }
+
+    public static String getKubesphereToken(Project project) {
+        String kubesphereTokenGroup = getKubesphereTokenGroup(project);
+        if (StringUtils.isNotBlank(kubesphereTokenGroup)) {
+            return kubesphereTokenGroup;
+        }
+
         return PREFERENCES.get("kubesphereToken", "abcd");
     }
 
