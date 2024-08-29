@@ -19,8 +19,8 @@ public interface SqlColumnConstraint extends PsiElement {
   @Nullable
   SqlForeignKeyClause getForeignKeyClause();
 
-  @Nullable
-  SqlIdentifier getIdentifier();
+  @NotNull
+  List<SqlIdentifier> getIdentifierList();
 
   @Nullable
   SqlLiteralValue getLiteralValue();
@@ -36,6 +36,9 @@ public interface SqlColumnConstraint extends PsiElement {
 
   @Nullable
   PsiElement getAutoIncrement();
+
+  @Nullable
+  PsiElement getCharacter();
 
   @Nullable
   PsiElement getCheck();
@@ -66,6 +69,9 @@ public interface SqlColumnConstraint extends PsiElement {
 
   @Nullable
   PsiElement getPrimary();
+
+  @Nullable
+  PsiElement getSet();
 
   @Nullable
   PsiElement getUnique();

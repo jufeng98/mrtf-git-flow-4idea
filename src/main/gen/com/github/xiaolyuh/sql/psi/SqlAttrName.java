@@ -11,6 +11,9 @@ public interface SqlAttrName extends PsiElement {
   PsiElement getAutoIncrement();
 
   @Nullable
+  PsiElement getCollate();
+
+  @Nullable
   PsiElement getCommentWord();
 
   @Nullable

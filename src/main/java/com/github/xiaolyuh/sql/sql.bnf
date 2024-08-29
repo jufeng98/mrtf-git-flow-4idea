@@ -133,6 +133,7 @@
         DAY='regexp:[Dd][Aa][Yy]'
         HOUR='regexp:[Hh][Oo][Uu][Rr]'
         MINUTE='regexp:[Mm][Ii][Nn][Uu][Tt][Ee]'
+        CHARACTER='regexp:[Cc][Hh][Aa][Rr][Aa][Cc][Tt][Ee][Rr]'
 
         // 各类符号
         SEMI=';'
@@ -234,7 +235,7 @@ table_attr ::= attr_name [ '=' attr_value ]
 column_def ::= column_name type_name ( column_constraint ) *
 type_name ::= identifier [ '(' signed_number ')' | '(' signed_number ',' signed_number ')' ]
 column_constraint ::= [ CONSTRAINT identifier ] ( PRIMARY KEY [ ASC | DESC ] conflict_clause [ AUTOINCREMENT ] |
-    UNSIGNED | NOT NULL [conflict_clause] | UNIQUE conflict_clause | CHECK '(' expr ')' | AUTO_INCREMENT |
+    UNSIGNED | NOT NULL [conflict_clause] | UNIQUE conflict_clause | CHECK '(' expr ')' | AUTO_INCREMENT | CHARACTER SET identifier |
     DEFAULT ( signed_number | literal_value | '(' expr ')' ) | COLLATE collation_name | foreign_key_clause | COMMENT_WORD string )
 signed_number ::= [ '+' | '-' ] numeric_literal
 table_constraint ::= [ CONSTRAINT identifier ] (
@@ -243,7 +244,7 @@ table_constraint ::= [ CONSTRAINT identifier ] (
 foreign_key_clause ::= REFERENCES_WORD foreign_table [ '(' column_name ( ',' column_name ) * ')' ]
     [ ( ON ( DELETE | UPDATE ) ( SET NULL | SET DEFAULT | CASCADE | RESTRICT | NO ACTION ) | MATCH identifier )* ]
     [ [ NOT ] DEFERRABLE [ INITIALLY DEFERRED | INITIALLY IMMEDIATE ] ]
-conflict_clause ::= [ ON CONFLICT ( ROLLBACK | ABORT | FAIL | IGNORE | REPLACE ) ]
+conflict_clause ::= [ ON CONFLICT ( ROLLBACK | ABORT | FAIL | IGNORE | REPLACE ) | USING identifier ]
 create_trigger_stmt ::= CREATE [ TEMP | TEMPORARY ] TRIGGER [ IF NOT EXISTS ] [ database_name '.' ] trigger_name
     [ BEFORE | AFTER | INSTEAD OF ] ( DELETE | INSERT | UPDATE [ OF column_name ( ',' column_name ) * ] )
     ON table_name [ FOR EACH ROW] [ WHEN expr ] BEGIN ( (update_stmt | insert_stmt | delete_stmt | compound_select_stmt ) ';' ) + END {
@@ -436,7 +437,7 @@ table_alias ::= id {
 }
 foreign_table ::= id
 identifier ::= id
-attr_name ::= id | AUTO_INCREMENT | DEFAULT | COMMENT_WORD
+attr_name ::= id | AUTO_INCREMENT | DEFAULT | COMMENT_WORD | COLLATE
 attr_value ::= id | string | digit
 pragma_name ::= id
 function_name ::= id | IF

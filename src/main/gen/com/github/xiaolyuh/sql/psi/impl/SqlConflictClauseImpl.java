@@ -29,6 +29,12 @@ public class SqlConflictClauseImpl extends SqlPsiElement implements SqlConflictC
 
   @Override
   @Nullable
+  public SqlIdentifier getIdentifier() {
+    return findChildByClass(SqlIdentifier.class);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getAbort() {
     return findChildByType(ABORT);
   }
@@ -55,6 +61,12 @@ public class SqlConflictClauseImpl extends SqlPsiElement implements SqlConflictC
   @Nullable
   public PsiElement getRollback() {
     return findChildByType(ROLLBACK);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getUsing() {
+    return findChildByType(USING);
   }
 
 }

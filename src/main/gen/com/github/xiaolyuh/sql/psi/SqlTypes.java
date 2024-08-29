@@ -144,6 +144,7 @@ public interface SqlTypes {
   IElementType CASCADE = new SqlTokenType("CASCADE");
   IElementType CASE = new SqlTokenType("CASE");
   IElementType CAST = new SqlTokenType("CAST");
+  IElementType CHARACTER = new SqlTokenType("CHARACTER");
   IElementType CHECK = new SqlTokenType("CHECK");
   IElementType COLLATE = new SqlTokenType("COLLATE");
   IElementType COLUMN = new SqlTokenType("COLUMN");

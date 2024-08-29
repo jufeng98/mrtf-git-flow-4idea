@@ -52,9 +52,9 @@ public class SqlColumnConstraintImpl extends SqlPsiElement implements SqlColumnC
   }
 
   @Override
-  @Nullable
-  public SqlIdentifier getIdentifier() {
-    return findChildByClass(SqlIdentifier.class);
+  @NotNull
+  public List<SqlIdentifier> getIdentifierList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, SqlIdentifier.class);
   }
 
   @Override
@@ -85,6 +85,12 @@ public class SqlColumnConstraintImpl extends SqlPsiElement implements SqlColumnC
   @Nullable
   public PsiElement getAutoIncrement() {
     return findChildByType(AUTO_INCREMENT);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getCharacter() {
+    return findChildByType(CHARACTER);
   }
 
   @Override
@@ -145,6 +151,12 @@ public class SqlColumnConstraintImpl extends SqlPsiElement implements SqlColumnC
   @Nullable
   public PsiElement getPrimary() {
     return findChildByType(PRIMARY);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getSet() {
+    return findChildByType(SET);
   }
 
   @Override

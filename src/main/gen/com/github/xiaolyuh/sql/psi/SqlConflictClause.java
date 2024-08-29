@@ -8,6 +8,9 @@ import com.intellij.psi.PsiElement;
 public interface SqlConflictClause extends PsiElement {
 
   @Nullable
+  SqlIdentifier getIdentifier();
+
+  @Nullable
   PsiElement getAbort();
 
   @Nullable
@@ -21,5 +24,8 @@ public interface SqlConflictClause extends PsiElement {
 
   @Nullable
   PsiElement getRollback();
+
+  @Nullable
+  PsiElement getUsing();
 
 }

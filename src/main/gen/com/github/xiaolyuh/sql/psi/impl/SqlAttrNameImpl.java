@@ -35,6 +35,12 @@ public class SqlAttrNameImpl extends SqlPsiElement implements SqlAttrName {
 
   @Override
   @Nullable
+  public PsiElement getCollate() {
+    return findChildByType(COLLATE);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getCommentWord() {
     return findChildByType(COMMENT_WORD);
   }

@@ -141,6 +141,7 @@ MONTH=[Mm][Oo][Nn][Tt][Hh]
 DAY=[Dd][Aa][Yy]
 HOUR=[Hh][Oo][Uu][Rr]
 MINUTE=[Mm][Ii][Nn][Uu][Tt][Ee]
+CHARACTER=[Cc][Hh][Aa][Rr][Aa][Cc][Tt][Ee][Rr]
 SPACE=[ \t\n\x0B\f\r]+
 COMMENT=--.*
 BLOCK_COMMENT="/"\*([^*]|\*+[^*/])*(\*+"/")?
@@ -314,6 +315,7 @@ MYBATIS_OGNL=[$#]\{[a-zA-Z0-9_@()'.,=\s]+}
   {DAY}                     { return DAY; }
   {HOUR}                    { return HOUR; }
   {MINUTE}                  { return MINUTE; }
+  {CHARACTER}               { return CHARACTER; }
   {SPACE}                   { return SPACE; }
   {COMMENT}                 { return COMMENT; }
   {BLOCK_COMMENT}           { return BLOCK_COMMENT; }

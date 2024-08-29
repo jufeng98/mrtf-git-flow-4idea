@@ -190,7 +190,7 @@ public class SqlParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // id | AUTO_INCREMENT | DEFAULT | COMMENT_WORD
+  // id | AUTO_INCREMENT | DEFAULT | COMMENT_WORD | COLLATE
   public static boolean attr_name(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "attr_name")) return false;
     boolean r;
@@ -199,6 +199,7 @@ public class SqlParser implements PsiParser, LightPsiParser {
     if (!r) r = consumeToken(b, AUTO_INCREMENT);
     if (!r) r = consumeToken(b, DEFAULT);
     if (!r) r = consumeToken(b, COMMENT_WORD);
+    if (!r) r = consumeToken(b, COLLATE);
     exit_section_(b, l, m, r, false, null);
     return r;
   }
@@ -348,7 +349,7 @@ public class SqlParser implements PsiParser, LightPsiParser {
 
   /* ********************************************************** */
   // [ CONSTRAINT identifier ] ( PRIMARY KEY [ ASC | DESC ] conflict_clause [ AUTOINCREMENT ] |
-  //     UNSIGNED | NOT NULL [conflict_clause] | UNIQUE conflict_clause | CHECK '(' expr ')' | AUTO_INCREMENT |
+  //     UNSIGNED | NOT NULL [conflict_clause] | UNIQUE conflict_clause | CHECK '(' expr ')' | AUTO_INCREMENT | CHARACTER SET identifier |
   //     DEFAULT ( signed_number | literal_value | '(' expr ')' ) | COLLATE collation_name | foreign_key_clause | COMMENT_WORD string )
   public static boolean column_constraint(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "column_constraint")) return false;
@@ -379,7 +380,7 @@ public class SqlParser implements PsiParser, LightPsiParser {
   }
 
   // PRIMARY KEY [ ASC | DESC ] conflict_clause [ AUTOINCREMENT ] |
-  //     UNSIGNED | NOT NULL [conflict_clause] | UNIQUE conflict_clause | CHECK '(' expr ')' | AUTO_INCREMENT |
+  //     UNSIGNED | NOT NULL [conflict_clause] | UNIQUE conflict_clause | CHECK '(' expr ')' | AUTO_INCREMENT | CHARACTER SET identifier |
   //     DEFAULT ( signed_number | literal_value | '(' expr ')' ) | COLLATE collation_name | foreign_key_clause | COMMENT_WORD string
   private static boolean column_constraint_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "column_constraint_1")) return false;
@@ -393,6 +394,7 @@ public class SqlParser implements PsiParser, LightPsiParser {
     if (!r) r = consumeToken(b, AUTO_INCREMENT);
     if (!r) r = column_constraint_1_6(b, l + 1);
     if (!r) r = column_constraint_1_7(b, l + 1);
+    if (!r) r = column_constraint_1_8(b, l + 1);
     if (!r) r = foreign_key_clause(b, l + 1);
     if (!r) r = parseTokens(b, 0, COMMENT_WORD, STRING);
     exit_section_(b, m, null, r);
@@ -476,32 +478,43 @@ public class SqlParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // DEFAULT ( signed_number | literal_value | '(' expr ')' )
+  // CHARACTER SET identifier
   private static boolean column_constraint_1_6(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "column_constraint_1_6")) return false;
     boolean r;
     Marker m = enter_section_(b);
+    r = consumeTokens(b, 0, CHARACTER, SET);
+    r = r && identifier(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // DEFAULT ( signed_number | literal_value | '(' expr ')' )
+  private static boolean column_constraint_1_7(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "column_constraint_1_7")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
     r = consumeToken(b, DEFAULT);
-    r = r && column_constraint_1_6_1(b, l + 1);
+    r = r && column_constraint_1_7_1(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
   }
 
   // signed_number | literal_value | '(' expr ')'
-  private static boolean column_constraint_1_6_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "column_constraint_1_6_1")) return false;
+  private static boolean column_constraint_1_7_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "column_constraint_1_7_1")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = signed_number(b, l + 1);
     if (!r) r = literal_value(b, l + 1);
-    if (!r) r = column_constraint_1_6_1_2(b, l + 1);
+    if (!r) r = column_constraint_1_7_1_2(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
   }
 
   // '(' expr ')'
-  private static boolean column_constraint_1_6_1_2(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "column_constraint_1_6_1_2")) return false;
+  private static boolean column_constraint_1_7_1_2(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "column_constraint_1_7_1_2")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, LP);
@@ -512,8 +525,8 @@ public class SqlParser implements PsiParser, LightPsiParser {
   }
 
   // COLLATE collation_name
-  private static boolean column_constraint_1_7(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "column_constraint_1_7")) return false;
+  private static boolean column_constraint_1_8(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "column_constraint_1_8")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, COLLATE);
@@ -781,7 +794,7 @@ public class SqlParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // [ ON CONFLICT ( ROLLBACK | ABORT | FAIL | IGNORE | REPLACE ) ]
+  // [ ON CONFLICT ( ROLLBACK | ABORT | FAIL | IGNORE | REPLACE ) | USING identifier ]
   public static boolean conflict_clause(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "conflict_clause")) return false;
     Marker m = enter_section_(b, l, _NONE_, CONFLICT_CLAUSE, "<conflict clause>");
@@ -790,26 +803,48 @@ public class SqlParser implements PsiParser, LightPsiParser {
     return true;
   }
 
-  // ON CONFLICT ( ROLLBACK | ABORT | FAIL | IGNORE | REPLACE )
+  // ON CONFLICT ( ROLLBACK | ABORT | FAIL | IGNORE | REPLACE ) | USING identifier
   private static boolean conflict_clause_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "conflict_clause_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
+    r = conflict_clause_0_0(b, l + 1);
+    if (!r) r = conflict_clause_0_1(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // ON CONFLICT ( ROLLBACK | ABORT | FAIL | IGNORE | REPLACE )
+  private static boolean conflict_clause_0_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "conflict_clause_0_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
     r = consumeTokens(b, 0, ON, CONFLICT);
-    r = r && conflict_clause_0_2(b, l + 1);
+    r = r && conflict_clause_0_0_2(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
   }
 
   // ROLLBACK | ABORT | FAIL | IGNORE | REPLACE
-  private static boolean conflict_clause_0_2(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "conflict_clause_0_2")) return false;
+  private static boolean conflict_clause_0_0_2(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "conflict_clause_0_0_2")) return false;
     boolean r;
     r = consumeToken(b, ROLLBACK);
     if (!r) r = consumeToken(b, ABORT);
     if (!r) r = consumeToken(b, FAIL);
     if (!r) r = consumeToken(b, IGNORE);
     if (!r) r = consumeToken(b, REPLACE);
+    return r;
+  }
+
+  // USING identifier
+  private static boolean conflict_clause_0_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "conflict_clause_0_1")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, USING);
+    r = r && identifier(b, l + 1);
+    exit_section_(b, m, null, r);
     return r;
   }
 
