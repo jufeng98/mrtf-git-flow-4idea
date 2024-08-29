@@ -5,11 +5,13 @@ import com.github.xiaolyuh.http.HttpRequestEnum
 import com.github.xiaolyuh.http.js.JsScriptExecutor
 import com.github.xiaolyuh.http.psi.*
 import com.github.xiaolyuh.http.resolve.VariableResolver
+import com.github.xiaolyuh.http.runconfig.HttpConfigurationFactory
 import com.github.xiaolyuh.http.ui.HttpExecutionConsoleToolWindow
 import com.github.xiaolyuh.http.ws.WsRequest
 import com.github.xiaolyuh.utils.HttpUtils.convertToReqBody
 import com.github.xiaolyuh.utils.HttpUtils.convertToReqHeaderMap
 import com.intellij.codeInsight.daemon.GutterIconNavigationHandler
+import com.intellij.execution.RunManager
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.runInEdt
 import com.intellij.openapi.application.runWriteActionAndWait
@@ -29,6 +31,18 @@ import java.util.concurrent.CompletableFuture
 class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : GutterIconNavigationHandler<PsiElement> {
     override fun navigate(e: MouseEvent, elt: PsiElement) {
         val project = httpMethod.project
+        val tabName = getTabName(httpMethod)
+
+        val runName: String = tabName ?: "#http-client"
+        val runManager = RunManager.getInstance(project)
+
+        val configurationSettings = runManager.findConfigurationByName(runName)
+        if (configurationSettings == null) {
+            val config = runManager.createConfiguration(runName, HttpConfigurationFactory())
+            runManager.addConfiguration(config)
+        }
+
+
         val httpUrl = PsiTreeUtil.getNextSiblingOfType(httpMethod, HttpUrl::class.java)
         if (httpUrl == null) {
             showTooltip("url不正确!", project)
@@ -106,8 +120,6 @@ class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : Gutt
                     val parentDisposer = newDisposable()
 
                     val form = HttpExecutionConsoleToolWindow()
-
-                    val tabName = getTabName(httpMethod)
 
                     form.initPanelData(httpInfo, throwable, tabName, project, parentDisposer)
 
