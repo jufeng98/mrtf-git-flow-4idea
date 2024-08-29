@@ -5,7 +5,7 @@ import com.github.xiaolyuh.http.HttpRequestEnum
 import com.github.xiaolyuh.http.js.JsScriptExecutor
 import com.github.xiaolyuh.http.psi.*
 import com.github.xiaolyuh.http.resolve.VariableResolver
-import com.github.xiaolyuh.http.runconfig.HttpConfigurationFactory
+import com.github.xiaolyuh.http.runconfig.HttpConfigurationType
 import com.github.xiaolyuh.http.ui.HttpExecutionConsoleToolWindow
 import com.github.xiaolyuh.http.ws.WsRequest
 import com.github.xiaolyuh.utils.HttpUtils.convertToReqBody
@@ -38,7 +38,7 @@ class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : Gutt
 
         val configurationSettings = runManager.findConfigurationByName(runName)
         if (configurationSettings == null) {
-            val config = runManager.createConfiguration(runName, HttpConfigurationFactory())
+            val config = runManager.createConfiguration(runName, HttpConfigurationType::class.java)
             runManager.addConfiguration(config)
         }
 

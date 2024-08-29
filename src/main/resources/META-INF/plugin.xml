@@ -303,6 +303,7 @@
                     anchor="right"
                     canCloseContents="true"
                     factoryClass="com.github.xiaolyuh.http.ui.HttpExecutionConsoleToolWindowFactory"/>
+        <configurationType implementation="com.github.xiaolyuh.http.runconfig.HttpConfigurationType"/>
     </extensions>
 
     <projectListeners>

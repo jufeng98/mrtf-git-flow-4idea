@@ -8,14 +8,18 @@ import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.project.Project
 
-class HttpRunConfiguration(project: Project, httpConfigurationFactory: HttpConfigurationFactory, name: String?) :
+class HttpRunConfiguration(
+    project: Project,
+    httpConfigurationFactory: HttpConfigurationFactory,
+    name: String?,
+) :
     RunConfigurationBase<HttpRunConfiguration>(
         project,
         httpConfigurationFactory,
         name
     ) {
     override fun getState(executor: Executor, environment: ExecutionEnvironment): RunProfileState {
-        return HttpRunProfileState(executor, environment)
+        return HttpRunProfileState(project, environment)
     }
 
     override fun getConfigurationEditor(): SettingsEditor<out RunConfiguration> {
