@@ -6,6 +6,7 @@ import com.github.xiaolyuh.http.js.JsScriptExecutor
 import com.github.xiaolyuh.http.psi.*
 import com.github.xiaolyuh.http.resolve.VariableResolver
 import com.github.xiaolyuh.http.runconfig.HttpConfigurationType
+import com.github.xiaolyuh.http.runconfig.HttpRunConfiguration
 import com.github.xiaolyuh.http.ui.HttpExecutionConsoleToolWindow
 import com.github.xiaolyuh.http.ws.WsRequest
 import com.github.xiaolyuh.utils.HttpUtils.convertToReqBody
@@ -19,6 +20,7 @@ import com.intellij.openapi.editor.ex.EditorGutterComponentEx
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.MessageType
 import com.intellij.openapi.util.Disposer.newDisposable
+import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.psi.PsiComment
 import com.intellij.psi.PsiElement
@@ -36,10 +38,14 @@ class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : Gutt
         val runName: String = tabName ?: "#http-client"
         val runManager = RunManager.getInstance(project)
 
-        val configurationSettings = runManager.findConfigurationByName(runName)
-        if (configurationSettings == null) {
-            val config = runManager.createConfiguration(runName, HttpConfigurationType::class.java)
+        var config = runManager.findConfigurationByName(runName)
+        if (config == null) {
+            config = runManager.createConfiguration(runName, HttpConfigurationType::class.java)
+            val httpRunConfiguration = config.configuration as HttpRunConfiguration
             runManager.addConfiguration(config)
+            runManager.selectedConfiguration = config
+        } else {
+            runManager.selectedConfiguration = config
         }
 
 
