@@ -2,10 +2,11 @@ package com.github.xiaolyuh.http.runconfig
 
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.ui.components.JBTextField
+import java.awt.BorderLayout
 import javax.swing.JComponent
 import javax.swing.JPanel
 
-class HttpSettingsEditor : SettingsEditor<HttpRunConfiguration>() {
+class HttpSettingsEditor(private val env: String, private val httpFilePath: String) : SettingsEditor<HttpRunConfiguration>() {
     override fun resetEditorFrom(s: HttpRunConfiguration) {
 
     }
@@ -16,7 +17,9 @@ class HttpSettingsEditor : SettingsEditor<HttpRunConfiguration>() {
 
     override fun createEditor(): JComponent {
         val jPanel = JPanel()
-        jPanel.add(JBTextField("Hello world"))
+        jPanel.layout = BorderLayout()
+        jPanel.add(JBTextField("环境:$env"), BorderLayout.NORTH)
+        jPanel.add(JBTextField("http文件:$httpFilePath"), BorderLayout.CENTER)
         return jPanel
     }
 }

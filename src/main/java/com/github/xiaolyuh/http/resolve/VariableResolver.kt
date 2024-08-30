@@ -3,7 +3,6 @@ package com.github.xiaolyuh.http.resolve
 import com.dbn.common.util.UUIDs
 import com.github.xiaolyuh.http.js.JsScriptExecutor
 import com.github.xiaolyuh.http.service.EnvFileService
-import com.github.xiaolyuh.http.ui.HttpEditorTopForm
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
 import org.apache.commons.lang.math.RandomUtils
@@ -12,21 +11,21 @@ import java.util.regex.Pattern
 
 @Service(Service.Level.PROJECT)
 class VariableResolver(private val project: Project) {
-    private val pattern = Pattern.compile("(\\{\\{[a-zA-Z0-9.()\\-,\$]+}})", Pattern.MULTILINE)
+    private val pattern = Pattern.compile("(\\{\\{[a-zA-Z0-9.()\\-,\$@]+}})", Pattern.MULTILINE)
     private val patternNotNumber = Pattern.compile("\\D")
 
-    fun resolve(str: String): String {
+    fun resolve(str: String, selectedEnv: String): String {
         val matcher = pattern.matcher(str)
 
         return matcher.replaceAll {
             val matchStr = it.group()
             val variable = matchStr.substring(2, matchStr.length - 2)
 
-            resolveVariable(variable)
+            resolveVariable(variable, selectedEnv)
         }
     }
 
-    private fun resolveVariable(variable: String): String {
+    private fun resolveVariable(variable: String, selectedEnv: String): String {
         var innerVariable = resolveInnerVariable(variable)
         if (innerVariable != null) {
             return innerVariable
@@ -43,7 +42,6 @@ class VariableResolver(private val project: Project) {
             return innerVariable
         }
 
-        val selectedEnv = HttpEditorTopForm.getSelectedEnv(project)
         val envFileService = EnvFileService.getService(project)
         val envValue = envFileService.getEnvValue(variable, selectedEnv)
         if (envValue != null) {
