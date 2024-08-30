@@ -128,6 +128,7 @@ public class ConfigUtil {
             Pair<String, String> pair = getKubesphereUser();
             options.setKubesphereUsername(pair.getFirst());
             options.setKubespherePassword(pair.getSecond());
+            options.setKubesphereTokenGroup(getKubesphereTokenGroup(project));
             CONFIG_MAP.put(project.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME, options);
         }
 
