@@ -1,6 +1,10 @@
 package com.github.xiaolyuh.http.ws
 
+import com.dbn.common.dispose.Disposer
 import com.intellij.codeInspection.ui.actions.LOG
+import com.intellij.openapi.Disposable
+import com.intellij.openapi.application.runInEdt
+import com.intellij.openapi.application.runWriteActionAndWait
 import com.intellij.openapi.project.Project
 import java.net.URI
 import java.net.http.HttpClient
@@ -9,16 +13,23 @@ import java.nio.ByteBuffer
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
+import java.util.function.Consumer
 
 
-class WsRequest(val url: String, private val reqHeaderMap: MutableMap<String, String>, val project: Project) {
+class WsRequest(
+    val url: String,
+    private val reqHeaderMap: MutableMap<String, String>,
+    val project: Project,
+    parentDisposer: Disposable
+) : Disposable {
     private var webSocket: WebSocket? = null
+    lateinit var consumer: Consumer<String>
 
-    fun handleWsConnect() {
-        connect()
+    init {
+        Disposer.replace(this, parentDisposer)
     }
 
-    private fun connect() {
+    fun connect() {
         val uri = URI(url)
 
         val client = HttpClient.newBuilder()
@@ -28,7 +39,7 @@ class WsRequest(val url: String, private val reqHeaderMap: MutableMap<String, St
         val builder = client.newWebSocketBuilder()
         reqHeaderMap.forEach { builder.header(it.key, it.value) }
 
-        val listener = WsListener()
+        val listener = WsListener(this)
 
         builder.buildAsync(uri, listener)
             .whenComplete { t, u ->
@@ -41,35 +52,59 @@ class WsRequest(val url: String, private val reqHeaderMap: MutableMap<String, St
 
     fun abortConnect() {
         webSocket?.abort()
-        LOG.warn("关闭ws连接:$webSocket")
+        LOG.warn("abort ws连接\r\n")
+        returnResMsg("中断ws连接:$webSocket\r\n")
     }
 
-    fun sendMsg(msg: String) {
-        webSocket?.sendText(msg, true)
+    fun sendWsMsg(msg: String) {
+        webSocket?.sendText(msg, true)?.whenComplete { t, u ->
+            if (u == null) {
+                returnResMsg("ws消息发送成功:$msg\r\n")
+            } else {
+                returnResMsg("ws消息发送失败:${u.message}\r\n")
+            }
+        }
+    }
+
+    fun returnResMsg(msg: String) {
+        runInEdt {
+            runWriteActionAndWait {
+                consumer.accept(msg)
+            }
+        }
+    }
+
+    override fun dispose() {
+        abortConnect()
     }
 }
 
-class WsListener : WebSocket.Listener {
+class WsListener(private val wsRequest: WsRequest) : WebSocket.Listener {
     override fun onText(webSocket: WebSocket?, data: CharSequence?, last: Boolean): CompletionStage<*> {
         LOG.warn("收到ws消息:$data")
+        wsRequest.returnResMsg("收到ws文本数据:$data\r\n")
         return CompletableFuture<Void>()
     }
 
     override fun onBinary(webSocket: WebSocket?, data: ByteBuffer?, last: Boolean): CompletionStage<*> {
         LOG.warn("收到ws二进制消息:$data")
+        wsRequest.returnResMsg("收到ws二进制数据:$data\r\n")
         return CompletableFuture<Void>()
     }
 
     override fun onOpen(webSocket: WebSocket?) {
         LOG.warn("打开ws连接:$webSocket")
+        wsRequest.returnResMsg("ws连接成功:$webSocket\r\n")
     }
 
     override fun onClose(webSocket: WebSocket?, statusCode: Int, reason: String?): CompletionStage<*> {
-        LOG.warn("关闭ws连接:$webSocket,$statusCode,$reason")
+        LOG.warn("ws连接closed:$webSocket,$statusCode,$reason")
+        wsRequest.returnResMsg("ws连接已关闭:$webSocket,statusCode:$statusCode,reason:$reason\r\n")
         return CompletableFuture<Void>()
     }
 
     override fun onError(webSocket: WebSocket?, error: Throwable?) {
         LOG.warn("连接ws异常:$webSocket", error)
+        wsRequest.returnResMsg("连接ws异常:$webSocket,${error?.message}\r\n")
     }
 }

@@ -1,6 +1,7 @@
 package com.github.xiaolyuh.http.ui;
 
 import com.github.xiaolyuh.http.HttpInfo;
+import com.github.xiaolyuh.http.ws.WsRequest;
 import com.github.xiaolyuh.utils.VirtualFileUtils;
 import com.google.common.collect.Lists;
 import com.intellij.openapi.Disposable;
@@ -13,6 +14,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiUtil;
+import com.intellij.ui.components.JBScrollPane;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import lombok.Cleanup;
@@ -20,6 +22,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -107,6 +110,49 @@ public class HttpExecutionConsoleToolWindow implements Disposable {
         editorList.add(editor);
 
         return editor.getComponent();
+    }
+
+    public void initPanelWsData(WsRequest wsRequest) {
+        GridLayoutManager layout = (GridLayoutManager) requestPanel.getParent().getLayout();
+        GridConstraints constraints = layout.getConstraintsForComponent(requestPanel);
+
+        JPanel jPanelReq = new JPanel();
+        jPanelReq.setLayout(new BorderLayout());
+
+        JTextArea jTextAreaReq = new JTextArea();
+        jTextAreaReq.setToolTipText("请输入ws消息");
+        jPanelReq.add(jTextAreaReq, BorderLayout.CENTER);
+
+        JButton jButtonSend = new JButton("发送ws消息");
+        JButton jButtonAbort = new JButton("关闭ws连接");
+
+        JPanel btnPanel = new JPanel();
+        btnPanel.setLayout(new FlowLayout());
+        btnPanel.add(jButtonSend);
+        btnPanel.add(jButtonAbort);
+
+        jPanelReq.add(btnPanel, BorderLayout.SOUTH);
+
+        requestPanel.add(jPanelReq, constraints);
+
+        GridLayoutManager layoutRes = (GridLayoutManager) responsePanel.getParent().getLayout();
+        GridConstraints constraintsRes = layoutRes.getConstraintsForComponent(responsePanel);
+
+        JTextArea jTextAreaRes = new JTextArea();
+        jTextAreaRes.setLineWrap(true);
+        jTextAreaRes.setEditable(false);
+        JBScrollPane jScrollPane = new JBScrollPane(jTextAreaRes);
+        responsePanel.add(jScrollPane, constraintsRes);
+
+        jButtonSend.addActionListener(e -> {
+            String text = jTextAreaReq.getText();
+            wsRequest.sendWsMsg(text);
+            jTextAreaReq.setText("");
+        });
+
+        jButtonAbort.addActionListener(e -> wsRequest.abortConnect());
+
+        wsRequest.setConsumer(jTextAreaRes::append);
     }
 
     @Override

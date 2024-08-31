@@ -92,8 +92,15 @@ class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : Gutt
         }
 
         if (url.startsWith("ws")) {
-            val wsRequest = WsRequest(url, reqHeaderMap, project)
-            wsRequest.handleWsConnect()
+            val parentDisposer = newDisposable()
+            val wsRequest = WsRequest(url, reqHeaderMap, project,parentDisposer)
+            val form = HttpExecutionConsoleToolWindow()
+
+            form.initPanelWsData(wsRequest)
+
+            wsRequest.connect()
+
+            initAndShowTabContent(tabName, form, parentDisposer, project)
             return
         }
 
