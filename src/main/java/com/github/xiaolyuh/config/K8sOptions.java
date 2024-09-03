@@ -8,6 +8,7 @@ public class K8sOptions {
     private String loginUrl;
     private String host;
     private String namespace;
+    private String pipelines;
     private String cluster;
     private String runsPath;
     private String crumbissuerPath;
@@ -36,6 +37,10 @@ public class K8sOptions {
 
     public String getNamespace() {
         return namespace;
+    }
+
+    public String getPipelines() {
+        return pipelines;
     }
 
     public String getCluster() {

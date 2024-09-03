@@ -13,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.Map;
@@ -212,9 +213,16 @@ public class ConfigUtil {
     }
 
     public static String getRunsUrl(Project project) {
+        InitOptions initOptions = ConfigUtil.getInitOptions(project);
         K8sOptions k8sOptions = getK8sOptions(project);
         String runsUrl = k8sOptions.getHost() + k8sOptions.getRunsPath();
-        return MessageFormat.format(runsUrl, k8sOptions.getCluster(), k8sOptions.getNamespace());
+
+        String testBranch = URLEncoder.encode(initOptions.getTestBranch(), StandardCharsets.UTF_8);
+        testBranch = URLEncoder.encode(testBranch, StandardCharsets.UTF_8);
+        String pipelines = k8sOptions.getPipelines();
+        String str = StringUtils.isNotBlank(pipelines) ? pipelines : k8sOptions.getNamespace();
+
+        return MessageFormat.format(runsUrl, k8sOptions.getCluster(), str, testBranch);
     }
 
     public static String getCompileLogPath(Project project) {

@@ -91,9 +91,11 @@ public class HttpClientUtil {
         HttpClient client = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(6))
                 .build();
+
         if (headers != null) {
             headers.forEach(builder::setHeader);
         }
+
         HttpRequest request = builder.build();
         HttpResponse<T> response;
         if (resType == byte[].class) {
@@ -101,6 +103,11 @@ public class HttpClientUtil {
         } else {
             response = (HttpResponse<T>) client.send(request, HttpResponse.BodyHandlers.ofString());
         }
+
+        if (response.statusCode() == 404) {
+            throw new RuntimeException("url 404:" + request.uri());
+        }
+
         if (response.statusCode() == 401) {
             if (request.uri().toString().equals(ConfigUtil.getLoginUrl(project))) {
                 throw new RuntimeException(response.body() + "");
@@ -113,10 +120,12 @@ public class HttpClientUtil {
             KubesphereUtils.loginAndSaveToken(project);
             return getForObjectWithToken(request.uri().toString(), headers, resType, project);
         }
+
         T body = response.body();
         if (resType == String.class || resType == byte[].class) {
             return body;
         }
+
         return gson.fromJson((String) body, resType);
     }
 
