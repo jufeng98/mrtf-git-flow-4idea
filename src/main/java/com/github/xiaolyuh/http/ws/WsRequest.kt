@@ -57,7 +57,7 @@ class WsRequest(
     }
 
     fun sendWsMsg(msg: String) {
-        webSocket?.sendText(msg, true)?.whenComplete { t, u ->
+        webSocket?.sendText(msg, true)?.whenComplete { _, u ->
             if (u == null) {
                 returnResMsg("ws消息发送成功:$msg\r\n")
             } else {
