@@ -9,5 +9,7 @@
                 implementationClass="com.github.xiaolyuh.sql.doc.SqlDocumentationProvider"/>
         <annotator language="sql"
                    implementationClass="com.github.xiaolyuh.sql.annotator.SqlAnnotator"/>
+        <codeInsight.lineMarkerProvider language="sql"
+                   implementationClass="com.github.xiaolyuh.sql.gutter.SqlExecutorLineMarker"/>
     </extensions>
 </idea-plugin>

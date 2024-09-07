@@ -312,6 +312,8 @@
                 topic="com.intellij.openapi.project.ProjectManagerListener"/>
         <listener topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"
                   class="com.github.xiaolyuh.http.editor.HttpEditorListener"/>
+        <listener topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"
+                  class="com.github.xiaolyuh.sql.listener.SqlEditorListener"/>
     </projectListeners>
 
     <applicationListeners>
