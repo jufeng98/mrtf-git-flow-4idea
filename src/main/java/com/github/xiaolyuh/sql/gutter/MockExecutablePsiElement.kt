@@ -7,9 +7,9 @@ import com.dbn.language.common.psi.ExecutablePsiElement
 import com.dbn.language.sql.SQLLanguage
 import com.github.xiaolyuh.sql.psi.SqlRoot
 import com.intellij.lang.ASTNode
+import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.testFramework.runInEdtAndWait
 
 class MockExecutablePsiElement(
     astNode: ASTNode?,
@@ -22,37 +22,33 @@ class MockExecutablePsiElement(
     ) {
 
     override fun getText(): String {
-        var sql = ""
-        runInEdtAndWait {
-            sql = sqlRoot.text
+        return ReadAction.compute<String, Exception> {
+            sqlRoot.text
         }
-        return sql
     }
 
     override fun prepareStatementText(): String {
-        var sql = ""
-        runInEdtAndWait {
-            sql = sqlRoot.text
+        return ReadAction.compute<String, Exception> {
+            sqlRoot.text
         }
-        return sql
     }
 
 
     override fun getFile(): DBLanguagePsiFile {
-        var project: Project? = null
-        var virtualFile: VirtualFile? = null
-        runInEdtAndWait {
-            project = sqlRoot.project
-            virtualFile = sqlRoot.containingFile.virtualFile
+        val pair = ReadAction.compute<Pair<Project, VirtualFile>, Exception> {
+            Pair(sqlRoot.project, sqlRoot.containingFile.virtualFile)
         }
-        val contextManager = FileConnectionContextManager.getInstance(project!!)
+        val project = pair.first
+        val virtualFile = pair.second
+
+        val contextManager = FileConnectionContextManager.getInstance(project)
         return DBLanguagePsiFile.createFromText(
-            project!!,
+            project,
             "test",
             SQLLanguage.INSTANCE.mainLanguageDialect,
             "select 1",
-            contextManager.getConnection(virtualFile!!),
-            contextManager.getDatabaseSchema(virtualFile!!)
+            contextManager.getConnection(virtualFile),
+            contextManager.getDatabaseSchema(virtualFile)
         )!!
     }
 
