@@ -17,6 +17,9 @@ public interface HttpRequest extends PsiElement {
   HttpMethod getMethod();
 
   @Nullable
+  HttpOutputFile getOutputFile();
+
+  @Nullable
   HttpScript getScript();
 
   @Nullable
