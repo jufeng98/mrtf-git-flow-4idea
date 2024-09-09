@@ -54,7 +54,7 @@ class SqlExecutorLineMarker : RelatedItemLineMarkerProvider() {
         }
 
         val fileEditorManager = FileEditorManager.getInstance(project)
-        val selectedEditor = fileEditorManager.getSelectedEditor()!!
+        val selectedEditor = fileEditorManager.getSelectedEditor() ?: return
 
         val lineMarkerInfo = RelatedItemLineMarkerInfo(
             PsiTreeUtil.getDeepestFirst(element),

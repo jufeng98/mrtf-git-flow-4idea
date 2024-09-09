@@ -7,6 +7,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.net.URL;
@@ -57,7 +58,7 @@ public class HttpEditorTopForm extends JComponent {
     }
 
     @SuppressWarnings("DataFlowIssue")
-    public static String getSelectedEnv(Project project) {
+    public static @Nullable String getSelectedEnv(Project project) {
         FileEditorManager editorManager = FileEditorManager.getInstance(project);
         FileEditor selectedEditor = editorManager.getSelectedEditor();
 

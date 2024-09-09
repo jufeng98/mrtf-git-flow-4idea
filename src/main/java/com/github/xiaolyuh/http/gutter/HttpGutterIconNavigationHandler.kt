@@ -28,7 +28,10 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.ui.content.Content
 import java.awt.event.MouseEvent
+import java.io.ByteArrayInputStream
+import java.io.File
 import java.net.http.HttpClient.Version
+import java.nio.file.Files
 import java.util.concurrent.CompletableFuture
 
 class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : GutterIconNavigationHandler<PsiElement> {
@@ -39,7 +42,7 @@ class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : Gutt
         doRequest(component, selectedEnv)
     }
 
-    fun doRequest(component: EditorGutterComponentEx?, selectedEnv: String) {
+    fun doRequest(component: EditorGutterComponentEx?, selectedEnv: String?) {
         val project = httpMethod.project
         val tabName = HttpUtils.getTabName(httpMethod)
 
@@ -56,6 +59,8 @@ class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : Gutt
         val httpBody = PsiTreeUtil.getNextSiblingOfType(httpUrl, HttpBody::class.java)
 
         val httpScript = PsiTreeUtil.getNextSiblingOfType(httpUrl, HttpScript::class.java)
+
+        val httpOutputFile = PsiTreeUtil.getNextSiblingOfType(httpUrl, HttpOutputFile::class.java)
 
         val httpRequestEnum = HttpRequestEnum.getInstance(httpMethod)
         val jsScriptExecutor = JsScriptExecutor.getService(project)
@@ -93,7 +98,7 @@ class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : Gutt
 
         if (url.startsWith("ws")) {
             val parentDisposer = newDisposable()
-            val wsRequest = WsRequest(url, reqHeaderMap, project,parentDisposer)
+            val wsRequest = WsRequest(url, reqHeaderMap, project, parentDisposer)
             val form = HttpExecutionConsoleToolWindow()
 
             form.initPanelWsData(wsRequest)
@@ -105,6 +110,11 @@ class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : Gutt
         }
 
         val jsScriptStr = getJsScript(httpScript)
+        val parentPath = httpFile.virtualFile.parent.path
+        var outPutFileName: String? = null
+        if (httpOutputFile != null) {
+            outPutFileName = httpOutputFile.filePath.text
+        }
 
         val loadingRemover = component?.setLoadingIconForCurrentGutterMark()
         if (loadingRemover == null) {
@@ -119,7 +129,7 @@ class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : Gutt
                         jsScriptExecutor,
                         httpReqDescList
                     )
-                    requestCompleted(project, httpInfo, null, tabName)
+                    requestCompleted(project, httpInfo, null, tabName, outPutFileName, parentPath)
                 }
             })
             return
@@ -139,17 +149,29 @@ class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : Gutt
             runInEdt {
                 loadingRemover.run()
 
-                requestCompleted(project, httpInfo, throwable, tabName)
+                requestCompleted(project, httpInfo, throwable, tabName, outPutFileName, parentPath)
             }
         }
     }
 
-    private fun requestCompleted(project: Project, httpInfo: HttpInfo, throwable: Throwable?, tabName: String?) {
+    private fun requestCompleted(
+        project: Project,
+        httpInfo: HttpInfo,
+        throwable: Throwable?,
+        tabName: String?,
+        outPutFileName: String?,
+        parentPath: String,
+    ) {
         val jsScriptExecutor = JsScriptExecutor.getService(project)
         jsScriptExecutor.clearJsRequestObj()
 
         runWriteActionAndWait {
             val parentDisposer = newDisposable()
+
+            val saveResult = saveResToFile(outPutFileName, parentPath, httpInfo.byteArray)
+            if (!saveResult.isNullOrEmpty()) {
+                httpInfo.httpResDescList.add(0, saveResult)
+            }
 
             val form = HttpExecutionConsoleToolWindow()
 
@@ -157,6 +179,40 @@ class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : Gutt
 
             initAndShowTabContent(tabName, form, parentDisposer, project)
         }
+    }
+
+    private fun saveResToFile(outPutFileName: String?, parentPath: String, byteArray: ByteArray?): String? {
+        if (outPutFileName == null) {
+            return null
+        }
+        if (byteArray == null) {
+            return null
+        }
+
+        val path: String
+        if (outPutFileName.startsWith("/") || outPutFileName[1] == ':') {
+            // 绝对路径
+            path = outPutFileName
+        } else {
+            path = "$parentPath/$outPutFileName"
+        }
+
+        val file = File(path)
+        if (!file.parentFile.exists()) {
+            Files.createDirectories(file.toPath())
+        }
+
+        if (file.exists()) {
+            try {
+                Files.delete(file.toPath())
+            } catch (e: Exception) {
+                return "# 保存失败, ${e.message?.trim()}\r\n"
+            }
+        }
+
+        val inputStream = ByteArrayInputStream(byteArray)
+        Files.copy(inputStream, file.toPath())
+        return "# 响应已保存到 ${file.absolutePath}\r\n"
     }
 
     private fun initAndShowTabContent(

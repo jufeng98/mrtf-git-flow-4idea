@@ -17,7 +17,7 @@ import java.nio.charset.StandardCharsets
 import kotlin.jvm.optionals.getOrElse
 
 object HttpUtils {
-    fun saveConfiguration(tabName: String?, project: Project, selectedEnv: String, httpMethod: HttpMethod) {
+    fun saveConfiguration(tabName: String?, project: Project, selectedEnv: String?, httpMethod: HttpMethod) {
         val runName: String = tabName ?: "#http-client"
         val runManager = RunManager.getInstance(project)
 
@@ -25,13 +25,13 @@ object HttpUtils {
         if (config == null) {
             config = runManager.createConfiguration(runName, HttpConfigurationType::class.java)
             val httpRunConfiguration = config.configuration as HttpRunConfiguration
-            httpRunConfiguration.env = selectedEnv
+            httpRunConfiguration.env = selectedEnv ?: ""
             httpRunConfiguration.httpFilePath = httpMethod.containingFile.virtualFile.path
             runManager.addConfiguration(config)
             runManager.selectedConfiguration = config
         } else {
             val httpRunConfiguration = config.configuration as HttpRunConfiguration
-            httpRunConfiguration.env = selectedEnv
+            httpRunConfiguration.env = selectedEnv ?: ""
             httpRunConfiguration.httpFilePath = httpMethod.containingFile.virtualFile.path
             runManager.selectedConfiguration = config
         }
@@ -53,7 +53,7 @@ object HttpUtils {
     fun convertToReqHeaderMap(
         httpHeaders: HttpHeaders?,
         variableResolver: VariableResolver,
-        selectedEnv: String,
+        selectedEnv: String?,
     ): MutableMap<String, String> {
         val map = mutableMapOf<String, String>()
         if (httpHeaders != null) {
@@ -74,7 +74,7 @@ object HttpUtils {
     fun convertToReqBody(
         httpBody: HttpBody?,
         variableResolver: VariableResolver,
-        selectedEnv: String,
+        selectedEnv: String?,
     ): Any? {
         if (httpBody == null) {
             return null

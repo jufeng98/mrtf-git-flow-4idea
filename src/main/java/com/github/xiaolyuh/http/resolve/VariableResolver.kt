@@ -14,7 +14,7 @@ class VariableResolver(private val project: Project) {
     private val pattern = Pattern.compile("(\\{\\{[a-zA-Z0-9.()\\-,\$@]+}})", Pattern.MULTILINE)
     private val patternNotNumber = Pattern.compile("\\D")
 
-    fun resolve(str: String, selectedEnv: String): String {
+    fun resolve(str: String, selectedEnv: String?): String {
         val matcher = pattern.matcher(str)
 
         return matcher.replaceAll {
@@ -25,7 +25,7 @@ class VariableResolver(private val project: Project) {
         }
     }
 
-    private fun resolveVariable(variable: String, selectedEnv: String): String {
+    private fun resolveVariable(variable: String, selectedEnv: String?): String {
         var innerVariable = resolveInnerVariable(variable)
         if (innerVariable != null) {
             return innerVariable
