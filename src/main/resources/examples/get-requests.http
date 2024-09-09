@@ -8,7 +8,7 @@ Accept: application/json
 
 ### GET request with environment variables
 // Tip: putting scheme:// + host to {{host}} allows switching schemes between different environments
-GET {{host}}/get?show_env={{show_env}}
+GET {{@host}}/get?show_env={{show_env}}
 Accept: application/json
 
 ### GET request with cookie passed through headers
