@@ -150,15 +150,15 @@ public class HttpParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // multipart_body* MULTIPART_SEPERATE_END
+  // multipart_body* MULTIPART_SEPERATE
   public static boolean multipart_content(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "multipart_content")) return false;
-    if (!nextTokenIs(b, "<multipart content>", MULTIPART_SEPERATE, MULTIPART_SEPERATE_END)) return false;
+    if (!nextTokenIs(b, MULTIPART_SEPERATE)) return false;
     boolean r;
-    Marker m = enter_section_(b, l, _NONE_, MULTIPART_CONTENT, "<multipart content>");
+    Marker m = enter_section_(b);
     r = multipart_content_0(b, l + 1);
-    r = r && consumeToken(b, MULTIPART_SEPERATE_END);
-    exit_section_(b, l, m, r, false, null);
+    r = r && consumeToken(b, MULTIPART_SEPERATE);
+    exit_section_(b, m, MULTIPART_CONTENT, r);
     return r;
   }
 

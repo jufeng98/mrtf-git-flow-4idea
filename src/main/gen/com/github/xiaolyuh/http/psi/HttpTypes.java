@@ -30,7 +30,6 @@ public interface HttpTypes {
   IElementType JS_SCRIPT = new HttpTokenType("JS_SCRIPT");
   IElementType LINE_COMMENT = new HttpTokenType("LINE_COMMENT");
   IElementType MULTIPART_SEPERATE = new HttpTokenType("MULTIPART_SEPERATE");
-  IElementType MULTIPART_SEPERATE_END = new HttpTokenType("MULTIPART_SEPERATE_END");
   IElementType PATH = new HttpTokenType("PATH");
   IElementType POST = new HttpTokenType("POST");
   IElementType PUT = new HttpTokenType("PUT");

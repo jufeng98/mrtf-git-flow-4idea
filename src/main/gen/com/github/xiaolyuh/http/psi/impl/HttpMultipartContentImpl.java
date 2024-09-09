@@ -35,8 +35,8 @@ public class HttpMultipartContentImpl extends ASTWrapperPsiElement implements Ht
 
   @Override
   @NotNull
-  public PsiElement getMultipartSeperateEnd() {
-    return findNotNullChildByType(MULTIPART_SEPERATE_END);
+  public PsiElement getMultipartSeperate() {
+    return findNotNullChildByType(MULTIPART_SEPERATE);
   }
 
 }

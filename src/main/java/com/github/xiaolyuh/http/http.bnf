@@ -18,16 +18,15 @@
     T_LT='<'
     T_RT='>'
     T_RT_DBL='>>'
-    PATH='regexp:(([A-E]:)|[a-z./])([a-zA-Z0-9_\-./\\]+/?)+'
+    PATH='regexp:(([A-E]:)|[a-z./])([\u4E00-\u9FA5a-zA-Z0-9_\-./\\]+/?)+'
     URL_DESC='regexp:(https?|wss?|\{\{@)[-a-zA-Z0-9+&@${}()#/%?=~_|!:,.;]*[-a-zA-Z0-9+,&@${}()#/%=~_| ]'
-    HEADER_DESC='regexp:[a-zA-Z\-]+:[a-zA-Z0-9,${}()_=;%\\".\-*:/ ]+'
+    HEADER_DESC='regexp:[a-zA-Z\-]+:[\u4E00-\u9FA5a-zA-Z0-9,${}()_=;%\\".\-*:/ ]+'
     REQUEST_COMMENT='regexp:#.*'
     LINE_COMMENT='regexp://.*'
-    URL_FORM_ENCODE="regexp:[a-zA-Z0-9,&$={}()]*"
+    URL_FORM_ENCODE="regexp:[a-zA-Z0-9,&$={}():]*"
     JSON_TEXT="regexp:[{\[][\u4E00-\u9FA5a-zA-Z0-9._,\":'&$【】~{}()\[\]\s\-/；：（）、!！\\?“”×*+=，]*"
-    XML_TEXT="regexp:(<| <)[^#]*"
-    MULTIPART_SEPERATE='regexp:--[^-]+'
-    MULTIPART_SEPERATE_END='regexp:--[^-]+--'
+    XML_TEXT="regexp:(<[!a-zA-Z])[a-zA-Z0-9!\-\u4E00-\u9FA5 ]*"
+    MULTIPART_SEPERATE='regexp:--[a-zA-Z0-9\-]+'
     VARIABLE='regexp:\{\{[a-zA-Z0-9.(),$]+}}'
     JS_SCRIPT='regexp:\{%[^#]*%}'
     SPACE='regexp:\s+'
@@ -52,5 +51,5 @@ ordinary_content ::= file | URL_FORM_ENCODE | JSON_TEXT | XML_TEXT {
 file ::= T_LT file_path
 output_file ::= T_RT_DBL file_path
 file_path ::= PATH
-multipart_content ::= multipart_body* MULTIPART_SEPERATE_END
+multipart_content ::= multipart_body* MULTIPART_SEPERATE
 multipart_body ::= MULTIPART_SEPERATE header* ordinary_content

@@ -11,6 +11,6 @@ public interface HttpMultipartContent extends PsiElement {
   List<HttpMultipartBody> getMultipartBodyList();
 
   @NotNull
-  PsiElement getMultipartSeperateEnd();
+  PsiElement getMultipartSeperate();
 
 }
