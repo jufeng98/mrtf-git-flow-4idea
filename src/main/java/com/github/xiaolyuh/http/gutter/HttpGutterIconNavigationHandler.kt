@@ -185,18 +185,12 @@ class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : Gutt
         if (outPutFileName == null) {
             return null
         }
+
         if (byteArray == null) {
             return null
         }
 
-        val path: String
-        if (outPutFileName.startsWith("/") || outPutFileName[1] == ':') {
-            // 绝对路径
-            path = outPutFileName
-        } else {
-            path = "$parentPath/$outPutFileName"
-        }
-
+        val path = HttpUtils.constructFilePath(outPutFileName, parentPath)
         val file = File(path)
         if (!file.parentFile.exists()) {
             Files.createDirectories(file.toPath())

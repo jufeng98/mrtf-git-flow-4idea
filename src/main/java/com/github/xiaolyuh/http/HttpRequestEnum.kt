@@ -70,7 +70,11 @@ enum class HttpRequestEnum {
         var bodyPublisher: HttpRequest.BodyPublisher? = null
         if (reqBody is String) {
             bodyPublisher = HttpRequest.BodyPublishers.ofString(reqBody)
+        } else if (reqBody is List<*>) {
+            @Suppress("UNCHECKED_CAST")
+            bodyPublisher = HttpRequest.BodyPublishers.ofByteArrays(reqBody as MutableIterable<ByteArray>)
         }
+
         val request = createRequest(url, version, reqHttpHeaders, bodyPublisher)
 
         val client = HttpClient.newBuilder()

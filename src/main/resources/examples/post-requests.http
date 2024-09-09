@@ -23,3 +23,19 @@ Content-Type: application/json
 }
 
 ###
+POST https://example.com/api/upload
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="first"; filename="input.txt"
+
+< ./input.txt
+--boundary
+Content-Disposition: form-data; name="second"; filename="input-second.txt"
+
+Text
+--boundary
+Content-Disposition: form-data; name="third";
+
+< ./input.txt
+--boundary--

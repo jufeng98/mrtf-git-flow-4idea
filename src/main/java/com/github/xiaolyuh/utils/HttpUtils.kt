@@ -14,6 +14,7 @@ import org.apache.commons.io.FileUtils
 import java.io.File
 import java.net.http.HttpResponse
 import java.nio.charset.StandardCharsets
+import java.nio.file.Files
 import kotlin.jvm.optionals.getOrElse
 
 object HttpUtils {
@@ -80,28 +81,103 @@ object HttpUtils {
             return null
         }
 
+        val parentPath = httpBody.containingFile.virtualFile.parent.path
+
         val ordinaryContent = httpBody.ordinaryContent
         if (ordinaryContent != null) {
-            val elementType = ordinaryContent.firstChild.elementType
-            if (elementType == HttpTypes.JSON_TEXT || elementType == HttpTypes.XML_TEXT) {
-                return variableResolver.resolve(ordinaryContent.text, selectedEnv)
-            }
+            return handleOrdinaryContent(
+                ordinaryContent,
+                variableResolver,
+                selectedEnv,
+                parentPath
+            )
+        }
 
-            val httpFile = ordinaryContent.file
-            if (httpFile != null) {
-                val path = httpBody.containingFile.virtualFile.path
-                val filePath = httpFile.filePath.text
-                val file = File(File(path).parentFile, filePath)
-                if (!file.exists()) {
-                    throw IllegalArgumentException("文件${file}不存在")
-                }
+        val multipartContent = httpBody.multipartContent
+        if (multipartContent != null) {
+            return constructMultipartBody(multipartContent, variableResolver, selectedEnv, parentPath)
 
-                val str = FileUtils.readFileToString(file, StandardCharsets.UTF_8)
-                return variableResolver.resolve(str, selectedEnv)
-            }
         }
 
         return null
+    }
+
+    private fun handleOrdinaryContent(
+        ordinaryContent: HttpOrdinaryContent,
+        variableResolver: VariableResolver,
+        selectedEnv: String?,
+        parentPath: String,
+    ): Any? {
+        val elementType = ordinaryContent.firstChild.elementType
+        if (elementType == HttpTypes.JSON_TEXT || elementType == HttpTypes.XML_TEXT || elementType == HttpTypes.URL_FORM_ENCODE) {
+            return variableResolver.resolve(ordinaryContent.text, selectedEnv)
+        }
+
+        val httpFile = ordinaryContent.file
+        val filePath = httpFile?.filePath?.text ?: ""
+        if (httpFile != null) {
+            val path = constructFilePath(filePath, parentPath)
+            val file = File(path)
+            if (!file.exists()) {
+                throw IllegalArgumentException("文件${file}不存在")
+            }
+
+            if (filePath.endsWith("json") || filePath.endsWith("xml")
+                || filePath.endsWith("txt") || filePath.endsWith("text")
+            ) {
+                val str = FileUtils.readFileToString(file, StandardCharsets.UTF_8)
+                return variableResolver.resolve(str, selectedEnv)
+            }
+
+            return Files.readAllBytes(file.toPath())
+        }
+
+        return null
+    }
+
+    private fun constructMultipartBody(
+        multipartContent: HttpMultipartContent,
+        variableResolver: VariableResolver,
+        selectedEnv: String?,
+        parentPath: String,
+    ): MutableList<ByteArray> {
+        val byteArrays = mutableListOf<ByteArray>()
+
+        multipartContent.multipartBodyList.forEach {
+            byteArrays.add((it.multipartSeperate.text + "\r\n").toByteArray(StandardCharsets.UTF_8))
+
+            it.headerList.forEach { header ->
+                byteArrays.add((header.text + "\r\n").toByteArray(StandardCharsets.UTF_8))
+            }
+            byteArrays.add("\r\n".toByteArray(StandardCharsets.UTF_8))
+
+            val ordinaryContent = it.ordinaryContent
+            val content = handleOrdinaryContent(
+                ordinaryContent,
+                variableResolver,
+                selectedEnv,
+                parentPath
+            )
+
+            if (content is String) {
+                byteArrays.add((content + "\r\n").toByteArray(StandardCharsets.UTF_8))
+            } else if (content is ByteArray) {
+                byteArrays.add(content + "\r\n".toByteArray(StandardCharsets.UTF_8))
+            }
+        }
+
+        byteArrays.add((multipartContent.multipartSeperate.text).toByteArray(StandardCharsets.UTF_8))
+
+        return byteArrays
+    }
+
+    fun constructFilePath(outPutFileName: String, parentPath: String): String {
+        return if (outPutFileName.startsWith("/") || outPutFileName[1] == ':') {
+            // 绝对路径
+            outPutFileName
+        } else {
+            "$parentPath/$outPutFileName"
+        }
     }
 
     fun convertToResHeaderDescList(
