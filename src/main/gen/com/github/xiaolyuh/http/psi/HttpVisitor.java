@@ -43,6 +43,10 @@ public class HttpVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitOutputFile(@NotNull HttpOutputFile o) {
+    visitPsiElement(o);
+  }
+
   public void visitRequest(@NotNull HttpRequest o) {
     visitPsiElement(o);
   }

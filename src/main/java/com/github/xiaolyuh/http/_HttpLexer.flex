@@ -25,13 +25,13 @@ import static com.github.xiaolyuh.http.psi.HttpTypes.*;
 EOL=\R
 WHITE_SPACE=\s+
 
-PATH=([a-zA-Z0-9_\-./]+"/"?)+
+PATH=(([A-E]:)|[a-z./])([a-zA-Z0-9_\-./\\]+"/"?)+
 URL_DESC=(https?|wss?|\{\{@)[-a-zA-Z0-9+&@${}()#/%?=~_|!:,.;]*[-a-zA-Z0-9+,&@${}()#/%=~_| ]
-HEADER_DESC=[a-zA-Z\-]+:[a-zA-Z0-9,${}()_=;\\\".\-*:/ ]+
+HEADER_DESC=[a-zA-Z\-]+:[a-zA-Z0-9,${}()_=;%\\\".\-*:/ ]+
 REQUEST_COMMENT=#.*
 LINE_COMMENT="//".*
 URL_FORM_ENCODE=[a-zA-Z0-9,&$={}()]*
-JSON_TEXT=[{\[][\u4E00-\u9FA5a-zA-Z0-9._,\":'&$【】~{}()\[\]\s\-/；：（）、!！?×*+=，]*
+JSON_TEXT=[{\[][\u4E00-\u9FA5a-zA-Z0-9._,\":'&$【】~{}()\[\]\s\-/；：（）、!！\\?“”×*+=，]*
 XML_TEXT=(<| <)[^#]*
 MULTIPART_SEPERATE=--[^-]+
 MULTIPART_SEPERATE_END=--[^-]+--
@@ -45,6 +45,7 @@ SPACE=[ \t\n\x0B\f\r]+
 
   "<"                            { return T_LT; }
   ">"                            { return T_RT; }
+  ">>"                           { return T_RT_DBL; }
   "GET"                          { return GET; }
   "POST"                         { return POST; }
   "DELETE"                       { return DELETE; }

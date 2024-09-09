@@ -17,6 +17,7 @@ public interface HttpTypes {
   IElementType MULTIPART_BODY = new HttpElementType("MULTIPART_BODY");
   IElementType MULTIPART_CONTENT = new HttpElementType("MULTIPART_CONTENT");
   IElementType ORDINARY_CONTENT = new HttpElementType("ORDINARY_CONTENT");
+  IElementType OUTPUT_FILE = new HttpElementType("OUTPUT_FILE");
   IElementType REQUEST = new HttpElementType("REQUEST");
   IElementType SCRIPT = new HttpElementType("SCRIPT");
   IElementType URL = new HttpElementType("URL");
@@ -36,6 +37,7 @@ public interface HttpTypes {
   IElementType REQUEST_COMMENT = new HttpTokenType("REQUEST_COMMENT");
   IElementType T_LT = new HttpTokenType("<");
   IElementType T_RT = new HttpTokenType(">");
+  IElementType T_RT_DBL = new HttpTokenType(">>");
   IElementType URL_DESC = new HttpTokenType("URL_DESC");
   IElementType URL_FORM_ENCODE = new HttpTokenType("URL_FORM_ENCODE");
   IElementType VARIABLE = new HttpTokenType("VARIABLE");
@@ -70,6 +72,9 @@ public interface HttpTypes {
       }
       else if (type == ORDINARY_CONTENT) {
         return new HttpOrdinaryContentImpl(node);
+      }
+      else if (type == OUTPUT_FILE) {
+        return new HttpOutputFileImpl(node);
       }
       else if (type == REQUEST) {
         return new HttpRequestImpl(node);

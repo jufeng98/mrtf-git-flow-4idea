@@ -17,9 +17,10 @@
   tokens=[
     T_LT='<'
     T_RT='>'
-    PATH='regexp:([a-zA-Z0-9_\-./]+/?)+'
+    T_RT_DBL='>>'
+    PATH='regexp:(([A-E]:)|[a-z./])([a-zA-Z0-9_\-./\\]+/?)+'
     URL_DESC='regexp:(https?|wss?|\{\{@)[-a-zA-Z0-9+&@${}()#/%?=~_|!:,.;]*[-a-zA-Z0-9+,&@${}()#/%=~_| ]'
-    HEADER_DESC='regexp:[a-zA-Z\-]+:[a-zA-Z0-9,${}()_=;\\".\-*:/ ]+'
+    HEADER_DESC='regexp:[a-zA-Z\-]+:[a-zA-Z0-9,${}()_=;%\\".\-*:/ ]+'
     REQUEST_COMMENT='regexp:#.*'
     LINE_COMMENT='regexp://.*'
     URL_FORM_ENCODE="regexp:[a-zA-Z0-9,&$={}()]*"
@@ -33,7 +34,7 @@
   ]
 }
 httpFile ::= request*
-request ::= method url version? headers? body? script? | script {
+request ::= method url version? headers? body? script? output_file? | script {
     pin = 1
 }
 url ::= URL_DESC
@@ -45,10 +46,11 @@ body ::= ordinary_content | multipart_content
 script ::= T_RT JS_SCRIPT {
     mixin = "com.github.xiaolyuh.http.inject.HttpPsiLanguageInjectionHost"
 }
-ordinary_content ::= file | URL_FORM_ENCODE | JSON_TEXT |XML_TEXT {
+ordinary_content ::= file | URL_FORM_ENCODE | JSON_TEXT | XML_TEXT {
     mixin = "com.github.xiaolyuh.http.inject.HttpPsiLanguageInjectionHost"
 }
 file ::= T_LT file_path
+output_file ::= T_RT_DBL file_path
 file_path ::= PATH
 multipart_content ::= multipart_body* MULTIPART_SEPERATE_END
 multipart_body ::= MULTIPART_SEPERATE header* ordinary_content

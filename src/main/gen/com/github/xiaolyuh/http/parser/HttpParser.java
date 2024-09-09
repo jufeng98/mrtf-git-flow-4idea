@@ -174,7 +174,7 @@ public class HttpParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // file | URL_FORM_ENCODE | JSON_TEXT |XML_TEXT
+  // file | URL_FORM_ENCODE | JSON_TEXT | XML_TEXT
   public static boolean ordinary_content(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ordinary_content")) return false;
     boolean r;
@@ -188,7 +188,20 @@ public class HttpParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // method url version? headers? body? script? | script
+  // T_RT_DBL file_path
+  public static boolean output_file(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "output_file")) return false;
+    if (!nextTokenIs(b, T_RT_DBL)) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, T_RT_DBL);
+    r = r && file_path(b, l + 1);
+    exit_section_(b, m, OUTPUT_FILE, r);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // method url version? headers? body? script? output_file? | script
   public static boolean request(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "request")) return false;
     boolean r;
@@ -199,7 +212,7 @@ public class HttpParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // method url version? headers? body? script?
+  // method url version? headers? body? script? output_file?
   private static boolean request_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "request_0")) return false;
     boolean r;
@@ -210,6 +223,7 @@ public class HttpParser implements PsiParser, LightPsiParser {
     r = r && request_0_3(b, l + 1);
     r = r && request_0_4(b, l + 1);
     r = r && request_0_5(b, l + 1);
+    r = r && request_0_6(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
   }
@@ -239,6 +253,13 @@ public class HttpParser implements PsiParser, LightPsiParser {
   private static boolean request_0_5(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "request_0_5")) return false;
     script(b, l + 1);
+    return true;
+  }
+
+  // output_file?
+  private static boolean request_0_6(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "request_0_6")) return false;
+    output_file(b, l + 1);
     return true;
   }
 
