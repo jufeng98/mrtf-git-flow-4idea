@@ -236,6 +236,11 @@ class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : Gutt
         contentManager.addContent(content)
         contentManager.setSelectedContent(content)
 
+        if (!toolWindow.isAvailable) {
+            toolWindow.isAvailable = true
+            toolWindow.activate { }
+        }
+
         toolWindowManager.notifyByBalloon(TOOL_WINDOW_ID, MessageType.INFO, "<div>Tip:请求已完成!</div>")
     }
 
