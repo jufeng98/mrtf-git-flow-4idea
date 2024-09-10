@@ -47,6 +47,7 @@
     <depends>com.intellij.java</depends>
     <depends>com.intellij.properties</depends>
     <depends optional="true" config-file="gitflow-plus-dbn.xml">DBN</depends>
+    <depends optional="true" config-file="gitflow-plus-cool-request.xml">com.hxl.plugin.cool-request</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <highlightErrorFilter implementation="com.github.xiaolyuh.suppress.MyHighlightErrorFilter"/>

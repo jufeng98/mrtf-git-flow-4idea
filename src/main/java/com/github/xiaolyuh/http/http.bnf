@@ -27,7 +27,7 @@
     JSON_TEXT="regexp:[{\[][\u4E00-\u9FA5a-zA-Z0-9._,\":'&$【】~{}()\[\]\s\-/；：（）、!！\\?“”×*+=，]*"
     XML_TEXT="regexp:(<[!a-zA-Z])[a-zA-Z0-9!\-\u4E00-\u9FA5 ]*"
     MULTIPART_SEPERATE='regexp:--[a-zA-Z0-9\-]+'
-    VARIABLE='regexp:\{\{[a-zA-Z0-9.(),$]+}}'
+    VARIABLE='regexp:\{\{[a-zA-Z0-9.(),$}]+'
     JS_SCRIPT='regexp:\{%[^#]*%}'
     SPACE='regexp:\s+'
   ]
@@ -36,7 +36,11 @@ httpFile ::= request*
 request ::= method url version? headers? body? script? output_file? | script {
     pin = 1
 }
-url ::= URL_DESC
+url ::= URL_DESC {
+    methods = [
+        getReferences
+    ]
+}
 version ::= 'HTTP/1.1' | 'HTTP/2.0'
 method ::= GET | POST | DELETE | PUT
 headers ::= header*

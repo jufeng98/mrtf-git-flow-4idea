@@ -1,0 +1,6 @@
+<idea-plugin>
+    <extensions defaultExtensionNs="com.intellij">
+        <psi.referenceContributor language="http"
+                                  implementation="com.github.xiaolyuh.http.reference.HttpReferenceContributor"/>
+    </extensions>
+</idea-plugin>

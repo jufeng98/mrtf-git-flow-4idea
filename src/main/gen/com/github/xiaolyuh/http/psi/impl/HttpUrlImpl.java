@@ -10,6 +10,7 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static com.github.xiaolyuh.http.psi.HttpTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.github.xiaolyuh.http.psi.*;
+import com.intellij.psi.PsiReference;
 
 public class HttpUrlImpl extends ASTWrapperPsiElement implements HttpUrl {
 
@@ -31,6 +32,11 @@ public class HttpUrlImpl extends ASTWrapperPsiElement implements HttpUrl {
   @NotNull
   public PsiElement getUrlDesc() {
     return findNotNullChildByType(URL_DESC);
+  }
+
+  @Override
+  public PsiReference @NotNull [] getReferences() {
+    return HttpPsiImplUtil.getReferences(this);
   }
 
 }
