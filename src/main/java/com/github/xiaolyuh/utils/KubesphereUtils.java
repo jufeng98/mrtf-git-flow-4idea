@@ -12,11 +12,13 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class KubesphereUtils {
 
@@ -71,22 +73,53 @@ public class KubesphereUtils {
         kotlin.Pair<String, String> pair = ConfigUtil.getKubesphereUser();
         String kubesphereUsername = pair.getFirst();
         if (StringUtils.isBlank(kubesphereUsername)) {
-            throw new RuntimeException("请先在更新配置菜单配置Kubesphere用户信息");
+            throw new RuntimeException("请先在配置菜单配置Kubesphere用户信息");
         }
         String kubespherePassword = pair.getSecond();
+
         String accessToken = loginByUrl(kubesphereUsername, kubespherePassword, project);
+
         ConfigUtil.saveKubesphereToken(accessToken);
     }
 
     public static String loginByUrl(String kubesphereUsername, String kubespherePassword, Project project) throws Exception {
         String loginUrl = ConfigUtil.getLoginUrl(project);
-        String reqBody = String.format("grant_type=password&username=%s&password=%s", kubesphereUsername, kubespherePassword);
-        Map<String, String> headers = Maps.newHashMap();
-        headers.put("Content-Type", "application/x-www-form-urlencoded");
-        JsonObject jsonObject = HttpClientUtil.postForObject(loginUrl, reqBody, headers, JsonObject.class, project);
-        String accessToken = jsonObject.get("access_token").getAsString();
-        NotifyUtil.notifyInfo(ProjectUtil.getActiveProject(), "请求url:" + loginUrl + "," + kubesphereUsername + "登录结果:" + jsonObject);
+        String accessToken;
+        if (ConfigUtil.isMhKubesphere(project)) {
+            String reqBody = String.format("grant_type=password&username=%s&password=%s", kubesphereUsername, kubespherePassword);
+            Map<String, String> headers = Maps.newHashMap();
+            headers.put("Content-Type", "application/x-www-form-urlencoded");
+            JsonObject jsonObject = HttpClientUtil.postForObject(loginUrl, reqBody, headers, JsonObject.class, project);
+            accessToken = jsonObject.get("access_token").getAsString();
+        } else {
+            JsonObject reqJsonObj = new JsonObject();
+            reqJsonObj.addProperty("username", kubesphereUsername);
+
+            String encrypt = encrypt("kubesphere", kubespherePassword);
+            reqJsonObj.addProperty("encrypt", encrypt);
+
+            String reqBody = reqJsonObj.toString();
+            Map<String, String> reqHeaders = Maps.newHashMap();
+            reqHeaders.put("Content-Type", "application/json");
+            reqHeaders.put("Accept", "*/*");
+            JsonObject jsonObject = HttpClientUtil.postForObject(loginUrl, reqBody, reqHeaders, JsonObject.class, project);
+            accessToken = jsonObject.get("access_token").getAsString();
+        }
+
+        NotifyUtil.notifyInfo(ProjectUtil.getActiveProject(), "请求url:" + loginUrl + "," + kubesphereUsername + "登录结果accessToken:" + accessToken);
         return accessToken;
+    }
+
+    public static boolean isLoginUrl(String url, Project project) {
+        return url.equals(ConfigUtil.getLoginUrl(project));
+    }
+
+    public static <T> String getTokenFromResponseCookie(List<String> cookies) {
+        List<String> list = cookies.stream()
+                .filter(it -> it.startsWith("token"))
+                .map(it -> it.split(";")[0].split("=")[1])
+                .collect(Collectors.toList());
+        return list.get(0);
     }
 
     public static String findInstanceName(String podUrl, String id, int detectTimes, Project project) throws Exception {
@@ -208,6 +241,23 @@ public class KubesphereUtils {
                                              boolean previous, boolean follow, Consumer<byte[]> consumer) throws Exception {
         String logsUrl = ConfigUtil.getLogsUrl(project, selectService, newInstanceName, tailLines, previous, follow);
         HttpClientUtil.getForObjectWithTokenUseUrl(logsUrl, null, byte[].class, consumer, project);
+    }
+
+    public static String encrypt(String e, String t) {
+        t = Base64.getEncoder().encodeToString(t.getBytes());
+        if (t.length() > e.length()) {
+            e += t.substring(0, t.length() - e.length());
+        }
+        StringBuilder binary = new StringBuilder();
+        StringBuilder chars = new StringBuilder();
+        for (int i = 0; i < e.length(); i++) {
+            int k = e.charAt(i);
+            int p = i < t.length() ? t.charAt(i) : 64;
+            int sum = k + p;
+            binary.append(sum % 2 == 0 ? "0" : "1");
+            chars.append((char) (sum / 2));
+        }
+        return Base64.getEncoder().encodeToString(binary.toString().getBytes()) + "@" + chars;
     }
 
 }

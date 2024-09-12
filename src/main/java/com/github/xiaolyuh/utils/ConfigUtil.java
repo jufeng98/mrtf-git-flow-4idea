@@ -47,26 +47,16 @@ public class ConfigUtil {
         return new Pair<>(PREFERENCES.get("kubesphereUsername", ""), PREFERENCES.get("kubespherePassword", ""));
     }
 
-    public static void saveKubesphereUser(String name, String pwd, String kubesphereTokenGroup, Project project) {
+    public static void saveKubesphereUser(String name, String pwd) {
         PREFERENCES.put("kubesphereUsername", name);
         PREFERENCES.put("kubespherePassword", pwd);
-        PREFERENCES.put("kubesphereTokenGroup:" + project.getName(), kubesphereTokenGroup);
     }
 
-    public static boolean isUseKubesphereTokenGroup(Project project) {
-        return StringUtils.isNotBlank(getKubesphereTokenGroup(project));
+    public static boolean isGroupKubesphere(Project project) {
+        return !isMhKubesphere(project);
     }
 
-    public static String getKubesphereTokenGroup(Project project) {
-        return PREFERENCES.get("kubesphereTokenGroup:" + project.getName(), "");
-    }
-
-    public static String getKubesphereToken(Project project) {
-        String kubesphereTokenGroup = getKubesphereTokenGroup(project);
-        if (StringUtils.isNotBlank(kubesphereTokenGroup)) {
-            return kubesphereTokenGroup;
-        }
-
+    public static String getKubesphereToken() {
         return PREFERENCES.get("kubesphereToken", "abcd");
     }
 
@@ -129,7 +119,6 @@ public class ConfigUtil {
             Pair<String, String> pair = getKubesphereUser();
             options.setKubesphereUsername(pair.getFirst());
             options.setKubespherePassword(pair.getSecond());
-            options.setKubesphereTokenGroup(getKubesphereTokenGroup(project));
             CONFIG_MAP.put(project.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME, options);
         }
 
@@ -258,9 +247,26 @@ public class ConfigUtil {
         return K8S_MAP.get(project.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME_PROJECT);
     }
 
+    public static boolean isMhKubesphere(Project project) {
+        K8sOptions k8sOptions = K8S_MAP.get(project.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME_PROJECT);
+        String host = k8sOptions.getHost();
+        return host.contains("mh");
+    }
+
+    public static String getHost(Project project) {
+        K8sOptions k8sOptions = K8S_MAP.get(project.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME_PROJECT);
+        return k8sOptions.getHost();
+    }
+
     public static String getLoginUrl(Project project) {
         K8sOptions k8sOptions = K8S_MAP.get(project.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME_PROJECT);
-        return k8sOptions.getLoginUrl();
+
+        if (isMhKubesphere(project)) {
+            return k8sOptions.getLoginUrl();
+        } else {
+            // 集团登录接口
+            return k8sOptions.getHost() + "/login";
+        }
     }
 
     public static String getApolloUrl(Project project) {

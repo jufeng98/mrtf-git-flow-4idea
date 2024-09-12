@@ -3,7 +3,9 @@ package com.github.xiaolyuh.utils;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,6 +17,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -52,7 +55,7 @@ public class HttpClientUtil {
 
     public static <T> T postForObjectWithToken(String url, String reqBody, Map<String, String> headers,
                                                Class<T> resType, Project project) throws Exception {
-        String kubesphereToken = ConfigUtil.getKubesphereToken(project);
+        String kubesphereToken = ConfigUtil.getKubesphereToken();
         if (headers == null) {
             headers = Maps.newHashMap();
         }
@@ -70,7 +73,7 @@ public class HttpClientUtil {
 
     public static <T> T getForObjectWithToken(String url, Map<String, String> headers,
                                               Class<T> resType, Project project) throws Exception {
-        String kubesphereToken = ConfigUtil.getKubesphereToken(project);
+        String kubesphereToken = ConfigUtil.getKubesphereToken();
         if (headers == null) {
             headers = Maps.newHashMap();
         }
@@ -104,24 +107,28 @@ public class HttpClientUtil {
             response = (HttpResponse<T>) client.send(request, HttpResponse.BodyHandlers.ofString());
         }
 
-        if (response.statusCode() == 404) {
-            throw new RuntimeException("url 404:" + request.uri());
+        int statusCode = response.statusCode();
+        if (statusCode == 404) {
+            throw new RuntimeException("链接 404:" + request.uri());
         }
 
-        if (response.statusCode() == 401) {
-            if (request.uri().toString().equals(ConfigUtil.getLoginUrl(project))) {
-                throw new RuntimeException(response.body() + "");
-            }
-
-            if (ConfigUtil.isUseKubesphereTokenGroup(project)) {
-                throw new RuntimeException("无效token");
+        if (statusCode == 401 || statusCode == 403) {
+            if (KubesphereUtils.isLoginUrl(request.uri().toString(), project)) {
+                throw new RuntimeException("用户名或密码无效," + response.body());
             }
 
             KubesphereUtils.loginAndSaveToken(project);
             return getForObjectWithToken(request.uri().toString(), headers, resType, project);
         }
 
+        List<String> cookies = response.headers().allValues("set-cookie");
+        JsonObject resJson = handleGroupLogin(request.uri().toString(), project, statusCode, cookies, response.body() + "");
+        if (resJson != null) {
+            return (T) resJson;
+        }
+
         T body = response.body();
+
         if (resType == String.class || resType == byte[].class) {
             return body;
         }
@@ -129,9 +136,23 @@ public class HttpClientUtil {
         return gson.fromJson((String) body, resType);
     }
 
+    private static @Nullable JsonObject handleGroupLogin(String url, Project project, int status, List<String> cookies, String body) {
+        boolean isGroupLoginUrl = KubesphereUtils.isLoginUrl(url, project) && ConfigUtil.isGroupKubesphere(project);
+        if (isGroupLoginUrl && status == 200) {
+            throw new RuntimeException("用户名或密码无效," + body);
+        } else if (isGroupLoginUrl && status == 302) {
+            String accessToken = KubesphereUtils.getTokenFromResponseCookie(cookies);
+            JsonObject jsonObject = new JsonObject();
+            jsonObject.addProperty("access_token", accessToken);
+            return jsonObject;
+        }
+
+        return null;
+    }
+
     public static <T> T getForObjectWithTokenUseUrl(String url, Map<String, String> headers,
                                                     Class<T> resType, Project project) throws Exception {
-        String kubesphereToken = ConfigUtil.getKubesphereToken(project);
+        String kubesphereToken = ConfigUtil.getKubesphereToken();
         if (headers == null) {
             headers = Maps.newHashMap();
         }
@@ -141,7 +162,7 @@ public class HttpClientUtil {
 
     public static <T> void getForObjectWithTokenUseUrl(String url, Map<String, String> headers, Class<T> resType,
                                                        Consumer<T> consumer, Project project) throws Exception {
-        String kubesphereToken = ConfigUtil.getKubesphereToken(project);
+        String kubesphereToken = ConfigUtil.getKubesphereToken();
         if (headers == null) {
             headers = Maps.newHashMap();
         }
@@ -161,31 +182,42 @@ public class HttpClientUtil {
             }
             connection.connect();
             int responseCode = connection.getResponseCode();
-            if (responseCode == 401) {
-                if (url.equals(ConfigUtil.getLoginUrl(project))) {
+
+            if (responseCode == 404) {
+                throw new RuntimeException("链接 404:" + url);
+            }
+
+            if (responseCode == 401 || responseCode == 403) {
+                if (KubesphereUtils.isLoginUrl(url, project)) {
                     inputStream = connection.getInputStream();
                     byte[] bytes = inputStream.readAllBytes();
                     String body = new String(bytes);
-                    throw new RuntimeException(body);
-                }
-
-                if (ConfigUtil.isUseKubesphereTokenGroup(project)) {
-                    throw new RuntimeException("无效token");
+                    throw new RuntimeException("用户名或密码无效," + body);
                 }
 
                 KubesphereUtils.loginAndSaveToken(project);
                 return getForObjectWithTokenUseUrl(url, headers, resType, project);
             }
+
+            List<String> cookies = connection.getHeaderFields().get("set-cookie");
+            JsonObject resJson = handleGroupLogin(url, project, responseCode, cookies, "请检查Kubesphere配置");
+            if (resJson != null) {
+                //noinspection unchecked
+                return (T) resJson;
+            }
+
             inputStream = connection.getInputStream();
             byte[] bytes = inputStream.readAllBytes();
             if (resType == byte[].class) {
                 return (T) bytes;
             }
+
             String body = new String(bytes);
             if (resType == String.class) {
                 //noinspection unchecked
                 return (T) body;
             }
+
             return gson.fromJson(body, resType);
         } finally {
             if (inputStream != null) {
@@ -212,22 +244,27 @@ public class HttpClientUtil {
             }
             connection.connect();
             int responseCode = connection.getResponseCode();
-            if (responseCode == 401) {
-                if (url.equals(ConfigUtil.getLoginUrl(project))) {
+
+            if (responseCode == 404) {
+                throw new RuntimeException("链接 404:" + url);
+            }
+
+            if (responseCode == 401 || responseCode == 403) {
+                if (KubesphereUtils.isLoginUrl(url, project)) {
                     inputStream = connection.getInputStream();
                     byte[] bytes = inputStream.readAllBytes();
                     String body = new String(bytes);
-                    throw new RuntimeException(body);
-                }
-
-                if (ConfigUtil.isUseKubesphereTokenGroup(project)) {
-                    throw new RuntimeException("无效token");
+                    throw new RuntimeException("用户名或密码无效," + body);
                 }
 
                 KubesphereUtils.loginAndSaveToken(project);
                 getForObjectWithTokenUseUrl(url, headers, resType, project);
                 return;
             }
+
+            List<String> cookies = connection.getHeaderFields().get("set-cookie");
+            handleGroupLogin(url, project, responseCode, cookies, "请检查Kubesphere配置");
+
             while (!Thread.currentThread().isInterrupted()) {
                 inputStream = connection.getInputStream();
                 byte[] bytes = inputStream.readNBytes(4096);

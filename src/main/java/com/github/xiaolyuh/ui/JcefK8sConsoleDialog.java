@@ -171,8 +171,9 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
     }
 
     private void setTokenCookie(JBCefBrowser jbCefBrowser, String url) {
-        String kubesphereToken = ConfigUtil.getKubesphereToken(project);
-        String domain = ConfigUtil.isUseKubesphereTokenGroup(project) ? "host-kslb.bluemoon.com.cn" : "host-kslb.mh.bluemoon.com.cn";
+        String kubesphereToken = ConfigUtil.getKubesphereToken();
+        String host = ConfigUtil.getHost(project);
+        String domain = host.replace("https://", "").replace("http://", "");
 
         CefCookie cefCookie = new CefCookie("token", kubesphereToken,
                 domain, "/", false, true,

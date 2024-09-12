@@ -57,7 +57,6 @@ public class InitOptions {
     private String dingtalkToken;
     private transient String kubesphereUsername;
     private transient String kubespherePassword;
-    private transient String kubesphereTokenGroup;
 
     /**
      * 语言
@@ -150,14 +149,6 @@ public class InitOptions {
 
     public void setKubespherePassword(String kubespherePassword) {
         this.kubespherePassword = kubespherePassword;
-    }
-
-    public String getKubesphereTokenGroup() {
-        return kubesphereTokenGroup;
-    }
-
-    public void setKubesphereTokenGroup(String kubesphereTokenGroup) {
-        this.kubesphereTokenGroup = kubesphereTokenGroup;
     }
 
     public LanguageEnum getLanguage() {

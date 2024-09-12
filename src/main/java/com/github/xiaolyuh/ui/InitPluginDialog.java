@@ -47,7 +47,6 @@ public class InitPluginDialog extends DialogWrapper {
     private JLabel featureBranchPrefixLabel;
     private JLabel hotfixBranchPrefixLabel;
     private JLabel tagNamePrefixLabel;
-    private JPasswordField kubesphereTokenGroupPasswordField;
 
     public InitPluginDialog(Project project) {
         super(project);
@@ -91,7 +90,6 @@ public class InitPluginDialog extends DialogWrapper {
         options.setDingtalkToken(dingtalkTokenTextField.getText());
         options.setKubesphereUsername(kubesphereUsernameTextField.getText());
         options.setKubespherePassword(String.valueOf(kubespherePasswordTextField.getPassword()));
-        options.setKubesphereTokenGroup(String.valueOf(kubesphereTokenGroupPasswordField.getPassword()));
         options.setLanguage(LanguageEnum.getByLanguage((String) languageComboBox.getSelectedItem()));
 
         return options;
@@ -119,7 +117,6 @@ public class InitPluginDialog extends DialogWrapper {
             dingtalkTokenTextField.setText(options.get().getDingtalkToken());
             kubesphereUsernameTextField.setText(options.get().getKubesphereUsername());
             kubespherePasswordTextField.setText(options.get().getKubespherePassword());
-            kubesphereTokenGroupPasswordField.setText(options.get().getKubesphereTokenGroup());
 
             languageSwitch(LanguageEnum.getByLanguage((String) languageComboBox.getSelectedItem()));
         } else {

@@ -88,7 +88,13 @@ class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : Gutt
         val reqBody: Any?
         try {
             url = variableResolver.resolve(httpUrl.text!!, selectedEnv)
+
             reqHeaderMap = convertToReqHeaderMap(httpHeaders, variableResolver, selectedEnv)
+            val match = reqHeaderMap.keys.stream().anyMatch { it.equals("Content-Length") }
+            if (match) {
+                throw IllegalArgumentException("不能有 Content-Length 请求头!")
+            }
+
             reqBody = convertToReqBody(httpBody, variableResolver, selectedEnv)
         } catch (e: IllegalArgumentException) {
             val toolWindowManager = ToolWindowManager.getInstance(project)
@@ -235,11 +241,7 @@ class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : Gutt
 
         contentManager.addContent(content)
         contentManager.setSelectedContent(content)
-
-        if (!toolWindow.isAvailable) {
-            toolWindow.isAvailable = true
-            toolWindow.activate { }
-        }
+        toolWindow.isAvailable = true
 
         toolWindowManager.notifyByBalloon(TOOL_WINDOW_ID, MessageType.INFO, "<div>Tip:请求已完成!</div>")
     }

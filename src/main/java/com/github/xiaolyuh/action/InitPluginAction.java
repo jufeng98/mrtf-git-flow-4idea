@@ -101,8 +101,7 @@ public class InitPluginAction extends AnAction {
                     }
                 }
 
-                ConfigUtil.saveKubesphereUser(initOptions.getKubesphereUsername(), initOptions.getKubespherePassword(),
-                        initOptions.getKubesphereTokenGroup(), project);
+                ConfigUtil.saveKubesphereUser(initOptions.getKubesphereUsername(), initOptions.getKubespherePassword());
 
                 // 存储配置
                 String configJson = HttpClientUtil.gson.toJson(initOptions);
