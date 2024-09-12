@@ -52,16 +52,20 @@ public class ConfigUtil {
         PREFERENCES.put("kubespherePassword", pwd);
     }
 
-    public static boolean isGroupKubesphere(Project project) {
-        return !isMhKubesphere(project);
+    public static String getKubesphereToken(Project project) {
+        if (isMhKubesphere(project)) {
+            return PREFERENCES.get("kubesphereToken", "abcd");
+        } else {
+            return PREFERENCES.get("kubesphereTokenGroup", "abcd");
+        }
     }
 
-    public static String getKubesphereToken() {
-        return PREFERENCES.get("kubesphereToken", "abcd");
-    }
-
-    public static void saveKubesphereToken(String token) {
-        PREFERENCES.put("kubesphereToken", token);
+    public static void saveKubesphereToken(String token, Project project) {
+        if (isMhKubesphere(project)) {
+            PREFERENCES.put("kubesphereToken", token);
+        } else {
+            PREFERENCES.put("kubesphereTokenGroup", token);
+        }
     }
 
     /**
@@ -245,6 +249,10 @@ public class ConfigUtil {
             return new K8sOptions();
         }
         return K8S_MAP.get(project.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME_PROJECT);
+    }
+
+    public static boolean isGroupKubesphere(Project project) {
+        return !isMhKubesphere(project);
     }
 
     public static boolean isMhKubesphere(Project project) {

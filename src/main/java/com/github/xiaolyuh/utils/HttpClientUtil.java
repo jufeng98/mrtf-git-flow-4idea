@@ -55,7 +55,7 @@ public class HttpClientUtil {
 
     public static <T> T postForObjectWithToken(String url, String reqBody, Map<String, String> headers,
                                                Class<T> resType, Project project) throws Exception {
-        String kubesphereToken = ConfigUtil.getKubesphereToken();
+        String kubesphereToken = ConfigUtil.getKubesphereToken(project);
         if (headers == null) {
             headers = Maps.newHashMap();
         }
@@ -73,7 +73,7 @@ public class HttpClientUtil {
 
     public static <T> T getForObjectWithToken(String url, Map<String, String> headers,
                                               Class<T> resType, Project project) throws Exception {
-        String kubesphereToken = ConfigUtil.getKubesphereToken();
+        String kubesphereToken = ConfigUtil.getKubesphereToken(project);
         if (headers == null) {
             headers = Maps.newHashMap();
         }
@@ -152,7 +152,7 @@ public class HttpClientUtil {
 
     public static <T> T getForObjectWithTokenUseUrl(String url, Map<String, String> headers,
                                                     Class<T> resType, Project project) throws Exception {
-        String kubesphereToken = ConfigUtil.getKubesphereToken();
+        String kubesphereToken = ConfigUtil.getKubesphereToken(project);
         if (headers == null) {
             headers = Maps.newHashMap();
         }
@@ -162,7 +162,7 @@ public class HttpClientUtil {
 
     public static <T> void getForObjectWithTokenUseUrl(String url, Map<String, String> headers, Class<T> resType,
                                                        Consumer<T> consumer, Project project) throws Exception {
-        String kubesphereToken = ConfigUtil.getKubesphereToken();
+        String kubesphereToken = ConfigUtil.getKubesphereToken(project);
         if (headers == null) {
             headers = Maps.newHashMap();
         }

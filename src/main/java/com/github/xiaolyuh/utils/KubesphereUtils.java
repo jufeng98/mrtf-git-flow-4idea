@@ -79,7 +79,7 @@ public class KubesphereUtils {
 
         String accessToken = loginByUrl(kubesphereUsername, kubespherePassword, project);
 
-        ConfigUtil.saveKubesphereToken(accessToken);
+        ConfigUtil.saveKubesphereToken(accessToken, project);
     }
 
     public static String loginByUrl(String kubesphereUsername, String kubespherePassword, Project project) throws Exception {
