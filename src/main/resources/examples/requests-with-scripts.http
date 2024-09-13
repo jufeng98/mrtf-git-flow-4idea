@@ -1,37 +1,31 @@
 ### Tip: clear global variables before the request
 > {%
-client.global.clearAll()
+    client.global.clearAll();
+    client.global.set('globalName', 'jufeng98');
+    request.variables.set('requestName', 'jufeng9878');
 %}
+### use variable
+POST https://ijhttp-examples.jetbrains.com/post
+Content-Type: application/json
 
-### Successful test: check response status is 200
+{
+    "my-temp-variable1": "{{globalName}}",
+    "my-temp-variable2": "{{requestName}}"
+}
+
+> {%
+    client.global.set("my-temp-variable", "I will not deleted!");
+    request.variables.set("my-temp-variable", "I will be deleted soon!");
+%}
+# Save response to file
+>> result.html
+### Successful test check response status is 200
 GET https://ijhttp-examples.jetbrains.com/status/200
 
 > {%
     client.test("Request executed successfully", function () {
         client.assert(response.status === 200, "Response status is not 200");
-    });
-%}
-
-### Failed test
-GET https://ijhttp-examples.jetbrains.com/status/404
-
-> {%
-    client.test("Request executed successfully", function () {
-        client.assert(response.status === 200, "Response status is not 200");
-    });
-%}
-
-### Check response status and content-type
-GET https://ijhttp-examples.jetbrains.com/get
-
-> {%
-    client.test("Request executed successfully", function () {
-        client.assert(response.status === 200, "Response status is not 200");
-    });
-
-    client.test("Response content-type is json", function () {
-        const type = response.contentType.mimeType;
-        client.assert(type === "application/json", `Expected 'application/json' but received '${type}'`);
+        client.log('content-type:' + response.headers['content-type'])
     });
 %}
 
@@ -40,7 +34,7 @@ GET https://ijhttp-examples.jetbrains.com/get
 
 > {%
     client.test("Headers option exists", function () {
-        client.assert(response.body.hasOwnProperty("headers"), "Cannot find 'headers' option in response");
+        client.assert(response.body.hasOwnProperty("data"), "Cannot find 'data' option in response");
     });
 %}
 
@@ -48,21 +42,8 @@ GET https://ijhttp-examples.jetbrains.com/get
 GET https://ijhttp-examples.jetbrains.com/get
 
 > {%
-    client.test("Content-Type is application/json", () => {
-        const contentType = response.headers.valueOf("content-type");
-        client.assert(contentType == "application/json",
-            `Expected Content-Type is application/json, but actual is ${contentType}`)
+    client.test("Content-Type is application/json", function () {
+        var contentType = response.headers["content-type"];
+        client.assert(contentType == "application/json", "Expected Content-Type is application/json, but actual is " + contentType);
     })
-%}
-
-###
-POST https://ijhttp-examples.jetbrains.com/post
-Content-Type: application/json
-
-{
-    "my-temp-variable": "{{my-temp-variable}}"
-}
-
-> {%
-    client.global.set("my-temp-variable", "I will be deleted soon!")
 %}

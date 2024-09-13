@@ -12,9 +12,10 @@ POST https://ijhttp-examples.jetbrains.com/post
 Content-Type: application/json
 
 {
-  "id": {{$random.uuid}},
+  "uuid": "{{$random.uuid}}",
   "price": {{$random.integer()}},
-  "price1": {{$randomInt}},
+  "price1": {{$random.integer(1,10)}},
+  "price2": {{$randomInt}},
   "desc": "{{$random.alphabetic(10)}}",
   "desc1": "{{$random.alphanumeric(10)}}",
   "desc2": "{{$random.numeric(10)}}",
@@ -23,7 +24,7 @@ Content-Type: application/json
 }
 
 ###
-POST https://example.com/api/upload
+POST https://ijhttp-examples.jetbrains.com/post
 Content-Type: multipart/form-data; boundary=boundary
 
 --boundary
