@@ -89,12 +89,25 @@ enum class HttpRequestEnum {
                     httpReqDescList.add(entry.key + ": " + it + "\r\n")
                 }
             }
-        if (request.bodyPublisher().isPresent) {
-            httpReqDescList.add("Content-Length: " + request.bodyPublisher().get().contentLength() + "\r\n")
+
+        if (bodyPublisher != null) {
+            httpReqDescList.add("Content-Length: " + bodyPublisher.contentLength() + "\r\n")
         }
         httpReqDescList.add("\r\n")
+
         if (reqBody is String) {
             httpReqDescList.add(reqBody)
+        } else if (reqBody is List<*>) {
+            @Suppress("UNCHECKED_CAST")
+            val byteArrays = reqBody as MutableIterable<ByteArray>
+            byteArrays.forEach {
+                if (it.size > 100) {
+                    val bytes = it.copyOfRange(0, 100)
+                    httpReqDescList.add(String(bytes) + " ......\r\n(内容过长,忽略显示后面部分)\r\n")
+                } else {
+                    httpReqDescList.add(String(it))
+                }
+            }
         }
 
         val response: HttpResponse<ByteArray>?

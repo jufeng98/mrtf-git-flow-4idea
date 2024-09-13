@@ -12,6 +12,7 @@ import com.github.xiaolyuh.http.ws.WsRequest
 import com.github.xiaolyuh.utils.HttpUtils
 import com.github.xiaolyuh.utils.HttpUtils.convertToReqBody
 import com.github.xiaolyuh.utils.HttpUtils.convertToReqHeaderMap
+import com.github.xiaolyuh.utils.HttpUtils.getJsScript
 import com.intellij.codeInsight.daemon.GutterIconNavigationHandler
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.runInEdt
@@ -69,13 +70,7 @@ class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : Gutt
         jsScriptExecutor.prepareJsRequestObj()
 
         val httpFile = httpMethod.containingFile
-        val httpRequests =
-            PsiTreeUtil.getChildrenOfType(httpFile, com.github.xiaolyuh.http.psi.HttpRequest::class.java)!!
-        val beforeJsScripts = httpRequests
-            .filter { it.script != null && it.script!!.prevSibling == null }
-            .mapNotNull {
-                getJsScript(it.script)
-            }
+        val beforeJsScripts = HttpUtils.collectBeforeJsScripts(httpFile)
 
         val beforeJsResList = jsScriptExecutor.evalJsBeforeRequest(beforeJsScripts)
 
@@ -87,6 +82,9 @@ class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : Gutt
         val reqHeaderMap: MutableMap<String, String>
         val reqBody: Any?
         try {
+            val definitions = PsiTreeUtil.findChildrenOfType(httpFile, HttpDefinition::class.java)
+            variableResolver.addFileScopeVariables(definitions, selectedEnv)
+
             url = variableResolver.resolve(httpUrl.text!!, selectedEnv)
 
             reqHeaderMap = convertToReqHeaderMap(httpHeaders, variableResolver, selectedEnv)
@@ -98,7 +96,7 @@ class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : Gutt
             reqBody = convertToReqBody(httpBody, variableResolver, selectedEnv)
         } catch (e: IllegalArgumentException) {
             val toolWindowManager = ToolWindowManager.getInstance(project)
-            toolWindowManager.notifyByBalloon(TOOL_WINDOW_ID, MessageType.WARNING, "<div>${e.message}</div>")
+            toolWindowManager.notifyByBalloon(TOOL_WINDOW_ID, MessageType.ERROR, "<div>${e.message}</div>")
             return
         }
 
@@ -112,8 +110,13 @@ class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : Gutt
             wsRequest.connect()
 
             initAndShowTabContent(tabName, form, parentDisposer, project)
+
+            variableResolver.clearFileScopeVariables()
+
             return
         }
+
+        variableResolver.clearFileScopeVariables()
 
         val jsScriptStr = getJsScript(httpScript)
         val parentPath = httpFile.virtualFile.parent.path
@@ -243,16 +246,7 @@ class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : Gutt
         contentManager.setSelectedContent(content)
         toolWindow.isAvailable = true
 
-        toolWindowManager.notifyByBalloon(TOOL_WINDOW_ID, MessageType.INFO, "<div>Tip:请求已完成!</div>")
-    }
-
-    private fun getJsScript(httpScript: HttpScript?): String? {
-        if (httpScript == null) {
-            return null
-        }
-
-        val text = httpScript.text
-        return text.substring(4, text.length - 2)
+        toolWindowManager.notifyByBalloon(TOOL_WINDOW_ID, MessageType.INFO, "<div style='font-size:18pt''>Tip:请求已完成!</div>")
     }
 
     companion object {

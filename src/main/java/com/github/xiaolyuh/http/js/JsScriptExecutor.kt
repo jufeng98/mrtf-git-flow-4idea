@@ -72,7 +72,7 @@ class JsScriptExecutor {
 
     fun prepareJsRequestObj() {
         val js = """
-            request = {
+            var request = {
               variables: {
                 dataHolder: {},
                 get: function(key) {
@@ -127,7 +127,7 @@ class JsScriptExecutor {
             val jsonStr = String(bytes, StandardCharsets.UTF_8)
             body = jsonStr
         } else {
-            body = "'" + String(resPair.second, StandardCharsets.UTF_8) + "'"
+            body = "'{}'"
         }
 
         val js = """

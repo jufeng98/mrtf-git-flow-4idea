@@ -114,7 +114,7 @@ public class KubesphereUtils {
         return url.equals(ConfigUtil.getLoginUrl(project));
     }
 
-    public static <T> String getTokenFromResponseCookie(List<String> cookies) {
+    public static String getTokenFromResponseCookie(List<String> cookies) {
         List<String> list = cookies.stream()
                 .filter(it -> it.startsWith("token"))
                 .map(it -> it.split(";")[0].split("=")[1])

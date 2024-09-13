@@ -8,6 +8,7 @@ import com.google.gson.JsonElement
 import com.intellij.execution.RunManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiComment
+import com.intellij.psi.PsiFile
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.elementType
 import org.apache.commons.io.FileUtils
@@ -109,7 +110,9 @@ object HttpUtils {
         parentPath: String,
     ): Any? {
         val elementType = ordinaryContent.firstChild.elementType
-        if (elementType == HttpTypes.JSON_TEXT || elementType == HttpTypes.XML_TEXT || elementType == HttpTypes.URL_FORM_ENCODE) {
+        if (elementType == HttpTypes.JSON_TEXT || elementType == HttpTypes.XML_TEXT
+            || elementType == HttpTypes.URL_FORM_ENCODE || elementType == HttpTypes.URL_DESC
+        ) {
             return variableResolver.resolve(ordinaryContent.text, selectedEnv)
         }
 
@@ -220,5 +223,24 @@ object HttpUtils {
         }
 
         return Pair("txt", resBody)
+    }
+
+    fun getJsScript(httpScript: HttpScript?): String? {
+        if (httpScript == null) {
+            return null
+        }
+
+        val text = httpScript.text
+        return text.substring(4, text.length - 2)
+    }
+
+    fun collectBeforeJsScripts(httpFile: PsiFile): List<String> {
+        val httpRequests =
+            PsiTreeUtil.getChildrenOfType(httpFile, com.github.xiaolyuh.http.psi.HttpRequest::class.java)!!
+        return httpRequests
+            .filter { it.script != null && it.script!!.prevSibling == null }
+            .mapNotNull {
+                getJsScript(it.script)
+            }
     }
 }

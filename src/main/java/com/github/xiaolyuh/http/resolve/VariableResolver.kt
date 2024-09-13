@@ -2,6 +2,7 @@ package com.github.xiaolyuh.http.resolve
 
 import com.dbn.common.util.UUIDs
 import com.github.xiaolyuh.http.js.JsScriptExecutor
+import com.github.xiaolyuh.http.psi.HttpDefinition
 import com.github.xiaolyuh.http.service.EnvFileService
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
@@ -13,6 +14,20 @@ import java.util.regex.Pattern
 class VariableResolver(private val project: Project) {
     private val pattern = Pattern.compile("(\\{\\{[a-zA-Z0-9.()\\-,\$@]+}})", Pattern.MULTILINE)
     private val patternNotNumber = Pattern.compile("\\D")
+    private val fileScopeVariableMap: MutableMap<String, String> = mutableMapOf()
+
+    fun addFileScopeVariables(definitions: MutableCollection<HttpDefinition>, selectedEnv: String?) {
+        definitions.forEach {
+            val split = it.text.split("=")
+            val variableName = split[0].replace("@", "")
+            val result = resolve(split[1], selectedEnv)
+            fileScopeVariableMap[variableName] = result
+        }
+    }
+
+    fun clearFileScopeVariables() {
+        fileScopeVariableMap.clear()
+    }
 
     fun resolve(str: String, selectedEnv: String?): String {
         val matcher = pattern.matcher(str)
@@ -27,6 +42,11 @@ class VariableResolver(private val project: Project) {
 
     private fun resolveVariable(variable: String, selectedEnv: String?): String {
         var innerVariable = resolveInnerVariable(variable)
+        if (innerVariable != null) {
+            return innerVariable
+        }
+
+        innerVariable = fileScopeVariableMap[variable]
         if (innerVariable != null) {
             return innerVariable
         }
@@ -67,7 +87,7 @@ class VariableResolver(private val project: Project) {
         if (variable.startsWith("\$random.integer")) {
             val split = variable.split(",")
             if (split.size == 1) {
-                return RandomUtils.nextInt(1001).toString()
+                return RandomUtils.nextInt(1000).toString()
             }
 
             val start = patternNotNumber.matcher(split[0]).replaceAll("")
