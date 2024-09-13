@@ -9,6 +9,7 @@ import com.github.xiaolyuh.http.psi.impl.*;
 public interface HttpTypes {
 
   IElementType BODY = new HttpElementType("BODY");
+  IElementType DEFINITION = new HttpElementType("DEFINITION");
   IElementType FILE = new HttpElementType("FILE");
   IElementType FILE_PATH = new HttpElementType("FILE_PATH");
   IElementType HEADER = new HttpElementType("HEADER");
@@ -39,7 +40,7 @@ public interface HttpTypes {
   IElementType T_RT_DBL = new HttpTokenType(">>");
   IElementType URL_DESC = new HttpTokenType("URL_DESC");
   IElementType URL_FORM_ENCODE = new HttpTokenType("URL_FORM_ENCODE");
-  IElementType VARIABLE = new HttpTokenType("VARIABLE");
+  IElementType VARIABLE_DEFINE = new HttpTokenType("VARIABLE_DEFINE");
   IElementType XML_TEXT = new HttpTokenType("XML_TEXT");
 
   class Factory {
@@ -47,6 +48,9 @@ public interface HttpTypes {
       IElementType type = node.getElementType();
       if (type == BODY) {
         return new HttpBodyImpl(node);
+      }
+      else if (type == DEFINITION) {
+        return new HttpDefinitionImpl(node);
       }
       else if (type == FILE) {
         return new HttpFileImpl(node);

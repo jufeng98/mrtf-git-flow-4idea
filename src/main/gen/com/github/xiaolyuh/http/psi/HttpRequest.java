@@ -11,6 +11,9 @@ public interface HttpRequest extends PsiElement {
   HttpBody getBody();
 
   @Nullable
+  HttpDefinition getDefinition();
+
+  @Nullable
   HttpHeaders getHeaders();
 
   @Nullable

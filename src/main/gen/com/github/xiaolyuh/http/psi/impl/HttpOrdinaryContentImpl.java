@@ -41,6 +41,12 @@ public class HttpOrdinaryContentImpl extends HttpPsiLanguageInjectionHost implem
 
   @Override
   @Nullable
+  public PsiElement getUrlDesc() {
+    return findChildByType(URL_DESC);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getUrlFormEncode() {
     return findChildByType(URL_FORM_ENCODE);
   }

@@ -35,6 +35,12 @@ public class HttpRequestImpl extends ASTWrapperPsiElement implements HttpRequest
 
   @Override
   @Nullable
+  public HttpDefinition getDefinition() {
+    return findChildByClass(HttpDefinition.class);
+  }
+
+  @Override
+  @Nullable
   public HttpHeaders getHeaders() {
     return findChildByClass(HttpHeaders.class);
   }

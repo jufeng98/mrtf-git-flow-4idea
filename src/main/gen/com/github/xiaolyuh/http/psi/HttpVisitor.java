@@ -11,6 +11,10 @@ public class HttpVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitDefinition(@NotNull HttpDefinition o) {
+    visitPsiElement(o);
+  }
+
   public void visitFile(@NotNull HttpFile o) {
     visitPsiElement(o);
   }

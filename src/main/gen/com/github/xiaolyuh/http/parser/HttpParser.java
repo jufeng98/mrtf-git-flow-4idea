@@ -48,6 +48,18 @@ public class HttpParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
+  // VARIABLE_DEFINE
+  public static boolean definition(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "definition")) return false;
+    if (!nextTokenIs(b, VARIABLE_DEFINE)) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, VARIABLE_DEFINE);
+    exit_section_(b, m, DEFINITION, r);
+    return r;
+  }
+
+  /* ********************************************************** */
   // T_LT file_path
   public static boolean file(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "file")) return false;
@@ -174,7 +186,7 @@ public class HttpParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // file | URL_FORM_ENCODE | JSON_TEXT | XML_TEXT
+  // file | URL_FORM_ENCODE | JSON_TEXT | XML_TEXT | URL_DESC
   public static boolean ordinary_content(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ordinary_content")) return false;
     boolean r;
@@ -183,6 +195,7 @@ public class HttpParser implements PsiParser, LightPsiParser {
     if (!r) r = consumeToken(b, URL_FORM_ENCODE);
     if (!r) r = consumeToken(b, JSON_TEXT);
     if (!r) r = consumeToken(b, XML_TEXT);
+    if (!r) r = consumeToken(b, URL_DESC);
     exit_section_(b, l, m, r, false, null);
     return r;
   }
@@ -201,13 +214,14 @@ public class HttpParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // method url version? headers? body? script? output_file? | script
+  // method url version? headers? body? script? output_file? | script | definition
   public static boolean request(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "request")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, REQUEST, "<request>");
     r = request_0(b, l + 1);
     if (!r) r = script(b, l + 1);
+    if (!r) r = definition(b, l + 1);
     exit_section_(b, l, m, r, false, null);
     return r;
   }

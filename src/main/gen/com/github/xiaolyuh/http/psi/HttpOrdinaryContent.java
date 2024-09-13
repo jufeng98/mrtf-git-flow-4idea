@@ -14,6 +14,9 @@ public interface HttpOrdinaryContent extends PsiElement {
   PsiElement getJsonText();
 
   @Nullable
+  PsiElement getUrlDesc();
+
+  @Nullable
   PsiElement getUrlFormEncode();
 
   @Nullable
