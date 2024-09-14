@@ -51,6 +51,12 @@ public class ConfigUtil {
         PREFERENCES.put("kubesphereUsername", name);
         PREFERENCES.put("kubespherePassword", pwd);
     }
+    public static void saveFsWebHookUrl(String url) {
+        PREFERENCES.put("fsWebHookUrl", url);
+    }
+    public static  String getFsWebHookUrl() {
+        return PREFERENCES.get("fsWebHookUrl", "");
+    }
 
     public static String getKubesphereToken(Project project) {
         if (isMhKubesphere(project)) {
@@ -123,6 +129,7 @@ public class ConfigUtil {
             Pair<String, String> pair = getKubesphereUser();
             options.setKubesphereUsername(pair.getFirst());
             options.setKubespherePassword(pair.getSecond());
+            options.setFsWebHookUrl(getFsWebHookUrl());
             CONFIG_MAP.put(project.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME, options);
         }
 
