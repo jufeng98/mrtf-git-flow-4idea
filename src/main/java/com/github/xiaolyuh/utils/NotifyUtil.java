@@ -1,9 +1,17 @@
 package com.github.xiaolyuh.utils;
 
+import com.google.gson.JsonParser;
 import com.intellij.notification.NotificationGroup;
 import com.intellij.notification.NotificationGroupManager;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.project.Project;
+import net.minidev.json.JSONObject;
+import com.intellij.openapi.application.ReadAction;
+import org.apache.commons.httpclient.util.DateUtil;
+import org.jsoup.internal.StringUtil;
+
+import java.util.Date;
+
 
 /**
  * 通知弹框
@@ -46,6 +54,27 @@ public class NotifyUtil {
         if (project == null) {
             return;
         }
+        notifyWebhook(project, title, message);
         group.createNotification(title, message, type).notify(project);
+    }
+    // 内容模板 当前时间 - 执行任务(标题) - 执行结果(内容) - 所属项目
+    private static final String contentTemplate = "%s - %s - %s - %s";
+
+    // 新增webhook
+    public static void notifyWebhook(Project project, String title, String message) {
+        try {
+            String url = ConfigUtil.getInitOptions(project).getFsWebHookUrl();
+            if (StringUtil.isBlank(url)) {
+                return;
+            }
+            String now = DateUtil.formatDate(new Date(), "yyyy-MM-dd HH:mm:ss");
+            String content = String.format(contentTemplate, now, title, message, project.getName());
+            HttpClientUtil.postApplicationJson(url, generateJSONStr(content), String.class, project);
+        } catch (Exception ignored) {}
+    }
+
+    public static Object generateJSONStr(String Content) {
+        String template = "{\"msg_type\":\"text\",\"content\":{\"text\":\"%s\"}}";
+        return JsonParser.parseString(String.format(template, Content));
     }
 }

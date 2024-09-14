@@ -102,6 +102,7 @@ public class InitPluginAction extends AnAction {
                 }
 
                 ConfigUtil.saveKubesphereUser(initOptions.getKubesphereUsername(), initOptions.getKubespherePassword());
+                ConfigUtil.saveFsWebHookUrl(initOptions.getFsWebHookUrl());
 
                 // 存储配置
                 String configJson = HttpClientUtil.gson.toJson(initOptions);
