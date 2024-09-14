@@ -35,6 +35,7 @@ public class InitPluginDialog extends DialogWrapper {
     private JTextField dingtalkTokenTextField;
     private JTextField kubesphereUsernameTextField;
     private JPasswordField kubespherePasswordTextField;
+    private JTextField fsWebHookUrlTextField;
     private JCheckBox releaseFinishIsDeleteReleaseCheckBox;
     private JCheckBox releaseFinishIsDeleteFeatureCheckBox;
     private JComboBox<String> languageComboBox;
@@ -90,6 +91,7 @@ public class InitPluginDialog extends DialogWrapper {
         options.setDingtalkToken(dingtalkTokenTextField.getText());
         options.setKubesphereUsername(kubesphereUsernameTextField.getText());
         options.setKubespherePassword(String.valueOf(kubespherePasswordTextField.getPassword()));
+        options.setFsWebHookUrl(String.valueOf(fsWebHookUrlTextField.getText()));
         options.setLanguage(LanguageEnum.getByLanguage((String) languageComboBox.getSelectedItem()));
 
         return options;
@@ -117,6 +119,7 @@ public class InitPluginDialog extends DialogWrapper {
             dingtalkTokenTextField.setText(options.get().getDingtalkToken());
             kubesphereUsernameTextField.setText(options.get().getKubesphereUsername());
             kubespherePasswordTextField.setText(options.get().getKubespherePassword());
+            fsWebHookUrlTextField.setText(options.get().getFsWebHookUrl());
 
             languageSwitch(LanguageEnum.getByLanguage((String) languageComboBox.getSelectedItem()));
         } else {

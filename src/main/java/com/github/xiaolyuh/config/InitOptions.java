@@ -58,6 +58,16 @@ public class InitOptions {
     private transient String kubesphereUsername;
     private transient String kubespherePassword;
 
+    public String getFsWebHookUrl() {
+        return fsWebHookUrl;
+    }
+
+    public void setFsWebHookUrl(String fsWebHookUrl) {
+        this.fsWebHookUrl = fsWebHookUrl;
+    }
+
+    private transient String fsWebHookUrl;
+
     /**
      * 语言
      */
