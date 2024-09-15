@@ -258,7 +258,7 @@ object HttpUtils {
             val uri: URI
             try {
                 uri = URI(url)
-                tmpIdx = url.indexOf("/", url.replace(uri.path, "").length)
+                tmpIdx = url.indexOf(uri.path)
             } catch (e: Exception) {
                 tmpIdx = url.indexOf("/")
             }

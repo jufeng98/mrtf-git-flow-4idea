@@ -56,18 +56,19 @@ class JsonFakePsiElement(private val jsonString: JsonStringLiteral, private val 
             processIndicator.processFinish()
 
             runInEdt {
-                if (list.isEmpty()) {
+                val urlMap = list.groupBy {
+                    val navigationItem = it as ControllerNavigationItem
+                    navigationItem.url
+                }
+                val itemList = urlMap[searchTxt]
+
+                if (itemList.isNullOrEmpty()) {
                     showTip("Tip:未能解析到对应的controller mapping,无法跳转")
                     return@runInEdt
                 }
 
-                if (list.size > 1) {
-                    showTip("Tip:解析到${list.size}个controller mapping,无法跳转")
-                    return@runInEdt
-                }
-
                 runReadAction {
-                    val controllerNavigationItem = list[0] as ControllerNavigationItem
+                    val controllerNavigationItem = itemList[0] as ControllerNavigationItem
                     val psiMethods = findControllerPsiMethods(controllerNavigationItem, module)
                     if (psiMethods.isEmpty()) {
                         showTip("Tip:未能解析对应的controller方法,无法跳转")
@@ -181,7 +182,7 @@ class JsonFakePsiElement(private val jsonString: JsonStringLiteral, private val 
                 GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module)
             ) ?: return arrayOf()
 
-        val psiMethods = controllerPsiCls.findMethodsByName(controllerMethodName, true)
+        val psiMethods = controllerPsiCls.findMethodsByName(controllerMethodName, false)
         if (psiMethods.isEmpty()) {
             return arrayOf()
         }
