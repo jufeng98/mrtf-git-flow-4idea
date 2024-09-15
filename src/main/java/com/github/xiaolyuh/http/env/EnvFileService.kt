@@ -1,4 +1,4 @@
-package com.github.xiaolyuh.http.service
+package com.github.xiaolyuh.http.env
 
 import com.github.xiaolyuh.utils.HttpClientUtil
 import com.google.gson.JsonObject

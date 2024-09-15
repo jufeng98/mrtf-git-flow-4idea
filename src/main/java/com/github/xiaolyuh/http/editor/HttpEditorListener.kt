@@ -1,7 +1,7 @@
 package com.github.xiaolyuh.http.editor
 
 import com.github.xiaolyuh.http.HttpFileType
-import com.github.xiaolyuh.http.service.EnvFileService
+import com.github.xiaolyuh.http.env.EnvFileService
 import com.github.xiaolyuh.http.ui.HttpEditorTopForm
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.FileEditorManagerListener

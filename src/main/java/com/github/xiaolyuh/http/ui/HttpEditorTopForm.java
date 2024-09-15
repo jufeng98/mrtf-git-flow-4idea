@@ -1,6 +1,6 @@
 package com.github.xiaolyuh.http.ui;
 
-import com.github.xiaolyuh.http.service.EnvFileService;
+import com.github.xiaolyuh.http.env.EnvFileService;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;

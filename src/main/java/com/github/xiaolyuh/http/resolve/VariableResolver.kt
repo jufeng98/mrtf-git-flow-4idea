@@ -3,7 +3,7 @@ package com.github.xiaolyuh.http.resolve
 import com.dbn.common.util.UUIDs
 import com.github.xiaolyuh.http.js.JsScriptExecutor
 import com.github.xiaolyuh.http.psi.HttpDefinition
-import com.github.xiaolyuh.http.service.EnvFileService
+import com.github.xiaolyuh.http.env.EnvFileService
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
 import org.apache.commons.lang.math.RandomUtils
@@ -12,7 +12,7 @@ import java.util.regex.Pattern
 
 @Service(Service.Level.PROJECT)
 class VariableResolver(private val project: Project) {
-    private val pattern = Pattern.compile("(\\{\\{[a-zA-Z0-9.()\\-,\$@]+}})", Pattern.MULTILINE)
+    private val pattern = Pattern.compile("(\\{\\{[a-zA-Z0-9.()\\-,\$]+}})", Pattern.MULTILINE)
     private val patternNotNumber = Pattern.compile("\\D")
     private val fileScopeVariableMap: MutableMap<String, String> = mutableMapOf()
 
