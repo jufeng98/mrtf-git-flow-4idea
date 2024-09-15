@@ -7,12 +7,14 @@ import com.github.xiaolyuh.http.runconfig.HttpRunConfiguration
 import com.google.gson.JsonElement
 import com.intellij.execution.RunManager
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiComment
 import com.intellij.psi.PsiFile
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.elementType
 import org.apache.commons.io.FileUtils
 import java.io.File
+import java.net.URI
 import java.net.http.HttpResponse
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
@@ -242,5 +244,40 @@ object HttpUtils {
             .mapNotNull {
                 getJsScript(it.script)
             }
+    }
+
+    fun getSearchTxtInfo(httpUrl: HttpUrl): Pair<String, TextRange>? {
+        val url = httpUrl.text
+
+        val start: Int
+        val bracketIdx = url.lastIndexOf("}")
+        start = if (bracketIdx != -1) {
+            bracketIdx + 1
+        } else {
+            var tmpIdx: Int
+            val uri: URI
+            try {
+                uri = URI(url)
+                tmpIdx = url.indexOf("/", url.replace(uri.path, "").length)
+            } catch (e: Exception) {
+                tmpIdx = url.indexOf("/")
+            }
+            tmpIdx
+        }
+
+        if (start == -1) {
+            return null
+        }
+
+        val idx = url.lastIndexOf("?")
+        val end = if (idx == -1) {
+            url.length
+        } else {
+            idx
+        }
+
+        val textRange = TextRange(start, end)
+        val searchTxt = url.substring(start, end)
+        return Pair(searchTxt, textRange)
     }
 }

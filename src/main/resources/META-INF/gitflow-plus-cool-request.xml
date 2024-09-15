@@ -2,5 +2,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <psi.referenceContributor language="http"
                                   implementation="com.github.xiaolyuh.http.reference.HttpReferenceContributor"/>
+        <gotoDeclarationHandler id="JsonGotoDeclarationHandler"
+                                implementation="com.github.xiaolyuh.http.reference.JsonGotoDeclarationHandler"/>
     </extensions>
 </idea-plugin>

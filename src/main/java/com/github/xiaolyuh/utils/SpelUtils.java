@@ -90,12 +90,12 @@ public class SpelUtils {
     }
 
     @Nullable
-    public static PsiClass resolvePsiType(PsiType psiType) {
-        PsiClassReferenceType referenceType = (PsiClassReferenceType) psiType;
-        if (referenceType != null) {
-            return referenceType.resolve();
+    public static PsiClass resolvePsiType(@Nullable PsiType psiType) {
+        if (!(psiType instanceof PsiClassReferenceType)) {
+            return null;
         }
 
-        return null;
+        PsiClassReferenceType referenceType = (PsiClassReferenceType) psiType;
+        return referenceType.resolve();
     }
 }
