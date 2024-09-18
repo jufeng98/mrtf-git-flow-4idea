@@ -117,7 +117,7 @@ public final class ValueAnnotationLineMarkerProvider extends RelatedItemLineMark
                 return true;
             }
 
-            String path = String.format("%s/config.html#/appid=%s&env=UAT&cluster=kubesphere_test", apolloUrl, appId);
+            String path = String.format("%s/config.html#/appid=%s&env=UAT&cluster=default", apolloUrl, appId);
             BrowserUtil.open(path);
             return false;
         }

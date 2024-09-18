@@ -247,20 +247,20 @@ object HttpUtils {
     }
 
     fun getSearchTxtInfo(httpUrl: HttpUrl): Pair<String, TextRange>? {
-        val url = httpUrl.text
+        val url = httpUrl.text.trim()
 
         val start: Int
         val bracketIdx = url.lastIndexOf("}")
         start = if (bracketIdx != -1) {
             bracketIdx + 1
         } else {
-            var tmpIdx: Int
+            val tmpIdx: Int
             val uri: URI
             try {
                 uri = URI(url)
                 tmpIdx = url.indexOf(uri.path)
             } catch (e: Exception) {
-                tmpIdx = url.indexOf("/")
+                return null
             }
             tmpIdx
         }
