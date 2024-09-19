@@ -1,23 +1,23 @@
 package com.github.xiaolyuh.http.reference
 
 import com.cool.request.view.tool.search.ApiAbstractGotoSEContributor
-import com.cool.request.view.tool.search.ControllerNavigationItem
+import com.github.xiaolyuh.http.reference.HttpFakePsiElement.Companion.createProcessIndicator
+import com.github.xiaolyuh.http.reference.HttpFakePsiElement.Companion.findControllerPsiMethods
+import com.github.xiaolyuh.http.reference.HttpFakePsiElement.Companion.getControllerNavigationItem
+import com.github.xiaolyuh.http.reference.HttpFakePsiElement.Companion.showTip
+import com.github.xiaolyuh.utils.HttpUtils
 import com.github.xiaolyuh.utils.SpelUtils
-import com.intellij.codeInsight.hint.HintManager
 import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.json.psi.JsonProperty
 import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.application.runInEdt
 import com.intellij.openapi.application.runReadAction
-import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.module.ModuleUtil
-import com.intellij.openapi.progress.TaskInfo
-import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator
 import com.intellij.openapi.util.Disposer
 import com.intellij.psi.*
-import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.impl.source.PsiClassReferenceType
 import com.intellij.psi.util.PsiTreeUtil
 import java.util.*
 import java.util.concurrent.CompletableFuture
@@ -25,7 +25,11 @@ import java.util.concurrent.CompletableFuture
 /**
  * @author yudong
  */
-class JsonFakePsiElement(private val jsonString: JsonStringLiteral, private val searchTxt: String) :
+class JsonFakePsiElement(
+    private val jsonString: JsonStringLiteral,
+    private val searchTxt: String,
+    private val originalModule: Module?,
+) :
     ASTWrapperPsiElement(jsonString.node) {
 
     override fun getPresentation(): ItemPresentation {
@@ -33,7 +37,16 @@ class JsonFakePsiElement(private val jsonString: JsonStringLiteral, private val 
     }
 
     override fun navigate(requestFocus: Boolean) {
-        val module = ModuleUtil.findModuleForPsiElement(jsonString) ?: return
+        val virtualFile = jsonString.containingFile.virtualFile
+        val module = if (HttpUtils.isFileInIdeaDir(virtualFile)) {
+            originalModule
+        } else {
+            ModuleUtil.findModuleForPsiElement(jsonString)
+        }
+
+        if (module == null) {
+            return
+        }
 
         val jsonPropertyNameLevels = collectJsonPropertyNameLevels(jsonString)
         if (jsonPropertyNameLevels.isEmpty()) {
@@ -43,7 +56,7 @@ class JsonFakePsiElement(private val jsonString: JsonStringLiteral, private val 
         val event = HttpFakePsiElement.createEvent()
         val seContributor = ApiAbstractGotoSEContributor(event)
 
-        val processIndicator = createProcessIndicator()
+        val processIndicator = createProcessIndicator("Tip:正在尝试跳转到对应的Bean字段...", project)
         Disposer.register(Disposer.newDisposable(), processIndicator)
 
         CompletableFuture.runAsync {
@@ -56,40 +69,45 @@ class JsonFakePsiElement(private val jsonString: JsonStringLiteral, private val 
             processIndicator.processFinish()
 
             runInEdt {
-                val urlMap = list.groupBy {
-                    val navigationItem = it as ControllerNavigationItem
-                    navigationItem.url
-                }
-                val itemList = urlMap[searchTxt]
-
-                if (itemList.isNullOrEmpty()) {
-                    showTip("Tip:未能解析到对应的controller mapping,无法跳转")
+                if (list.isEmpty()) {
+                    showTip("Tip:未能解析到对应的controller mapping,无法跳转", project)
                     return@runInEdt
                 }
 
+                val controllerNavigationItem = getControllerNavigationItem(list, searchTxt)
+
                 runReadAction {
-                    val controllerNavigationItem = itemList[0] as ControllerNavigationItem
                     val psiMethods = findControllerPsiMethods(controllerNavigationItem, module)
                     if (psiMethods.isEmpty()) {
-                        showTip("Tip:未能解析对应的controller方法,无法跳转")
+                        showTip("Tip:未能解析对应的controller方法,无法跳转", project)
                         return@runReadAction
                     }
 
                     if (psiMethods.size > 1) {
-                        showTip("Tip:解析到${psiMethods.size}个的controller方法,无法跳转")
+                        showTip("Tip:解析到${psiMethods.size}个的controller方法,无法跳转", project)
                         return@runReadAction
                     }
 
-                    val psiParameters = psiMethods[0].parameterList.parameters
-                    val psiParameter = psiParameters.firstOrNull {
-                        it.hasAnnotation("org.springframework.web.bind.annotation.RequestBody")
-                    } ?: return@runReadAction
+                    val psiMethod = psiMethods[0]
+                    val paramPsiType: PsiType?
 
-                    val paramPsiCls = SpelUtils.resolvePsiType(psiParameter.type) ?: return@runReadAction
+                    if (virtualFile?.name?.endsWith("res.http") == true) {
+                        paramPsiType = psiMethod.returnType
+                    } else {
+                        val psiParameters = psiMethod.parameterList.parameters
+                        val psiParameter = psiParameters.firstOrNull {
+                            it.hasAnnotation("org.springframework.web.bind.annotation.RequestBody")
+                        }
+                        paramPsiType = psiParameter?.type
+                    }
 
-                    val targetField = resolveTargetField(paramPsiCls, jsonPropertyNameLevels)
+                    val paramPsiCls: PsiClass = SpelUtils.resolvePsiType(paramPsiType) ?: return@runReadAction
+
+                    val classGenericParameters = (paramPsiType as PsiClassReferenceType).parameters
+
+                    val targetField = resolveTargetField(paramPsiCls, jsonPropertyNameLevels, classGenericParameters)
                     if (targetField == null) {
-                        showTip("Tip:未能解析对应的Bean属性,无法跳转")
+                        showTip("Tip:未能解析对应的Bean属性,无法跳转", project)
                         return@runReadAction
                     }
 
@@ -99,27 +117,11 @@ class JsonFakePsiElement(private val jsonString: JsonStringLiteral, private val 
         }
     }
 
-    private fun createProcessIndicator(): BackgroundableProcessIndicator {
-        return BackgroundableProcessIndicator(project, object : TaskInfo {
-            override fun getTitle(): String {
-                return "Tip:正在尝试跳转到对应的Bean字段..."
-            }
-
-            override fun getCancelText(): String {
-                return "Tip:正在取消......"
-            }
-
-            override fun getCancelTooltipText(): String {
-                return "Tip:取消中......"
-            }
-
-            override fun isCancellable(): Boolean {
-                return true
-            }
-        })
-    }
-
-    private fun resolveTargetField(paramPsiCls: PsiClass, jsonPropertyNameLevels: LinkedList<String>): PsiField? {
+    private fun resolveTargetField(
+        paramPsiCls: PsiClass,
+        jsonPropertyNameLevels: LinkedList<String>,
+        classGenericParameters: Array<PsiType>,
+    ): PsiField? {
         var fieldTypeCls = paramPsiCls
         var psiField: PsiField? = null
         var propertyName = jsonPropertyNameLevels.pop()
@@ -139,7 +141,19 @@ class JsonFakePsiElement(private val jsonString: JsonStringLiteral, private val 
                     fieldTypeCls = psiFieldGenericTypeCls
                 } else {
                     val psiFieldTypeCls = SpelUtils.resolvePsiType(psiType) ?: return null
-                    fieldTypeCls = psiFieldTypeCls
+                    if (psiFieldTypeCls is PsiTypeParameter) {
+                        // 参数本身是泛型类型,如 T, 直接取第一个
+                        val genericActualType = classGenericParameters[0] as PsiClassType
+                        if (genericActualType.parameters.isNotEmpty()) {
+                            val psiFieldGenericTypeCls =
+                                SpelUtils.resolvePsiType(genericActualType.parameters[0]) ?: return null
+                            fieldTypeCls = psiFieldGenericTypeCls
+                        } else {
+                            fieldTypeCls = SpelUtils.resolvePsiType(genericActualType) ?: return null
+                        }
+                    } else {
+                        fieldTypeCls = psiFieldTypeCls
+                    }
                 }
 
                 propertyName = jsonPropertyNameLevels.pop()
@@ -167,31 +181,5 @@ class JsonFakePsiElement(private val jsonString: JsonStringLiteral, private val 
         val nameElement = jsonProperty.nameElement
         val name = nameElement.text
         return name.substring(1, name.length - 1)
-    }
-
-    private fun findControllerPsiMethods(
-        navigationItem: ControllerNavigationItem,
-        module: Module,
-    ): Array<out PsiMethod> {
-        val controllerFullClassName = navigationItem.javaClassName
-        val controllerMethodName = navigationItem.methodName
-
-        val controllerPsiCls = JavaPsiFacade.getInstance(project)
-            .findClass(
-                controllerFullClassName,
-                GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module)
-            ) ?: return arrayOf()
-
-        val psiMethods = controllerPsiCls.findMethodsByName(controllerMethodName, false)
-        if (psiMethods.isEmpty()) {
-            return arrayOf()
-        }
-
-        return psiMethods
-    }
-
-    private fun showTip(msg: String) {
-        val textEditor = FileEditorManager.getInstance(project).selectedTextEditor ?: return
-        HintManager.getInstance().showInformationHint(textEditor, msg)
     }
 }

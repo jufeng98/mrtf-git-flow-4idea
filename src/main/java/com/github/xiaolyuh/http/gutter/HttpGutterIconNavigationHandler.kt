@@ -27,7 +27,6 @@ import com.intellij.openapi.util.Disposer.newDisposable
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.ui.content.Content
 import java.awt.event.MouseEvent
 import java.io.ByteArrayInputStream
 import java.io.File
@@ -136,7 +135,8 @@ class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : Gutt
                         reqBody,
                         jsScriptStr,
                         jsScriptExecutor,
-                        httpReqDescList
+                        httpReqDescList,
+                        tabName
                     )
                     requestCompleted(project, httpInfo, null, tabName, outPutFileName, parentPath)
                 }
@@ -152,7 +152,8 @@ class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : Gutt
                 reqBody,
                 jsScriptStr,
                 jsScriptExecutor,
-                httpReqDescList
+                httpReqDescList,
+                tabName
             )
         }.whenComplete { httpInfo, throwable ->
             runInEdt {
@@ -167,7 +168,7 @@ class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : Gutt
         project: Project,
         httpInfo: HttpInfo,
         throwable: Throwable?,
-        tabName: String?,
+        tabName: String,
         outPutFileName: String?,
         parentPath: String,
     ) {
@@ -219,7 +220,7 @@ class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : Gutt
     }
 
     private fun initAndShowTabContent(
-        tabName: String?,
+        tabName: String,
         form: HttpExecutionConsoleToolWindow,
         parentDisposer: Disposable,
         project: Project,
@@ -228,25 +229,23 @@ class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : Gutt
         val toolWindow = toolWindowManager.getToolWindow(TOOL_WINDOW_ID)!!
         val contentManager = toolWindow.contentManager
 
-        var content: Content?
-        if (tabName == null) {
-            content = contentManager.factory.createContent(form.mainPanel, httpMethod.text, false)
-            content.setDisposer(parentDisposer)
+        var content = contentManager.findContent(tabName)
+        if (content != null) {
+            content.component = form.mainPanel
         } else {
-            content = contentManager.findContent(tabName)
-            if (content != null) {
-                content.component = form.mainPanel
-            } else {
-                content = contentManager.factory.createContent(form.mainPanel, tabName, false)
-                content.setDisposer(parentDisposer)
-            }
+            content = contentManager.factory.createContent(form.mainPanel, tabName, false)
+            content.setDisposer(parentDisposer)
         }
 
         contentManager.addContent(content)
         contentManager.setSelectedContent(content)
         toolWindow.isAvailable = true
 
-        toolWindowManager.notifyByBalloon(TOOL_WINDOW_ID, MessageType.INFO, "<div style='font-size:18pt''>Tip:请求已完成!</div>")
+        toolWindowManager.notifyByBalloon(
+            TOOL_WINDOW_ID,
+            MessageType.INFO,
+            "<div style='font-size:18pt''>Tip:请求已完成!</div>"
+        )
     }
 
     companion object {

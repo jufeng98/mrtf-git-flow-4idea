@@ -1,6 +1,7 @@
 package com.github.xiaolyuh.http.gutter
 
 import com.github.xiaolyuh.http.psi.HttpMethod
+import com.github.xiaolyuh.utils.HttpUtils
 import com.intellij.codeInsight.daemon.RelatedItemLineMarkerInfo
 import com.intellij.codeInsight.daemon.RelatedItemLineMarkerProvider
 import com.intellij.icons.AllIcons
@@ -20,7 +21,7 @@ class HttpLineMarkerProvider : RelatedItemLineMarkerProvider() {
         }
 
         val virtualFile = PsiUtil.getVirtualFile(element)
-        if (virtualFile?.name?.startsWith("tmp") == true) {
+        if (HttpUtils.isFileInIdeaDir(virtualFile)) {
             return
         }
 

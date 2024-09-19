@@ -64,6 +64,7 @@ enum class HttpRequestEnum {
         jsScriptStr: String?,
         jsScriptExecutor: JsScriptExecutor,
         httpReqDescList: MutableList<String>,
+        tabName: String,
     ): HttpInfo {
         val start = System.currentTimeMillis()
 
@@ -80,6 +81,9 @@ enum class HttpRequestEnum {
         val client = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(6))
             .build()
+
+        val commentTabName = "# $tabName\r\n"
+        httpReqDescList.add(commentTabName)
 
         httpReqDescList.add(request.method() + " " + request.uri().toString() + " " + "\r\n")
         request.headers()
@@ -132,6 +136,8 @@ enum class HttpRequestEnum {
             httpResDescList.add("# 后置js执行结果:\r\n")
             httpResDescList.add("$evalJsRes")
         }
+
+        httpResDescList.add(commentTabName)
 
         httpResDescList.add(request.method() + " " + response.uri().toString() + "\r\n")
 

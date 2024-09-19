@@ -1,16 +1,22 @@
 package com.github.xiaolyuh.utils
 
+import com.github.xiaolyuh.http.env.EnvFileService
 import com.github.xiaolyuh.http.psi.*
 import com.github.xiaolyuh.http.resolve.VariableResolver
 import com.github.xiaolyuh.http.runconfig.HttpConfigurationType
 import com.github.xiaolyuh.http.runconfig.HttpRunConfiguration
 import com.google.gson.JsonElement
 import com.intellij.execution.RunManager
+import com.intellij.openapi.module.Module
+import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.vfs.VfsUtil
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiComment
 import com.intellij.psi.PsiFile
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.util.PsiUtil
 import com.intellij.psi.util.elementType
 import org.apache.commons.io.FileUtils
 import java.io.File
@@ -21,13 +27,12 @@ import java.nio.file.Files
 import kotlin.jvm.optionals.getOrElse
 
 object HttpUtils {
-    fun saveConfiguration(tabName: String?, project: Project, selectedEnv: String?, httpMethod: HttpMethod) {
-        val runName: String = tabName ?: "#http-client"
+    fun saveConfiguration(tabName: String, project: Project, selectedEnv: String?, httpMethod: HttpMethod) {
         val runManager = RunManager.getInstance(project)
 
-        var config = runManager.findConfigurationByName(runName)
+        var config = runManager.findConfigurationByName(tabName)
         if (config == null) {
-            config = runManager.createConfiguration(runName, HttpConfigurationType::class.java)
+            config = runManager.createConfiguration(tabName, HttpConfigurationType::class.java)
             val httpRunConfiguration = config.configuration as HttpRunConfiguration
             httpRunConfiguration.env = selectedEnv ?: ""
             httpRunConfiguration.httpFilePath = httpMethod.containingFile.virtualFile.path
@@ -41,17 +46,23 @@ object HttpUtils {
         }
     }
 
-    fun getTabName(httpMethod: HttpMethod): String? {
+    fun getTabName(httpMethod: HttpMethod): String {
+        val commentTxt = getReqCommentTxt(httpMethod)
+        return httpMethod.text + " " + commentTxt.replace("#", "").trim()
+    }
+
+    private fun getReqCommentTxt(httpMethod: HttpMethod): String {
         val httpRequest =
             PsiTreeUtil.getParentOfType(httpMethod, com.github.xiaolyuh.http.psi.HttpRequest::class.java)!!
 
         val comment = PsiTreeUtil.findChildOfType(httpRequest, PsiComment::class.java)
+        val blankStr = "http-client"
         if (comment != null || httpRequest.prevSibling is HttpRequest) {
-            return null
+            return blankStr
         }
 
-        val psiComment = PsiTreeUtil.getPrevSiblingOfType(httpRequest, PsiComment::class.java) ?: return null
-        return httpMethod.text + " " + psiComment.text.replace("#", "").trim()
+        val psiComment = PsiTreeUtil.getPrevSiblingOfType(httpRequest, PsiComment::class.java) ?: return blankStr
+        return psiComment.text
     }
 
     fun convertToReqHeaderMap(
@@ -246,6 +257,25 @@ object HttpUtils {
             }
     }
 
+    fun getOriginalModule(httpUrl: HttpUrl): Module? {
+        val httpMethod = PsiTreeUtil.getPrevSiblingOfType(httpUrl, HttpMethod::class.java) ?: return null
+
+        val tabName = if (isFileInIdeaDir(httpUrl.containingFile.virtualFile)) {
+            getReqCommentTxt(httpMethod).replace("#", "").trim()
+        } else {
+            getTabName(httpMethod)
+        }
+
+        val runManager = RunManager.getInstance(httpUrl.project)
+        val settings = runManager.findConfigurationByTypeAndName("gitFlowPlusHttpClient", tabName) ?: return null
+        val httpRunConfiguration = settings.configuration as HttpRunConfiguration
+
+        val virtualFile = VfsUtil.findFileByIoFile(File(httpRunConfiguration.httpFilePath), true) ?: return null
+        val psiFile = PsiUtil.getPsiFile(httpUrl.project, virtualFile)
+
+        return ModuleUtilCore.findModuleForFile(psiFile)
+    }
+
     fun getSearchTxtInfo(httpUrl: HttpUrl): Pair<String, TextRange>? {
         val url = httpUrl.text.trim()
 
@@ -254,11 +284,18 @@ object HttpUtils {
         start = if (bracketIdx != -1) {
             bracketIdx + 1
         } else {
+            val envFileService = EnvFileService.getService(httpUrl.project)
+            val contextPath = envFileService.getEnvValue("contextPath", null)
+
             val tmpIdx: Int
             val uri: URI
             try {
                 uri = URI(url)
-                tmpIdx = url.indexOf(uri.path)
+                tmpIdx = if (contextPath == null) {
+                    url.indexOf(uri.path)
+                } else {
+                    url.indexOf(contextPath) + contextPath.length
+                }
             } catch (e: Exception) {
                 return null
             }
@@ -279,5 +316,9 @@ object HttpUtils {
         val textRange = TextRange(start, end)
         val searchTxt = url.substring(start, end)
         return Pair(searchTxt, textRange)
+    }
+
+    fun isFileInIdeaDir(virtualFile: VirtualFile?): Boolean {
+        return virtualFile?.name?.startsWith("tmp") == true
     }
 }

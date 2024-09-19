@@ -27,7 +27,7 @@ class HttpRunProfileState(
         val httpMethods = PsiTreeUtil.findChildrenOfType(psiFile, HttpMethod::class.java)
 
         val httpMethod = httpMethods.firstOrNull {
-            val tabName = HttpUtils.getTabName(it) ?: ""
+            val tabName = HttpUtils.getTabName(it)
             environment.runProfile.name == tabName
         }
         if (httpMethod == null) {
