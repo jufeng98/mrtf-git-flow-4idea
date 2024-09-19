@@ -21,8 +21,14 @@ class EnvFileService(val project: Project) {
     private var privateEnvJsonObj: JsonObject = JsonObject()
 
     fun getPresetEnvList(): Set<String> {
-        val keySet1 = envJsonObj.keySet()
-        val keySet2 = privateEnvJsonObj.keySet()
+        var keySet1 = envJsonObj.keySet()
+        keySet1 = LinkedHashSet(keySet1)
+        keySet1.remove(COMMON_ENV_NAME)
+
+        var keySet2 = privateEnvJsonObj.keySet()
+        keySet2 = LinkedHashSet(keySet2)
+        keySet2.remove(COMMON_ENV_NAME)
+
         val set = mutableSetOf<String>()
         set.addAll(keySet1)
         set.addAll(keySet2)
@@ -30,22 +36,27 @@ class EnvFileService(val project: Project) {
     }
 
     fun getEnvValue(key: String, selectedEnv: String?): String? {
-        if (selectedEnv.isNullOrEmpty()) {
-            return null
-        }
-
-        val envValue = getEnvValue(key, selectedEnv, privateEnvJsonObj)
+        var envValue = getEnvValue(key, selectedEnv, privateEnvJsonObj)
         if (envValue != null) {
             return envValue
         }
 
-        return getEnvValue(key, selectedEnv, envJsonObj)
+        envValue = getEnvValue(key, selectedEnv, envJsonObj)
+        if (envValue != null) {
+            return envValue
+        }
+
+        envValue = getEnvValue(key, COMMON_ENV_NAME, privateEnvJsonObj)
+        if (envValue != null) {
+            return envValue
+        }
+
+        return getEnvValue(key, COMMON_ENV_NAME, envJsonObj)
     }
 
     private fun getEnvValue(key: String, selectedEnv: String?, envObject: JsonObject): String? {
         val jsonObj: JsonObject = envObject.getAsJsonObject(selectedEnv) ?: return null
-        val str = jsonObj.get(key)?.asString ?: return null
-        return str
+        return jsonObj.get(key)?.asString
     }
 
     fun initEnv(envDir: String) {
@@ -68,7 +79,13 @@ class EnvFileService(val project: Project) {
     }
 
     fun initEnv(fileName: String, content: CharSequence) {
-        val jsonObject = HttpClientUtil.gson.fromJson(content.toString(), JsonObject::class.java)
+        val jsonObject: JsonObject
+        try {
+            jsonObject = HttpClientUtil.gson.fromJson(content.toString(), JsonObject::class.java)
+        } catch (e: Exception) {
+            return
+        }
+
         LOG.warn("初始化环境,env size:" + jsonObject.size())
         if (Objects.equals(fileName, ENV_FILE_NAME)) {
             envJsonObj = jsonObject
@@ -80,6 +97,7 @@ class EnvFileService(val project: Project) {
     companion object {
         const val ENV_FILE_NAME = "http-client.env.json"
         const val PRIVATE_ENV_FILE_NAME = "http-client.private.env.json"
+        const val COMMON_ENV_NAME = "common"
         fun getService(project: Project): EnvFileService {
             return project.getService(EnvFileService::class.java)
         }
