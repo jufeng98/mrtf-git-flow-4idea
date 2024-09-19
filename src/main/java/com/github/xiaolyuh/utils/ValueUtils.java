@@ -197,10 +197,6 @@ public class ValueUtils {
         }
 
         for (File childFile : childFiles) {
-            if (!childFile.getName().startsWith(appId + "+kubesphere_test+")) {
-                continue;
-            }
-
             VirtualFile virtualFile = LocalFileSystem.getInstance().findFileByIoFile(childFile);
             if (virtualFile == null) {
                 continue;
