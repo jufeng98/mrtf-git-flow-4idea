@@ -26,6 +26,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.github.xiaolyuh.consts.Constants.DATE_PATTERN;
+
 /**
  * @author yudong
  */
@@ -101,7 +103,7 @@ public class BranchDeleteDialog extends DialogWrapper {
             BranchVo branchVo = branches.get(i);
             branchVo.setId(i);
             rowData[i][0] = i + 1;
-            rowData[i][1] = DateFormatUtils.format(branchVo.getLastCommitDate(), "yyyy-MM-dd");
+            rowData[i][1] = DateFormatUtils.format(branchVo.getLastCommitDate(), DATE_PATTERN);
             rowData[i][2] = branchVo.getBranch();
             rowData[i][3] = branchVo.getCreateUser();
         }

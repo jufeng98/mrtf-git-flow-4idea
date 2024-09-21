@@ -141,7 +141,7 @@ class JsonFakePsiElement(
                     fieldTypeCls = psiFieldGenericTypeCls
                 } else {
                     val psiFieldTypeCls = SpelUtils.resolvePsiType(psiType) ?: return null
-                    if (psiFieldTypeCls is PsiTypeParameter) {
+                    if (psiFieldTypeCls is PsiTypeParameter && classGenericParameters.isNotEmpty()) {
                         // 参数本身是泛型类型,如 T, 直接取第一个
                         val genericActualType = classGenericParameters[0] as PsiClassType
                         if (genericActualType.parameters.isNotEmpty()) {

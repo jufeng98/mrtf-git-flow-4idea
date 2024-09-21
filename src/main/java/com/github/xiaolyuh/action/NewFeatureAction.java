@@ -1,13 +1,20 @@
 package com.github.xiaolyuh.action;
 
-import com.github.xiaolyuh.validator.GitNewBranchNameValidator;
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
 import com.github.xiaolyuh.utils.ConfigUtil;
+import com.github.xiaolyuh.validator.GitNewBranchNameValidator;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import git4idea.GitUtil;
+import git4idea.repo.GitRepository;
+import org.apache.commons.lang3.time.DateFormatUtils;
+
+import java.util.Date;
+import java.util.List;
+
+import static com.github.xiaolyuh.consts.Constants.DATE_PATTERN_SHORT;
 
 /**
  * 新建开发分支
@@ -28,9 +35,13 @@ public class NewFeatureAction extends AbstractNewBranchAction {
 
     @Override
     public String getInputString(Project project) {
+        String prefix = getPrefix(project);
+        List<GitRepository> repositories = GitUtil.getRepositoryManager(project).getRepositories();
+        String dateStr = "_" + DateFormatUtils.format(new Date(), DATE_PATTERN_SHORT);
+
         return Messages.showInputDialog(project, I18n.getContent(I18nKey.NEW_FEATURE_ACTION$DIALOG_MESSAGE),
-                I18n.getContent(I18nKey.NEW_FEATURE_ACTION$DIALOG_TITLE), null, "",
-                GitNewBranchNameValidator.newInstance(GitUtil.getRepositoryManager(project).getRepositories(), getPrefix(project)));
+                I18n.getContent(I18nKey.NEW_FEATURE_ACTION$DIALOG_TITLE), null, dateStr,
+                GitNewBranchNameValidator.newInstance(repositories, prefix));
     }
 
     @Override

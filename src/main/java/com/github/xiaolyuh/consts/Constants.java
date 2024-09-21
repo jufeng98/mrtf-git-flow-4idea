@@ -22,4 +22,6 @@ public abstract class Constants {
      * 加锁分支名称
      */
     public static final String LOCK_BRANCH_NAME = "GFP_LOCK_BRANCH_NAME";
+    public static final String DATE_PATTERN = "yyyy-MM-dd";
+    public static final String DATE_PATTERN_SHORT = "yyyyMMdd";
 }

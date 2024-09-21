@@ -52,6 +52,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.github.xiaolyuh.consts.Constants.DATE_PATTERN;
+
 /**
  * @author yuhao.wang3
  * @since 2020/3/23 9:53
@@ -169,7 +171,7 @@ public class GitFlowPlusImpl implements GitFlowPlus {
                     String[] msg = row.split("@@@");
                     BranchVo branchVo = new BranchVo();
                     try {
-                        branchVo.setLastCommitDate(DateUtils.parseDate(msg[0], "yyyy-MM-dd"));
+                        branchVo.setLastCommitDate(DateUtils.parseDate(msg[0], DATE_PATTERN));
                     } catch (ParseException e) {
                         throw new RuntimeException(e);
                     }
@@ -183,7 +185,7 @@ public class GitFlowPlusImpl implements GitFlowPlus {
 
     @Override
     public List<String> getMergedBranchList(GitRepository repository) {
-        String date = DateFormatUtils.format(DateUtils.addYears(new Date(), -2), "yyyy-MM-dd");
+        String date = DateFormatUtils.format(DateUtils.addYears(new Date(), -2), DATE_PATTERN);
         GitCommandResult branchList = git.getMergedBranchList(repository, date);
         List<String> output = branchList.getOutput();
         return output.stream()
