@@ -1,7 +1,8 @@
 package com.github.xiaolyuh.http.runconfig
 
-import com.github.xiaolyuh.http.gutter.HttpGutterIconNavigationHandler
+import com.github.xiaolyuh.http.gutter.HttpGutterIconClickHandler
 import com.github.xiaolyuh.http.psi.HttpMethod
+import com.github.xiaolyuh.http.ui.HttpEditorTopForm
 import com.github.xiaolyuh.utils.HttpUtils
 import com.intellij.execution.ExecutionResult
 import com.intellij.execution.Executor
@@ -21,23 +22,27 @@ class HttpRunProfileState(
     private val httpFilePath: String,
 ) : RunProfileState {
     override fun execute(executor: Executor?, runner: ProgramRunner<*>): ExecutionResult? {
-        val virtualFile = VfsUtil.findFileByIoFile(File(httpFilePath), true) ?: return null
+        val httpMethod = getTargetHttpMethod(httpFilePath, environment.runProfile.name, project) ?: return null
 
-        val psiFile = PsiUtil.getPsiFile(project, virtualFile)
-        val httpMethods = PsiTreeUtil.findChildrenOfType(psiFile, HttpMethod::class.java)
+        HttpEditorTopForm.setSelectedEnv(project, env)
 
-        val httpMethod = httpMethods.firstOrNull {
-            val tabName = HttpUtils.getTabName(it)
-            environment.runProfile.name == tabName
-        }
-        if (httpMethod == null) {
-            return null
-        }
-
-        val handler = HttpGutterIconNavigationHandler(httpMethod)
+        val handler = HttpGutterIconClickHandler(httpMethod)
         handler.doRequest(null, env)
 
         return null
     }
 
+    companion object {
+        fun getTargetHttpMethod(httpFilePath: String, runConfigName: String, project: Project): HttpMethod? {
+            val virtualFile = VfsUtil.findFileByIoFile(File(httpFilePath), true) ?: return null
+
+            val psiFile = PsiUtil.getPsiFile(project, virtualFile)
+            val httpMethods = PsiTreeUtil.findChildrenOfType(psiFile, HttpMethod::class.java)
+
+            return httpMethods.firstOrNull {
+                val tabName = HttpUtils.getTabName(it)
+                runConfigName == tabName
+            }
+        }
+    }
 }

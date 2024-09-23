@@ -51,8 +51,10 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <highlightErrorFilter implementation="com.github.xiaolyuh.suppress.MyHighlightErrorFilter"/>
-        <lang.inspectionSuppressor language="JSON" implementationClass="com.github.xiaolyuh.suppress.JsonInspectionSuppressor"/>
-        <lang.inspectionSuppressor language="JAVA" implementationClass="com.github.xiaolyuh.suppress.JavaInspectionSuppressor"/>
+        <lang.inspectionSuppressor language="JSON"
+                                   implementationClass="com.github.xiaolyuh.suppress.JsonInspectionSuppressor"/>
+        <lang.inspectionSuppressor language="JAVA"
+                                   implementationClass="com.github.xiaolyuh.suppress.JavaInspectionSuppressor"/>
 
         <statusBarWidgetFactory implementation="com.github.xiaolyuh.ui.GitFlowPlusStatusBarWidgetFactory"
                                 id="GitFlowPlusStatusBarWidgetFactory" order="last"/>
@@ -296,9 +298,8 @@
                 implementationClass="com.github.xiaolyuh.http.highlight.HttpSyntaxHighlighterFactory"/>
         <multiHostInjector
                 implementation="com.github.xiaolyuh.http.inject.HttpInjectionContributor"/>
-        <codeInsight.lineMarkerProvider
-                language="http"
-                implementationClass="com.github.xiaolyuh.http.gutter.HttpLineMarkerProvider"/>
+        <runLineMarkerContributor language="http"
+                                  implementationClass="com.github.xiaolyuh.http.gutter.HttpRunLineMarkerContributor"/>
         <toolWindow id="Http Execution"
                     icon="com.dbn.common.icon.Icons.WINDOW_EXECUTION_CONSOLE"
                     anchor="right"
@@ -398,6 +399,14 @@
             <action id="GitFlowPlus.HelpAction" class="com.github.xiaolyuh.action.HelpAction"
                     text="帮助" description="帮助" icon="/icons/help.svg"/>
         </group>
+
+        <action
+                id="GitFlowPlus.HttpAction"
+                class="com.github.xiaolyuh.http.action.HttpAction"
+                text="http请求"
+                description="执行http请求"
+                icon="/icons/actionGroupNew.svg">
+        </action>
 
         <action
                 id="GitFlowPlus.EditorIllustrationAction"

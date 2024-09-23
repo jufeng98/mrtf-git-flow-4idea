@@ -6,14 +6,13 @@ import com.github.xiaolyuh.http.HttpRequestEnum
 import com.github.xiaolyuh.http.js.JsScriptExecutor
 import com.github.xiaolyuh.http.psi.*
 import com.github.xiaolyuh.http.resolve.VariableResolver
-import com.github.xiaolyuh.http.ui.HttpEditorTopForm
 import com.github.xiaolyuh.http.ui.HttpExecutionConsoleToolWindow
 import com.github.xiaolyuh.http.ws.WsRequest
 import com.github.xiaolyuh.utils.HttpUtils
 import com.github.xiaolyuh.utils.HttpUtils.convertToReqBody
 import com.github.xiaolyuh.utils.HttpUtils.convertToReqHeaderMap
 import com.github.xiaolyuh.utils.HttpUtils.getJsScript
-import com.intellij.codeInsight.daemon.GutterIconNavigationHandler
+import com.github.xiaolyuh.utils.NotifyUtil
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.runInEdt
 import com.intellij.openapi.application.runWriteActionAndWait
@@ -25,26 +24,29 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.MessageType
 import com.intellij.openapi.util.Disposer.newDisposable
 import com.intellij.openapi.wm.ToolWindowManager
-import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import java.awt.event.MouseEvent
+import org.apache.commons.lang3.exception.ExceptionUtils
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.net.http.HttpClient.Version
 import java.nio.file.Files
+import java.nio.file.InvalidPathException
+import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
 
-class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : GutterIconNavigationHandler<PsiElement> {
-    override fun navigate(mouseEvent: MouseEvent, elt: PsiElement) {
-        val component = mouseEvent.component as EditorGutterComponentEx
-        val selectedEnv = HttpEditorTopForm.getSelectedEnv(httpMethod.project)
-
-        doRequest(component, selectedEnv)
-    }
+class HttpGutterIconClickHandler(private val httpMethod: HttpMethod) {
 
     fun doRequest(component: EditorGutterComponentEx?, selectedEnv: String?) {
         val project = httpMethod.project
         val tabName = HttpUtils.getTabName(httpMethod)
+        try {
+            // tabName会用作文件名,因此需要检测下
+            Path.of(tabName)
+        } catch (e: InvalidPathException) {
+            NotifyUtil.notifyError(project, "参数非法,请修改!", e.message)
+            return
+        }
+
 
         HttpUtils.saveConfiguration(tabName, project, selectedEnv, httpMethod)
 
@@ -176,18 +178,22 @@ class HttpGutterIconNavigationHandler(private val httpMethod: HttpMethod) : Gutt
         jsScriptExecutor.clearJsRequestObj()
 
         runWriteActionAndWait {
-            val parentDisposer = newDisposable()
+            try {
+                val parentDisposer = newDisposable()
 
-            val saveResult = saveResToFile(outPutFileName, parentPath, httpInfo.byteArray)
-            if (!saveResult.isNullOrEmpty()) {
-                httpInfo.httpResDescList.add(0, saveResult)
+                val saveResult = saveResToFile(outPutFileName, parentPath, httpInfo.byteArray)
+                if (!saveResult.isNullOrEmpty()) {
+                    httpInfo.httpResDescList.add(0, saveResult)
+                }
+
+                val form = HttpExecutionConsoleToolWindow()
+
+                form.initPanelData(httpInfo, throwable, tabName, project, parentDisposer)
+
+                initAndShowTabContent(tabName, form, parentDisposer, project)
+            } catch (e: Exception) {
+                NotifyUtil.notifyError(project, ExceptionUtils.getStackTrace(e))
             }
-
-            val form = HttpExecutionConsoleToolWindow()
-
-            form.initPanelData(httpInfo, throwable, tabName, project, parentDisposer)
-
-            initAndShowTabContent(tabName, form, parentDisposer, project)
         }
     }
 

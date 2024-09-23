@@ -1,9 +1,11 @@
 package com.github.xiaolyuh.http.runconfig
 
+import com.github.xiaolyuh.http.runconfig.HttpRunProfileState.Companion.getTargetHttpMethod
 import com.intellij.execution.Executor
 import com.intellij.execution.configurations.RunConfiguration
 import com.intellij.execution.configurations.RunConfigurationBase
 import com.intellij.execution.configurations.RunProfileState
+import com.intellij.execution.configurations.RuntimeConfigurationError
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.project.Project
@@ -19,8 +21,16 @@ class HttpRunConfiguration(
         httpConfigurationFactory,
         name
     ) {
+    private val envKey = "env"
+    private val pathKey = "httpFilePath"
+
     var httpFilePath: String = ""
     var env: String = ""
+
+
+    override fun checkConfiguration() {
+        getTargetHttpMethod(httpFilePath, this.name, project) ?: throw RuntimeConfigurationError("Tip:无法找到对应请求!")
+    }
 
     override fun getState(executor: Executor, environment: ExecutionEnvironment): RunProfileState {
         return HttpRunProfileState(project, environment, env, httpFilePath)
@@ -31,11 +41,11 @@ class HttpRunConfiguration(
     }
 
     override fun writeExternal(element: Element) {
-        val envEle = Element("env")
+        val envEle = Element(envKey)
         envEle.text = env
         element.addContent(envEle)
 
-        val pathEle = Element("httpFilePath")
+        val pathEle = Element(pathKey)
         pathEle.text = httpFilePath
         element.addContent(pathEle)
 
@@ -45,7 +55,7 @@ class HttpRunConfiguration(
     override fun readExternal(element: Element) {
         super.readExternal(element)
 
-        env = element.getChild("env")?.text ?: ""
-        httpFilePath = element.getChild("httpFilePath")?.text ?: ""
+        env = element.getChild(envKey)?.text ?: ""
+        httpFilePath = element.getChild(pathKey)?.text ?: ""
     }
 }
