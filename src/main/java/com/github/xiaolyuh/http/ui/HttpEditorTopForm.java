@@ -86,7 +86,7 @@ public class HttpEditorTopForm extends JComponent {
         FileEditor selectedEditor = editorManager.getSelectedEditor();
 
         VirtualFile virtualFile = selectedEditor.getFile();
-        if (virtualFile != null && !Objects.equals(httpFilePath, virtualFile.getPath())) {
+        if (virtualFile == null || !Objects.equals(httpFilePath, virtualFile.getPath())) {
             return;
         }
 
