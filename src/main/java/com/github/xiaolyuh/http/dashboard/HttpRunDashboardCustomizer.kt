@@ -1,4 +1,4 @@
-package com.github.xiaolyuh.dashboard
+package com.github.xiaolyuh.http.dashboard
 
 import com.github.xiaolyuh.http.runconfig.HttpRunConfiguration
 import com.github.xiaolyuh.http.runconfig.HttpRunProfileState.Companion.getTargetHttpMethod

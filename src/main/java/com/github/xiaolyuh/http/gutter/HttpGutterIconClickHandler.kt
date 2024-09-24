@@ -247,11 +247,14 @@ class HttpGutterIconClickHandler(private val httpMethod: HttpMethod) {
         contentManager.setSelectedContent(content)
         toolWindow.isAvailable = true
 
-        toolWindowManager.notifyByBalloon(
-            TOOL_WINDOW_ID,
-            MessageType.INFO,
-            "<div style='font-size:18pt''>Tip:请求已完成!</div>"
-        )
+        val throwable = form.throwable
+        if (throwable != null) {
+            val msg = "<div style='font-size:18pt''>Tip:请求失败,${throwable.message}!</div>"
+            toolWindowManager.notifyByBalloon(TOOL_WINDOW_ID, MessageType.ERROR, msg)
+        } else {
+            val msg = "<div style='font-size:18pt''>Tip:请求成功!</div>"
+            toolWindowManager.notifyByBalloon(TOOL_WINDOW_ID, MessageType.INFO, msg)
+        }
     }
 
     companion object {

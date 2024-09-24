@@ -306,7 +306,7 @@
                     canCloseContents="true"
                     factoryClass="com.github.xiaolyuh.http.ui.HttpExecutionConsoleToolWindowFactory"/>
         <configurationType implementation="com.github.xiaolyuh.http.runconfig.HttpConfigurationType"/>
-        <runDashboardCustomizer implementation="com.github.xiaolyuh.dashboard.HttpRunDashboardCustomizer"
+        <runDashboardCustomizer implementation="com.github.xiaolyuh.http.dashboard.HttpRunDashboardCustomizer"
                                 id="httpRunDashboardCustomizer"/>
     </extensions>
 

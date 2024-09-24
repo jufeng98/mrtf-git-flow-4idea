@@ -38,6 +38,8 @@ public class HttpExecutionConsoleToolWindow implements Disposable {
 
     private final List<Editor> editorList = Lists.newArrayList();
 
+    public Throwable throwable;
+
     public void initPanelData(HttpInfo httpInfo, Throwable throwable, String tabName, Project project, Disposable parentDisposer) {
         Disposer.register(parentDisposer, this);
 
@@ -48,12 +50,15 @@ public class HttpExecutionConsoleToolWindow implements Disposable {
             String msg = ExceptionUtils.getStackTrace(throwable);
             JComponent jComponent = createEditor(msg.getBytes(StandardCharsets.UTF_8), "error.log", project, tabName);
             requestPanel.add(jComponent, constraints);
+            this.throwable = throwable;
             return;
         }
 
         boolean imageType = Objects.equals(httpInfo.getType(), "image");
         Exception httpException = httpInfo.getHttpException();
         boolean hasError = httpException != null;
+
+        this.throwable = httpException;
 
         byte[] reqBytes;
         if (imageType || hasError) {
