@@ -81,9 +81,14 @@ public class HttpEditorTopForm extends JComponent {
     }
 
     @SuppressWarnings("DataFlowIssue")
-    public static void setSelectedEnv(Project project, String env) {
+    public static void setSelectedEnv(String httpFilePath, Project project, String env) {
         FileEditorManager editorManager = FileEditorManager.getInstance(project);
         FileEditor selectedEditor = editorManager.getSelectedEditor();
+
+        VirtualFile virtualFile = selectedEditor.getFile();
+        if (virtualFile != null && !Objects.equals(httpFilePath, virtualFile.getPath())) {
+            return;
+        }
 
         HttpEditorTopForm httpEditorTopForm = selectedEditor.getUserData(HttpEditorTopForm.KEY);
 
