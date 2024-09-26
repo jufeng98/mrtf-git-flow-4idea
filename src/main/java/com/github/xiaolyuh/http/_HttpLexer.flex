@@ -32,7 +32,7 @@ REQUEST_COMMENT=#.*
 LINE_COMMENT="//".*
 VARIABLE_DEFINE=@[a-zA-Z]+[a-zA-Z0-9{}=]+
 URL_FORM_ENCODE=[a-zA-Z0-9,&$={}():]*
-JSON_TEXT=([{\[][a-zA-Z0-9\r\n\" ]|\{}|\[])[\u4E00-\u9FA5a-zA-Z0-9._,\":'&$【】~{}()\[\]\s\-/；：（）、!！\\?“”`—＞%;。？·《》＜﹣﹤﹥＋－÷<>@×*+=，]*
+JSON_TEXT=([{\[][a-zA-Z0-9\r\n\" ]|\{}|\[])[\u4E00-\u9FA5a-zA-Z0-9._,\":'&$【】~{}()\[\]\s\-/；：（）、!！\\?“”`—＞%;。？·《》＜﹣﹤﹥＋－÷@×*+=，]*
 XML_TEXT=(<[!a-zA-Z])[a-zA-Z0-9<>=;\r\n/\"'+:?{}()%&，._!#\-\u4E00-\u9FA5 ]*
 MULTIPART_SEPERATE=--[a-zA-Z0-9\-]+
 JS_SCRIPT=\{%[^#]*%}
