@@ -17,12 +17,14 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.runInEdt
 import com.intellij.openapi.application.runWriteActionAndWait
 import com.intellij.openapi.editor.ex.EditorGutterComponentEx
+import com.intellij.openapi.module.ModuleUtil
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.MessageType
 import com.intellij.openapi.util.Disposer.newDisposable
+import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.psi.util.PsiTreeUtil
 import org.apache.commons.lang3.exception.ExceptionUtils
@@ -38,6 +40,7 @@ class HttpGutterIconClickHandler(private val httpMethod: HttpMethod) {
 
     fun doRequest(component: EditorGutterComponentEx?, selectedEnv: String?) {
         val project = httpMethod.project
+        val module = ModuleUtil.findModuleForPsiElement(httpMethod)!!
         val tabName = HttpUtils.getTabName(httpMethod)
         try {
             // tabName会用作文件名,因此需要检测下
@@ -83,18 +86,18 @@ class HttpGutterIconClickHandler(private val httpMethod: HttpMethod) {
         val reqHeaderMap: MutableMap<String, String>
         val reqBody: Any?
         try {
-            val definitions = PsiTreeUtil.findChildrenOfType(httpFile, HttpDefinition::class.java)
-            variableResolver.addFileScopeVariables(definitions, selectedEnv)
+            val definitions = PsiTreeUtil.findChildrenOfType(httpFile, HttpGlobalVariableDefinition::class.java)
+            variableResolver.addFileScopeVariables(definitions, selectedEnv, module)
 
-            url = variableResolver.resolve(httpUrl.text!!, selectedEnv)
+            url = variableResolver.resolve(httpUrl.text!!, selectedEnv, module)
 
-            reqHeaderMap = convertToReqHeaderMap(httpHeaders, variableResolver, selectedEnv)
+            reqHeaderMap = convertToReqHeaderMap(httpHeaders, variableResolver, selectedEnv, module)
             val match = reqHeaderMap.keys.stream().anyMatch { it.equals("Content-Length") }
             if (match) {
                 throw IllegalArgumentException("不能有 Content-Length 请求头!")
             }
 
-            reqBody = convertToReqBody(httpBody, variableResolver, selectedEnv)
+            reqBody = convertToReqBody(httpBody, variableResolver, selectedEnv, module)
         } catch (e: IllegalArgumentException) {
             val toolWindowManager = ToolWindowManager.getInstance(project)
             toolWindowManager.notifyByBalloon(TOOL_WINDOW_ID, MessageType.ERROR, "<div>${e.message}</div>")
@@ -222,6 +225,9 @@ class HttpGutterIconClickHandler(private val httpMethod: HttpMethod) {
 
         val inputStream = ByteArrayInputStream(byteArray)
         Files.copy(inputStream, file.toPath())
+
+        VirtualFileManager.getInstance().asyncRefresh(null)
+
         return "# 响应已保存到 ${file.absolutePath}\r\n"
     }
 

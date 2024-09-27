@@ -5,7 +5,6 @@ import com.github.xiaolyuh.http.reference.HttpFakePsiElement.Companion.createPro
 import com.github.xiaolyuh.http.reference.HttpFakePsiElement.Companion.findControllerPsiMethods
 import com.github.xiaolyuh.http.reference.HttpFakePsiElement.Companion.getControllerNavigationItem
 import com.github.xiaolyuh.http.reference.HttpFakePsiElement.Companion.showTip
-import com.github.xiaolyuh.utils.HttpUtils
 import com.github.xiaolyuh.utils.SpelUtils
 import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.json.psi.JsonProperty
@@ -14,7 +13,6 @@ import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.application.runInEdt
 import com.intellij.openapi.application.runReadAction
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.module.ModuleUtil
 import com.intellij.openapi.util.Disposer
 import com.intellij.psi.*
 import com.intellij.psi.impl.source.PsiClassReferenceType
@@ -28,7 +26,7 @@ import java.util.concurrent.CompletableFuture
 class JsonFakePsiElement(
     private val jsonString: JsonStringLiteral,
     private val searchTxt: String,
-    private val originalModule: Module?,
+    private val module: Module,
 ) :
     ASTWrapperPsiElement(jsonString.node) {
 
@@ -38,15 +36,6 @@ class JsonFakePsiElement(
 
     override fun navigate(requestFocus: Boolean) {
         val virtualFile = jsonString.containingFile.virtualFile
-        val module = if (HttpUtils.isFileInIdeaDir(virtualFile)) {
-            originalModule
-        } else {
-            ModuleUtil.findModuleForPsiElement(jsonString)
-        }
-
-        if (module == null) {
-            return
-        }
 
         val jsonPropertyNameLevels = collectJsonPropertyNameLevels(jsonString)
         if (jsonPropertyNameLevels.isEmpty()) {

@@ -42,9 +42,9 @@ class JsonGotoDeclarationHandler : GotoDeclarationHandler {
         val httpRequest = PsiTreeUtil.getParentOfType(injectionHost, HttpRequest::class.java)
         val httpUrl = PsiTreeUtil.getChildOfType(httpRequest, HttpUrl::class.java) ?: return arrayOf()
 
-        val pair = HttpUtils.getSearchTxtInfo(httpUrl) ?: return arrayOf()
+        val originalModule = HttpUtils.getOriginalModule(httpUrl) ?: return arrayOf()
 
-        val originalModule = HttpUtils.getOriginalModule(httpUrl)
+        val pair = HttpUtils.getSearchTxtInfo(httpUrl, originalModule) ?: return arrayOf()
 
         return arrayOf(JsonFakePsiElement(jsonString, pair.first, originalModule))
     }

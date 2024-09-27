@@ -1,10 +1,11 @@
 package com.github.xiaolyuh.http.resolve
 
 import com.dbn.common.util.UUIDs
-import com.github.xiaolyuh.http.js.JsScriptExecutor
-import com.github.xiaolyuh.http.psi.HttpDefinition
 import com.github.xiaolyuh.http.env.EnvFileService
+import com.github.xiaolyuh.http.js.JsScriptExecutor
+import com.github.xiaolyuh.http.psi.HttpGlobalVariableDefinition
 import com.intellij.openapi.components.Service
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import org.apache.commons.lang.math.RandomUtils
 import org.apache.commons.lang3.RandomStringUtils
@@ -16,12 +17,16 @@ class VariableResolver(private val project: Project) {
     private val patternNotNumber = Pattern.compile("\\D")
     private val fileScopeVariableMap: MutableMap<String, String> = mutableMapOf()
 
-    fun addFileScopeVariables(definitions: MutableCollection<HttpDefinition>, selectedEnv: String?) {
+    fun addFileScopeVariables(
+        definitions: MutableCollection<HttpGlobalVariableDefinition>,
+        selectedEnv: String?,
+        module: Module,
+    ) {
         definitions.forEach {
             val split = it.text.split("=")
             val variableName = split[0].replace("@", "")
-            val result = resolve(split[1], selectedEnv)
-            fileScopeVariableMap[variableName] = result
+            val result = resolve(split[1], selectedEnv, module)
+            fileScopeVariableMap[module.name + "-" + variableName] = result
         }
     }
 
@@ -29,24 +34,28 @@ class VariableResolver(private val project: Project) {
         fileScopeVariableMap.clear()
     }
 
-    fun resolve(str: String, selectedEnv: String?): String {
+    fun resolve(str: String, selectedEnv: String?, module: Module): String {
         val matcher = pattern.matcher(str)
 
         return matcher.replaceAll {
             val matchStr = it.group()
             val variable = matchStr.substring(2, matchStr.length - 2)
 
-            resolveVariable(variable, selectedEnv)
+            resolveVariable(variable, selectedEnv, module)
         }
     }
 
-    private fun resolveVariable(variable: String, selectedEnv: String?): String {
+    private fun resolveVariable(
+        variable: String,
+        selectedEnv: String?,
+        module: Module,
+    ): String {
         var innerVariable = resolveInnerVariable(variable)
         if (innerVariable != null) {
             return innerVariable
         }
 
-        innerVariable = fileScopeVariableMap[variable]
+        innerVariable = fileScopeVariableMap[module.name + "-" + variable]
         if (innerVariable != null) {
             return innerVariable
         }
@@ -63,7 +72,7 @@ class VariableResolver(private val project: Project) {
         }
 
         val envFileService = EnvFileService.getService(project)
-        val envValue = envFileService.getEnvValue(variable, selectedEnv)
+        val envValue = envFileService.getEnvValue(variable, selectedEnv, module)
         if (envValue != null) {
             return envValue
         }

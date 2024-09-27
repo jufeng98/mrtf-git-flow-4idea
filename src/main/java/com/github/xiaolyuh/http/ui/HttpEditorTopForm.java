@@ -3,6 +3,7 @@ package com.github.xiaolyuh.http.ui;
 import com.github.xiaolyuh.http.env.EnvFileService;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.VfsUtil;
@@ -38,6 +39,7 @@ public class HttpEditorTopForm extends JComponent {
             } else if (Objects.equals(selectedItem, "Response presentations")) {
                 url = classLoader.getResource("examples/responses-presentation.http");
             }
+
             if (url != null) {
                 VirtualFile virtualFile = VfsUtil.findFileByURL(url);
                 //noinspection DataFlowIssue
@@ -47,9 +49,12 @@ public class HttpEditorTopForm extends JComponent {
         });
     }
 
-    public void initData(EnvFileService envFileService) {
-        project = envFileService.getProject();
-        Set<String> presetEnvSet = envFileService.getPresetEnvList();
+    public void initEnvCombo(Module module) {
+        project = module.getProject();
+
+        EnvFileService envFileService = EnvFileService.Companion.getService(project);
+        Set<String> presetEnvSet = envFileService.getPresetEnvList(module);
+
         presetEnvSet.forEach(it -> envComboBox.addItem(it));
     }
 

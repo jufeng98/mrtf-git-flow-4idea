@@ -16,14 +16,11 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiComment
 import com.intellij.psi.PsiFile
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.util.PsiUtil
 import com.intellij.psi.util.elementType
-import org.apache.commons.io.FileUtils
 import java.io.File
 import java.net.URI
 import java.net.http.HttpResponse
 import java.nio.charset.StandardCharsets
-import java.nio.file.Files
 import kotlin.jvm.optionals.getOrElse
 
 object HttpUtils {
@@ -69,6 +66,7 @@ object HttpUtils {
         httpHeaders: HttpHeaders?,
         variableResolver: VariableResolver,
         selectedEnv: String?,
+        module: Module,
     ): MutableMap<String, String> {
         val map = mutableMapOf<String, String>()
         if (httpHeaders != null) {
@@ -80,7 +78,7 @@ object HttpUtils {
                     if (split.size != 2) {
                         throw IllegalArgumentException("请求头${text}有错误")
                     }
-                    map[split[0]] = variableResolver.resolve(split[1], selectedEnv)
+                    map[split[0]] = variableResolver.resolve(split[1], selectedEnv, module)
                 }
         }
         return map
@@ -90,6 +88,7 @@ object HttpUtils {
         httpBody: HttpBody?,
         variableResolver: VariableResolver,
         selectedEnv: String?,
+        module: Module,
     ): Any? {
         if (httpBody == null) {
             return null
@@ -103,13 +102,14 @@ object HttpUtils {
                 ordinaryContent,
                 variableResolver,
                 selectedEnv,
-                parentPath
+                parentPath,
+                module
             )
         }
 
         val multipartContent = httpBody.multipartContent
         if (multipartContent != null) {
-            return constructMultipartBody(multipartContent, variableResolver, selectedEnv, parentPath)
+            return constructMultipartBody(multipartContent, variableResolver, selectedEnv, parentPath, module)
 
         }
 
@@ -121,34 +121,30 @@ object HttpUtils {
         variableResolver: VariableResolver,
         selectedEnv: String?,
         parentPath: String,
+        module: Module,
     ): Any? {
         val elementType = ordinaryContent.firstChild.elementType
         if (elementType == HttpTypes.JSON_TEXT || elementType == HttpTypes.XML_TEXT
             || elementType == HttpTypes.URL_FORM_ENCODE || elementType == HttpTypes.URL_DESC
         ) {
-            return variableResolver.resolve(ordinaryContent.text, selectedEnv)
+            return variableResolver.resolve(ordinaryContent.text, selectedEnv, module)
         }
 
-        val httpFile = ordinaryContent.file
-        val filePath = httpFile?.filePath?.text ?: ""
-        if (httpFile != null) {
-            val path = constructFilePath(filePath, parentPath)
-            val file = File(path)
-            if (!file.exists()) {
-                throw IllegalArgumentException("文件${file}不存在")
-            }
+        val httpFile = ordinaryContent.file ?: return null
+        val filePath = httpFile.filePath.text
 
-            if (filePath.endsWith("json") || filePath.endsWith("xml")
-                || filePath.endsWith("txt") || filePath.endsWith("text")
-            ) {
-                val str = FileUtils.readFileToString(file, StandardCharsets.UTF_8)
-                return variableResolver.resolve(str, selectedEnv)
-            }
+        val path = constructFilePath(filePath, parentPath)
+        val virtualFile = VfsUtil.findFileByIoFile(File(path), true)
+            ?: throw IllegalArgumentException("文件:${path}不存在")
 
-            return Files.readAllBytes(file.toPath())
+        if (filePath.endsWith("json") || filePath.endsWith("xml")
+            || filePath.endsWith("txt") || filePath.endsWith("text")
+        ) {
+            val str = VfsUtil.loadText(virtualFile)
+            return variableResolver.resolve(str, selectedEnv, module)
         }
 
-        return null
+        return VfsUtil.loadBytes(virtualFile)
     }
 
     private fun constructMultipartBody(
@@ -156,6 +152,7 @@ object HttpUtils {
         variableResolver: VariableResolver,
         selectedEnv: String?,
         parentPath: String,
+        module: Module,
     ): MutableList<ByteArray> {
         val byteArrays = mutableListOf<ByteArray>()
 
@@ -172,7 +169,8 @@ object HttpUtils {
                 ordinaryContent,
                 variableResolver,
                 selectedEnv,
-                parentPath
+                parentPath,
+                module
             )
 
             if (content is String) {
@@ -248,10 +246,8 @@ object HttpUtils {
     }
 
     fun collectBeforeJsScripts(httpFile: PsiFile): List<String> {
-        val httpRequests =
-            PsiTreeUtil.getChildrenOfType(httpFile, com.github.xiaolyuh.http.psi.HttpRequest::class.java)!!
-        return httpRequests
-            .filter { it.script != null && it.script!!.prevSibling == null }
+        val globalScripts = PsiTreeUtil.getChildrenOfType(httpFile, HttpGlobalScript::class.java) ?: arrayOf()
+        return globalScripts
             .mapNotNull {
                 getJsScript(it.script)
             }
@@ -266,17 +262,19 @@ object HttpUtils {
             getTabName(httpMethod)
         }
 
-        val runManager = RunManager.getInstance(httpUrl.project)
+        val project = httpUrl.project
+        val runManager = RunManager.getInstance(project)
         val settings = runManager.findConfigurationByTypeAndName("gitFlowPlusHttpClient", tabName) ?: return null
         val httpRunConfiguration = settings.configuration as HttpRunConfiguration
 
         val virtualFile = VfsUtil.findFileByIoFile(File(httpRunConfiguration.httpFilePath), true) ?: return null
-        val psiFile = PsiUtil.getPsiFile(httpUrl.project, virtualFile)
 
-        return ModuleUtilCore.findModuleForFile(psiFile)
+        return ModuleUtilCore.findModuleForFile(virtualFile, project)
     }
 
-    fun getSearchTxtInfo(httpUrl: HttpUrl): Pair<String, TextRange>? {
+    fun getSearchTxtInfo(httpUrl: HttpUrl, module: Module): Pair<String, TextRange>? {
+        val project = httpUrl.project
+
         val url = httpUrl.text.trim()
 
         val start: Int
@@ -284,8 +282,8 @@ object HttpUtils {
         start = if (bracketIdx != -1) {
             bracketIdx + 1
         } else {
-            val envFileService = EnvFileService.getService(httpUrl.project)
-            val contextPath = envFileService.getEnvValue("contextPath", null)
+            val envFileService = EnvFileService.getService(project)
+            val contextPath = envFileService.getEnvValue("contextPath", null, module)
 
             val tmpIdx: Int
             val uri: URI
