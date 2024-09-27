@@ -5,9 +5,9 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface HttpDefinition extends PsiElement {
+public interface HttpGlobalScript extends PsiElement {
 
   @NotNull
-  PsiElement getVariableDefine();
+  HttpScript getScript();
 
 }

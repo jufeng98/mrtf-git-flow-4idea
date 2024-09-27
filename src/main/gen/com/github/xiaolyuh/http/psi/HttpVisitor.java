@@ -11,15 +11,19 @@ public class HttpVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
-  public void visitDefinition(@NotNull HttpDefinition o) {
-    visitPsiElement(o);
-  }
-
   public void visitFile(@NotNull HttpFile o) {
     visitPsiElement(o);
   }
 
   public void visitFilePath(@NotNull HttpFilePath o) {
+    visitPsiElement(o);
+  }
+
+  public void visitGlobalScript(@NotNull HttpGlobalScript o) {
+    visitPsiElement(o);
+  }
+
+  public void visitGlobalVariableDefinition(@NotNull HttpGlobalVariableDefinition o) {
     visitPsiElement(o);
   }
 

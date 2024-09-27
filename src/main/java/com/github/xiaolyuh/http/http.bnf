@@ -18,22 +18,22 @@
     T_LT='<'
     T_RT='>'
     T_RT_DBL='>>'
-    PATH='regexp:(([A-E]:)|[a-z./])([\u4E00-\u9FA5a-zA-Z0-9_\-./\\]+/?)+'
-    URL_DESC='regexp:(https?|wss?|\{\{)[-a-zA-Z0-9+&${}()#/%?=~_|!:,.;]*[-a-zA-Z0-9+,&${}()#/%=~_| ]'
-    HEADER_DESC='regexp:[a-zA-Z\-]+:[\u4E00-\u9FA5a-zA-Z0-9,${}()_=;%\\".\-*:/ ]+'
+    PATH='regexp:(([A-E]:)|[a-z./])([\u4E00-\u9FA5\w\-./\\]+/?)+'
+    URL_DESC='regexp:(https?|wss?|\{\{)[-\w+&${}()#/%?=~|!:,.;]*[-\w+,&${}()#/%=~| ]'
+    HEADER_DESC='regexp:[a-zA-Z\-]+:[\u4E00-\u9FA5\w,${}()=;%\\".\-*:/ ]+'
     REQUEST_COMMENT='regexp:#.*'
     LINE_COMMENT='regexp://.*'
-    VARIABLE_DEFINE='regexp:@[a-zA-Z]+[a-zA-Z0-9{}=]+'
-    URL_FORM_ENCODE="regexp:[a-zA-Z0-9,&$={}():]*"
-    JSON_TEXT="regexp:([{\[][a-zA-Z0-9\r\n\" ]|\{}|\[])[\u4E00-\u9FA5a-zA-Z0-9._,\":'&$【】~{}()\[\]\s\-/；：（）、!！\\?“”`—＞%;。？·《》＜﹣﹤﹥＋－÷@×*+=，]*"
-    XML_TEXT="regexp:(<[!a-zA-Z])[a-zA-Z0-9<>=;\r\n/\"'+:?{}()%&，._!#\-\u4E00-\u9FA5 ]*"
-    MULTIPART_SEPERATE='regexp:--[a-zA-Z0-9\-]+'
+    VARIABLE_DEFINE='regexp:@\w+[\w{}=]+'
+    URL_FORM_ENCODE="regexp:[\w,&$={}():]*"
+    JSON_TEXT="regexp:\{}|\[]|\{[\s\"][^#]*}|\[[\s\d\"a-z{][^#]*]"
+    XML_TEXT="regexp:<[!\w][^♣]*\w>"
+    MULTIPART_SEPERATE='regexp:--[\w\-]+'
     JS_SCRIPT='regexp:\{%[^#]*%}'
     SPACE='regexp:\s+'
   ]
 }
-httpFile ::= request*
-request ::= method url version? headers? body? script? output_file? | script | definition {
+httpFile ::= (request | globalVariableDefinition | globalScript)*
+request ::= method url version? headers? body? script? output_file? {
     pin = 1
 }
 url ::= URL_DESC {
@@ -49,7 +49,8 @@ body ::= ordinary_content | multipart_content
 script ::= T_RT JS_SCRIPT {
     mixin = "com.github.xiaolyuh.http.inject.HttpPsiLanguageInjectionHost"
 }
-definition ::= VARIABLE_DEFINE
+globalScript ::= script
+globalVariableDefinition ::= VARIABLE_DEFINE
 ordinary_content ::= file | URL_FORM_ENCODE | JSON_TEXT | XML_TEXT | URL_DESC {
     mixin = "com.github.xiaolyuh.http.inject.HttpPsiLanguageInjectionHost"
 }

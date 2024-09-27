@@ -9,9 +9,10 @@ import com.github.xiaolyuh.http.psi.impl.*;
 public interface HttpTypes {
 
   IElementType BODY = new HttpElementType("BODY");
-  IElementType DEFINITION = new HttpElementType("DEFINITION");
   IElementType FILE = new HttpElementType("FILE");
   IElementType FILE_PATH = new HttpElementType("FILE_PATH");
+  IElementType GLOBAL_SCRIPT = new HttpElementType("GLOBAL_SCRIPT");
+  IElementType GLOBAL_VARIABLE_DEFINITION = new HttpElementType("GLOBAL_VARIABLE_DEFINITION");
   IElementType HEADER = new HttpElementType("HEADER");
   IElementType HEADERS = new HttpElementType("HEADERS");
   IElementType METHOD = new HttpElementType("METHOD");
@@ -49,14 +50,17 @@ public interface HttpTypes {
       if (type == BODY) {
         return new HttpBodyImpl(node);
       }
-      else if (type == DEFINITION) {
-        return new HttpDefinitionImpl(node);
-      }
       else if (type == FILE) {
         return new HttpFileImpl(node);
       }
       else if (type == FILE_PATH) {
         return new HttpFilePathImpl(node);
+      }
+      else if (type == GLOBAL_SCRIPT) {
+        return new HttpGlobalScriptImpl(node);
+      }
+      else if (type == GLOBAL_VARIABLE_DEFINITION) {
+        return new HttpGlobalVariableDefinitionImpl(node);
       }
       else if (type == HEADER) {
         return new HttpHeaderImpl(node);

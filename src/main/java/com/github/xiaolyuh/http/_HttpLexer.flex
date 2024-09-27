@@ -25,16 +25,16 @@ import static com.github.xiaolyuh.http.psi.HttpTypes.*;
 EOL=\R
 WHITE_SPACE=\s+
 
-PATH=(([A-E]:)|[a-z./])([\u4E00-\u9FA5a-zA-Z0-9_\-./\\]+"/"?)+
-URL_DESC=(https?|wss?|\{\{)[-a-zA-Z0-9+&${}()#/%?=~_|!:,.;]*[-a-zA-Z0-9+,&${}()#/%=~_| ]
-HEADER_DESC=[a-zA-Z\-]+:[\u4E00-\u9FA5a-zA-Z0-9,${}()_=;%\\\".\-*:/ ]+
+PATH=(([A-E]:)|[a-z./])([\u4E00-\u9FA5\w\-./\\]+"/"?)+
+URL_DESC=(https?|wss?|\{\{)[-\w+&${}()#/%?=~|!:,.;]*[-\w+,&${}()#/%=~| ]
+HEADER_DESC=[a-zA-Z\-]+:[\u4E00-\u9FA5\w,${}()=;%\\\".\-*:/ ]+
 REQUEST_COMMENT=#.*
 LINE_COMMENT="//".*
-VARIABLE_DEFINE=@[a-zA-Z]+[a-zA-Z0-9{}=]+
-URL_FORM_ENCODE=[a-zA-Z0-9,&$={}():]*
-JSON_TEXT=([{\[][a-zA-Z0-9\r\n\" ]|\{}|\[])[\u4E00-\u9FA5a-zA-Z0-9._,\":'&$【】~{}()\[\]\s\-/；：（）、!！\\?“”`—＞%;。？·《》＜﹣﹤﹥＋－÷@×*+=，]*
-XML_TEXT=(<[!a-zA-Z])[a-zA-Z0-9<>=;\r\n/\"'+:?{}()%&，._!#\-\u4E00-\u9FA5 ]*
-MULTIPART_SEPERATE=--[a-zA-Z0-9\-]+
+VARIABLE_DEFINE=@[a-zA-Z_0-9]+[\w{}=]+
+URL_FORM_ENCODE=[\w,&$={}():]*
+JSON_TEXT=\{}|\[]|\{[\s\"][^#]*}|\[[\s\d\"a-z{][^#]*]
+XML_TEXT=<[!\w][^♣]*[a-zA-Z_0-9]>
+MULTIPART_SEPERATE=--[\w\-]+
 JS_SCRIPT=\{%[^#]*%}
 SPACE=[ \t\n\x0B\f\r]+
 

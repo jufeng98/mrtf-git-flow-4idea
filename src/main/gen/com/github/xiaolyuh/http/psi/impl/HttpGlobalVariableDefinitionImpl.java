@@ -11,14 +11,14 @@ import static com.github.xiaolyuh.http.psi.HttpTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.github.xiaolyuh.http.psi.*;
 
-public class HttpDefinitionImpl extends ASTWrapperPsiElement implements HttpDefinition {
+public class HttpGlobalVariableDefinitionImpl extends ASTWrapperPsiElement implements HttpGlobalVariableDefinition {
 
-  public HttpDefinitionImpl(@NotNull ASTNode node) {
+  public HttpGlobalVariableDefinitionImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull HttpVisitor visitor) {
-    visitor.visitDefinition(this);
+    visitor.visitGlobalVariableDefinition(this);
   }
 
   @Override
