@@ -49,11 +49,11 @@ public class HttpEditorTopForm extends JComponent {
         });
     }
 
-    public void initEnvCombo(Module module) {
+    public void initEnvCombo(Module module, String httpFileParentPath) {
         project = module.getProject();
 
         EnvFileService envFileService = EnvFileService.Companion.getService(project);
-        Set<String> presetEnvSet = envFileService.getPresetEnvList(module);
+        Set<String> presetEnvSet = envFileService.getPresetEnvList(httpFileParentPath);
 
         presetEnvSet.forEach(it -> envComboBox.addItem(it));
     }

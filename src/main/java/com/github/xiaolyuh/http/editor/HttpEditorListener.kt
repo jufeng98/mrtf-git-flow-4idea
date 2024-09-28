@@ -22,7 +22,7 @@ class HttpEditorListener : FileEditorManagerListener {
         val httpEditorTopForm = HttpEditorTopForm()
 
         try {
-            httpEditorTopForm.initEnvCombo(module)
+            httpEditorTopForm.initEnvCombo(module, file.parent.path)
         } catch (e: Exception) {
             NotifyUtil.notifyError(project, e.message)
         }

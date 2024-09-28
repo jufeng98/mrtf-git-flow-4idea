@@ -8,6 +8,7 @@ import com.intellij.codeInsight.navigation.actions.GotoDeclarationHandler
 import com.intellij.json.psi.JsonStringLiteral
 import com.intellij.lang.injection.InjectedLanguageManager
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 
@@ -42,9 +43,10 @@ class JsonGotoDeclarationHandler : GotoDeclarationHandler {
         val httpRequest = PsiTreeUtil.getParentOfType(injectionHost, HttpRequest::class.java)
         val httpUrl = PsiTreeUtil.getChildOfType(httpRequest, HttpUrl::class.java) ?: return arrayOf()
 
-        val originalModule = HttpUtils.getOriginalModule(httpUrl) ?: return arrayOf()
+        val originalFile = HttpUtils.getOriginalFile(httpUrl) ?: return arrayOf()
+        val originalModule = ModuleUtilCore.findModuleForFile(originalFile, httpUrl.project) ?: return arrayOf()
 
-        val pair = HttpUtils.getSearchTxtInfo(httpUrl, originalModule) ?: return arrayOf()
+        val pair = HttpUtils.getSearchTxtInfo(httpUrl, originalFile.parent.path) ?: return arrayOf()
 
         return arrayOf(JsonFakePsiElement(jsonString, pair.first, originalModule))
     }

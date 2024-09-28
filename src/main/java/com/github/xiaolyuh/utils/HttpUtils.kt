@@ -66,7 +66,7 @@ object HttpUtils {
         httpHeaders: HttpHeaders?,
         variableResolver: VariableResolver,
         selectedEnv: String?,
-        module: Module,
+        httpFileParentPath: String,
     ): MutableMap<String, String> {
         val map = mutableMapOf<String, String>()
         if (httpHeaders != null) {
@@ -78,7 +78,7 @@ object HttpUtils {
                     if (split.size != 2) {
                         throw IllegalArgumentException("请求头${text}有错误")
                     }
-                    map[split[0]] = variableResolver.resolve(split[1], selectedEnv, module)
+                    map[split[0]] = variableResolver.resolve(split[1], selectedEnv, httpFileParentPath)
                 }
         }
         return map
@@ -88,7 +88,7 @@ object HttpUtils {
         httpBody: HttpBody?,
         variableResolver: VariableResolver,
         selectedEnv: String?,
-        module: Module,
+        httpFileParentPath: String,
     ): Any? {
         if (httpBody == null) {
             return null
@@ -103,13 +103,19 @@ object HttpUtils {
                 variableResolver,
                 selectedEnv,
                 parentPath,
-                module
+                httpFileParentPath
             )
         }
 
         val multipartContent = httpBody.multipartContent
         if (multipartContent != null) {
-            return constructMultipartBody(multipartContent, variableResolver, selectedEnv, parentPath, module)
+            return constructMultipartBody(
+                multipartContent,
+                variableResolver,
+                selectedEnv,
+                parentPath,
+                httpFileParentPath
+            )
 
         }
 
@@ -121,13 +127,13 @@ object HttpUtils {
         variableResolver: VariableResolver,
         selectedEnv: String?,
         parentPath: String,
-        module: Module,
+        httpFileParentPath: String,
     ): Any? {
         val elementType = ordinaryContent.firstChild.elementType
         if (elementType == HttpTypes.JSON_TEXT || elementType == HttpTypes.XML_TEXT
             || elementType == HttpTypes.URL_FORM_ENCODE || elementType == HttpTypes.URL_DESC
         ) {
-            return variableResolver.resolve(ordinaryContent.text, selectedEnv, module)
+            return variableResolver.resolve(ordinaryContent.text, selectedEnv, httpFileParentPath)
         }
 
         val httpFile = ordinaryContent.file ?: return null
@@ -141,7 +147,7 @@ object HttpUtils {
             || filePath.endsWith("txt") || filePath.endsWith("text")
         ) {
             val str = VfsUtil.loadText(virtualFile)
-            return variableResolver.resolve(str, selectedEnv, module)
+            return variableResolver.resolve(str, selectedEnv, httpFileParentPath)
         }
 
         return VfsUtil.loadBytes(virtualFile)
@@ -152,7 +158,7 @@ object HttpUtils {
         variableResolver: VariableResolver,
         selectedEnv: String?,
         parentPath: String,
-        module: Module,
+        httpFileParentPath: String,
     ): MutableList<ByteArray> {
         val byteArrays = mutableListOf<ByteArray>()
 
@@ -170,7 +176,7 @@ object HttpUtils {
                 variableResolver,
                 selectedEnv,
                 parentPath,
-                module
+                httpFileParentPath
             )
 
             if (content is String) {
@@ -253,7 +259,7 @@ object HttpUtils {
             }
     }
 
-    fun getOriginalModule(httpUrl: HttpUrl): Module? {
+    fun getOriginalFile(httpUrl: HttpUrl): VirtualFile? {
         val httpMethod = PsiTreeUtil.getPrevSiblingOfType(httpUrl, HttpMethod::class.java) ?: return null
 
         val tabName = if (isFileInIdeaDir(httpUrl.containingFile.virtualFile)) {
@@ -267,12 +273,18 @@ object HttpUtils {
         val settings = runManager.findConfigurationByTypeAndName("gitFlowPlusHttpClient", tabName) ?: return null
         val httpRunConfiguration = settings.configuration as HttpRunConfiguration
 
-        val virtualFile = VfsUtil.findFileByIoFile(File(httpRunConfiguration.httpFilePath), true) ?: return null
+        return VfsUtil.findFileByIoFile(File(httpRunConfiguration.httpFilePath), true)
+    }
+
+    fun getOriginalModule(httpUrl: HttpUrl): Module? {
+        val project = httpUrl.project
+
+        val virtualFile = getOriginalFile(httpUrl) ?: return null
 
         return ModuleUtilCore.findModuleForFile(virtualFile, project)
     }
 
-    fun getSearchTxtInfo(httpUrl: HttpUrl, module: Module): Pair<String, TextRange>? {
+    fun getSearchTxtInfo(httpUrl: HttpUrl, httpFileParentPath: String): Pair<String, TextRange>? {
         val project = httpUrl.project
 
         val url = httpUrl.text.trim()
@@ -283,7 +295,7 @@ object HttpUtils {
             bracketIdx + 1
         } else {
             val envFileService = EnvFileService.getService(project)
-            val contextPath = envFileService.getEnvValue("contextPath", null, module)
+            val contextPath = envFileService.getEnvValue("contextPath", null, httpFileParentPath)
 
             val tmpIdx: Int
             val uri: URI

@@ -19,8 +19,10 @@ class HttpPsiReferenceProvider : PsiReferenceProvider() {
 
 
     private fun createSqlReferences(httpUrl: HttpUrl): Array<PsiReference> {
-        val module = HttpUtils.getOriginalModule(httpUrl) ?: return arrayOf()
-        val pair = HttpUtils.getSearchTxtInfo(httpUrl, module) ?: return arrayOf()
+        val virtualFile = HttpUtils.getOriginalFile(httpUrl) ?: return arrayOf()
+
+        val pair = HttpUtils.getSearchTxtInfo(httpUrl, virtualFile.parent.path) ?: return arrayOf()
+
         val searchTxt = pair.first
         val textRange = pair.second
 

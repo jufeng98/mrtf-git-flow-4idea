@@ -17,7 +17,6 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.runInEdt
 import com.intellij.openapi.application.runWriteActionAndWait
 import com.intellij.openapi.editor.ex.EditorGutterComponentEx
-import com.intellij.openapi.module.ModuleUtil
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.progress.Task
@@ -40,7 +39,7 @@ class HttpGutterIconClickHandler(private val httpMethod: HttpMethod) {
 
     fun doRequest(component: EditorGutterComponentEx?, selectedEnv: String?) {
         val project = httpMethod.project
-        val module = ModuleUtil.findModuleForPsiElement(httpMethod)!!
+        val httpFileParentPath = httpMethod.containingFile.virtualFile.parent.path
         val tabName = HttpUtils.getTabName(httpMethod)
         try {
             // tabName会用作文件名,因此需要检测下
@@ -87,17 +86,17 @@ class HttpGutterIconClickHandler(private val httpMethod: HttpMethod) {
         val reqBody: Any?
         try {
             val definitions = PsiTreeUtil.findChildrenOfType(httpFile, HttpGlobalVariableDefinition::class.java)
-            variableResolver.addFileScopeVariables(definitions, selectedEnv, module)
+            variableResolver.addFileScopeVariables(definitions, selectedEnv, httpFileParentPath)
 
-            url = variableResolver.resolve(httpUrl.text!!, selectedEnv, module)
+            url = variableResolver.resolve(httpUrl.text!!, selectedEnv, httpFileParentPath)
 
-            reqHeaderMap = convertToReqHeaderMap(httpHeaders, variableResolver, selectedEnv, module)
+            reqHeaderMap = convertToReqHeaderMap(httpHeaders, variableResolver, selectedEnv, httpFileParentPath)
             val match = reqHeaderMap.keys.stream().anyMatch { it.equals("Content-Length") }
             if (match) {
                 throw IllegalArgumentException("不能有 Content-Length 请求头!")
             }
 
-            reqBody = convertToReqBody(httpBody, variableResolver, selectedEnv, module)
+            reqBody = convertToReqBody(httpBody, variableResolver, selectedEnv, httpFileParentPath)
         } catch (e: IllegalArgumentException) {
             val toolWindowManager = ToolWindowManager.getInstance(project)
             toolWindowManager.notifyByBalloon(TOOL_WINDOW_ID, MessageType.ERROR, "<div>${e.message}</div>")
@@ -113,7 +112,7 @@ class HttpGutterIconClickHandler(private val httpMethod: HttpMethod) {
 
             wsRequest.connect()
 
-            initAndShowTabContent(tabName, form, parentDisposer, project)
+            initAndShowTabContent(tabName, form, parentDisposer, project, true)
 
             variableResolver.clearFileScopeVariables()
 
@@ -193,7 +192,7 @@ class HttpGutterIconClickHandler(private val httpMethod: HttpMethod) {
 
                 form.initPanelData(httpInfo, throwable, tabName, project, parentDisposer)
 
-                initAndShowTabContent(tabName, form, parentDisposer, project)
+                initAndShowTabContent(tabName, form, parentDisposer, project, false)
             } catch (e: Exception) {
                 NotifyUtil.notifyError(project, ExceptionUtils.getStackTrace(e))
             }
@@ -236,6 +235,7 @@ class HttpGutterIconClickHandler(private val httpMethod: HttpMethod) {
         form: HttpExecutionConsoleToolWindow,
         parentDisposer: Disposable,
         project: Project,
+        wsRequest: Boolean,
     ) {
         val toolWindowManager = ToolWindowManager.getInstance(project)
         val toolWindow = toolWindowManager.getToolWindow(TOOL_WINDOW_ID)!!
@@ -258,8 +258,12 @@ class HttpGutterIconClickHandler(private val httpMethod: HttpMethod) {
             val msg = "<div style='font-size:18pt''>Tip:请求失败,${throwable.message}!</div>"
             toolWindowManager.notifyByBalloon(TOOL_WINDOW_ID, MessageType.ERROR, msg)
         } else {
-            val msg = "<div style='font-size:18pt''>Tip:请求成功!</div>"
-            toolWindowManager.notifyByBalloon(TOOL_WINDOW_ID, MessageType.INFO, msg)
+            if (wsRequest) {
+                toolWindow.activate { }
+            } else {
+                val msg = "<div style='font-size:18pt''>Tip:请求成功!</div>"
+                toolWindowManager.notifyByBalloon(TOOL_WINDOW_ID, MessageType.INFO, msg)
+            }
         }
     }
 

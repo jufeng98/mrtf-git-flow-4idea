@@ -5,7 +5,6 @@ import com.github.xiaolyuh.http.env.EnvFileService
 import com.github.xiaolyuh.http.js.JsScriptExecutor
 import com.github.xiaolyuh.http.psi.HttpGlobalVariableDefinition
 import com.intellij.openapi.components.Service
-import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import org.apache.commons.lang.math.RandomUtils
 import org.apache.commons.lang3.RandomStringUtils
@@ -20,13 +19,13 @@ class VariableResolver(private val project: Project) {
     fun addFileScopeVariables(
         definitions: MutableCollection<HttpGlobalVariableDefinition>,
         selectedEnv: String?,
-        module: Module,
+        httpFileParentPath: String,
     ) {
         definitions.forEach {
             val split = it.text.split("=")
             val variableName = split[0].replace("@", "")
-            val result = resolve(split[1], selectedEnv, module)
-            fileScopeVariableMap[module.name + "-" + variableName] = result
+            val result = resolve(split[1], selectedEnv, httpFileParentPath)
+            fileScopeVariableMap[variableName] = result
         }
     }
 
@@ -34,28 +33,28 @@ class VariableResolver(private val project: Project) {
         fileScopeVariableMap.clear()
     }
 
-    fun resolve(str: String, selectedEnv: String?, module: Module): String {
+    fun resolve(str: String, selectedEnv: String?, httpFileParentPath: String): String {
         val matcher = pattern.matcher(str)
 
         return matcher.replaceAll {
             val matchStr = it.group()
             val variable = matchStr.substring(2, matchStr.length - 2)
 
-            resolveVariable(variable, selectedEnv, module)
+            resolveVariable(variable, selectedEnv, httpFileParentPath)
         }
     }
 
     private fun resolveVariable(
         variable: String,
         selectedEnv: String?,
-        module: Module,
+        httpFileParentPath: String,
     ): String {
         var innerVariable = resolveInnerVariable(variable)
         if (innerVariable != null) {
             return innerVariable
         }
 
-        innerVariable = fileScopeVariableMap[module.name + "-" + variable]
+        innerVariable = fileScopeVariableMap[variable]
         if (innerVariable != null) {
             return innerVariable
         }
@@ -72,7 +71,7 @@ class VariableResolver(private val project: Project) {
         }
 
         val envFileService = EnvFileService.getService(project)
-        val envValue = envFileService.getEnvValue(variable, selectedEnv, module)
+        val envValue = envFileService.getEnvValue(variable, selectedEnv, httpFileParentPath)
         if (envValue != null) {
             return envValue
         }

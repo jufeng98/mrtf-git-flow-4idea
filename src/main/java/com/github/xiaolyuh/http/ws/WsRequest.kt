@@ -6,6 +6,7 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.runInEdt
 import com.intellij.openapi.application.runWriteActionAndWait
 import com.intellij.openapi.project.Project
+import org.apache.commons.lang3.exception.ExceptionUtils
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.WebSocket
@@ -26,10 +27,12 @@ class WsRequest(
     lateinit var consumer: Consumer<String>
 
     init {
-        Disposer.replace(this, parentDisposer)
+        Disposer.register(this, parentDisposer)
     }
 
     fun connect() {
+        returnResMsg("正在连接:${url}\r\n")
+
         val uri = URI(url)
 
         val client = HttpClient.newBuilder()
@@ -42,11 +45,12 @@ class WsRequest(
         val listener = WsListener(this)
 
         builder.buildAsync(uri, listener)
-            .whenComplete { t, u ->
-                if (u != null) {
+            .whenComplete { ws, ex ->
+                if (ex != null) {
+                    returnResMsg("连接异常:" + ExceptionUtils.getStackTrace(ex) + "\r\n")
                     return@whenComplete
                 }
-                webSocket = t
+                webSocket = ws
             }
     }
 

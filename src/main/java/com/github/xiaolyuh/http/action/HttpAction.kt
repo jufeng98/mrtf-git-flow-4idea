@@ -16,7 +16,7 @@ class HttpAction : AnAction() {
         val dataContext = DataManager.getInstance().loadFromDataContext(e.dataContext, LOCATION_WRAPPER)
 
         @Suppress("INACCESSIBLE_TYPE", "INACCESSIBLE_TYPE")
-        val element = dataContext!!.first as HttpMethod
+        val element = dataContext!!.first.parent as HttpMethod
 
         val component = e.inputEvent.component as EditorGutterComponentEx
         val navigationHandler = HttpGutterIconClickHandler(element)
