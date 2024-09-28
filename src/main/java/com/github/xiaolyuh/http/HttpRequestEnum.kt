@@ -5,11 +5,13 @@ import com.github.xiaolyuh.http.psi.HttpMethod
 import com.github.xiaolyuh.http.psi.HttpTypes
 import com.github.xiaolyuh.utils.HttpUtils.convertToResHeaderDescList
 import com.github.xiaolyuh.utils.HttpUtils.convertToResPair
+import com.intellij.credentialStore.LOG
 import com.intellij.psi.util.PsiUtilCore
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpClient.Version
 import java.net.http.HttpRequest
+import java.net.http.HttpRequest.BodyPublishers
 import java.net.http.HttpResponse
 import java.nio.charset.StandardCharsets
 import java.time.Duration
@@ -23,8 +25,8 @@ enum class HttpRequestEnum {
             bodyPublisher: HttpRequest.BodyPublisher?,
         ): HttpRequest {
             val builder = HttpRequest.newBuilder()
-                .version(Version.HTTP_1_1)
-                .timeout(Duration.ofSeconds(30))
+                .version(version)
+                .timeout(READ_TIMEOUT_SEC)
                 .GET()
                 .uri(URI.create(url))
 
@@ -41,14 +43,57 @@ enum class HttpRequestEnum {
             bodyPublisher: HttpRequest.BodyPublisher?,
         ): HttpRequest {
             val builder = HttpRequest.newBuilder()
-                .version(Version.HTTP_1_1)
-                .timeout(Duration.ofSeconds(30))
+                .version(version)
+                .timeout(READ_TIMEOUT_SEC)
                 .uri(URI.create(url))
 
             reqHeaderMap.forEach(builder::setHeader)
 
             if (bodyPublisher != null) {
                 builder.POST(bodyPublisher)
+            } else {
+                builder.POST(BodyPublishers.noBody())
+            }
+
+            return builder.build()
+        }
+    },
+    DELETE {
+        override fun createRequest(
+            url: String,
+            version: Version,
+            reqHeaderMap: MutableMap<String, String>,
+            bodyPublisher: HttpRequest.BodyPublisher?
+        ): HttpRequest {
+            val builder = HttpRequest.newBuilder()
+                .version(version)
+                .timeout(READ_TIMEOUT_SEC)
+                .DELETE()
+                .uri(URI.create(url))
+
+            reqHeaderMap.forEach(builder::setHeader)
+
+            return builder.build()
+        }
+    },
+    PUT {
+        override fun createRequest(
+            url: String,
+            version: Version,
+            reqHeaderMap: MutableMap<String, String>,
+            bodyPublisher: HttpRequest.BodyPublisher?
+        ): HttpRequest {
+            val builder = HttpRequest.newBuilder()
+                .version(version)
+                .timeout(READ_TIMEOUT_SEC)
+                .uri(URI.create(url))
+
+            reqHeaderMap.forEach(builder::setHeader)
+
+            if (bodyPublisher != null) {
+                builder.PUT(bodyPublisher)
+            } else {
+                builder.PUT(BodyPublishers.noBody())
             }
 
             return builder.build()
@@ -69,11 +114,19 @@ enum class HttpRequestEnum {
         val start = System.currentTimeMillis()
 
         var bodyPublisher: HttpRequest.BodyPublisher? = null
-        if (reqBody is String) {
-            bodyPublisher = HttpRequest.BodyPublishers.ofString(reqBody)
-        } else if (reqBody is List<*>) {
-            @Suppress("UNCHECKED_CAST")
-            bodyPublisher = HttpRequest.BodyPublishers.ofByteArrays(reqBody as MutableIterable<ByteArray>)
+        when (reqBody) {
+            is String -> {
+                bodyPublisher = BodyPublishers.ofString(reqBody)
+            }
+
+            is List<*> -> {
+                @Suppress("UNCHECKED_CAST")
+                bodyPublisher = BodyPublishers.ofByteArrays(reqBody as MutableIterable<ByteArray>)
+            }
+
+            else -> {
+                LOG.warn("未知类型:${reqBody?.javaClass}")
+            }
         }
 
         val request = createRequest(url, version, reqHttpHeaders, bodyPublisher)
@@ -158,12 +211,18 @@ enum class HttpRequestEnum {
     ): HttpRequest
 
     companion object {
+        val READ_TIMEOUT_SEC: Duration = Duration.ofSeconds(30)
+
         fun getInstance(httpMethod: HttpMethod): HttpRequestEnum {
             val elementType = PsiUtilCore.getElementType(httpMethod.firstChild)
             if (elementType === HttpTypes.POST) {
                 return POST
             } else if (elementType === HttpTypes.GET) {
                 return GET
+            } else if (elementType === HttpTypes.DELETE) {
+                return DELETE
+            } else if (elementType === HttpTypes.PUT) {
+                return PUT
             }
             throw UnsupportedOperationException()
         }
