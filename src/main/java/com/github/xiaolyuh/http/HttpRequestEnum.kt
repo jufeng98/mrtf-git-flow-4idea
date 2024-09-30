@@ -63,7 +63,7 @@ enum class HttpRequestEnum {
             url: String,
             version: Version,
             reqHeaderMap: MutableMap<String, String>,
-            bodyPublisher: HttpRequest.BodyPublisher?
+            bodyPublisher: HttpRequest.BodyPublisher?,
         ): HttpRequest {
             val builder = HttpRequest.newBuilder()
                 .version(version)
@@ -81,7 +81,7 @@ enum class HttpRequestEnum {
             url: String,
             version: Version,
             reqHeaderMap: MutableMap<String, String>,
-            bodyPublisher: HttpRequest.BodyPublisher?
+            bodyPublisher: HttpRequest.BodyPublisher?,
         ): HttpRequest {
             val builder = HttpRequest.newBuilder()
                 .version(version)
@@ -153,14 +153,20 @@ enum class HttpRequestEnum {
         httpReqDescList.add("\r\n")
 
         if (reqBody is String) {
-            httpReqDescList.add(reqBody)
+            val max = 50000
+            if (reqBody.length > max) {
+                httpReqDescList.add(reqBody.substring(0, max) + "\r\n......(内容过长,已截断显示)")
+            } else {
+                httpReqDescList.add(reqBody)
+            }
         } else if (reqBody is List<*>) {
             @Suppress("UNCHECKED_CAST")
             val byteArrays = reqBody as MutableIterable<ByteArray>
             byteArrays.forEach {
-                if (it.size > 100) {
-                    val bytes = it.copyOfRange(0, 100)
-                    httpReqDescList.add(String(bytes) + " ......\r\n(内容过长,忽略显示后面部分)\r\n")
+                val max = 10000
+                if (it.size > max) {
+                    val bytes = it.copyOfRange(0, max)
+                    httpReqDescList.add(String(bytes) + " \r\n......(内容过长,已截断显示)\r\n")
                 } else {
                     httpReqDescList.add(String(it))
                 }
