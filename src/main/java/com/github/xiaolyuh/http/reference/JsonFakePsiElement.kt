@@ -16,6 +16,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.Disposer
 import com.intellij.psi.*
 import com.intellij.psi.impl.source.PsiClassReferenceType
+import com.intellij.psi.util.InheritanceUtil
 import com.intellij.psi.util.PsiTreeUtil
 import java.util.*
 import java.util.concurrent.CompletableFuture
@@ -83,10 +84,8 @@ class JsonFakePsiElement(
                     if (virtualFile?.name?.endsWith("res.http") == true) {
                         paramPsiType = psiMethod.returnType
                     } else {
-                        val psiParameters = psiMethod.parameterList.parameters
-                        val psiParameter = psiParameters.firstOrNull {
-                            it.hasAnnotation("org.springframework.web.bind.annotation.RequestBody")
-                        }
+                        val psiParameter = resolveTargetParam(psiMethod)
+
                         paramPsiType = psiParameter?.type
                     }
 
@@ -106,28 +105,64 @@ class JsonFakePsiElement(
         }
     }
 
+    private fun resolveTargetParam(psiMethod: PsiMethod): PsiParameter? {
+        val superPsiMethods = psiMethod.findSuperMethods(false)
+        val psiParameters = psiMethod.parameterList.parameters
+        var psiParameter: PsiParameter? = null
+        val requestBodyAnnoName = "org.springframework.web.bind.annotation.RequestBody"
+
+        for ((index, psiParam) in psiParameters.withIndex()) {
+            var hasAnno = psiParam.hasAnnotation(requestBodyAnnoName)
+            if (hasAnno) {
+                psiParameter = psiParam
+                break
+            }
+
+            for (superPsiMethod in superPsiMethods) {
+                val superPsiParam = superPsiMethod.parameterList.parameters[index]
+                hasAnno = superPsiParam.hasAnnotation(requestBodyAnnoName)
+                if (hasAnno) {
+                    psiParameter = psiParam
+                    break
+                }
+            }
+        }
+
+        return psiParameter
+    }
+
     private fun resolveTargetField(
         paramPsiCls: PsiClass,
         jsonPropertyNameLevels: LinkedList<String>,
         classGenericParameters: Array<PsiType>,
     ): PsiField? {
-        var fieldTypeCls = paramPsiCls
         var psiField: PsiField? = null
-        var propertyName = jsonPropertyNameLevels.pop()
 
         try {
-            while (true) {
-                psiField = fieldTypeCls.findFieldByName(propertyName, true) ?: return null
-                val psiType = psiField.type
-                if (psiType !is PsiClassType) {
+            var fieldTypeCls: PsiClass
+            var propertyName = jsonPropertyNameLevels.pop()
+
+            val isCollection = InheritanceUtil.isInheritor(paramPsiCls, "java.util.Collection")
+            if (isCollection) {
+                if (classGenericParameters.isEmpty()) {
                     return null
                 }
+
+                // 取得泛型参数类型
+                fieldTypeCls = SpelUtils.resolvePsiType(classGenericParameters[0]) ?: return null
+            } else {
+                fieldTypeCls = paramPsiCls
+            }
+
+
+            while (true) {
+                psiField = fieldTypeCls.findFieldByName(propertyName, true) ?: return null
+                val psiType = psiField.type as PsiClassType
 
                 val parameters = psiType.parameters
                 if (parameters.isNotEmpty()) {
                     // 取得泛型参数类型
-                    val psiFieldGenericTypeCls = SpelUtils.resolvePsiType(parameters[0]) ?: return null
-                    fieldTypeCls = psiFieldGenericTypeCls
+                    fieldTypeCls = SpelUtils.resolvePsiType(parameters[0]) ?: return null
                 } else {
                     val psiFieldTypeCls = SpelUtils.resolvePsiType(psiType) ?: return null
                     if (psiFieldTypeCls is PsiTypeParameter && classGenericParameters.isNotEmpty()) {

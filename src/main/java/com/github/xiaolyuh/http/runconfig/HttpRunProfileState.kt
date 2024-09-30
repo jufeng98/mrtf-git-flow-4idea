@@ -34,7 +34,7 @@ class HttpRunProfileState(
 
     companion object {
         fun getTargetHttpMethod(httpFilePath: String, runConfigName: String, project: Project): HttpMethod? {
-            val virtualFile = VfsUtil.findFileByIoFile(File(httpFilePath), true) ?: return null
+            val virtualFile = VfsUtil.findFileByIoFile(File(httpFilePath), false) ?: return null
 
             val psiFile = PsiUtil.getPsiFile(project, virtualFile)
             val httpMethods = PsiTreeUtil.findChildrenOfType(psiFile, HttpMethod::class.java)
