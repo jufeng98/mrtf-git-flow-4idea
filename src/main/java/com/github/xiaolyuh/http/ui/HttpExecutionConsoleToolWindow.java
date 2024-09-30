@@ -86,8 +86,18 @@ public class HttpExecutionConsoleToolWindow implements Disposable {
                 @Cleanup
                 ByteArrayInputStream inputStream = new ByteArrayInputStream(httpInfo.getByteArray());
                 BufferedImage bufferedImage = ImageIO.read(inputStream);
-                JLabel jComponent = new JLabel(new ImageIcon(bufferedImage));
-                responsePanel.add(jComponent, constraints);
+
+                int inputWidth = bufferedImage.getWidth();
+                int inputHeight = bufferedImage.getHeight();
+
+                int outputWidth = 400;
+                int outputHeight = (int) ((double) inputHeight / inputWidth * outputWidth);
+
+                Image newImage = bufferedImage.getScaledInstance(outputWidth, outputHeight, Image.SCALE_FAST);
+                ImageIcon image = new ImageIcon(newImage);
+
+                JLabel jlabel = new JLabel(image);
+                responsePanel.add(new JBScrollPane(jlabel), constraints);
                 return;
             } catch (IOException e) {
                 throw new RuntimeException(e);
