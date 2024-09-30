@@ -191,12 +191,12 @@ object HttpUtils {
         return byteArrays
     }
 
-    fun constructFilePath(outPutFileName: String, parentPath: String): String {
-        return if (outPutFileName.startsWith("/") || outPutFileName[1] == ':') {
+    fun constructFilePath(filePath: String, parentPath: String): String {
+        return if (filePath.startsWith("/") || filePath[1] == ':') {
             // 绝对路径
-            outPutFileName
+            filePath
         } else {
-            "$parentPath/$outPutFileName"
+            "$parentPath/$filePath"
         }
     }
 

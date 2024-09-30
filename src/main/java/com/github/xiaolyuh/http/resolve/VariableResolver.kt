@@ -1,18 +1,22 @@
 package com.github.xiaolyuh.http.resolve
 
+import com.cool.request.utils.Base64Utils
 import com.dbn.common.util.UUIDs
 import com.github.xiaolyuh.http.env.EnvFileService
 import com.github.xiaolyuh.http.js.JsScriptExecutor
 import com.github.xiaolyuh.http.psi.HttpGlobalVariableDefinition
+import com.github.xiaolyuh.utils.HttpUtils
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
+import org.apache.commons.io.FileUtils
 import org.apache.commons.lang.math.RandomUtils
 import org.apache.commons.lang3.RandomStringUtils
+import java.io.File
 import java.util.regex.Pattern
 
 @Service(Service.Level.PROJECT)
 class VariableResolver(private val project: Project) {
-    private val pattern = Pattern.compile("(\\{\\{[a-zA-Z0-9.()\\-,\$]+}})", Pattern.MULTILINE)
+    private val pattern = Pattern.compile("(\\{\\{[\\w\\-,.\\\\:\$()\u4E00-\u9FA5]+}})", Pattern.MULTILINE)
     private val patternNotNumber = Pattern.compile("\\D")
     private val fileScopeVariableMap: MutableMap<String, String> = mutableMapOf()
 
@@ -49,7 +53,7 @@ class VariableResolver(private val project: Project) {
         selectedEnv: String?,
         httpFileParentPath: String,
     ): String {
-        var innerVariable = resolveInnerVariable(variable)
+        var innerVariable = resolveInnerVariable(variable, httpFileParentPath)
         if (innerVariable != null) {
             return innerVariable
         }
@@ -79,7 +83,7 @@ class VariableResolver(private val project: Project) {
         throw IllegalArgumentException("无法解析变量${variable}")
     }
 
-    private fun resolveInnerVariable(variable: String): String? {
+    private fun resolveInnerVariable(variable: String, httpFileParentPath: String): String? {
         if (variable == "\$random.uuid") {
             return UUIDs.compact()
         }
@@ -116,6 +120,19 @@ class VariableResolver(private val project: Project) {
         if (variable.startsWith("\$random.numeric")) {
             val count = patternNotNumber.matcher(variable).replaceAll("")
             return RandomStringUtils.randomNumeric(count.toInt())
+        }
+
+        val funName = "\$imageToBase64"
+        if (variable.startsWith(funName)) {
+            val imagePath = variable.substring(funName.length + 1, variable.length - 1)
+            val filePath = HttpUtils.constructFilePath(imagePath, httpFileParentPath)
+            val file = File(filePath)
+            if (!file.exists()) {
+                throw IllegalArgumentException("文件${filePath}不存在!")
+            }
+
+            val bytes = FileUtils.readFileToByteArray(file)
+            return Base64Utils.encodeToString(bytes)
         }
 
         return null
