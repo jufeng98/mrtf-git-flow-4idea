@@ -99,7 +99,7 @@ public class HttpClientUtil {
             headers.forEach(builder::setHeader);
         }
 
-        HttpRequest request = builder.build();
+        HttpRequest request = builder.timeout(Duration.ofSeconds(6)).build();
         HttpResponse<T> response;
         if (resType == byte[].class) {
             response = (HttpResponse<T>) client.send(request, HttpResponse.BodyHandlers.ofByteArray());

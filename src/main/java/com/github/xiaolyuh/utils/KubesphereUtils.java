@@ -211,7 +211,7 @@ public class KubesphereUtils {
 
         String compileLogPath = ConfigUtil.getCompileLogPath(project);
         if (StringUtils.isBlank(compileLogPath)) {
-            throw new RuntimeException("未配置compileLogPath参数");
+            throw new RuntimeException("构建失败了,由于未配置compileLogPath参数,无法获取详细构建错误信息");
         }
 
         String urlCompile = url + compileLogPath;

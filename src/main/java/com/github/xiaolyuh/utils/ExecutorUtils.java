@@ -205,7 +205,7 @@ public class ExecutorUtils {
             return;
         }
 
-        NotifyUtil.notifySuccess(project, newInstanceName + "新实例已准备就绪,开始监控实例数量");
+        NotifyUtil.notifySuccess(project, newInstanceName + "新实例已启动成功,开始监控实例数量");
 
         monitorServiceNumTask(podUrl, selectService, project);
     }
