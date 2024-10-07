@@ -5,9 +5,7 @@ import com.intellij.notification.NotificationGroup;
 import com.intellij.notification.NotificationGroupManager;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.project.Project;
-import net.minidev.json.JSONObject;
-import com.intellij.openapi.application.ReadAction;
-import org.apache.commons.httpclient.util.DateUtil;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.jsoup.internal.StringUtil;
 
 import java.util.Date;
@@ -54,9 +52,12 @@ public class NotifyUtil {
         if (project == null) {
             return;
         }
+
         notifyWebhook(project, title, message);
+
         group.createNotification(title, message, type).notify(project);
     }
+
     // 内容模板 当前时间 - 执行任务(标题) - 执行结果(内容) - 所属项目
     private static final String contentTemplate = "%s - %s - %s - %s";
 
@@ -67,10 +68,19 @@ public class NotifyUtil {
             if (StringUtil.isBlank(url)) {
                 return;
             }
-            String now = DateUtil.formatDate(new Date(), "yyyy-MM-dd HH:mm:ss");
+
+            StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+            StackTraceElement traceElement = stackTrace[4];
+            if (!traceElement.getClassName().equals(KubesphereUtils.class.getName())
+                    && !traceElement.getClassName().equals(ExecutorUtils.class.getName())) {
+                return;
+            }
+
+            String now = DateFormatUtils.format(new Date(), "yyyy-MM-dd HH:mm:ss");
             String content = String.format(contentTemplate, now, title, message, project.getName());
             HttpClientUtil.postApplicationJson(url, generateJSONStr(content), String.class, project);
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
     }
 
     public static Object generateJSONStr(String Content) {

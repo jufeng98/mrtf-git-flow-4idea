@@ -241,6 +241,11 @@ public class KbsMsgDialog extends DialogWrapper {
     @Override
     public void show() {
         super.show();
+
+        if (editor == null) {
+            return;
+        }
+
         scrollToBottom(editor);
     }
 

@@ -143,6 +143,7 @@ public class KubesphereUtils {
             throw new RuntimeException("当前url:" + podUrl + ",返回结果:" + resObj);
         }
         TimeUnit.SECONDS.sleep(10);
+
         return findInstanceName(podUrl, id, detectTimes, project);
     }
 
