@@ -5,7 +5,6 @@ import com.github.xiaolyuh.http.psi.HttpMethod
 import com.github.xiaolyuh.utils.HttpUtils
 import com.intellij.execution.lineMarker.RunLineMarkerContributor
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiUtil
@@ -13,7 +12,8 @@ import com.intellij.psi.util.PsiUtil
 class HttpRunLineMarkerContributor : RunLineMarkerContributor() {
 
     override fun getInfo(element: PsiElement): Info? {
-        if (element.parent !is HttpMethod) {
+        val parent = element.parent
+        if (parent !is HttpMethod) {
             return null
         }
 
@@ -22,7 +22,7 @@ class HttpRunLineMarkerContributor : RunLineMarkerContributor() {
             return null
         }
 
-        val action = ActionManager.getInstance().getAction("GitFlowPlus.HttpAction") as HttpAction
+        val action = HttpAction(parent)
 
         return Info(AllIcons.Actions.Execute, arrayOf<AnAction>(action)) { _ ->
             "执行请求"

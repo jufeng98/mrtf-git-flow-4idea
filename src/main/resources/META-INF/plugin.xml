@@ -403,14 +403,6 @@
         </group>
 
         <action
-                id="GitFlowPlus.HttpAction"
-                class="com.github.xiaolyuh.http.action.HttpAction"
-                text="http请求"
-                description="执行http请求"
-                icon="/icons/actionGroupNew.svg">
-        </action>
-
-        <action
                 id="GitFlowPlus.EditorIllustrationAction"
                 class="com.github.xiaolyuh.action.TranslateAction"
                 text="翻译"
