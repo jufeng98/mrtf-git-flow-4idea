@@ -10,7 +10,6 @@ import com.intellij.openapi.editor.ex.EditorGutterComponentEx
 class HttpAction(private val httpMethod: HttpMethod) : AnAction() {
 
     override fun actionPerformed(e: AnActionEvent) {
-
         val component = e.inputEvent.component as EditorGutterComponentEx
         val navigationHandler = HttpGutterIconClickHandler(httpMethod)
 

@@ -5,7 +5,6 @@ import com.github.xiaolyuh.http.psi.HttpMethod
 import com.github.xiaolyuh.utils.HttpUtils
 import com.intellij.execution.lineMarker.RunLineMarkerContributor
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiUtil
 
@@ -24,9 +23,7 @@ class HttpRunLineMarkerContributor : RunLineMarkerContributor() {
 
         val action = HttpAction(parent)
 
-        return Info(AllIcons.Actions.Execute, arrayOf<AnAction>(action)) { _ ->
-            "执行请求"
-        }
+        return Info(AllIcons.Actions.Execute, arrayOf(action)) { _ -> "执行请求" }
     }
 
 }

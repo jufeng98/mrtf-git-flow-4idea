@@ -89,6 +89,9 @@ public class HttpEditorTopForm extends JComponent {
     public static void setSelectedEnv(String httpFilePath, Project project, String env) {
         FileEditorManager editorManager = FileEditorManager.getInstance(project);
         FileEditor selectedEditor = editorManager.getSelectedEditor();
+        if (selectedEditor == null) {
+            return;
+        }
 
         VirtualFile virtualFile = selectedEditor.getFile();
         if (virtualFile == null || !Objects.equals(httpFilePath, virtualFile.getPath())) {
