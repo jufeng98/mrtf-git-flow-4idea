@@ -16,6 +16,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiComment
 import com.intellij.psi.PsiFile
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.util.PsiUtil
 import com.intellij.psi.util.elementType
 import java.io.File
 import java.net.URI
@@ -260,6 +261,11 @@ object HttpUtils {
     }
 
     fun getOriginalFile(httpUrl: HttpUrl): VirtualFile? {
+        val virtualFile = PsiUtil.getVirtualFile(httpUrl)
+        if (!isFileInIdeaDir(virtualFile)) {
+            return virtualFile
+        }
+
         val httpMethod = PsiTreeUtil.getPrevSiblingOfType(httpUrl, HttpMethod::class.java) ?: return null
 
         val tabName = if (isFileInIdeaDir(httpUrl.containingFile.virtualFile)) {
@@ -290,9 +296,9 @@ object HttpUtils {
         val url = httpUrl.text.trim()
 
         val start: Int
-        val bracketIdx = url.lastIndexOf("}")
+        val bracketIdx = url.indexOf("}}")
         start = if (bracketIdx != -1) {
-            bracketIdx + 1
+            bracketIdx + 2
         } else {
             val envFileService = EnvFileService.getService(project)
             val contextPath = envFileService.getEnvValue("contextPath", null, httpFileParentPath)
