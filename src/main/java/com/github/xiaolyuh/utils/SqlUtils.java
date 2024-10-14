@@ -1,6 +1,7 @@
 package com.github.xiaolyuh.utils;
 
 import com.github.xiaolyuh.sql.psi.SqlColumnAlias;
+import com.github.xiaolyuh.sql.psi.SqlColumnExpr;
 import com.github.xiaolyuh.sql.psi.SqlColumnName;
 import com.github.xiaolyuh.sql.psi.SqlCompoundSelectStmt;
 import com.github.xiaolyuh.sql.psi.SqlGroupingTerm;
@@ -189,6 +190,11 @@ public class SqlUtils {
 
     public static @Nullable SqlTableName getTableNameOfAlias(SqlTableAlias sqlTableAlias) {
         return PsiTreeUtil.getPrevSiblingOfType(sqlTableAlias, SqlTableName.class);
+    }
+
+    public static @Nullable SqlColumnName getSqlColumnNameOfAlias(SqlColumnAlias sqlColumnAlias) {
+        SqlColumnExpr sqlColumnExpr = PsiTreeUtil.getPrevSiblingOfType(sqlColumnAlias, SqlColumnExpr.class);
+        return PsiTreeUtil.getChildOfType(sqlColumnExpr, SqlColumnName.class);
     }
 
     public static List<SqlTableName> getSqlTableNames(Collection<SqlJoinClause> sqlJoinClauses) {

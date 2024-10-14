@@ -4,11 +4,13 @@ import com.dbn.cache.CacheDbTable;
 import com.dbn.common.util.Naming;
 import com.dbn.navigation.psi.DbnToolWindowPsiElement;
 import com.github.xiaolyuh.sql.parser.SqlFile;
+import com.github.xiaolyuh.sql.psi.SqlColumnAlias;
 import com.github.xiaolyuh.sql.psi.SqlColumnName;
 import com.github.xiaolyuh.sql.psi.SqlStatement;
 import com.github.xiaolyuh.sql.psi.SqlTableAlias;
 import com.github.xiaolyuh.sql.psi.SqlTableName;
 import com.github.xiaolyuh.utils.SqlUtils;
+import com.github.xiaolyuh.utils.StringUtil;
 import com.intellij.codeInsight.completion.CompletionContributor;
 import com.intellij.codeInsight.completion.CompletionParameters;
 import com.intellij.codeInsight.completion.CompletionResultSet;
@@ -45,8 +47,27 @@ public class SqlCompletionContributor extends CompletionContributor {
         if (parent instanceof SqlTableAlias) {
             SqlTableAlias sqlTableAlias = (SqlTableAlias) parent;
             fillTableAliasOfGenerated(result, sqlTableAlias);
+            return;
         }
 
+        if (parent instanceof SqlColumnAlias) {
+            SqlColumnAlias sqlColumnAlias = (SqlColumnAlias) parent;
+            fillColumnAliasGenerated(result, sqlColumnAlias);
+        }
+
+    }
+
+    private void fillColumnAliasGenerated(CompletionResultSet result, SqlColumnAlias sqlColumnAlias) {
+        SqlColumnName sqlColumnName = SqlUtils.getSqlColumnNameOfAlias(sqlColumnAlias);
+        if (sqlColumnName == null) {
+            return;
+        }
+
+        String aliasName = StringUtil.toCamelCase(sqlColumnName.getText());
+        LookupElementBuilder builder = LookupElementBuilder
+                .create(aliasName)
+                .bold();
+        result.addElement(builder);
     }
 
     private void fillTableAliasOfGenerated(CompletionResultSet result, SqlTableAlias sqlTableAlias) {
