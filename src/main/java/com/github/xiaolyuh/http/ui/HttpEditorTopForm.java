@@ -75,17 +75,21 @@ public class HttpEditorTopForm extends JComponent {
         }
     }
 
-    @SuppressWarnings("DataFlowIssue")
     public static @Nullable String getSelectedEnv(Project project) {
         FileEditorManager editorManager = FileEditorManager.getInstance(project);
         FileEditor selectedEditor = editorManager.getSelectedEditor();
+        if (selectedEditor == null) {
+            return null;
+        }
 
         HttpEditorTopForm httpEditorTopForm = selectedEditor.getUserData(HttpEditorTopForm.KEY);
+        if (httpEditorTopForm == null) {
+            return null;
+        }
 
         return httpEditorTopForm.getSelectedEnv();
     }
 
-    @SuppressWarnings("DataFlowIssue")
     public static void setSelectedEnv(String httpFilePath, Project project, String env) {
         FileEditorManager editorManager = FileEditorManager.getInstance(project);
         FileEditor selectedEditor = editorManager.getSelectedEditor();
@@ -99,6 +103,9 @@ public class HttpEditorTopForm extends JComponent {
         }
 
         HttpEditorTopForm httpEditorTopForm = selectedEditor.getUserData(HttpEditorTopForm.KEY);
+        if (httpEditorTopForm == null) {
+            return;
+        }
 
         httpEditorTopForm.setSelectEnv(env);
     }

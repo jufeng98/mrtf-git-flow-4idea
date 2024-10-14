@@ -16,7 +16,6 @@ import java.util.regex.Pattern
 
 @Service(Service.Level.PROJECT)
 class VariableResolver(private val project: Project) {
-    private val pattern = Pattern.compile("(\\{\\{[\\w\\-,.\\\\:\$()\u4E00-\u9FA5]+}})", Pattern.MULTILINE)
     private val patternNotNumber = Pattern.compile("\\D")
     private val fileScopeVariableMap: MutableMap<String, String> = mutableMapOf()
 
@@ -38,7 +37,7 @@ class VariableResolver(private val project: Project) {
     }
 
     fun resolve(str: String, selectedEnv: String?, httpFileParentPath: String): String {
-        val matcher = pattern.matcher(str)
+        val matcher = PATTERN.matcher(str)
 
         return matcher.replaceAll {
             val matchStr = it.group()
@@ -142,5 +141,7 @@ class VariableResolver(private val project: Project) {
         fun getService(project: Project): VariableResolver {
             return project.getService(VariableResolver::class.java)
         }
+
+        val PATTERN: Pattern = Pattern.compile("(\\{\\{[\\w\\-,.\\\\:\$()\u4E00-\u9FA5]+}})", Pattern.MULTILINE)
     }
 }
