@@ -48,8 +48,6 @@
     <depends>com.intellij.properties</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <highlightErrorFilter implementation="com.github.xiaolyuh.suppress.MyHighlightErrorFilter"/>
-
         <statusBarWidgetFactory implementation="com.github.xiaolyuh.ui.GitFlowPlusStatusBarWidgetFactory"
                                 id="GitFlowPlusStatusBarWidgetFactory" order="last"/>
 
