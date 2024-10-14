@@ -24,7 +24,7 @@ class HttpRunProfileState(
     override fun execute(executor: Executor?, runner: ProgramRunner<*>): ExecutionResult? {
         val httpMethod = getTargetHttpMethod(httpFilePath, environment.runProfile.name, project) ?: return null
 
-        HttpEditorTopForm.setSelectedEnv(httpFilePath, project, env)
+        HttpEditorTopForm.setCurrentEditorSelectedEnv(httpFilePath, project, env)
 
         val handler = HttpGutterIconClickHandler(httpMethod)
         handler.doRequest(null, env)

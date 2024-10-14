@@ -58,7 +58,7 @@ public class HttpEditorTopForm extends JComponent {
         presetEnvSet.forEach(it -> envComboBox.addItem(it));
     }
 
-    public String getSelectedEnv() {
+    public String getCurrentEditorSelectedEnv() {
         return (String) envComboBox.getSelectedItem();
     }
 
@@ -75,7 +75,7 @@ public class HttpEditorTopForm extends JComponent {
         }
     }
 
-    public static @Nullable String getSelectedEnv(Project project) {
+    public static @Nullable String getCurrentEditorSelectedEnv(Project project) {
         FileEditorManager editorManager = FileEditorManager.getInstance(project);
         FileEditor selectedEditor = editorManager.getSelectedEditor();
         if (selectedEditor == null) {
@@ -87,10 +87,10 @@ public class HttpEditorTopForm extends JComponent {
             return null;
         }
 
-        return httpEditorTopForm.getSelectedEnv();
+        return httpEditorTopForm.getCurrentEditorSelectedEnv();
     }
 
-    public static void setSelectedEnv(String httpFilePath, Project project, String env) {
+    public static void setCurrentEditorSelectedEnv(String httpFilePath, Project project, String env) {
         FileEditorManager editorManager = FileEditorManager.getInstance(project);
         FileEditor selectedEditor = editorManager.getSelectedEditor();
         if (selectedEditor == null) {

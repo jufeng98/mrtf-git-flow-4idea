@@ -13,7 +13,7 @@ class HttpAction(private val httpMethod: HttpMethod) : AnAction() {
         val component = e.inputEvent.component as EditorGutterComponentEx
         val navigationHandler = HttpGutterIconClickHandler(httpMethod)
 
-        val selectedEnv = HttpEditorTopForm.getSelectedEnv(httpMethod.project)
+        val selectedEnv = HttpEditorTopForm.getCurrentEditorSelectedEnv(httpMethod.project)
         navigationHandler.doRequest(component, selectedEnv)
     }
 
