@@ -43,7 +43,11 @@ url ::= URL_DESC {
 }
 version ::= 'HTTP/1.1' | 'HTTP/2.0'
 method ::= GET | POST | DELETE | PUT
-headers ::= header*
+headers ::= header* {
+   methods = [
+       getReferences
+   ]
+}
 header ::= HEADER_DESC
 body ::= ordinary_content | multipart_content
 script ::= T_RT JS_SCRIPT {

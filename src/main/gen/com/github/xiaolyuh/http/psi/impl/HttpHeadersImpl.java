@@ -10,6 +10,7 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static com.github.xiaolyuh.http.psi.HttpTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.github.xiaolyuh.http.psi.*;
+import com.intellij.psi.PsiReference;
 
 public class HttpHeadersImpl extends ASTWrapperPsiElement implements HttpHeaders {
 
@@ -31,6 +32,11 @@ public class HttpHeadersImpl extends ASTWrapperPsiElement implements HttpHeaders
   @NotNull
   public List<HttpHeader> getHeaderList() {
     return PsiTreeUtil.getChildrenOfTypeAsList(this, HttpHeader.class);
+  }
+
+  @Override
+  public PsiReference @NotNull [] getReferences() {
+    return HttpPsiImplUtil.getReferences(this);
   }
 
 }
