@@ -47,14 +47,9 @@
     <depends>com.intellij.java</depends>
     <depends>com.intellij.properties</depends>
     <depends optional="true" config-file="gitflow-plus-dbn.xml">DBN</depends>
-    <depends optional="true" config-file="gitflow-plus-cool-request.xml">com.hxl.plugin.cool-request</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <highlightErrorFilter implementation="com.github.xiaolyuh.suppress.MyHighlightErrorFilter"/>
-        <lang.inspectionSuppressor language="JSON"
-                                   implementationClass="com.github.xiaolyuh.suppress.JsonInspectionSuppressor"/>
-        <lang.inspectionSuppressor language="JAVA"
-                                   implementationClass="com.github.xiaolyuh.suppress.JavaInspectionSuppressor"/>
 
         <statusBarWidgetFactory implementation="com.github.xiaolyuh.ui.GitFlowPlusStatusBarWidgetFactory"
                                 id="GitFlowPlusStatusBarWidgetFactory" order="last"/>
@@ -281,41 +276,12 @@
                                       implementationClass="com.github.xiaolyuh.sql.structure.SqlStructureViewBuilderProvider"/>
         <lang.elementManipulator forClass="com.github.xiaolyuh.sql.psi.SqlStatement"
                                  implementationClass="com.github.xiaolyuh.sql.manipulator.SqlManipulator"/>
-
-
-        <fileType
-                name="HTTP"
-                implementationClass="com.github.xiaolyuh.http.HttpFileType"
-                fieldName="INSTANCE"
-                language="http"
-                extensions="http"/>
-        <lang.parserDefinition
-                language="http"
-                implementationClass="com.github.xiaolyuh.http.parser.HttpParserDefinition"/>
-        <lang.ast.factory language="http" implementationClass="com.github.xiaolyuh.http.HttpASTFactory"/>
-        <lang.syntaxHighlighterFactory
-                language="http"
-                implementationClass="com.github.xiaolyuh.http.highlight.HttpSyntaxHighlighterFactory"/>
-        <multiHostInjector
-                implementation="com.github.xiaolyuh.http.inject.HttpInjectionContributor"/>
-        <runLineMarkerContributor language="http"
-                                  implementationClass="com.github.xiaolyuh.http.gutter.HttpRunLineMarkerContributor"/>
-        <toolWindow id="Http Execution"
-                    icon="com.dbn.common.icon.Icons.WINDOW_EXECUTION_CONSOLE"
-                    anchor="right"
-                    canCloseContents="true"
-                    factoryClass="com.github.xiaolyuh.http.ui.HttpExecutionConsoleToolWindowFactory"/>
-        <configurationType implementation="com.github.xiaolyuh.http.runconfig.HttpConfigurationType"/>
-        <runDashboardCustomizer implementation="com.github.xiaolyuh.http.dashboard.HttpRunDashboardCustomizer"
-                                id="httpRunDashboardCustomizer"/>
     </extensions>
 
     <projectListeners>
         <listener
                 class="com.github.xiaolyuh.listener.GitFlowPlusListener"
                 topic="com.intellij.openapi.project.ProjectManagerListener"/>
-        <listener topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"
-                  class="com.github.xiaolyuh.http.editor.HttpEditorListener"/>
         <listener topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"
                   class="com.github.xiaolyuh.sql.listener.SqlEditorListener"/>
     </projectListeners>

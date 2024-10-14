@@ -32,7 +32,6 @@ intellij {
             "tasks",
             "com.intellij.java",
             "com.intellij.properties",
-            "com.hxl.plugin.cool-request:2024.8.1",
             // "DBN:3.4.4179.0",
             // 魔改过的DBN插件, see https://github.com/jufeng98/dbn.git
             file("D:\\my_opensource_project\\dbn\\build\\distributions\\DBN-MASTER")
