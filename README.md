@@ -1,28 +1,37 @@
 # 简介
-GitFlowPlus4Idea插件是一款基于[mrtf-git-flow](https://xiaolyuh.blog.csdn.net/article/details/105180250)分支管理流程的Idea插件，它最主要的作用是用来简化分支管理流程，最大限度的防止误操作。
+GitFlowTools 插件是一款基于[mrtf-git-flow](https://xiaolyuh.blog.csdn.net/article/details/105180250)分支管理流程的Idea插件，它最主要的作用是用来简化分支管理流程，最大限度的防止误操作。
+Fork code from [GitFlowPlus](https://plugins.jetbrains.com/plugin/14056-gitflowplus).
 
+#### mrtf说明
 ![mrrtf.png](https://github.com/xiaolyuh/mrtf-git-flow-4idea/blob/master/images/mrrtf.png)
 
 > 在初始化插件之前必须先保证仓库中具有```origin/master```分支。
 
 主要功能如下：
-- 插件配置文件可以加入GIT版本管理，在团队内部共享；
-- 基于```origin/master```新建开发分支和修复分支；
-- 基于```origin/master```重建测试分支和发布分支；
-- 开发完成后将开发分支合并到测试分支；
-- 支持在本地发起Merge Request；
-- 测试完成后将开发分支合并到发布分支，并锁定发布分支；
-- 发布完成后将发布分支合并到```origin/master```分支；
-- 发布失败将解除发布分支的锁定；
+- 插件配置文件可以加入GIT版本管理，在团队内部共享
+- 基于```origin/master```新建开发分支和修复分支
+- 基于```origin/master```重建测试分支和发布分支
+- 开发完成后将开发分支合并到测试分支
+- 支持在本地发起Merge Request
+- 测试完成后将开发分支合并到发布分支，并锁定发布分支
+- 发布完成后将发布分支合并到```origin/master```分支
+- 发布失败将解除发布分支的锁定
 - 只有锁定发布分支的人才能点[发布完成]和[发布失败]
 - 所有执行的git命令都可以在"Event Log"查看
+- 支持在本地发起Merge Request
+- 批量删除分支
+- 提测时可选择触发 Kubesphere 流水线
+- 触发 Kubesphere 流水线后可检测服务的构建和启动情况并通知进度
+- 连接 Kubesphere pod 控制台
+- 查看 Kubesphere pod 日志
 
 # 主要解决的问题
-1. 新建特性分支操作过程复杂，且容易出错；
-2. 提测等环节合并代码出错，老是将测试分支代码带上线；
-3. 解决多人同时发布，将未完成预发布测试的代码带上线；
-4. 解决发布完成后忘记将代码同步到```origin/master```分支；
-5. 发布完成后忘记打Tag；
+1. 新建特性分支操作过程复杂，且容易出错
+2. 提测等环节合并代码出错，老是将测试分支代码带上线
+3. 解决多人同时发布，将未完成预发布测试的代码带上线
+4. 解决发布完成后忘记将代码同步到```origin/master```分支
+5. 发布完成后忘记打Tag
+6. 修改代码后部署 Kubesphere 测试环境的繁琐性
 
 # Switch To English
 ![switch_to_english.gif](https://github.com/xiaolyuh/mrtf-git-flow-4idea/blob/master/images/switch_to_english.gif)
@@ -33,8 +42,6 @@ GitFlowPlus4Idea插件是一款基于[mrtf-git-flow](https://xiaolyuh.blog.csdn.
 
 
 ## 离线安装
-下载地址: [https://github.com/xiaolyuh/mrtf-git-flow-4idea/releases](https://github.com/xiaolyuh/mrtf-git-flow-4idea/releases)
-
 ![local_install.gif](https://github.com/xiaolyuh/mrtf-git-flow-4idea/blob/master/images/local_install.gif)
 
 # 插件入口
@@ -207,27 +214,22 @@ git fetch origin （更新本地仓库缓存）
 git push origin --delete GFP_LOCK_BRANCH_NAME（解锁）
 ```
 
-
 # 帮助
 点击帮助会直接跳转插件首页
 
-
 # 作者信息
-作者博客：[https://xiaolyuh.blog.csdn.net/](https://xiaolyuh.blog.csdn.net/)
-作者邮箱： xiaolyuh@163.com  
-github 地址：https://github.com/wyh-chenfeng/layering-cache
+- 作者博客：[https://www.zhihu.com/people/liang-yu-dong-44](https://www.zhihu.com/people/liang-yu-dong-44)
+- 作者邮箱： 375709770@qq.com  
+- github 地址：[https://github.com/jufeng98](https://github.com/jufeng98)
 
 
 # 捐赠
-项目的发展离不开你的支持，请作者喝杯咖啡吧！
-
-![donate.png](https://github.com/xiaolyuh/mrtf-git-flow-4idea/blob/master/images/donate.png)
-
+如果项目帮到了您，请作者喝杯咖啡吧！
+![donate.jpg](https://github.com/xiaolyuh/mrtf-git-flow-4idea/blob/master/images/donate.jpg)
 
 # 技术支持
-添加微信记得备注 ```GitFlowPlus```，捐赠100元以上的用户可享有需求优先解决、协助部署、二次开发帮助。
-
-![微信](https://github.com/xiaolyuh/layering-cache/blob/master/images/wechat.png)
+添加微信记得备注 ```GitFlowTools```。
+![wechat.jpg](https://github.com/xiaolyuh/layering-cache/blob/master/images/wechat.jpg)
 
 
 

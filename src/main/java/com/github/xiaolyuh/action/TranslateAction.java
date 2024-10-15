@@ -1,20 +1,19 @@
 package com.github.xiaolyuh.action;
 
 import com.github.xiaolyuh.ui.TranslateDialog;
+import com.github.xiaolyuh.utils.ConfigUtil;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.actionSystem.IdeActions;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
-import com.intellij.openapi.editor.actionSystem.EditorActionManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.util.Disposer;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 public class TranslateAction extends AnAction {
@@ -25,7 +24,8 @@ public class TranslateAction extends AnAction {
         Editor editor = event.getData(CommonDataKeys.EDITOR);
 
         // 只有打开了编辑器且有选中内容时才显示 TranslateAction 菜单
-        boolean showAction = project != null && editor != null && editor.getSelectionModel().hasSelection();
+        boolean showAction = project != null && editor != null && editor.getSelectionModel().hasSelection()
+                && StringUtils.isNotBlank(ConfigUtil.getBaiduConfig().getFirst());
         event.getPresentation().setEnabledAndVisible(showAction);
     }
 

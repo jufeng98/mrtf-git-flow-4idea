@@ -1,43 +1,50 @@
 <!--suppress PluginXmlCapitalization -->
 <idea-plugin>
-    <id>com.github.xiaolyuh.mrtf-git-flow-4idea</id>
-    <name>GitFlowPlus</name>
-    <vendor email="xiaolyuh@163.com" url="https://xiaolyuh.blog.csdn.net/article/details/105150446">
-        Author:汪雨浩, enhance by:梁煜东
+    <id>com.github.xiaolyuh.mrtf-git-flow-tools</id>
+    <name>GitFlowTools</name>
+    <vendor email="375709770@qq.com" url="https://www.zhihu.com/people/liang-yu-dong-44">
+        梁煜东
     </vendor>
 
     <description>
         <![CDATA[
         This is a branch management plugin for the <a href="https://xiaolyuh.blog.csdn.net/article/details/105180250"> mrtf git flow </a> (master, release, test, feature) process <a href="https://xiaolyuh.blog.csdn.net/article/details/105150446"> Usage Guide </a>. <br>
-        The biggest advantage is to reduce the operation of switching branches and merging branches in the agile development process, and reduce the labor cost of branch management.<br>     
-     <br>
-     The main functions are as follows: <br>
-      1. Plug-in configuration files can be added to GIT version management and shared within the team; <br>
-      2. New development branch and repair branch based on origin / master; <br>
-      3. Rebuild test branch and release branch based on origin / master; <br>
-      4. After the development is completed, merge the development branch into the test branch; <br>
-      4. After the test is completed, the development branch is merged into the release branch, and the release branch is locked; <br>
-      5. After the release is completed, merge the release branch into the origin / master branch; <br>
-      6. Failure to release will unlock the release branch; <br>
-      7. Only those who lock the release branch can click [release complete] and [release failed]; <br>
-      8. All executed git commands can be viewed in "Event Log"; <br>
-      9. Support to initiate Merge Request locally; <br>
-
+        The biggest advantage is to reduce the operation of switching branches and merging branches in the agile development process, and reduce the labor cost of branch management.<br>
         <br>
-    这是一个适用于<a href="https://xiaolyuh.blog.csdn.net/article/details/105180250">mrtf git flow</a> (master,release,test,feature) 流程的分支管理插件 <a href="https://xiaolyuh.blog.csdn.net/article/details/105150446">使用指南</a>。<br>
-    最大优势是减少敏捷开发过程中切换分支和合并分支的操作，降低分支管理的人力成本。<br>
-     <br>
-    主要功能如下：<br>
-     1. 插件配置文件可以加入GIT版本管理，在团队内部共享； <br>
-     2. 基于origin/master新建开发分支和修复分支； <br>
-     3. 基于origin/master重建测试分支和发布分支； <br>
-     4. 开发完成后将开发分支合并到测试分支； <br>
-     4. 测试完成后将开发分支合并到发布分支，并锁定发布分支； <br>
-     5. 发布完成后将发布分支合并到origin/master分支； <br>
-     6. 发布失败将解除发布分支的锁定； <br>
-     7. 只有锁定发布分支的人才能点[发布完成]和[发布失败]； <br>
-     8. 所有执行的git命令都可以在"Event Log"查看； <br>
-     9. 支持在本地发起Merge Request； <br>
+        The main functions are as follows: <br>
+        <ol>
+            <li>Plug-in configuration files can be added to GIT version management and shared within the team</li>
+            <li>New development branch and repair branch based on origin / master</li>
+            <li>Rebuild test branch and release branch based on origin / master</li>
+            <li>After the development is completed, merge the development branch into the test branch</li>
+            <li>After the test is completed, the development branch is merged into the release branch, and the release branch is locked</li>
+            <li>After the release is completed, merge the release branch into the origin / master branch</li>
+            <li>Failure to release will unlock the release branch</li>
+            <li>Only those who lock the release branch can click [release complete] and [release failed]</li>
+            <li>All executed git commands can be viewed in "Event Log"</li>
+            <li>Support to initiate Merge Request locally</li>
+        </ol><br>
+        Fork code from <a herf="https://plugins.jetbrains.com/plugin/14056-gitflowplus">GitFlowPlus</a><br>
+        这是一个适用于<a href="https://xiaolyuh.blog.csdn.net/article/details/105180250">mrtf git flow</a> (master,release,test,feature) 流程的分支管理插件 <a href="https://xiaolyuh.blog.csdn.net/article/details/105150446">使用指南</a>。<br>
+        最大优势是减少敏捷开发过程中切换分支和合并分支的操作，降低分支管理的人力成本。<br><br>
+        主要功能如下：<br>
+        <ol>
+             <li>插件配置文件可以加入GIT版本管理，在团队内部共享</li>
+             <li>基于origin/master新建开发分支和修复分支</li>
+             <li>基于origin/master重建测试分支和发布分支</li>
+             <li>开发完成后将开发分支合并到测试分支</li>
+             <li>测试完成后将开发分支合并到发布分支，并锁定发布分支</li>
+             <li>发布完成后将发布分支合并到origin/master分支</li>
+             <li>发布失败将解除发布分支的锁定</li>
+             <li>只有锁定发布分支的人才能点[发布完成]和[发布失败]</li>
+             <li>所有执行的git命令都可以在"Event Log"查看</li>
+             <li>支持在本地发起Merge Request</li>
+             <li>批量删除分支</li>
+             <li>提测时可选择触发 Kubesphere 流水线</li>
+             <li>触发 Kubesphere 流水线后可检测服务的构建和启动情况并通知进度</li>
+             <li>连接 Kubesphere pod 控制台</li>
+             <li>查看 Kubesphere pod 日志</li>
+        </ol>
     ]]>
     </description>
 
@@ -172,9 +179,6 @@
                 implementationClass="com.github.xiaolyuh.cls.step20.SimpleDocumentationProvider"/>
         <spellchecker.support language="Simple"
                               implementationClass="com.github.xiaolyuh.cls.step21.SimpleSpellcheckingStrategy"/>
-        <!--        <multiHostInjector-->
-        <!--                implementation="com.github.xiaolyuh.cls.SimpleLanguageInjectionContributor"/>-->
-
 
         <fileType
                 name="Pointcut Expression"
@@ -240,7 +244,6 @@
     </applicationListeners>
 
     <actions>
-        <!-- Add your actions here -->
         <group id="GitFlowPlus.Menu" text="GitFlowPlus" description="GIT分支管理" icon="/icons/icon.svg"
                popup="true">
 
@@ -320,14 +323,6 @@
                 class="com.github.xiaolyuh.action.TranslateAction"
                 text="翻译"
                 description="翻译当前选择文本"
-                icon="/icons/actionGroupNew.svg">
-            <add-to-group group-id="EditorPopupMenu" anchor="first"/>
-        </action>
-        <action
-                id="GitFlowPlus.ArthasCommandAction"
-                class="com.github.xiaolyuh.action.ArthasCommandAction"
-                text="Arthas"
-                description="Arthas watch命令"
                 icon="/icons/actionGroupNew.svg">
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
         </action>

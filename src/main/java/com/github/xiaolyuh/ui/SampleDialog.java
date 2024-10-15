@@ -1,6 +1,5 @@
 package com.github.xiaolyuh.ui;
 
-import com.dbn.common.color.Colors;
 import com.github.xiaolyuh.utils.NotifyUtil;
 import com.intellij.codeInsight.hint.HintManager;
 import com.intellij.ide.IdeTooltip;
@@ -53,6 +52,7 @@ import com.intellij.psi.search.PsiShortNamesCache;
 import com.intellij.psi.search.searches.AllClassesSearch;
 import com.intellij.psi.search.searches.ClassInheritorsSearch;
 import com.intellij.psi.stubs.StubIndex;
+import com.intellij.ui.JBColor;
 import com.intellij.util.DocumentUtil;
 import com.intellij.util.Query;
 import com.intellij.util.indexing.FileBasedIndex;
@@ -71,6 +71,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import static com.intellij.icons.AllIcons.Gutter.Colors;
 
 @SuppressWarnings("DialogTitleCapitalization")
 public class SampleDialog extends DialogWrapper {
@@ -186,7 +188,7 @@ public class SampleDialog extends DialogWrapper {
 
     private void showTooltip(Project project) {
         IdeTooltip tooltip = new IdeTooltip(tooltipBtn, new Point(50, 12), new JLabel("这是tooltip提示"));
-        tooltip.setTextBackground(Colors.getWarningHintColor());
+        tooltip.setTextBackground(JBColor.GRAY);
         IdeTooltipManager.getInstance().show(tooltip, true);
 
         Editor textEditor = FileEditorManager.getInstance(project).getSelectedTextEditor();

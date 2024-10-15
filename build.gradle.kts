@@ -16,7 +16,6 @@ repositories {
 }
 
 dependencies {
-    implementation("org.openjdk.nashorn:nashorn-core:15.4")
     testImplementation("com.jcraft:jsch:0.1.54")
     testImplementation("junit:junit:4.13.1")
 }
@@ -32,9 +31,6 @@ intellij {
             "tasks",
             "com.intellij.java",
             "com.intellij.properties",
-            // "DBN:3.4.4179.0",
-            // 魔改过的DBN插件, see https://github.com/jufeng98/dbn.git
-            file("D:\\my_opensource_project\\dbn\\build\\distributions\\DBN-MASTER")
         )
     )
     intellij.updateSinceUntilBuild.set(false)
