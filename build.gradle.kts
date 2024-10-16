@@ -2,7 +2,6 @@ import java.net.URI
 
 plugins {
     id("java")
-    id("org.jetbrains.kotlin.jvm") version "1.9.20"
     id("org.jetbrains.intellij") version "1.16.0"
 }
 
@@ -16,11 +15,8 @@ repositories {
 }
 
 dependencies {
-    testImplementation("com.jcraft:jsch:0.1.54")
     testImplementation("junit:junit:4.13.1")
 }
-
-sourceSets["main"].java.srcDirs("src/main/gen")
 
 intellij {
     version.set("2022.1.2")
@@ -29,11 +25,8 @@ intellij {
         listOf(
             "Git4Idea",
             "tasks",
-            "com.intellij.java",
-            "com.intellij.properties",
         )
     )
-    intellij.updateSinceUntilBuild.set(false)
 }
 
 tasks {
@@ -42,14 +35,6 @@ tasks {
         sourceCompatibility = "11"
         targetCompatibility = "11"
         options.encoding = "UTF-8"
-    }
-    withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-        kotlinOptions.jvmTarget = "11"
-    }
-
-    jar {
-        // kt文件不知道被哪个配置影响导致被编译了两次,所以这里暂时配置下
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
 
     runIde {

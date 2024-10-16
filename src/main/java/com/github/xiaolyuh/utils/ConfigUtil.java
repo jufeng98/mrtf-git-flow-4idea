@@ -34,15 +34,6 @@ public class ConfigUtil {
     private static final Map<String, InitOptions> CONFIG_MAP = new ConcurrentHashMap<>();
     private static final Map<String, K8sOptions> K8S_MAP = new ConcurrentHashMap<>();
 
-    public static Pair<String, String> getBaiduConfig() {
-        return new Pair<>(PREFERENCES.get("baiduAppId", ""), PREFERENCES.get("baiduAppKey", ""));
-    }
-
-    public static void saveBaiduConfig(String appId, String appKey) {
-        PREFERENCES.put("baiduAppId", appId);
-        PREFERENCES.put("baiduAppKey", appKey);
-    }
-
     public static Pair<String, String> getKubesphereUser() {
         return new Pair<>(PREFERENCES.get("kubesphereUsername", ""), PREFERENCES.get("kubespherePassword", ""));
     }
@@ -51,10 +42,12 @@ public class ConfigUtil {
         PREFERENCES.put("kubesphereUsername", name);
         PREFERENCES.put("kubespherePassword", pwd);
     }
+
     public static void saveFsWebHookUrl(String url) {
         PREFERENCES.put("fsWebHookUrl", url);
     }
-    public static  String getFsWebHookUrl() {
+
+    public static String getFsWebHookUrl() {
         return PREFERENCES.get("fsWebHookUrl", "");
     }
 
@@ -282,11 +275,6 @@ public class ConfigUtil {
             // 集团登录接口
             return k8sOptions.getHost() + "/login";
         }
-    }
-
-    public static String getApolloUrl(Project project) {
-        K8sOptions k8sOptions = K8S_MAP.get(project.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME_PROJECT);
-        return k8sOptions.getApolloUrl();
     }
 
     private static K8sOptions getFromProjectK8sFile(Project project) {

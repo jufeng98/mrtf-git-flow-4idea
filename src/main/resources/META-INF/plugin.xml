@@ -51,8 +51,6 @@
     <depends>com.intellij.modules.vcs</depends>
     <depends>com.intellij.tasks</depends>
     <depends>Git4Idea</depends>
-    <depends>com.intellij.java</depends>
-    <depends>com.intellij.properties</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <statusBarWidgetFactory implementation="com.github.xiaolyuh.ui.GitFlowPlusStatusBarWidgetFactory"
@@ -73,162 +71,6 @@
         <notificationGroup id="GitflowPlus.NONE"
                            isLogByDefault="true"
                            displayType="NONE"/>
-
-        <toolWindow factoryClass="com.github.xiaolyuh.ui.GitFlowToolWindow"
-                    icon="/icons/icon.svg"
-                    anchor="right"
-                    doNotActivateOnStart="true"
-                    id="GitflowPlus.toolWindow"/>
-
-        <typedHandler implementation="com.github.xiaolyuh.handler.GitFlowPlusTypedHandler"/>
-
-        <projectConfigurable
-                parentId="tools"
-                instance="com.github.xiaolyuh.ui.AppSettingsConfigurable"
-                id="GitFlowPlus.AppSettingsConfigurable"
-                displayName="GitFlowPlus配置"/>
-
-        <localInspection language="JAVA"
-                         groupPath="Java"
-                         groupBundle="messages.ui"
-                         groupKey="inspection.group.names.gitflowplus"
-                         enabledByDefault="true"
-                         level="WARNING"
-                         implementationClass="com.github.xiaolyuh.inspection.FieldNameInspection"
-                         displayName="字段名不能以下划线开头"/>
-
-        <codeInsight.lineMarkerProvider language="JAVA"
-                                        implementationClass="com.github.xiaolyuh.gutter.InjectLineMarkerProvider"/>
-
-        <completion.contributor language="JAVA"
-                                order="first"
-                                implementationClass="com.github.xiaolyuh.completion.GitFlowCompletionContributor"/>
-
-        <psi.referenceContributor language="JAVA"
-                                  implementation="com.github.xiaolyuh.navigation.FilePsiReferenceContributor"/>
-
-        <psi.referenceContributor language="JAVA"
-                                  implementation="com.github.xiaolyuh.spring.ValueAnnotationReferenceContributor"/>
-
-        <psi.referenceContributor language="XML"
-                                  implementation="com.github.xiaolyuh.spring.XmlReferenceContributor"/>
-
-        <lang.foldingBuilder
-                language="JAVA"
-                implementationClass="com.github.xiaolyuh.spring.ValueAnnotationFoldingBuilder"/>
-
-        <codeInsight.lineMarkerProvider
-                language="JAVA"
-                implementationClass="com.github.xiaolyuh.spring.ValueAnnotationLineMarkerProvider"/>
-        <codeInsight.lineMarkerProvider
-                language="Properties"
-                implementationClass="com.github.xiaolyuh.apollo.ApolloLineMarkerProvider"/>
-
-        <fileType
-                name="Simple File"
-                implementationClass="com.github.xiaolyuh.cls.step2.SimpleFileType"
-                fieldName="INSTANCE"
-                language="Simple"
-                extensions="simple"/>
-        <lang.parserDefinition
-                language="Simple"
-                implementationClass="com.github.xiaolyuh.cls.step4.SimpleParserDefinition"/>
-        <lang.syntaxHighlighterFactory
-                language="Simple"
-                implementationClass="com.github.xiaolyuh.cls.step5.SimpleSyntaxHighlighterFactory"/>
-        <colorSettingsPage
-                implementation="com.github.xiaolyuh.cls.step5.SimpleColorSettingsPage"/>
-        <annotator
-                language="JAVA"
-                implementationClass="com.github.xiaolyuh.cls.step7.SimpleAnnotator"/>
-        <codeInsight.lineMarkerProvider
-                language="JAVA"
-                implementationClass="com.github.xiaolyuh.cls.step8.SimpleLineMarkerProvider"/>
-        <completion.contributor
-                language="Simple"
-                implementationClass="com.github.xiaolyuh.cls.step9.SimpleCompletionContributor"/>
-        <psi.referenceContributor language="JAVA"
-                                  implementation="com.github.xiaolyuh.cls.step10.SimpleReferenceContributor"/>
-        <lang.refactoringSupport
-                language="Simple"
-                implementationClass="com.github.xiaolyuh.cls.step10.SimpleRefactoringSupportProvider"/>
-        <lang.findUsagesProvider
-                language="Simple"
-                implementationClass="com.github.xiaolyuh.cls.step11.SimpleFindUsagesProvider"/>
-        <lang.foldingBuilder
-                language="JAVA"
-                implementationClass="com.github.xiaolyuh.cls.step12.SimpleFoldingBuilder"/>
-        <gotoSymbolContributor
-                implementation="com.github.xiaolyuh.cls.step13.SimpleChooseByNameContributor"/>
-        <lang.psiStructureViewFactory
-                language="Simple"
-                implementationClass="com.github.xiaolyuh.cls.step14.SimpleStructureViewFactory"/>
-        <navbar implementation="com.github.xiaolyuh.cls.step15.SimpleStructureAwareNavbar"/>
-        <lang.formatter
-                language="Simple"
-                implementationClass="com.github.xiaolyuh.cls.step16.SimpleFormattingModelBuilder"/>
-        <codeStyleSettingsProvider
-                implementation="com.github.xiaolyuh.cls.step17.SimpleCodeStyleSettingsProvider"/>
-        <langCodeStyleSettingsProvider
-                implementation="com.github.xiaolyuh.cls.step17.SimpleLanguageCodeStyleSettingsProvider"/>
-        <lang.commenter
-                language="Simple"
-                implementationClass="com.github.xiaolyuh.cls.step18.SimpleCommenter"/>
-        <lang.documentationProvider
-                language="Simple"
-                implementationClass="com.github.xiaolyuh.cls.step20.SimpleDocumentationProvider"/>
-        <spellchecker.support language="Simple"
-                              implementationClass="com.github.xiaolyuh.cls.step21.SimpleSpellcheckingStrategy"/>
-
-        <fileType
-                name="Pointcut Expression"
-                implementationClass="com.github.xiaolyuh.pcel.PointcutExpressionFileType"
-                fieldName="INSTANCE"
-                language="PointcutExpression"
-                extensions="pcel"/>
-        <lang.parserDefinition
-                language="PointcutExpression"
-                implementationClass="com.github.xiaolyuh.pcel.parser.PointcutExpressionParserDefinition"/>
-        <lang.syntaxHighlighterFactory
-                language="PointcutExpression"
-                implementationClass="com.github.xiaolyuh.pcel.highlight.PointcutExpressionSyntaxHighlighterFactory"/>
-        <colorSettingsPage
-                implementation="com.github.xiaolyuh.pcel.highlight.PointcutExpressionColorSettingsPage"/>
-        <languageInjectionContributor
-                implementationClass="com.github.xiaolyuh.pcel.inject.PointcutExpressionInjectionContributor"
-                language="JAVA"/>
-        <codeInsight.lineMarkerProvider
-                language="UAST"
-                implementationClass="com.github.xiaolyuh.spring.AopLineMarkerProvider"/>
-        <annotator
-                language="PointcutExpression"
-                implementationClass="com.github.xiaolyuh.spring.AopAnnotator"/>
-        <completion.contributor
-                language="PointcutExpression"
-                implementationClass="com.github.xiaolyuh.spring.AopCompletionContributor"/>
-        <psi.referenceContributor language="PointcutExpression"
-                                  implementation="com.github.xiaolyuh.spring.AopReferenceContributor"/>
-        <lang.elementManipulator forClass="com.github.xiaolyuh.pcel.psi.AopExpr"
-                                 implementationClass="com.github.xiaolyuh.spring.AopExprManipulator"/>
-
-        <fileType
-                name="SpEL"
-                implementationClass="com.github.xiaolyuh.spel.SpelFileType"
-                fieldName="INSTANCE"
-                language="SpEL"
-                extensions="spel"/>
-        <lang.parserDefinition
-                language="SpEL"
-                implementationClass="com.github.xiaolyuh.spel.parser.SpelParserDefinition"/>
-        <lang.syntaxHighlighterFactory
-                language="SpEL"
-                implementationClass="com.github.xiaolyuh.spel.highlight.SpelSyntaxHighlighterFactory"/>
-        <colorSettingsPage
-                implementation="com.github.xiaolyuh.spel.highlight.SpelColorSettingsPage"/>
-        <multiHostInjector
-                implementation="com.github.xiaolyuh.spel.inject.SpelMultiHostInjector"/>
-        <psi.referenceContributor language="SpEL"
-                                  implementation="com.github.xiaolyuh.spring.SpelReferenceContributor"/>
     </extensions>
 
     <projectListeners>
@@ -236,12 +78,6 @@
                 class="com.github.xiaolyuh.listener.GitFlowPlusListener"
                 topic="com.intellij.openapi.project.ProjectManagerListener"/>
     </projectListeners>
-
-    <applicationListeners>
-        <listener
-                class="com.github.xiaolyuh.listener.FileEditorListener"
-                topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"/>
-    </applicationListeners>
 
     <actions>
         <group id="GitFlowPlus.Menu" text="GitFlowPlus" description="GIT分支管理" icon="/icons/icon.svg"
@@ -317,14 +153,5 @@
             <action id="GitFlowPlus.HelpAction" class="com.github.xiaolyuh.action.HelpAction"
                     text="帮助" description="帮助" icon="/icons/help.svg"/>
         </group>
-
-        <action
-                id="GitFlowPlus.EditorIllustrationAction"
-                class="com.github.xiaolyuh.action.TranslateAction"
-                text="翻译"
-                description="翻译当前选择文本"
-                icon="/icons/actionGroupNew.svg">
-            <add-to-group group-id="EditorPopupMenu" anchor="first"/>
-        </action>
     </actions>
 </idea-plugin>

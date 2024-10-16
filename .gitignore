@@ -13,7 +13,6 @@
 bin
 build
 target
-.factorypath
 .springBeans
 interpolated*.xml
 dependency-reduced-pom.xml
@@ -31,7 +30,6 @@ overridedb.*
 .idea
 *.jar
 .DS_Store
-.factorypath
 dump.rdb
 transaction-logs
 /target/
@@ -44,6 +42,3 @@ rebel.xml
 *.bak
 out/
 .gradle/
-gradlew
-gradlew.bat
-gradle-wrapper.properties

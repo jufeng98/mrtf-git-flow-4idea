@@ -22,7 +22,7 @@ import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.util.PsiUtil;
+import com.intellij.psi.PsiManager;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -226,7 +226,11 @@ public class KbsMsgDialog extends DialogWrapper {
     private Editor createTextEditorAndSetText(Project project, byte[] txtBytes) {
         return WriteAction.computeAndWait(() -> {
             VirtualFile virtualFile = VirtualFileUtils.createLogVirtualFileFromText(txtBytes);
-            PsiFile psiFile = PsiUtil.getPsiFile(project, virtualFile);
+
+            PsiManager psiManager = PsiManager.getInstance(project);
+            PsiFile psiFile = psiManager.findFile(virtualFile);
+
+            @SuppressWarnings("DataFlowIssue")
             Document document = PsiDocumentManager.getInstance(project).getDocument(psiFile);
 
             EditorFactory editorFactory = EditorFactory.getInstance();
