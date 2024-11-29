@@ -9,6 +9,7 @@ import com.github.xiaolyuh.utils.ConfigUtil;
 import com.github.xiaolyuh.utils.GitBranchUtil;
 import com.github.xiaolyuh.utils.HttpClientUtil;
 import com.github.xiaolyuh.utils.NotifyUtil;
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -38,6 +39,11 @@ public class InitPluginAction extends AnAction {
 
         event.getPresentation().setText(ConfigUtil.isInit(event.getProject())
                 ? I18n.getContent(I18nKey.INIT_PLUGIN_ACTION$TEXT_UPDATE) : I18n.getContent(I18nKey.INIT_PLUGIN_ACTION$TEXT_INIT));
+    }
+
+    @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        return ActionUpdateThread.EDT;
     }
 
     @Override

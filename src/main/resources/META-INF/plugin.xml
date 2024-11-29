@@ -48,11 +48,13 @@
     ]]>
     </description>
 
+    <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.vcs</depends>
     <depends>com.intellij.tasks</depends>
     <depends>Git4Idea</depends>
 
     <extensions defaultExtensionNs="com.intellij">
+        <postStartupActivity implementation="com.github.xiaolyuh.startup.ProjectStartupActivity"/>
         <statusBarWidgetFactory implementation="com.github.xiaolyuh.ui.GitFlowPlusStatusBarWidgetFactory"
                                 id="GitFlowPlusStatusBarWidgetFactory" order="last"/>
 
@@ -72,12 +74,6 @@
                            isLogByDefault="true"
                            displayType="NONE"/>
     </extensions>
-
-    <projectListeners>
-        <listener
-                class="com.github.xiaolyuh.listener.GitFlowPlusListener"
-                topic="com.intellij.openapi.project.ProjectManagerListener"/>
-    </projectListeners>
 
     <actions>
         <group id="GitFlowPlus.Menu" text="GitFlowPlus" description="GIT分支管理" icon="/icons/icon.svg"

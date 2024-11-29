@@ -2,11 +2,11 @@ import java.net.URI
 
 plugins {
     id("java")
-    id("org.jetbrains.intellij") version "1.16.0"
+    id("org.jetbrains.intellij") version "1.16.1"
 }
 
 group = "com.github.xiaolyuh"
-version = "1.3.8"
+version = "1.3.9"
 
 repositories {
     maven { url = URI("https://maven.aliyun.com/nexus/content/groups/public/") }
@@ -19,7 +19,7 @@ dependencies {
 }
 
 intellij {
-    version.set("2022.1.2")
+    version.set("2024.1.4")
     type.set("IC")
     plugins.set(
         listOf(
@@ -32,8 +32,8 @@ intellij {
 tasks {
     // Set the JVM compatibility versions
     withType<JavaCompile> {
-        sourceCompatibility = "11"
-        targetCompatibility = "11"
+        sourceCompatibility = "17"
+        targetCompatibility = "17"
         options.encoding = "UTF-8"
     }
 
@@ -46,7 +46,7 @@ tasks {
     }
 
     patchPluginXml {
-        sinceBuild.set("221")
+        sinceBuild.set("232")
         untilBuild.set("243.*")
         changeNotes.set(
             """

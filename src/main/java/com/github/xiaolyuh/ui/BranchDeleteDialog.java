@@ -1,7 +1,7 @@
 package com.github.xiaolyuh.ui;
 
-import com.github.xiaolyuh.service.GitFlowPlus;
 import com.github.xiaolyuh.config.InitOptions;
+import com.github.xiaolyuh.service.GitFlowPlus;
 import com.github.xiaolyuh.utils.ConfigUtil;
 import com.github.xiaolyuh.utils.StringUtils;
 import com.github.xiaolyuh.vo.BranchVo;
@@ -13,14 +13,14 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import git4idea.repo.GitRepository;
-import org.apache.commons.lang.time.DateFormatUtils;
-import org.apache.commons.lang.time.DateUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -32,6 +32,7 @@ import static com.github.xiaolyuh.consts.Constants.DATE_PATTERN;
  * @author yudong
  */
 public class BranchDeleteDialog extends DialogWrapper {
+    private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(DATE_PATTERN);
     private final DeleteBranchOptions deleteBranchOptions;
     private final GitFlowPlus gitFlowPlus;
     private static final String[] COLUMN_NAMES = {"序号", "最后一次提交时间", "分支名称", "创建人"};
@@ -103,7 +104,7 @@ public class BranchDeleteDialog extends DialogWrapper {
             BranchVo branchVo = branches.get(i);
             branchVo.setId(i);
             rowData[i][0] = i + 1;
-            rowData[i][1] = DateFormatUtils.format(branchVo.getLastCommitDate(), DATE_PATTERN);
+            rowData[i][1] = dateTimeFormatter.format(branchVo.getLastCommitDate().toInstant());
             rowData[i][2] = branchVo.getBranch();
             rowData[i][3] = branchVo.getCreateUser();
         }
@@ -128,7 +129,7 @@ public class BranchDeleteDialog extends DialogWrapper {
         }
 
         if (StringUtils.isNotBlank(deleteBeforeDate.getText())) {
-            Date date = DateUtils.addDays(new Date(), -Integer.parseInt(deleteBeforeDate.getText().trim()));
+            Date date = Date.from(ZonedDateTime.now().minusDays(Integer.parseInt(deleteBeforeDate.getText().trim())).toInstant());
             allBranches = allBranches.stream()
                     .filter((branchVo) -> branchVo.getLastCommitDate().compareTo(date) > 0)
                     .collect(Collectors.toList());
@@ -144,7 +145,7 @@ public class BranchDeleteDialog extends DialogWrapper {
             JBPopupFactory.getInstance().createMessage("至少选择一行需要删除的分支！").showInCenterOf(branchTable);
             return;
         }
-        List<Integer> list = Arrays.stream(selectedRows).boxed().collect(Collectors.toList());
+        List<Integer> list = Arrays.stream(selectedRows).boxed().toList();
 
         List<BranchVo> tmpList = branchVos.stream()
                 .filter(it -> list.contains(it.getId()))

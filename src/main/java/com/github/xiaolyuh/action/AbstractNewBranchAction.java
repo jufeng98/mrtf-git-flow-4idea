@@ -7,6 +7,7 @@ import com.github.xiaolyuh.utils.ConfigUtil;
 import com.github.xiaolyuh.utils.GitBranchUtil;
 import com.github.xiaolyuh.utils.NotifyUtil;
 import com.github.xiaolyuh.utils.StringUtils;
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -33,6 +34,11 @@ public abstract class AbstractNewBranchAction extends AnAction {
         Project project = event.getProject();
         event.getPresentation().setEnabled(GitBranchUtil.isGitProject(project) && ConfigUtil.isInit(project));
         setEnabledAndText(event);
+    }
+
+    @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        return ActionUpdateThread.EDT;
     }
 
     /**

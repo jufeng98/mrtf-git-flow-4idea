@@ -90,6 +90,6 @@ public class ServiceConsoleAction extends AnAction implements DumbAware {
             } catch (Exception e) {
                 NotifyUtil.notifyError(project, ExceptionUtils.getStackTrace(e));
             }
-        }, ModalityState.NON_MODAL);
+        }, ModalityState.nonModal());
     }
 }

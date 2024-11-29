@@ -14,6 +14,7 @@ import com.github.xiaolyuh.utils.StringUtils;
 import com.github.xiaolyuh.valve.merge.Valve;
 import com.github.xiaolyuh.vo.TagOptions;
 import com.google.common.collect.Lists;
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.diagnostic.Logger;
@@ -69,6 +70,11 @@ public abstract class AbstractMergeAction extends AnAction {
         event.getPresentation().setEnabled(isDevBranch && !isConflicts(event.getProject()));
 
         setEnabledAndText(event);
+    }
+
+    @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        return ActionUpdateThread.EDT;
     }
 
     /**
