@@ -1,6 +1,5 @@
 package com.github.xiaolyuh.test;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.BufferedReader;
@@ -8,7 +7,6 @@ import java.io.File;
 import java.io.InputStreamReader;
 import java.util.logging.Logger;
 
-@Ignore
 public class GitTest {
     private final Logger logger = Logger.getLogger(GitTest.class.getName());
 
