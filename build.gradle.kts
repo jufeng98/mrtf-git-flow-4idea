@@ -38,7 +38,7 @@ tasks {
     }
 
     runIde {
-        systemProperties["idea.auto.reload.plugins"] = true
+        systemProperties["idea.auto.reload.plugins"] = false
         jvmArgs = listOf(
             "-Xms1024m",
             "-Xmx2048m",
