@@ -31,7 +31,7 @@ public class GitTest {
         process.waitFor();
 
         var res = getRes(process);
-        logger.warning("result:$res");
+        logger.warning("result:" + res);
 
         if (res.contains("fatal")) {
             execCommand(command);
