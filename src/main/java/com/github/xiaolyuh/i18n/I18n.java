@@ -1,6 +1,9 @@
 package com.github.xiaolyuh.i18n;
 
 import com.github.xiaolyuh.enums.LanguageEnum;
+import org.jetbrains.annotations.PropertyKey;
+
+import static com.github.xiaolyuh.i18n.UiBundle.BUNDLE;
 
 /**
  * 国际化
@@ -10,15 +13,15 @@ import com.github.xiaolyuh.enums.LanguageEnum;
  */
 public class I18n {
 
-    public static String getContent(String key) {
+    public static String getContent(@PropertyKey(resourceBundle = BUNDLE) String key) {
         return UiBundle.message(key);
     }
 
-    public static String getContent(String key, LanguageEnum languageEnum) {
+    public static String getContent(@PropertyKey(resourceBundle = BUNDLE) String key, LanguageEnum languageEnum) {
         return UiBundle.message(key, languageEnum);
     }
 
-    public static String getContent(String key, Object... params) {
+    public static String getContent(@PropertyKey(resourceBundle = BUNDLE) String key, Object... params) {
         return UiBundle.message(key, params);
     }
 

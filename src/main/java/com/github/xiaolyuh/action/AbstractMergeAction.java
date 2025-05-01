@@ -50,10 +50,12 @@ public abstract class AbstractMergeAction extends AnAction {
     @Override
     public void update(@NotNull AnActionEvent event) {
         super.update(event);
+
         if (Objects.isNull(event.getProject())) {
             event.getPresentation().setEnabled(false);
             return;
         }
+
         boolean isInit = GitBranchUtil.isGitProject(event.getProject()) && ConfigUtil.isInit(event.getProject());
         if (!isInit) {
             event.getPresentation().setEnabled(false);
@@ -64,6 +66,7 @@ public abstract class AbstractMergeAction extends AnAction {
         InitOptions initOptions = ConfigUtil.getInitOptions(event.getProject());
         String featurePrefix = initOptions.getFeaturePrefix();
         String hotfixPrefix = initOptions.getHotfixPrefix();
+
         // 已经初始化并且前缀是开发分支才显示
         boolean isDevBranch = StringUtils.startsWith(currentBranch, featurePrefix)
                 || StringUtils.startsWith(currentBranch, hotfixPrefix);
@@ -90,9 +93,11 @@ public abstract class AbstractMergeAction extends AnAction {
      */
     boolean isConflicts(@NotNull Project project) {
         Collection<Change> changes = ChangeListManager.getInstance(project).getAllChanges();
+
         if (changes.size() > 1000) {
             return true;
         }
+
         return changes.stream().anyMatch(it -> it.getFileStatus() == FileStatus.MERGED_WITH_CONFLICTS);
     }
 
@@ -103,8 +108,10 @@ public abstract class AbstractMergeAction extends AnAction {
 
     void actionPerformed(@NotNull AnActionEvent event, TagOptions tagOptions) {
         final Project project = event.getProject();
-        @SuppressWarnings("ConstantConditions") final String currentBranch = gitFlowPlus.getCurrentBranch(project);
+        @SuppressWarnings("ConstantConditions")
+        final String currentBranch = gitFlowPlus.getCurrentBranch(project);
         final String targetBranch = getTargetBranch(project);
+
         final boolean isStartTest = this.getClass() == StartTestAction.class;
 
         final GitRepository repository = GitBranchUtil.getCurrentRepository(project);
@@ -126,9 +133,11 @@ public abstract class AbstractMergeAction extends AnAction {
                     IconLoader.getIcon("/icons/warning.svg", Objects.requireNonNull(ReflectionUtil.getGrandCallerClass())));
             clickOk = flag == 0;
         }
+
         if (!clickOk) {
             return;
         }
+
         List<String> finalSelectServices = selectServices;
         new Task.Backgroundable(project, getTaskTitle(project), false) {
             @SuppressWarnings("ConstantConditions")
@@ -144,7 +153,9 @@ public abstract class AbstractMergeAction extends AnAction {
 
                 // 刷新
                 repository.update();
+
                 myProject.getMessageBus().syncPublisher(GitRepository.GIT_REPO_CHANGE).repositoryChanged(repository);
+
                 VirtualFileManager.getInstance().asyncRefresh(null);
 
                 if (isStartTest) {

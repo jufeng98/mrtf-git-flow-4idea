@@ -37,9 +37,12 @@ public class FinishReleaseAction extends AbstractMergeAction {
 
         TagDialog tagDialog = new TagDialog(project);
         tagDialog.show();
-        if (tagDialog.isOK()) {
-            super.actionPerformed(event, tagDialog.getTagOptions());
+
+        if (!tagDialog.isOK()) {
+            return;
         }
+
+        super.actionPerformed(event, tagDialog.getTagOptions());
     }
 
     @Override

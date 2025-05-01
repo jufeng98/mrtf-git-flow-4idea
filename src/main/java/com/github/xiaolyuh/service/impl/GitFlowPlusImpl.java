@@ -67,6 +67,7 @@ public class GitFlowPlusImpl implements GitFlowPlus {
     public void addConfigToGit(GitRepository repository) {
         try {
             String filePath = repository.getProject().getBasePath() + File.separator + Constants.CONFIG_FILE_NAME;
+            @SuppressWarnings("deprecation")
             FilePath path = VcsUtil.getFilePath(filePath);
             GitFileUtils.addPaths(repository.getProject(), repository.getRoot(), Lists.newArrayList(path));
         } catch (VcsException e) {
@@ -84,7 +85,7 @@ public class GitFlowPlusImpl implements GitFlowPlus {
     }
 
     @Override
-    public GitCommandResult newNewBranchByLocalBranch(@NotNull GitRepository repository, @Nullable String localBranchName, @NotNull String newBranchName) {
+    public GitCommandResult newNewBranchByLocalBranch(@NotNull GitRepository repository, String localBranchName, @NotNull String newBranchName) {
         git.checkout(repository, localBranchName);
         git.branch(repository, newBranchName);
         return git.checkout(repository, newBranchName);
@@ -92,8 +93,8 @@ public class GitFlowPlusImpl implements GitFlowPlus {
 
     @Override
     public GitCommandResult deleteBranch(@NotNull GitRepository repository,
-                                         @Nullable String checkoutBranchName,
-                                         @Nullable String branchName) {
+                                         String checkoutBranchName,
+                                         String branchName) {
         git.checkout(repository, checkoutBranchName);
         git.deleteRemoteBranch(repository, branchName);
         return git.deleteLocalBranch(repository, branchName);
@@ -110,8 +111,8 @@ public class GitFlowPlusImpl implements GitFlowPlus {
 
     @Override
     public GitCommandResult deleteLocalBranch(@NotNull GitRepository repository,
-                                              @Nullable String checkoutBranchName,
-                                              @Nullable String branchName) {
+                                              String checkoutBranchName,
+                                              String branchName) {
 
         git.checkout(repository, checkoutBranchName);
         return git.deleteLocalBranch(repository, branchName);
@@ -120,7 +121,7 @@ public class GitFlowPlusImpl implements GitFlowPlus {
     @Override
     public String getCurrentBranch(@NotNull Project project) {
         GitRepository repository = GitBranchUtil.getCurrentRepository(project);
-        return repository.getCurrentBranch().getName();
+        return Objects.requireNonNull(repository.getCurrentBranch()).getName();
     }
 
     @Override
@@ -231,6 +232,7 @@ public class GitFlowPlusImpl implements GitFlowPlus {
         result = git.merge(repository, sourceBranch, targetBranch, mergeConflict);
 
         boolean allConflictsResolved = true;
+        //noinspection deprecation
         if (mergeConflict.hasHappened()) {
             // 解决冲突
             allConflictsResolved = new MyMergeConflictResolver(repository, currentBranch, targetBranch).merge();
@@ -260,6 +262,7 @@ public class GitFlowPlusImpl implements GitFlowPlus {
 
     @Override
     public boolean lock(GitRepository repository, String currentBranch) {
+        //noinspection ConstantValue
         if (true) {
             mockLockFlag = true;
             return true;
@@ -272,6 +275,7 @@ public class GitFlowPlusImpl implements GitFlowPlus {
 
     @Override
     public GitCommandResult unlock(GitRepository repository) {
+        //noinspection ConstantValue
         if (true) {
             mockLockFlag = false;
             return new GitCommandResult(false, 0, Collections.emptyList(), Collections.emptyList());
@@ -282,6 +286,7 @@ public class GitFlowPlusImpl implements GitFlowPlus {
 
     @Override
     public boolean isLock(Project project) {
+        //noinspection ConstantValue
         if (true) {
             return mockLockFlag;
         }

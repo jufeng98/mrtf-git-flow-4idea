@@ -85,17 +85,20 @@ public class MergeRequestAction extends AbstractMergeAction {
                             if (!result.success()) {
                                 NotifyUtil.notifyError(project, "Error", result.getErrorOutputAsJoinedString());
                             }
+
                             NotifyUtil.notifySuccess(project, "Success", result.getErrorOutputAsHtmlString());
                             if (CollectionUtils.isNotEmpty(result.getErrorOutput()) && result.getErrorOutput().size() > 3) {
                                 String address = result.getErrorOutput().get(2);
                                 address = address.split(" {3}")[1];
                                 BrowserUtil.browse(address);
                             }
+
                             // 删除本地临时分支
                             result = gitFlowPlus.deleteLocalBranch(repository, currentBranch, tempBranchName);
                             if (!result.success()) {
                                 NotifyUtil.notifyError(project, "Error", result.getErrorOutputAsJoinedString());
                             }
+
                             // 刷新
                             repository.update();
                             myProject.getMessageBus().syncPublisher(GitRepository.GIT_REPO_CHANGE).repositoryChanged(repository);

@@ -4,6 +4,7 @@ import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.wm.CustomStatusBarWidget;
@@ -38,7 +39,6 @@ public class GitFlowPlusWidget extends EditorBasedWidget implements StatusBarWid
         DefaultActionGroup defaultActionGroup = (DefaultActionGroup) ActionManager.getInstance().getAction("GitFlowPlus.Menu");
         iconAnArrows.setIcon(defaultActionGroup.getTemplatePresentation().getIcon());
         iconAnArrows.setBorder(WidgetBorder.WIDE);
-        iconAnArrows.setToolTipText("enhance by:梁煜东");
         iconAnArrows.setText("GitFlowPlus");
 
         new ClickListener() {
@@ -54,13 +54,18 @@ public class GitFlowPlusWidget extends EditorBasedWidget implements StatusBarWid
 
     private void showPopup(MouseEvent e) {
         DefaultActionGroup defaultActionGroup = (DefaultActionGroup) ActionManager.getInstance().getAction("GitFlowPlus.Menu");
-        ListPopup popup = new PopupFactoryImpl.ActionGroupPopup("GitFlowPlus", defaultActionGroup,
-                DataManager.getInstance().getDataContext(iconAnArrows),
-                false, false, true, true,
-                null, -1, null, null);
-        Disposer.register(this, popup); // destroy popup on unexpected project close
+
+        JBPopupFactory popupFactory = PopupFactoryImpl.getInstance();
+
+        ListPopup popup = popupFactory.createActionGroupPopup("",
+                defaultActionGroup, DataManager.getInstance().getDataContext(iconAnArrows)
+                , true, null, -1);
+
         Dimension dimension = popup.getContent().getPreferredSize();
         Point at = new Point(0, -dimension.height);
+
+        Disposer.register(this, popup);
+
         popup.show(new RelativePoint(e.getComponent(), at));
     }
 

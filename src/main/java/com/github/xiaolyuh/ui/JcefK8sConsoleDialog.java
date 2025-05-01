@@ -1,6 +1,7 @@
 package com.github.xiaolyuh.ui;
 
 import com.github.xiaolyuh.config.K8sOptions;
+import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.utils.ConfigUtil;
 import com.github.xiaolyuh.utils.ExecutorUtils;
 import com.github.xiaolyuh.utils.NotifyUtil;
@@ -58,7 +59,7 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
         String finalSelectService = selectService;
         initJcef(url, jbCefBrowser -> {
             if (jbCefBrowser == null) {
-                NotifyUtil.notifySuccess(project, "JCEF已完成初始化,重新打开菜单即可");
+                NotifyUtil.notifySuccess(project, I18n.getContent("reopen.menu"));
                 return;
             }
 

@@ -1,5 +1,6 @@
 package com.github.xiaolyuh.action;
 
+import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.ui.JcefK8sConsoleDialog;
 import com.github.xiaolyuh.ui.ServiceDialog;
 import com.github.xiaolyuh.utils.ConfigUtil;
@@ -28,7 +29,7 @@ public class ServiceConsoleAction extends AnAction implements DumbAware {
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         Project project = e.getProject();
-        ServiceDialog serviceDialog = new ServiceDialog("选择需要连接的服务控制台", project);
+        ServiceDialog serviceDialog = new ServiceDialog(I18n.getContent("choose.console"), project);
         serviceDialog.selectLastChoose();
         if (!serviceDialog.showAndGet()) {
             return;
@@ -40,7 +41,7 @@ public class ServiceConsoleAction extends AnAction implements DumbAware {
         }
 
         if (ConfigUtil.notExistsK8sOptions(project)) {
-            NotifyUtil.notifyError(project, "缺少k8s配置");
+            NotifyUtil.notifyError(project, I18n.getContent("lack.k8s.config"));
             return;
         }
 
@@ -54,29 +55,32 @@ public class ServiceConsoleAction extends AnAction implements DumbAware {
                     NotifyUtil.notifyError(project, ExceptionUtils.getStackTrace(e));
                     return;
                 }
+
                 if (instanceVos.isEmpty()) {
-                    NotifyUtil.notifyError(project, "没有任何服务实例!");
+                    NotifyUtil.notifyError(project, I18n.getContent("no.service.instances"));
                     return;
                 }
+
                 ExecutorUtils.addTask(() -> SwingUtilities
                         .invokeLater(() -> showInstances(project, instanceVos, selectService)));
             }
         }.queue();
     }
 
-    @SuppressWarnings("DialogTitleCapitalization")
     public void showInstances(Project project, List<InstanceVo> instanceVos, String selectService) {
         final int[] choose = {0};
         if (instanceVos.size() > 1) {
             String[] options = instanceVos.stream()
                     .map(instanceVo -> instanceVo.getDesc() + ":" + instanceVo.getName())
                     .toArray(String[]::new);
-            choose[0] = Messages.showDialog(project, "找到多个服务实例,请选择:", "温馨提示",
+            choose[0] = Messages.showDialog(project, I18n.getContent("multi.service.instances"), "温馨提示",
                     options, 0, null);
         }
+
         if (choose[0] == -1) {
             return;
         }
+
         InstanceVo instanceVo = instanceVos.get(choose[0]);
 
         ExecutorUtils.addTask(() -> SwingUtilities.invokeLater(() -> showInstanceDialog(project, instanceVo, selectService)));

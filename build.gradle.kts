@@ -2,31 +2,39 @@ import java.net.URI
 
 plugins {
     id("java")
-    id("org.jetbrains.intellij") version "1.16.1"
+    id("org.jetbrains.kotlin.jvm") version "1.9.25"
+    id("org.jetbrains.intellij.platform") version "2.3.0"
 }
 
 group = "com.github.xiaolyuh"
-version = "1.3.9"
+version = "1.4.0"
 
 repositories {
     maven { url = URI("https://maven.aliyun.com/nexus/content/groups/public/") }
     mavenLocal()
     mavenCentral()
+    intellijPlatform {
+        defaultRepositories()
+    }
 }
 
 dependencies {
+    intellijPlatform {
+        create("IC", "2024.3")
+        testFramework(org.jetbrains.intellij.platform.gradle.TestFrameworkType.Platform)
+        bundledPlugin("Git4Idea")
+    }
+
     testImplementation("junit:junit:4.13.1")
 }
 
-intellij {
-    version.set("2024.1.4")
-    type.set("IC")
-    plugins.set(
-        listOf(
-            "Git4Idea",
-            "tasks",
-        )
-    )
+intellijPlatform {
+    pluginConfiguration {
+        ideaVersion {
+            sinceBuild = "232"
+            untilBuild = "252.*"
+        }
+    }
 }
 
 tasks {
@@ -38,7 +46,7 @@ tasks {
     }
 
     runIde {
-        systemProperties["idea.auto.reload.plugins"] = false
+        autoReload = false
         jvmArgs = listOf(
             "-Xms1024m",
             "-Xmx2048m",
@@ -46,10 +54,11 @@ tasks {
     }
 
     patchPluginXml {
-        sinceBuild.set("232")
-        untilBuild.set("243.*")
         changeNotes.set(
             """
+        <em>1.4.0<em></br
+        <em>支持2025.1 <em></br>   
+        
         <em>1.1.21<em></br
         <em>1. 修复gitlib 解决冲突分支相互合并的问题 <em></br>   
         

@@ -58,7 +58,8 @@ public class DeleteBranchAction extends AbstractMergeAction {
         }
 
         DeleteBranchOptions deleteBranchOptions = branchDeleteDialog.getDeleteBranchOptions();
-        new Task.Backgroundable(project, "Deleting " + deleteBranchOptions.getBranches().size() + " branches", false) {
+        String tip = I18n.getContent("deleting.branches", deleteBranchOptions.getBranches().size());
+        new Task.Backgroundable(project, tip, false) {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 AtomicInteger i = new AtomicInteger(1);
@@ -86,10 +87,10 @@ public class DeleteBranchAction extends AbstractMergeAction {
 
                 repository.update();
                 //noinspection DataFlowIssue
-                myProject.getMessageBus()
-                        .syncPublisher(GitRepository.GIT_REPO_CHANGE).repositoryChanged(repository);
+                myProject.getMessageBus().syncPublisher(GitRepository.GIT_REPO_CHANGE).repositoryChanged(repository);
                 VirtualFileManager.getInstance().asyncRefresh(null);
-                NotifyUtil.notifySuccess(event.getProject(), "完成删除" + deleteBranchOptions.getBranches().size() + "个分支");
+                String message = I18n.getContent("deleting.branches.finished", deleteBranchOptions.getBranches().size());
+                NotifyUtil.notifySuccess(event.getProject(), message);
             }
         }.queue();
     }

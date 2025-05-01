@@ -1,5 +1,6 @@
 package com.github.xiaolyuh.action;
 
+import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.ui.KbsMsgDialog;
 import com.github.xiaolyuh.ui.ServiceDialog;
 import com.github.xiaolyuh.utils.ConfigUtil;
@@ -27,7 +28,7 @@ public class ServiceLogAction extends AnAction implements DumbAware {
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         Project project = e.getProject();
-        ServiceDialog serviceDialog = new ServiceDialog("选择需要查看的服务", project);
+        ServiceDialog serviceDialog = new ServiceDialog(I18n.getContent("choose.service"), project);
         serviceDialog.selectLastChoose();
 
         if (!serviceDialog.showAndGet()) {
@@ -56,7 +57,7 @@ public class ServiceLogAction extends AnAction implements DumbAware {
                 }
 
                 if (instanceVos.isEmpty()) {
-                    NotifyUtil.notifyError(project, "没有任何服务实例!");
+                    NotifyUtil.notifyError(project, I18n.getContent("no.service.instances"));
                     return;
                 }
 
@@ -81,14 +82,13 @@ public class ServiceLogAction extends AnAction implements DumbAware {
         }.queue();
     }
 
-    @SuppressWarnings("DialogTitleCapitalization")
     private int showAndGetInstanceChooseDialog(Project project, List<InstanceVo> instanceVos) {
         String[] options = instanceVos.stream()
                 .map(instanceVo -> instanceVo.getDesc() + ":" + instanceVo.getName())
                 .toArray(String[]::new);
 
 
-        return Messages.showDialog(project, "找到多个服务实例,请选择:", "温馨提示",
+        return Messages.showDialog(project, I18n.getContent("multi.service.instances"), "温馨提示",
                 options, 0, null);
     }
 

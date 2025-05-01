@@ -1,6 +1,7 @@
 package com.github.xiaolyuh.ui;
 
 import com.github.xiaolyuh.config.InitOptions;
+import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.service.GitFlowPlus;
 import com.github.xiaolyuh.utils.ConfigUtil;
 import com.github.xiaolyuh.utils.StringUtils;
@@ -104,7 +105,7 @@ public class BranchDeleteDialog extends DialogWrapper {
             branchVo.setId(i);
             rowData[i][0] = i + 1;
 
-            rowData[i][1] = DateFormatUtils.format(branchVo.getLastCommitDate(),DATE_PATTERN);
+            rowData[i][1] = DateFormatUtils.format(branchVo.getLastCommitDate(), DATE_PATTERN);
             rowData[i][2] = branchVo.getBranch();
             rowData[i][3] = branchVo.getCreateUser();
         }
@@ -141,8 +142,7 @@ public class BranchDeleteDialog extends DialogWrapper {
     protected void doOKAction() {
         int[] selectedRows = branchTable.getSelectedRows();
         if (selectedRows.length == 0) {
-            //noinspection DialogTitleCapitalization
-            JBPopupFactory.getInstance().createMessage("至少选择一行需要删除的分支！").showInCenterOf(branchTable);
+            JBPopupFactory.getInstance().createMessage(I18n.getContent("at.least.one.branch")).showInCenterOf(branchTable);
             return;
         }
         List<Integer> list = Arrays.stream(selectedRows).boxed().toList();

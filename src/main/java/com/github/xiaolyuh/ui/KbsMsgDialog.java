@@ -57,7 +57,7 @@ public class KbsMsgDialog extends DialogWrapper {
     private final List<Editor> releaseEditorList = Lists.newArrayList();
 
     {
-        setOKButtonText("关闭");
+        setOKButtonText("Close");
         setModal(false);
     }
 

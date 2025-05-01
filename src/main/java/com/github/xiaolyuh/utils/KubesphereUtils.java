@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 public class KubesphereUtils {
 
@@ -118,7 +117,7 @@ public class KubesphereUtils {
         List<String> list = cookies.stream()
                 .filter(it -> it.startsWith("token"))
                 .map(it -> it.split(";")[0].split("=")[1])
-                .collect(Collectors.toList());
+                .toList();
         return list.get(0);
     }
 

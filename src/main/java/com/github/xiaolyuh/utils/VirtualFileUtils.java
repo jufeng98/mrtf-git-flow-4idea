@@ -1,29 +1,21 @@
 package com.github.xiaolyuh.utils;
 
-import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.testFramework.LightVirtualFile;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 public class VirtualFileUtils {
 
     public static VirtualFile createLogVirtualFileFromText(byte[] txtBytes) {
-        return createVirtualFileFromText(txtBytes, "log");
+        return createVirtualFileFromText(txtBytes);
     }
 
-    @SuppressWarnings("DataFlowIssue")
-    public static VirtualFile createVirtualFileFromText(byte[] txtBytes, String suffix) {
-        Path tempFile;
+    private static VirtualFile createVirtualFileFromText(byte[] txtBytes) {
         try {
-            tempFile = Files.createTempFile("temp-gitFlowPlus-", "." + suffix);
-            File file = tempFile.toFile();
-            VirtualFile virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByPath(file.getAbsolutePath());
-            virtualFile.setBinaryContent(txtBytes);
-            file.deleteOnExit();
-            return virtualFile;
+            LightVirtualFile lightVirtualFile = new LightVirtualFile("temp-gitFlowPlus.log");
+            lightVirtualFile.setBinaryContent(txtBytes);
+            return lightVirtualFile;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
