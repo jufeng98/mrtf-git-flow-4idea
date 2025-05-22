@@ -8,7 +8,7 @@ import com.github.xiaolyuh.service.GitFlowPlus;
 import com.github.xiaolyuh.ui.ServiceDialog;
 import com.github.xiaolyuh.utils.ExecutorUtils;
 import com.github.xiaolyuh.utils.GitBranchUtil;
-import com.github.xiaolyuh.utils.KubesphereUtils;
+import com.github.xiaolyuh.service.KubesphereService;
 import com.github.xiaolyuh.utils.NotifyUtil;
 import com.github.xiaolyuh.utils.StringUtils;
 import com.github.xiaolyuh.valve.merge.Valve;
@@ -162,7 +162,8 @@ public abstract class AbstractMergeAction extends AnAction {
                 if (isStartTest) {
                     finalSelectServices.forEach(serviceName -> {
                         try {
-                            KubesphereUtils.triggerPipeline(serviceName, project);
+                            KubesphereService kubesphereService = KubesphereService.getInstance(project);
+                            kubesphereService.triggerPipeline(serviceName);
                         } catch (Exception e) {
                             LOG.warn(e);
                             NotifyUtil.notifyError(project, serviceName + "触发流水线出错了:" + ExceptionUtils.getStackTrace(e));

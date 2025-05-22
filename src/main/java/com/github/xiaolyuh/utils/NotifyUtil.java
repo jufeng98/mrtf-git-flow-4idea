@@ -1,6 +1,7 @@
 package com.github.xiaolyuh.utils;
 
 import com.github.xiaolyuh.service.ConfigService;
+import com.github.xiaolyuh.service.KubesphereService;
 import com.google.gson.JsonParser;
 import com.intellij.notification.NotificationGroup;
 import com.intellij.notification.NotificationGroupManager;
@@ -73,7 +74,7 @@ public class NotifyUtil {
 
             StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
             StackTraceElement traceElement = stackTrace[4];
-            if (!traceElement.getClassName().equals(KubesphereUtils.class.getName())
+            if (!traceElement.getClassName().equals(KubesphereService.class.getName())
                     && !traceElement.getClassName().equals(ExecutorUtils.class.getName())) {
                 return;
             }

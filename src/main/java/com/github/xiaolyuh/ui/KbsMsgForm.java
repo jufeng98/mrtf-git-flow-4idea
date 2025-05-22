@@ -7,7 +7,7 @@ import com.github.xiaolyuh.action.toolbar.ScrollToEndAction;
 import com.github.xiaolyuh.action.toolbar.ScrollToTopAction;
 import com.github.xiaolyuh.action.toolbar.SoftWrapAction;
 import com.github.xiaolyuh.utils.ExecutorUtils;
-import com.github.xiaolyuh.utils.KubesphereUtils;
+import com.github.xiaolyuh.service.KubesphereService;
 import com.github.xiaolyuh.utils.NotifyUtil;
 import com.github.xiaolyuh.utils.VirtualFileUtils;
 import com.google.common.collect.Lists;
@@ -132,7 +132,7 @@ public class KbsMsgForm extends JComponent implements Disposable {
             public void run(@NotNull ProgressIndicator indicator) {
                 byte[] textBytes;
                 try {
-                    textBytes = KubesphereUtils.getContainerStartInfo(project, selectService, newInstanceName, tailLines,
+                    textBytes = KubesphereService.getContainerStartInfo(selectService, newInstanceName, tailLines,
                             previews, false);
                 } catch (Exception e) {
                     NotifyUtil.notifyError(project, "出错了:" + ExceptionUtils.getStackTrace(e));
@@ -147,7 +147,7 @@ public class KbsMsgForm extends JComponent implements Disposable {
     private Future<?> refreshInsRunningData() {
         return ExecutorUtils.addTask(() -> {
             try {
-                KubesphereUtils.getContainerStartInfo(project, selectService, newInstanceName,
+                KubesphereService.getContainerStartInfo(selectService, newInstanceName,
                         1000, false, true, body -> SwingUtilities
                                 .invokeLater(() -> ApplicationManager.getApplication()
                                         .invokeLater(() -> fillEditorWithRunningTxt(project, body, true))

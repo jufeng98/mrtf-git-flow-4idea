@@ -2,9 +2,9 @@ package com.github.xiaolyuh.action
 
 import com.github.xiaolyuh.i18n.I18n
 import com.github.xiaolyuh.service.ConfigService.Companion.getInstance
+import com.github.xiaolyuh.service.KubesphereService
 import com.github.xiaolyuh.ui.KbsMsgForm
 import com.github.xiaolyuh.ui.ServiceDialog
-import com.github.xiaolyuh.utils.KubesphereUtils
 import com.github.xiaolyuh.utils.NotifyUtil
 import com.github.xiaolyuh.utils.StringUtils
 import com.github.xiaolyuh.vo.InstanceVo
@@ -54,7 +54,8 @@ class ServiceLogAction : AnAction(), DumbAware {
                 val instanceVos: List<InstanceVo>
 
                 try {
-                    instanceVos = KubesphereUtils.findInstanceName(project, selectService)
+                    val kubesphereService = KubesphereService.getInstance(project)
+                    instanceVos = kubesphereService.findInstanceName(selectService)
                 } catch (e: Exception) {
                     NotifyUtil.notifyError(project, ExceptionUtils.getStackTrace(e))
                     return
@@ -106,8 +107,9 @@ class ServiceLogAction : AnAction(), DumbAware {
             override fun run(indicator: ProgressIndicator) {
                 val textBytes: ByteArray
                 try {
-                    textBytes = KubesphereUtils.getContainerStartInfo(
-                        project, selectService, instanceVo.name,
+                    val kubesphereService = KubesphereService.getInstance(project)
+                    textBytes = kubesphereService.getContainerStartInfo(
+                        selectService, instanceVo.name,
                         500, instanceVo.isPreviews, false
                     )
                 } catch (e: Exception) {

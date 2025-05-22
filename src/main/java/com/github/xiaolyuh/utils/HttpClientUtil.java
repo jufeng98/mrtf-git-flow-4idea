@@ -1,6 +1,7 @@
 package com.github.xiaolyuh.utils;
 
 import com.github.xiaolyuh.service.ConfigService;
+import com.github.xiaolyuh.service.KubesphereService;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -116,11 +117,11 @@ public class HttpClientUtil {
         }
 
         if (statusCode == 401 || statusCode == 403) {
-            if (KubesphereUtils.isLoginUrl(request.uri().toString(), project)) {
+            if (KubesphereService.isLoginUrl(request.uri().toString())) {
                 throw new RuntimeException("用户名或密码无效," + response.body());
             }
 
-            KubesphereUtils.loginAndSaveToken(project);
+            KubesphereService.loginAndSaveToken();
             return getForObjectWithToken(request.uri().toString(), headers, resType, project);
         }
 
@@ -141,11 +142,11 @@ public class HttpClientUtil {
 
     private static @Nullable JsonObject handleGroupLogin(String url, Project project, int status, List<String> cookies, String body) {
         ConfigService configService = ConfigService.Companion.getInstance(project);
-        boolean isGroupLoginUrl = KubesphereUtils.isLoginUrl(url, project) && configService.isGroupKubesphere();
+        boolean isGroupLoginUrl = KubesphereService.isLoginUrl(url) && configService.isGroupKubesphere();
         if (isGroupLoginUrl && status == 200) {
             throw new RuntimeException("用户名或密码无效," + body);
         } else if (isGroupLoginUrl && status == 302) {
-            String accessToken = KubesphereUtils.getTokenFromResponseCookie(cookies);
+            String accessToken = KubesphereService.getTokenFromResponseCookie(cookies);
             JsonObject jsonObject = new JsonObject();
             jsonObject.addProperty("access_token", accessToken);
             return jsonObject;
@@ -194,14 +195,14 @@ public class HttpClientUtil {
             }
 
             if (responseCode == 401 || responseCode == 403) {
-                if (KubesphereUtils.isLoginUrl(url, project)) {
+                if (KubesphereService.isLoginUrl(url)) {
                     inputStream = connection.getInputStream();
                     byte[] bytes = inputStream.readAllBytes();
                     String body = new String(bytes);
                     throw new RuntimeException("用户名或密码无效," + body);
                 }
 
-                KubesphereUtils.loginAndSaveToken(project);
+                KubesphereService.loginAndSaveToken();
                 return getForObjectWithTokenUseUrl(url, headers, resType, project);
             }
 
@@ -256,14 +257,14 @@ public class HttpClientUtil {
             }
 
             if (responseCode == 401 || responseCode == 403) {
-                if (KubesphereUtils.isLoginUrl(url, project)) {
+                if (KubesphereService.isLoginUrl(url)) {
                     inputStream = connection.getInputStream();
                     byte[] bytes = inputStream.readAllBytes();
                     String body = new String(bytes);
                     throw new RuntimeException("用户名或密码无效," + body);
                 }
 
-                KubesphereUtils.loginAndSaveToken(project);
+                KubesphereService.loginAndSaveToken();
                 getForObjectWithTokenUseUrl(url, headers, resType, project);
                 return;
             }

@@ -2,9 +2,9 @@ package com.github.xiaolyuh.action
 
 import com.github.xiaolyuh.i18n.I18n
 import com.github.xiaolyuh.service.ConfigService.Companion.getInstance
+import com.github.xiaolyuh.service.KubesphereService
 import com.github.xiaolyuh.ui.JcefK8sConsoleDialog
 import com.github.xiaolyuh.ui.ServiceDialog
-import com.github.xiaolyuh.utils.KubesphereUtils
 import com.github.xiaolyuh.utils.NotifyUtil
 import com.github.xiaolyuh.utils.StringUtils
 import com.github.xiaolyuh.vo.InstanceVo
@@ -19,7 +19,7 @@ import com.intellij.openapi.ui.Messages
 import org.apache.commons.lang3.exception.ExceptionUtils
 
 class ServiceConsoleAction : AnAction(), DumbAware {
-    
+
     override fun actionPerformed(e: AnActionEvent) {
         val project = e.project
         val serviceDialog = ServiceDialog(I18n.getContent("choose.console"), project)
@@ -44,7 +44,8 @@ class ServiceConsoleAction : AnAction(), DumbAware {
             override fun run(indicator: ProgressIndicator) {
                 val instanceVos: List<InstanceVo>
                 try {
-                    instanceVos = KubesphereUtils.findInstanceName(project, selectService)
+                    val kubesphereService = KubesphereService.getInstance(project)
+                    instanceVos = kubesphereService.findInstanceName(selectService)
                 } catch (e: Exception) {
                     NotifyUtil.notifyError(project, ExceptionUtils.getStackTrace(e))
                     return

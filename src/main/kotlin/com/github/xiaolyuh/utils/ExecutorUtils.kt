@@ -1,6 +1,7 @@
 package com.github.xiaolyuh.utils
 
 import com.github.xiaolyuh.service.ConfigService.Companion.getInstance
+import com.github.xiaolyuh.service.KubesphereService
 import com.github.xiaolyuh.service.RunTask
 import com.github.xiaolyuh.ui.KbsMsgForm
 import com.google.gson.JsonObject
@@ -57,7 +58,8 @@ object ExecutorUtils {
                     val title = selectService + " id为" + id + "构建失败"
                     NotifyUtil.notifyInfo(project, title)
 
-                    val pair = KubesphereUtils.getBuildErrorInfo(url, project)
+                    val kubesphereService = KubesphereService.getInstance(project)
+                    val pair = kubesphereService.getBuildErrorInfo(url)
 
                     runInEdt {
                         val dialog = KbsMsgForm(pair, project)
@@ -90,7 +92,8 @@ object ExecutorUtils {
 
             val newInstanceName: String
             try {
-                newInstanceName = KubesphereUtils.findInstanceName(podUrl, id, 0, project)
+                val kubesphereService = KubesphereService.getInstance(project)
+                newInstanceName = kubesphereService.findInstanceName(podUrl, id, 0)
             } catch (e: Exception) {
                 NotifyUtil.notifyError(
                     project, "检测" + selectService + " id为" + id +
@@ -165,16 +168,17 @@ object ExecutorUtils {
         selectService: String, podUrl: String,
     ) {
         val statusObj = newItemObject.getAsJsonObject("status")
-        var restartCount = KubesphereUtils.getRestartCount(statusObj, "initContainerStatuses")
+        val kubesphereService = KubesphereService.getInstance(project)
+        var restartCount = kubesphereService.getRestartCount(statusObj, "initContainerStatuses")
         if (restartCount > 0) {
             sleep(30)
 
             val title = newInstanceName + "容器初始化失败,当前重启次数:" + restartCount
             NotifyUtil.notifyInfo(project, title)
 
-            val errorBytes = KubesphereUtils.getContainerStartInfo(
-                project, selectService, newInstanceName,
-                500, false, false
+            val errorBytes = kubesphereService.getContainerStartInfo(
+                selectService, newInstanceName,
+                500, previous = false, follow = false
             )
 
             runInEdt {
@@ -188,16 +192,16 @@ object ExecutorUtils {
             return
         }
 
-        restartCount = KubesphereUtils.getRestartCount(statusObj, "containerStatuses")
+        restartCount = kubesphereService.getRestartCount(statusObj, "containerStatuses")
         if (restartCount > 0) {
             sleep(30)
 
             val title = newInstanceName + "容器启动失败,当前重启次数:" + restartCount
             NotifyUtil.notifyInfo(project, title)
 
-            val errorBytes = KubesphereUtils.getContainerStartInfo(
-                project, selectService, newInstanceName,
-                500, false, false
+            val errorBytes = kubesphereService.getContainerStartInfo(
+                selectService, newInstanceName,
+                500, previous = false, follow = false
             )
 
             runInEdt {
@@ -211,7 +215,7 @@ object ExecutorUtils {
             return
         }
 
-        var ready = KubesphereUtils.getReady(statusObj, "initContainerStatuses")
+        var ready = kubesphereService.getReady(statusObj, "initContainerStatuses")
         if (!ready) {
             sleep(10)
 
@@ -220,7 +224,7 @@ object ExecutorUtils {
             return
         }
 
-        ready = KubesphereUtils.getReady(statusObj, "containerStatuses")
+        ready = kubesphereService.getReady(statusObj, "containerStatuses")
         if (!ready) {
             sleep(10)
 
