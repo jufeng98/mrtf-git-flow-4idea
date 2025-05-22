@@ -1,0 +1,140 @@
+package com.github.xiaolyuh.action
+
+import com.github.xiaolyuh.i18n.I18n
+import com.github.xiaolyuh.ui.KbsMsgForm
+import com.github.xiaolyuh.ui.ServiceDialog
+import com.github.xiaolyuh.utils.ConfigUtil
+import com.github.xiaolyuh.utils.KubesphereUtils
+import com.github.xiaolyuh.utils.NotifyUtil
+import com.github.xiaolyuh.utils.StringUtils
+import com.github.xiaolyuh.vo.InstanceVo
+import com.intellij.execution.executors.DefaultRunExecutor
+import com.intellij.execution.ui.RunContentDescriptor
+import com.intellij.execution.ui.RunContentManager
+import com.intellij.openapi.actionSystem.AnAction
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.application.runInEdt
+import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.progress.Task
+import com.intellij.openapi.project.DumbAware
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.Messages
+import org.apache.commons.lang3.exception.ExceptionUtils
+
+
+/**
+ * @author yudong
+ */
+class ServiceLogAction : AnAction(), DumbAware {
+
+    override fun actionPerformed(e: AnActionEvent) {
+        val project = e.project!!
+
+        val serviceDialog = ServiceDialog(I18n.getContent("choose.service"), project)
+
+        serviceDialog.selectLastChoose()
+
+        if (!serviceDialog.showAndGet()) {
+            return
+        }
+
+        if (ConfigUtil.notExistsK8sOptions(project)) {
+            return
+        }
+
+        val selectService = serviceDialog.selectService
+        if (StringUtils.isBlank(selectService)) {
+            return
+        }
+
+        object : Task.Backgroundable(project, "正在获取 $selectService 服务实例...", true) {
+
+            override fun run(indicator: ProgressIndicator) {
+                val instanceVos: List<InstanceVo>
+
+                try {
+                    instanceVos = KubesphereUtils.findInstanceName(project, selectService)
+                } catch (e: Exception) {
+                    NotifyUtil.notifyError(project, ExceptionUtils.getStackTrace(e))
+                    return
+                }
+
+                if (instanceVos.isEmpty()) {
+                    NotifyUtil.notifyError(project, I18n.getContent("no.service.instances"))
+                    return
+                }
+
+                if (instanceVos.size == 1) {
+                    val instanceVo = instanceVos[0]
+
+                    fetchInstanceLogAndShow(project, selectService, instanceVo)
+                    return
+                }
+
+                runInEdt {
+                    val instanceChooseIdx = showAndGetInstanceChooseDialog(project, instanceVos)
+                    if (instanceChooseIdx == -1) {
+                        return@runInEdt
+                    }
+
+                    val instanceVo = instanceVos[instanceChooseIdx]
+
+                    fetchInstanceLogAndShow(project, selectService, instanceVo)
+                }
+            }
+        }.queue()
+    }
+
+    private fun showAndGetInstanceChooseDialog(project: Project?, instanceVos: List<InstanceVo>): Int {
+        val options = instanceVos.stream()
+            .map { it.desc + ":" + it.name }
+            .toList()
+            .toTypedArray()
+
+
+        return Messages.showDialog(
+            project, I18n.getContent("multi.service.instances"), "温馨提示",
+            options, 0, null
+        )
+    }
+
+    private fun fetchInstanceLogAndShow(project: Project, selectService: String, instanceVo: InstanceVo) {
+
+        object : Task.Backgroundable(project, "正在获取 ${instanceVo.name} 日志...", true) {
+
+            override fun run(indicator: ProgressIndicator) {
+                val textBytes: ByteArray
+                try {
+                    textBytes = KubesphereUtils.getContainerStartInfo(
+                        project, selectService, instanceVo.name,
+                        500, instanceVo.isPreviews, false
+                    )
+                } catch (e: Exception) {
+                    NotifyUtil.notifyError(project, ExceptionUtils.getStackTrace(e))
+                    return
+                }
+
+                runInEdt {
+                    val form = KbsMsgForm(textBytes, project, selectService, instanceVo.name, false)
+
+                    val descriptor = object : RunContentDescriptor(
+                        null, null, form.mainPanel,
+                        "$selectService-remote"
+                    ) {
+                        override fun dispose() {
+                            super.dispose()
+                            form.dispose()
+                        }
+                    }
+
+                    val executor = DefaultRunExecutor.getRunExecutorInstance()
+
+                    val runContentManager = RunContentManager.getInstance(project)
+
+                    runContentManager.showRunContent(executor, descriptor)
+                }
+            }
+
+        }.queue()
+    }
+}

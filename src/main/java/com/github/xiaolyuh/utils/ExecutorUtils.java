@@ -1,7 +1,7 @@
 package com.github.xiaolyuh.utils;
 
 import com.github.xiaolyuh.service.RunTask;
-import com.github.xiaolyuh.ui.KbsMsgDialog;
+import com.github.xiaolyuh.ui.KbsMsgForm;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -63,7 +63,7 @@ public class ExecutorUtils {
                     Pair<byte[], byte[]> pair = KubesphereUtils.getBuildErrorInfo(url, project);
 
                     ApplicationManager.getApplication().invokeLater(() -> {
-                        KbsMsgDialog dialog = new KbsMsgDialog(title, pair, project);
+                        KbsMsgForm dialog = new KbsMsgForm(pair, project);
                         dialog.show();
                     }, ModalityState.NON_MODAL);
 
@@ -160,7 +160,7 @@ public class ExecutorUtils {
                     500, false, false);
 
             ApplicationManager.getApplication().invokeLater(() -> {
-                KbsMsgDialog dialog = new KbsMsgDialog(title, errorBytes, project, selectService,
+                KbsMsgForm dialog = new KbsMsgForm(errorBytes, project, selectService,
                         newInstanceName, false);
                 dialog.show();
             }, ModalityState.NON_MODAL);
@@ -179,7 +179,7 @@ public class ExecutorUtils {
                     500, false, false);
 
             ApplicationManager.getApplication().invokeLater(() -> {
-                KbsMsgDialog dialog = new KbsMsgDialog(title, errorBytes, project, selectService,
+                KbsMsgForm dialog = new KbsMsgForm(errorBytes, project, selectService,
                         newInstanceName, false);
                 dialog.show();
             }, ModalityState.NON_MODAL);
