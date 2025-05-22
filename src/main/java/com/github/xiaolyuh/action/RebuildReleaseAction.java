@@ -2,7 +2,7 @@ package com.github.xiaolyuh.action;
 
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
-import com.github.xiaolyuh.utils.ConfigUtil;
+import com.github.xiaolyuh.service.ConfigService;
 import com.github.xiaolyuh.utils.StringUtils;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
@@ -34,7 +34,9 @@ public class RebuildReleaseAction extends AbstractNewBranchAction {
 
     @Override
     public String getInputString(Project project) {
-        String release = ConfigUtil.getInitOptions(project).getReleaseBranch();
+        ConfigService configService = ConfigService.Companion.getInstance(project);
+        String release = configService.getInitOptions().getReleaseBranch();
+
         int flag = Messages.showOkCancelDialog(project,
                 I18n.getContent(I18nKey.REBUILD_RELEASE_ACTION$DIALOG_MESSAGE, release, release),
                 I18n.getContent(I18nKey.REBUILD_RELEASE_ACTION$DIALOG_TITLE),

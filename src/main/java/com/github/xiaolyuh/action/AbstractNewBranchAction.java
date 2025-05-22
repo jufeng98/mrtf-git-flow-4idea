@@ -1,9 +1,9 @@
 package com.github.xiaolyuh.action;
 
-import com.github.xiaolyuh.service.GitFlowPlus;
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
-import com.github.xiaolyuh.utils.ConfigUtil;
+import com.github.xiaolyuh.service.ConfigService;
+import com.github.xiaolyuh.service.GitFlowPlus;
 import com.github.xiaolyuh.utils.GitBranchUtil;
 import com.github.xiaolyuh.utils.NotifyUtil;
 import com.github.xiaolyuh.utils.StringUtils;
@@ -32,7 +32,13 @@ public abstract class AbstractNewBranchAction extends AnAction {
     public void update(@NotNull AnActionEvent event) {
         super.update(event);
         Project project = event.getProject();
-        event.getPresentation().setEnabled(GitBranchUtil.isGitProject(project) && ConfigUtil.isInit(project));
+        if (project == null) {
+            return;
+        }
+
+        ConfigService configService = ConfigService.Companion.getInstance(project);
+
+        event.getPresentation().setEnabled(GitBranchUtil.isGitProject(project) && configService.isInit());
         setEnabledAndText(event);
     }
 
@@ -58,8 +64,7 @@ public abstract class AbstractNewBranchAction extends AnAction {
 
         // 获取开发分支完整名称
         final String newBranchName = featurePrefix + inputString;
-        @SuppressWarnings("ConstantConditions")
-        final GitRepository repository = GitBranchUtil.getCurrentRepository(project);
+        @SuppressWarnings("ConstantConditions") final GitRepository repository = GitBranchUtil.getCurrentRepository(project);
         if (Objects.isNull(repository)) {
             return;
         }
@@ -67,7 +72,8 @@ public abstract class AbstractNewBranchAction extends AnAction {
         new Task.Backgroundable(project, getTitle(newBranchName), false) {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
-                final String master = ConfigUtil.getInitOptions(project).getMasterBranch();
+                ConfigService configService = ConfigService.Companion.getInstance(project);
+                final String master = configService.getInitOptions().getMasterBranch();
 
                 if (gitFlowPlus.isExistChangeFile(project)) {
                     return;

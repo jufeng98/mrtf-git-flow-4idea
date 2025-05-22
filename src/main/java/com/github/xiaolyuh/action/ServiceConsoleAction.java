@@ -1,9 +1,9 @@
 package com.github.xiaolyuh.action;
 
 import com.github.xiaolyuh.i18n.I18n;
+import com.github.xiaolyuh.service.ConfigService;
 import com.github.xiaolyuh.ui.JcefK8sConsoleDialog;
 import com.github.xiaolyuh.ui.ServiceDialog;
-import com.github.xiaolyuh.utils.ConfigUtil;
 import com.github.xiaolyuh.utils.ExecutorUtils;
 import com.github.xiaolyuh.utils.KubesphereUtils;
 import com.github.xiaolyuh.utils.NotifyUtil;
@@ -40,7 +40,9 @@ public class ServiceConsoleAction extends AnAction implements DumbAware {
             return;
         }
 
-        if (ConfigUtil.notExistsK8sOptions(project)) {
+        ConfigService configService = ConfigService.Companion.getInstance(project);
+
+        if (configService.notExistsK8sOptions()) {
             NotifyUtil.notifyError(project, I18n.getContent("lack.k8s.config"));
             return;
         }

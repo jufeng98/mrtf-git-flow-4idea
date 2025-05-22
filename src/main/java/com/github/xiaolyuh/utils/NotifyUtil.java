@@ -1,5 +1,6 @@
 package com.github.xiaolyuh.utils;
 
+import com.github.xiaolyuh.service.ConfigService;
 import com.google.gson.JsonParser;
 import com.intellij.notification.NotificationGroup;
 import com.intellij.notification.NotificationGroupManager;
@@ -64,7 +65,8 @@ public class NotifyUtil {
     // 新增webhook
     public static void notifyWebhook(Project project, String title, String message) {
         try {
-            String url = ConfigUtil.getInitOptions(project).getFsWebHookUrl();
+            ConfigService configService = ConfigService.Companion.getInstance(project);
+            String url = configService.getInitOptions().getFsWebHookUrl();
             if (StringUtil.isBlank(url)) {
                 return;
             }

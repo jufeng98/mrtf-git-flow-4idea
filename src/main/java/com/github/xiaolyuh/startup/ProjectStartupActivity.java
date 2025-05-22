@@ -1,6 +1,6 @@
 package com.github.xiaolyuh.startup;
 
-import com.github.xiaolyuh.utils.ConfigUtil;
+import com.github.xiaolyuh.service.ConfigService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.ProjectActivity;
 import kotlin.Unit;
@@ -12,7 +12,8 @@ public class ProjectStartupActivity implements ProjectActivity {
 
     @Override
     public @Nullable Object execute(@NotNull Project project, @NotNull Continuation<? super Unit> continuation) {
-        ConfigUtil.tryInitConfig(project);
+        ConfigService configService = ConfigService.Companion.getInstance(project);
+        configService.tryInitConfig();
         return null;
     }
 

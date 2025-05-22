@@ -1,11 +1,11 @@
 package com.github.xiaolyuh.action;
 
-import com.github.xiaolyuh.service.GitFlowPlus;
 import com.github.xiaolyuh.config.InitOptions;
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
+import com.github.xiaolyuh.service.ConfigService;
+import com.github.xiaolyuh.service.GitFlowPlus;
 import com.github.xiaolyuh.ui.InitPluginDialog;
-import com.github.xiaolyuh.utils.ConfigUtil;
 import com.github.xiaolyuh.utils.GitBranchUtil;
 import com.github.xiaolyuh.utils.HttpClientUtil;
 import com.github.xiaolyuh.utils.NotifyUtil;
@@ -37,7 +37,9 @@ public class InitPluginAction extends AnAction {
         super.update(event);
         event.getPresentation().setEnabledAndVisible(GitBranchUtil.isGitProject(event.getProject()));
 
-        event.getPresentation().setText(ConfigUtil.isInit(event.getProject())
+        ConfigService configService = ConfigService.Companion.getInstance(event.getProject());
+
+        event.getPresentation().setText(configService.isInit()
                 ? I18n.getContent(I18nKey.INIT_PLUGIN_ACTION$TEXT_UPDATE) : I18n.getContent(I18nKey.INIT_PLUGIN_ACTION$TEXT_INIT));
     }
 
@@ -107,15 +109,16 @@ public class InitPluginAction extends AnAction {
                     }
                 }
 
-                ConfigUtil.saveKubesphereUser(initOptions.getKubesphereUsername(), initOptions.getKubespherePassword());
-                ConfigUtil.saveFsWebHookUrl(initOptions.getFsWebHookUrl());
+                ConfigService configService = ConfigService.Companion.getInstance(project);
+                configService.saveKubesphereUser(initOptions.getKubesphereUsername(), initOptions.getKubespherePassword());
+                configService.saveFsWebHookUrl(initOptions.getFsWebHookUrl());
 
                 // 存储配置
                 String configJson = HttpClientUtil.gson.toJson(initOptions);
-                ConfigUtil.saveConfigToLocal(project, configJson);
-                ConfigUtil.saveConfigToFile(project, configJson);
+                configService.saveConfigToLocal(configJson);
+                configService.saveConfigToFile(configJson);
 
-                ConfigUtil.tryInitConfig(project);
+                configService.tryInitConfig();
 
                 // 将配置文件加入GIT管理
                 gitFlowPlus.addConfigToGit(repository);

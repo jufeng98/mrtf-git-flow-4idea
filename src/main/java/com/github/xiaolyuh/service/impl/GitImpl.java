@@ -1,6 +1,7 @@
 package com.github.xiaolyuh.service.impl;
 
 import com.github.xiaolyuh.consts.Constants;
+import com.github.xiaolyuh.service.ConfigService;
 import com.github.xiaolyuh.service.Git;
 import com.github.xiaolyuh.utils.CollectionUtils;
 import com.github.xiaolyuh.utils.ConfigUtil;
@@ -232,7 +233,8 @@ public class GitImpl implements Git {
         h.addParameters("-f");
         h.addParameters("-m");
         h.addParameters(message);
-        h.addParameters(ConfigUtil.getInitOptions(repository.getProject()).getTagPrefix() + tagName);
+        ConfigService configService = ConfigService.Companion.getInstance(repository.getProject());
+        h.addParameters(configService.getInitOptions().getTagPrefix() + tagName);
 
         NotifyUtil.notifyGitCommand(repository.getProject(), h.printableCommandLine());
         return git.runCommand(h);

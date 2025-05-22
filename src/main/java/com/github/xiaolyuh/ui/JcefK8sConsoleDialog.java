@@ -2,7 +2,7 @@ package com.github.xiaolyuh.ui;
 
 import com.github.xiaolyuh.config.K8sOptions;
 import com.github.xiaolyuh.i18n.I18n;
-import com.github.xiaolyuh.utils.ConfigUtil;
+import com.github.xiaolyuh.service.ConfigService;
 import com.github.xiaolyuh.utils.ExecutorUtils;
 import com.github.xiaolyuh.utils.NotifyUtil;
 import com.github.xiaolyuh.vo.InstanceVo;
@@ -54,7 +54,8 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
         setTitle(instanceVo.getDesc() + ":" + instanceVo.getName());
         init();
 
-        String url = ConfigUtil.getConsoleUrl(project, selectService, instanceVo.getName());
+        ConfigService configService = ConfigService.Companion.getInstance(project);
+        String url = configService.getConsoleUrl(selectService, instanceVo.getName());
 
         String finalSelectService = selectService;
         initJcef(url, jbCefBrowser -> {
@@ -172,8 +173,9 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
     }
 
     private void setTokenCookie(JBCefBrowser jbCefBrowser, String url) {
-        String kubesphereToken = ConfigUtil.getKubesphereToken(project);
-        String host = ConfigUtil.getHost(project);
+        ConfigService configService = ConfigService.Companion.getInstance(project);
+        String kubesphereToken = configService.getKubesphereToken();
+        String host = configService.getHost();
         String domain = host.replace("https://", "").replace("http://", "");
 
         CefCookie cefCookie = new CefCookie("token", kubesphereToken,
@@ -183,20 +185,23 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
     }
 
     private String interceptWs() {
-        return "     let accessor = Object.getOwnPropertyDescriptor(WebSocket.prototype, 'onopen');\n" +
-                "    Object.defineProperty(WebSocket.prototype, 'onopen', {\n" +
-                "        get: function () {\n" +
-                "            return accessor.get.call(this);\n" +
-                "        },\n" +
-                "        set: function () {\n" +
-                "            window.lastWsObj=this;\n" +
-                "        },\n" +
-                "        configurable: true\n" +
-                "    });";
+        return """
+                     let accessor = Object.getOwnPropertyDescriptor(WebSocket.prototype, 'onopen');
+                    Object.defineProperty(WebSocket.prototype, 'onopen', {
+                        get: function () {
+                            return accessor.get.call(this);
+                        },
+                        set: function () {
+                            window.lastWsObj=this;
+                        },
+                        configurable: true
+                    });\
+                """;
     }
 
-    private Pair<Pair<String, String>, Pair<String, String>> getLogPath(@Nullable Project project, String selectService) {
-        K8sOptions k8sOptions = ConfigUtil.getK8sOptions(project);
+    private Pair<Pair<String, String>, Pair<String, String>> getLogPath(Project project, String selectService) {
+        ConfigService configService = ConfigService.Companion.getInstance(project);
+        K8sOptions k8sOptions = configService.getK8sOptions();
         String logDir = k8sOptions.getLogDir();
         String debugFile = MessageFormat.format(k8sOptions.getLogDebugFile(), selectService);
         String errorFile = MessageFormat.format(k8sOptions.getLogErrorFile(), selectService);

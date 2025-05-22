@@ -3,9 +3,9 @@ package com.github.xiaolyuh.action;
 import com.github.xiaolyuh.config.InitOptions;
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
+import com.github.xiaolyuh.service.ConfigService;
 import com.github.xiaolyuh.service.GitFlowPlus;
 import com.github.xiaolyuh.ui.ServiceDialog;
-import com.github.xiaolyuh.utils.ConfigUtil;
 import com.github.xiaolyuh.utils.ExecutorUtils;
 import com.github.xiaolyuh.utils.GitBranchUtil;
 import com.github.xiaolyuh.utils.KubesphereUtils;
@@ -56,14 +56,16 @@ public abstract class AbstractMergeAction extends AnAction {
             return;
         }
 
-        boolean isInit = GitBranchUtil.isGitProject(event.getProject()) && ConfigUtil.isInit(event.getProject());
+        ConfigService configService = ConfigService.Companion.getInstance(event.getProject());
+
+        boolean isInit = GitBranchUtil.isGitProject(event.getProject()) && configService.isInit();
         if (!isInit) {
             event.getPresentation().setEnabled(false);
             return;
         }
 
         String currentBranch = gitFlowPlus.getCurrentBranch(event.getProject());
-        InitOptions initOptions = ConfigUtil.getInitOptions(event.getProject());
+        InitOptions initOptions = configService.getInitOptions();
         String featurePrefix = initOptions.getFeaturePrefix();
         String hotfixPrefix = initOptions.getHotfixPrefix();
 
@@ -108,8 +110,7 @@ public abstract class AbstractMergeAction extends AnAction {
 
     void actionPerformed(@NotNull AnActionEvent event, TagOptions tagOptions) {
         final Project project = event.getProject();
-        @SuppressWarnings("ConstantConditions")
-        final String currentBranch = gitFlowPlus.getCurrentBranch(project);
+        @SuppressWarnings("ConstantConditions") final String currentBranch = gitFlowPlus.getCurrentBranch(project);
         final String targetBranch = getTargetBranch(project);
 
         final boolean isStartTest = this.getClass() == StartTestAction.class;

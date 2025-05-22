@@ -2,7 +2,7 @@ package com.github.xiaolyuh.action;
 
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
-import com.github.xiaolyuh.utils.ConfigUtil;
+import com.github.xiaolyuh.service.ConfigService;
 import com.github.xiaolyuh.utils.StringUtils;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
@@ -34,7 +34,9 @@ public class RebuildTestAction extends AbstractNewBranchAction {
 
     @Override
     public String getInputString(Project project) {
-        String test = ConfigUtil.getInitOptions(project).getTestBranch();
+        ConfigService configService = ConfigService.Companion.getInstance(project);
+        String test = configService.getInitOptions().getTestBranch();
+
         int flag = Messages.showOkCancelDialog(project,
                 I18n.getContent(I18nKey.REBUILD_TEST_ACTION$DIALOG_MESSAGE, test, test),
                 I18n.getContent(I18nKey.REBUILD_TEST_ACTION$DIALOG_TITLE),

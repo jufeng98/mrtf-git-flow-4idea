@@ -1,5 +1,6 @@
 package com.github.xiaolyuh.utils;
 
+import com.github.xiaolyuh.service.ConfigService;
 import com.github.xiaolyuh.service.RunTask;
 import com.github.xiaolyuh.ui.KbsMsgForm;
 import com.google.gson.JsonArray;
@@ -44,7 +45,8 @@ public class ExecutorUtils {
     private static RunTask createMonitorBuildTaskReal(String id, String selectService, Project project) {
         return () -> {
             try {
-                String url = ConfigUtil.getRunsUrl(project) + "/" + id;
+                ConfigService configService = ConfigService.Companion.getInstance(project);
+                String url = configService.getRunsUrl() + "/" + id;
                 JsonObject resObj = HttpClientUtil.getForObjectWithToken(url + "/", null, JsonObject.class, project);
                 String state = resObj.get("state").getAsString();
                 if (!"FINISHED".equals(state)) {
@@ -86,7 +88,8 @@ public class ExecutorUtils {
         addTask(() -> {
             sleep(10);
 
-            String podUrl = ConfigUtil.getPodsUrl(project, selectService);
+            ConfigService configService = ConfigService.Companion.getInstance(project);
+            String podUrl = configService.getPodsUrl(selectService);
 
             String newInstanceName;
             try {
@@ -147,7 +150,7 @@ public class ExecutorUtils {
     }
 
     public static void checkNewInstance(JsonObject newItemObject, String newInstanceName, Project project,
-                                         String selectService, String podUrl) throws Exception {
+                                        String selectService, String podUrl) throws Exception {
         JsonObject statusObj = newItemObject.getAsJsonObject("status");
         int restartCount = KubesphereUtils.getRestartCount(statusObj, "initContainerStatuses");
         if (restartCount > 0) {

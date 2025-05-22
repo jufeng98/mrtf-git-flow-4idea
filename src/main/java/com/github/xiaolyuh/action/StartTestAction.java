@@ -1,9 +1,9 @@
 package com.github.xiaolyuh.action;
 
-import com.github.xiaolyuh.service.GitFlowPlus;
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
-import com.github.xiaolyuh.utils.ConfigUtil;
+import com.github.xiaolyuh.service.ConfigService;
+import com.github.xiaolyuh.service.GitFlowPlus;
 import com.github.xiaolyuh.valve.merge.ChangeFileValve;
 import com.github.xiaolyuh.valve.merge.MergeValve;
 import com.github.xiaolyuh.valve.merge.Valve;
@@ -27,7 +27,8 @@ public class StartTestAction extends AbstractMergeAction {
 
     @Override
     protected String getTargetBranch(Project project) {
-        return ConfigUtil.getInitOptions(project).getTestBranch();
+        ConfigService configService = ConfigService.Companion.getInstance(project);
+        return configService.getInitOptions().getTestBranch();
     }
 
     @Override

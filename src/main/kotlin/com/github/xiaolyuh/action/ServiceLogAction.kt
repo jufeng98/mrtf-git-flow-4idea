@@ -1,9 +1,9 @@
 package com.github.xiaolyuh.action
 
 import com.github.xiaolyuh.i18n.I18n
+import com.github.xiaolyuh.service.ConfigService.Companion.getInstance
 import com.github.xiaolyuh.ui.KbsMsgForm
 import com.github.xiaolyuh.ui.ServiceDialog
-import com.github.xiaolyuh.utils.ConfigUtil
 import com.github.xiaolyuh.utils.KubesphereUtils
 import com.github.xiaolyuh.utils.NotifyUtil
 import com.github.xiaolyuh.utils.StringUtils
@@ -38,7 +38,8 @@ class ServiceLogAction : AnAction(), DumbAware {
             return
         }
 
-        if (ConfigUtil.notExistsK8sOptions(project)) {
+        val configService = getInstance(project)
+        if (configService.notExistsK8sOptions()) {
             return
         }
 

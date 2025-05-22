@@ -2,7 +2,7 @@ package com.github.xiaolyuh.action;
 
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
-import com.github.xiaolyuh.utils.ConfigUtil;
+import com.github.xiaolyuh.service.ConfigService;
 import com.github.xiaolyuh.validator.GitNewBranchNameValidator;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
@@ -30,7 +30,8 @@ public class NewFeatureAction extends AbstractNewBranchAction {
 
     @Override
     public String getPrefix(Project project) {
-        return ConfigUtil.getInitOptions(project).getFeaturePrefix();
+        ConfigService configService = ConfigService.Companion.getInstance(project);
+        return configService.getInitOptions().getFeaturePrefix();
     }
 
     @Override

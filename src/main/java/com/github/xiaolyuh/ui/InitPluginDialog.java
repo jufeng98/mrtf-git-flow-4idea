@@ -4,7 +4,7 @@ import com.github.xiaolyuh.config.InitOptions;
 import com.github.xiaolyuh.enums.LanguageEnum;
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
-import com.github.xiaolyuh.utils.ConfigUtil;
+import com.github.xiaolyuh.service.ConfigService;
 import com.github.xiaolyuh.utils.GitBranchUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
@@ -16,7 +16,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * 初始化插件弹框
@@ -101,29 +100,29 @@ public class InitPluginDialog extends DialogWrapper {
      * 初始化弹框
      */
     private void initDialog(Project project) {
-        Optional<InitOptions> options = ConfigUtil.getConfig(project);
+        ConfigService configService = ConfigService.Companion.getInstance(project);
+        InitOptions options = configService.getInitOptions();
         List<String> remoteBranches = GitBranchUtil.getRemoteBranches(project);
         List<String> languages = LanguageEnum.getAllLanguage();
 
-        if (options.isPresent()) {
-            masterBranchComboBox.setModel(new CollectionComboBoxModel<>(remoteBranches, options.get().getMasterBranch()));
-            releaseBranchComboBox.setModel(new CollectionComboBoxModel<>(remoteBranches, options.get().getReleaseBranch()));
-            testBranchComboBox.setModel(new CollectionComboBoxModel<>(remoteBranches, options.get().getTestBranch()));
-            languageComboBox.setModel(new CollectionComboBoxModel<>(languages, options.get().getLanguage().getLanguage()));
+        if (options != null) {
+            masterBranchComboBox.setModel(new CollectionComboBoxModel<>(remoteBranches, options.getMasterBranch()));
+            releaseBranchComboBox.setModel(new CollectionComboBoxModel<>(remoteBranches, options.getReleaseBranch()));
+            testBranchComboBox.setModel(new CollectionComboBoxModel<>(remoteBranches, options.getTestBranch()));
+            languageComboBox.setModel(new CollectionComboBoxModel<>(languages, options.getLanguage().getLanguage()));
 
-            featurePrefixTextField.setText(options.get().getFeaturePrefix());
-            hotfixPrefixTextField.setText(options.get().getHotfixPrefix());
-            tagPrefixTextField.setText(options.get().getTagPrefix());
+            featurePrefixTextField.setText(options.getFeaturePrefix());
+            hotfixPrefixTextField.setText(options.getHotfixPrefix());
+            tagPrefixTextField.setText(options.getTagPrefix());
             releaseFinishIsDeleteReleaseCheckBox.setSelected(false);
             releaseFinishIsDeleteFeatureCheckBox.setSelected(false);
-            dingtalkTokenTextField.setText(options.get().getDingtalkToken());
-            kubesphereUsernameTextField.setText(options.get().getKubesphereUsername());
-            kubespherePasswordTextField.setText(options.get().getKubespherePassword());
-            fsWebHookUrlTextField.setText(options.get().getFsWebHookUrl());
+            dingtalkTokenTextField.setText(options.getDingtalkToken());
+            kubesphereUsernameTextField.setText(options.getKubesphereUsername());
+            kubespherePasswordTextField.setText(options.getKubespherePassword());
+            fsWebHookUrlTextField.setText(options.getFsWebHookUrl());
 
             languageSwitch(LanguageEnum.getByLanguage((String) languageComboBox.getSelectedItem()));
         } else {
-
             masterBranchComboBox.setModel(new CollectionComboBoxModel<>(remoteBranches));
             releaseBranchComboBox.setModel(new CollectionComboBoxModel<>(remoteBranches));
             testBranchComboBox.setModel(new CollectionComboBoxModel<>(remoteBranches));

@@ -1,5 +1,6 @@
 package com.github.xiaolyuh.utils;
 
+import com.github.xiaolyuh.service.ConfigService;
 import com.github.xiaolyuh.vo.InstanceVo;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonArray;
@@ -27,12 +28,14 @@ public class KubesphereUtils {
             return;
         }
 
-        if (ConfigUtil.notExistsK8sOptions(project)) {
+        ConfigService configService = ConfigService.Companion.getInstance(project);
+
+        if (configService.notExistsK8sOptions()) {
             NotifyUtil.notifyInfo(project, "缺少k8s配置文件,跳过触发流水线");
             return;
         }
 
-        String crumbissuerUrl = ConfigUtil.getCrumbissuerUrl(project);
+        String crumbissuerUrl = configService.getCrumbissuerUrl();
         JsonObject resObj = HttpClientUtil.getForObjectWithToken(crumbissuerUrl, null, JsonObject.class, project);
         String crumb = resObj.get("crumb").getAsString();
         NotifyUtil.notifyInfo(project, "请求url:" + crumbissuerUrl + ",结果crumb:" + crumb);
@@ -40,7 +43,7 @@ public class KubesphereUtils {
             throw new RuntimeException(crumbissuerUrl + "配置有误:" + resObj);
         }
 
-        boolean isFrontProject = ConfigUtil.getK8sOptions(project).isFrontProject();
+        boolean isFrontProject = configService.getK8sOptions().isFrontProject();
         String reqBody;
         if (isFrontProject) {
             reqBody = "{\"parameters\":[]}";
@@ -48,7 +51,7 @@ public class KubesphereUtils {
             reqBody = String.format("{\"parameters\":[{\"name\":\"MDL_NAME\",\"value\":\"%s\"}]}", selectService);
         }
 
-        String runsUrl = ConfigUtil.getRunsUrl(project);
+        String runsUrl = configService.getRunsUrl();
         Map<String, String> headers = Maps.newHashMap();
         headers.put("Jenkins-Crumb", crumb);
         resObj = HttpClientUtil.postJsonForObjectWithToken(runsUrl, reqBody, headers, JsonObject.class, project);
@@ -69,7 +72,8 @@ public class KubesphereUtils {
     }
 
     public static void loginAndSaveToken(Project project) throws Exception {
-        kotlin.Pair<String, String> pair = ConfigUtil.getKubesphereUser();
+        ConfigService configService = ConfigService.Companion.getInstance(project);
+        kotlin.Pair<String, String> pair = configService.getKubesphereUser();
         String kubesphereUsername = pair.getFirst();
         if (StringUtils.isBlank(kubesphereUsername)) {
             throw new RuntimeException("请先在配置菜单配置Kubesphere用户信息");
@@ -78,13 +82,14 @@ public class KubesphereUtils {
 
         String accessToken = loginByUrl(kubesphereUsername, kubespherePassword, project);
 
-        ConfigUtil.saveKubesphereToken(accessToken, project);
+        configService.saveKubesphereToken(accessToken);
     }
 
     public static String loginByUrl(String kubesphereUsername, String kubespherePassword, Project project) throws Exception {
-        String loginUrl = ConfigUtil.getLoginUrl(project);
+        ConfigService configService = ConfigService.Companion.getInstance(project);
+        String loginUrl = configService.getLoginUrl();
         String accessToken;
-        if (ConfigUtil.isMhKubesphere(project)) {
+        if (configService.isMhKubesphere()) {
             String reqBody = String.format("grant_type=password&username=%s&password=%s", kubesphereUsername, kubespherePassword);
             Map<String, String> headers = Maps.newHashMap();
             headers.put("Content-Type", "application/x-www-form-urlencoded");
@@ -110,7 +115,8 @@ public class KubesphereUtils {
     }
 
     public static boolean isLoginUrl(String url, Project project) {
-        return url.equals(ConfigUtil.getLoginUrl(project));
+        ConfigService configService = ConfigService.Companion.getInstance(project);
+        return url.equals(configService.getLoginUrl());
     }
 
     public static String getTokenFromResponseCookie(List<String> cookies) {
@@ -147,7 +153,8 @@ public class KubesphereUtils {
     }
 
     public static List<InstanceVo> findInstanceName(Project project, String serviceName) throws Exception {
-        String podsUrl = ConfigUtil.getPodsUrl(project, serviceName);
+        ConfigService configService = ConfigService.Companion.getInstance(project);
+        String podsUrl = configService.getPodsUrl(serviceName);
         JsonObject resObj = HttpClientUtil.getForObjectWithToken(podsUrl, null, JsonObject.class, project);
 
         List<InstanceVo> instanceVos = new ArrayList<>();
@@ -208,7 +215,8 @@ public class KubesphereUtils {
             }
         }).exceptionally(e -> ExceptionUtils.getStackTrace(e).getBytes(StandardCharsets.UTF_8));
 
-        String compileLogPath = ConfigUtil.getCompileLogPath(project);
+        ConfigService configService = ConfigService.Companion.getInstance(project);
+        String compileLogPath = configService.getCompileLogPath();
         if (StringUtils.isBlank(compileLogPath)) {
             throw new RuntimeException("构建失败了,由于未配置compileLogPath参数,无法获取详细构建错误信息");
         }
@@ -233,13 +241,15 @@ public class KubesphereUtils {
 
     public static byte[] getContainerStartInfo(Project project, String selectService, String newInstanceName, int tailLines,
                                                boolean previous, boolean follow) throws Exception {
-        String logsUrl = ConfigUtil.getLogsUrl(project, selectService, newInstanceName, tailLines, previous, follow);
+        ConfigService configService = ConfigService.Companion.getInstance(project);
+        String logsUrl = configService.getLogsUrl(selectService, newInstanceName, tailLines, previous, follow);
         return HttpClientUtil.getForObjectWithTokenUseUrl(logsUrl, null, byte[].class, project);
     }
 
     public static void getContainerStartInfo(Project project, String selectService, String newInstanceName, int tailLines,
                                              boolean previous, boolean follow, Consumer<byte[]> consumer) throws Exception {
-        String logsUrl = ConfigUtil.getLogsUrl(project, selectService, newInstanceName, tailLines, previous, follow);
+        ConfigService configService = ConfigService.Companion.getInstance(project);
+        String logsUrl = configService.getLogsUrl(selectService, newInstanceName, tailLines, previous, follow);
         HttpClientUtil.getForObjectWithTokenUseUrl(logsUrl, null, byte[].class, consumer, project);
     }
 

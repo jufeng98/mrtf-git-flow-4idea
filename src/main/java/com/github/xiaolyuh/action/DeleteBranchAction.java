@@ -1,8 +1,8 @@
 package com.github.xiaolyuh.action;
 
 import com.github.xiaolyuh.i18n.I18n;
+import com.github.xiaolyuh.service.ConfigService;
 import com.github.xiaolyuh.ui.BranchDeleteDialog;
-import com.github.xiaolyuh.utils.ConfigUtil;
 import com.github.xiaolyuh.utils.GitBranchUtil;
 import com.github.xiaolyuh.utils.NotifyUtil;
 import com.github.xiaolyuh.valve.merge.ChangeFileValve;
@@ -96,7 +96,8 @@ public class DeleteBranchAction extends AbstractMergeAction {
     }
 
     protected String getTargetBranch(Project project) {
-        return ConfigUtil.getInitOptions(project).getMasterBranch();
+        ConfigService configService = ConfigService.Companion.getInstance(project);
+        return configService.getInitOptions().getMasterBranch();
     }
 
     protected String getDialogTitle(Project project) {
@@ -104,7 +105,8 @@ public class DeleteBranchAction extends AbstractMergeAction {
     }
 
     protected String getTaskTitle(Project project) {
-        String release = ConfigUtil.getInitOptions(project).getReleaseBranch();
+        ConfigService configService = ConfigService.Companion.getInstance(project);
+        String release = configService.getInitOptions().getReleaseBranch();
         return I18n.getContent("FailureReleaseAction.TaskTitle", release);
     }
 

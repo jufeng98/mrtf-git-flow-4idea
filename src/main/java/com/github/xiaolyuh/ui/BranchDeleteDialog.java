@@ -2,8 +2,8 @@ package com.github.xiaolyuh.ui;
 
 import com.github.xiaolyuh.config.InitOptions;
 import com.github.xiaolyuh.i18n.I18n;
+import com.github.xiaolyuh.service.ConfigService;
 import com.github.xiaolyuh.service.GitFlowPlus;
-import com.github.xiaolyuh.utils.ConfigUtil;
 import com.github.xiaolyuh.utils.StringUtils;
 import com.github.xiaolyuh.vo.BranchVo;
 import com.github.xiaolyuh.vo.DeleteBranchOptions;
@@ -64,7 +64,8 @@ public class BranchDeleteDialog extends DialogWrapper {
         Task.Modal task = new Task.Modal(repository.getProject(), mainPanel, "Loading......", true) {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
-                InitOptions initOptions = ConfigUtil.getInitOptions(repository.getProject());
+                ConfigService configService = ConfigService.Companion.getInstance(repository.getProject());
+                InitOptions initOptions = configService.getInitOptions();
 
                 List<BranchVo> branchVoList = getBranchListFiltered(repository);
 

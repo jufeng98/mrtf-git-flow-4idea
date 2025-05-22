@@ -1,10 +1,10 @@
 package com.github.xiaolyuh.valve.merge;
 
-import com.github.xiaolyuh.vo.TagOptions;
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
-import com.github.xiaolyuh.utils.ConfigUtil;
+import com.github.xiaolyuh.service.ConfigService;
 import com.github.xiaolyuh.utils.NotifyUtil;
+import com.github.xiaolyuh.vo.TagOptions;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.project.Project;
 import git4idea.commands.GitCommandResult;
@@ -29,7 +29,8 @@ public class MergeValve extends Valve {
     public boolean invoke(Project project, GitRepository repository, String sourceBranch, String targetBranch, TagOptions tagOptions) {
         GitCommandResult result = gitFlowPlus.mergeBranchAndPush(repository, sourceBranch, targetBranch, tagOptions);
         if (result.success()) {
-            String releaseBranch = ReadAction.compute(() -> ConfigUtil.getInitOptions(project).getReleaseBranch());
+            ConfigService configService = ConfigService.Companion.getInstance(project);
+            String releaseBranch = ReadAction.compute(() -> configService.getInitOptions().getReleaseBranch());
             String source = Objects.nonNull(tagOptions) ? releaseBranch : sourceBranch;
             NotifyUtil.notifySuccess(project, "Success", I18n.getContent(I18nKey.MERGE_VALVE$MERGE_SUCCESS, source, targetBranch));
             return true;

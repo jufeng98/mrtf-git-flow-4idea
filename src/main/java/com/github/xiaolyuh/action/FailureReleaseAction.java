@@ -2,7 +2,7 @@ package com.github.xiaolyuh.action;
 
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
-import com.github.xiaolyuh.utils.ConfigUtil;
+import com.github.xiaolyuh.service.ConfigService;
 import com.github.xiaolyuh.valve.merge.ChangeFileValve;
 import com.github.xiaolyuh.valve.merge.UnLockCheckValve;
 import com.github.xiaolyuh.valve.merge.UnLockValve;
@@ -30,7 +30,8 @@ public class FailureReleaseAction extends AbstractMergeAction {
 
     @Override
     protected String getTargetBranch(Project project) {
-        return ConfigUtil.getInitOptions(project).getMasterBranch();
+        ConfigService configService = ConfigService.Companion.getInstance(project);
+        return configService.getInitOptions().getMasterBranch();
     }
 
     @Override
@@ -40,13 +41,15 @@ public class FailureReleaseAction extends AbstractMergeAction {
 
     @Override
     protected String getDialogContent(Project project, boolean isStartTest) {
-        String release = ConfigUtil.getInitOptions(project).getReleaseBranch();
-        return I18n.getContent(I18nKey.FAILURE_RELEASE_ACTION$DIALOG_CONTENT,release);
+        ConfigService configService = ConfigService.Companion.getInstance(project);
+        String release = configService.getInitOptions().getReleaseBranch();
+        return I18n.getContent(I18nKey.FAILURE_RELEASE_ACTION$DIALOG_CONTENT, release);
     }
 
     @Override
     protected String getTaskTitle(Project project) {
-        String release = ConfigUtil.getInitOptions(project).getReleaseBranch();
+        ConfigService configService = ConfigService.Companion.getInstance(project);
+        String release = configService.getInitOptions().getReleaseBranch();
         return I18n.getContent(I18nKey.FAILURE_RELEASE_ACTION$TASK_TITLE, release);
     }
 

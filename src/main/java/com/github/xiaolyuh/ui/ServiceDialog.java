@@ -1,5 +1,6 @@
 package com.github.xiaolyuh.ui;
 
+import com.github.xiaolyuh.service.ConfigService;
 import com.github.xiaolyuh.utils.ConfigUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
@@ -22,8 +23,9 @@ public class ServiceDialog extends DialogWrapper {
         jlist.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         DefaultListModel<String> listModel = new DefaultListModel<>();
-        if (ConfigUtil.existsK8sOptions(project)) {
-            List<String> services = ConfigUtil.getK8sOptions(project).getServices();
+        ConfigService configService = ConfigService.Companion.getInstance(project);
+        if (configService.existsK8sOptions()) {
+            List<String> services = configService.getK8sOptions().getServices();
             for (String service : services) {
                 listModel.addElement(service);
             }

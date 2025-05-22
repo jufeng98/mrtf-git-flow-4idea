@@ -1,5 +1,6 @@
 package com.github.xiaolyuh.utils;
 
+import com.github.xiaolyuh.service.ConfigService;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -55,7 +56,8 @@ public class HttpClientUtil {
 
     public static <T> T postForObjectWithToken(String url, String reqBody, Map<String, String> headers,
                                                Class<T> resType, Project project) throws Exception {
-        String kubesphereToken = ConfigUtil.getKubesphereToken(project);
+        ConfigService configService = ConfigService.Companion.getInstance(project);
+        String kubesphereToken = configService.getKubesphereToken();
         if (headers == null) {
             headers = Maps.newHashMap();
         }
@@ -73,7 +75,8 @@ public class HttpClientUtil {
 
     public static <T> T getForObjectWithToken(String url, Map<String, String> headers,
                                               Class<T> resType, Project project) throws Exception {
-        String kubesphereToken = ConfigUtil.getKubesphereToken(project);
+        ConfigService configService = ConfigService.Companion.getInstance(project);
+        String kubesphereToken = configService.getKubesphereToken();
         if (headers == null) {
             headers = Maps.newHashMap();
         }
@@ -137,7 +140,8 @@ public class HttpClientUtil {
     }
 
     private static @Nullable JsonObject handleGroupLogin(String url, Project project, int status, List<String> cookies, String body) {
-        boolean isGroupLoginUrl = KubesphereUtils.isLoginUrl(url, project) && ConfigUtil.isGroupKubesphere(project);
+        ConfigService configService = ConfigService.Companion.getInstance(project);
+        boolean isGroupLoginUrl = KubesphereUtils.isLoginUrl(url, project) && configService.isGroupKubesphere();
         if (isGroupLoginUrl && status == 200) {
             throw new RuntimeException("用户名或密码无效," + body);
         } else if (isGroupLoginUrl && status == 302) {
@@ -152,7 +156,8 @@ public class HttpClientUtil {
 
     public static <T> T getForObjectWithTokenUseUrl(String url, Map<String, String> headers,
                                                     Class<T> resType, Project project) throws Exception {
-        String kubesphereToken = ConfigUtil.getKubesphereToken(project);
+        ConfigService configService = ConfigService.Companion.getInstance(project);
+        String kubesphereToken = configService.getKubesphereToken();
         if (headers == null) {
             headers = Maps.newHashMap();
         }
@@ -162,7 +167,8 @@ public class HttpClientUtil {
 
     public static <T> void getForObjectWithTokenUseUrl(String url, Map<String, String> headers, Class<T> resType,
                                                        Consumer<T> consumer, Project project) throws Exception {
-        String kubesphereToken = ConfigUtil.getKubesphereToken(project);
+        ConfigService configService = ConfigService.Companion.getInstance(project);
+        String kubesphereToken = configService.getKubesphereToken();
         if (headers == null) {
             headers = Maps.newHashMap();
         }

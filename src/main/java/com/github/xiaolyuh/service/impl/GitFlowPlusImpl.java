@@ -4,10 +4,10 @@ import com.github.xiaolyuh.config.InitOptions;
 import com.github.xiaolyuh.consts.Constants;
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
+import com.github.xiaolyuh.service.ConfigService;
 import com.github.xiaolyuh.service.Git;
 import com.github.xiaolyuh.service.GitFlowPlus;
 import com.github.xiaolyuh.utils.CollectionUtils;
-import com.github.xiaolyuh.utils.ConfigUtil;
 import com.github.xiaolyuh.utils.GitBranchUtil;
 import com.github.xiaolyuh.utils.HttpClientUtil;
 import com.github.xiaolyuh.utils.NotifyUtil;
@@ -150,7 +150,8 @@ public class GitFlowPlusImpl implements GitFlowPlus {
 
     @Override
     public List<BranchVo> getBranchList(GitRepository repository) {
-        InitOptions initOptions = ConfigUtil.getInitOptions(repository.getProject());
+        ConfigService configService = ConfigService.Companion.getInstance(repository.getProject());
+        InitOptions initOptions = configService.getInitOptions();
         GitCommandResult gitCommandResult = git.getAllBranchList(repository);
         List<String> output = gitCommandResult.getOutput();
         return output.stream()
@@ -204,7 +205,10 @@ public class GitFlowPlusImpl implements GitFlowPlus {
     @Override
     public GitCommandResult mergeBranchAndPush(@NotNull GitRepository repository, String currentBranch, String targetBranch,
                                                TagOptions tagOptions) {
-        String releaseBranch = ReadAction.compute(() -> ConfigUtil.getInitOptions(repository.getProject()).getReleaseBranch());
+        String releaseBranch = ReadAction.compute(() -> {
+            ConfigService configService = ConfigService.Companion.getInstance(repository.getProject());
+            return configService.getInitOptions().getReleaseBranch();
+        });
         // 判断目标分支是否存在
         GitCommandResult result = checkTargetBranchIsExist(repository, targetBranch);
         if (Objects.nonNull(result) && !result.success()) {
@@ -305,7 +309,8 @@ public class GitFlowPlusImpl implements GitFlowPlus {
     public void thirdPartyNotify(GitRepository repository) {
         try {
             Project project = repository.getProject();
-            String dingtalkToken = ConfigUtil.getInitOptions(project).getDingtalkToken();
+            ConfigService configService = ConfigService.Companion.getInstance(project);
+            String dingtalkToken = configService.getInitOptions().getDingtalkToken();
             if (StringUtils.isNotBlank(dingtalkToken)) {
                 String url = String.format("https://oapi.dingtalk.com/robot/send?access_token=%s", dingtalkToken);
                 String msg = getRemoteLastCommit(repository, Constants.LOCK_BRANCH_NAME);
@@ -378,7 +383,8 @@ public class GitFlowPlusImpl implements GitFlowPlus {
             if (GitBranchUtil.getRemoteBranches(repository.getProject()).contains(targetBranch)) {
                 return git.checkoutNewBranch(repository, targetBranch);
             } else {
-                String master = ConfigUtil.getInitOptions(repository.getProject()).getMasterBranch();
+                ConfigService configService = ConfigService.Companion.getInstance(repository.getProject());
+                String master = configService.getInitOptions().getMasterBranch();
                 return newNewBranchBaseRemoteMaster(repository, master, targetBranch);
             }
         }
