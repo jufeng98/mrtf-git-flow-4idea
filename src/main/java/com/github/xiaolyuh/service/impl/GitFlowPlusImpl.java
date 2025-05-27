@@ -9,7 +9,7 @@ import com.github.xiaolyuh.service.Git;
 import com.github.xiaolyuh.service.GitFlowPlus;
 import com.github.xiaolyuh.utils.CollectionUtils;
 import com.github.xiaolyuh.utils.GitBranchUtil;
-import com.github.xiaolyuh.utils.HttpClientUtil;
+import com.github.xiaolyuh.service.HttpClientService;
 import com.github.xiaolyuh.utils.NotifyUtil;
 import com.github.xiaolyuh.utils.StringUtils;
 import com.github.xiaolyuh.vo.BranchVo;
@@ -101,7 +101,7 @@ public class GitFlowPlusImpl implements GitFlowPlus {
     }
 
     public void deleteBranch(@NotNull GitRepository repository,
-                             @Nullable String branchName,
+                             @NotNull String branchName,
                              boolean isDeleteLocalBranch) {
         if (isDeleteLocalBranch) {
             git.deleteLocalBranch(repository, branchName);
@@ -316,7 +316,9 @@ public class GitFlowPlusImpl implements GitFlowPlus {
                 String msg = getRemoteLastCommit(repository, Constants.LOCK_BRANCH_NAME);
 
                 msg = I18n.getContent(I18nKey.THIRD_PARTY_NOTIFY, project.getName(), msg);
-                HttpClientUtil.postApplicationJson(url, new DingtalkMessage(msg), String.class, project);
+
+                HttpClientService httpClientService = HttpClientService.Companion.getInstance(project);
+                httpClientService.postApplicationJson(url, new DingtalkMessage(msg), String.class);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

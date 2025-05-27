@@ -5,10 +5,9 @@ import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
 import com.github.xiaolyuh.service.ConfigService;
 import com.github.xiaolyuh.service.GitFlowPlus;
-import com.github.xiaolyuh.ui.ServiceDialog;
-import com.github.xiaolyuh.utils.ExecutorUtils;
-import com.github.xiaolyuh.utils.GitBranchUtil;
 import com.github.xiaolyuh.service.KubesphereService;
+import com.github.xiaolyuh.ui.ServiceDialog;
+import com.github.xiaolyuh.utils.GitBranchUtil;
 import com.github.xiaolyuh.utils.NotifyUtil;
 import com.github.xiaolyuh.utils.StringUtils;
 import com.github.xiaolyuh.valve.merge.Valve;
@@ -44,7 +43,7 @@ import java.util.Objects;
  * @author yuhao.wang3
  */
 public abstract class AbstractMergeAction extends AnAction {
-    private static final Logger LOG = Logger.getInstance(ExecutorUtils.class);
+    private static final Logger LOG = Logger.getInstance(AbstractMergeAction.class);
     protected GitFlowPlus gitFlowPlus = GitFlowPlus.getInstance();
 
     @Override
@@ -65,13 +64,16 @@ public abstract class AbstractMergeAction extends AnAction {
         }
 
         String currentBranch = gitFlowPlus.getCurrentBranch(event.getProject());
+
         InitOptions initOptions = configService.getInitOptions();
+
         String featurePrefix = initOptions.getFeaturePrefix();
         String hotfixPrefix = initOptions.getHotfixPrefix();
 
         // 已经初始化并且前缀是开发分支才显示
         boolean isDevBranch = StringUtils.startsWith(currentBranch, featurePrefix)
                 || StringUtils.startsWith(currentBranch, hotfixPrefix);
+
         event.getPresentation().setEnabled(isDevBranch && !isConflicts(event.getProject()));
 
         setEnabledAndText(event);
@@ -113,7 +115,7 @@ public abstract class AbstractMergeAction extends AnAction {
         @SuppressWarnings("ConstantConditions") final String currentBranch = gitFlowPlus.getCurrentBranch(project);
         final String targetBranch = getTargetBranch(project);
 
-        final boolean isStartTest = this.getClass() == StartTestAction.class;
+        final boolean isStartTest = getClass() == StartTestAction.class;
 
         final GitRepository repository = GitBranchUtil.getCurrentRepository(project);
         if (Objects.isNull(repository)) {
@@ -126,12 +128,15 @@ public abstract class AbstractMergeAction extends AnAction {
             ServiceDialog serviceDialog = new ServiceDialog(getDialogContent(project, true), project);
             serviceDialog.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
             serviceDialog.show();
+
             clickOk = serviceDialog.isOK();
+
             selectServices = serviceDialog.getSelectServices();
         } else {
             int flag = Messages.showOkCancelDialog(project, getDialogContent(project, false),
                     getDialogTitle(project), I18n.getContent(I18nKey.OK_TEXT), I18n.getContent(I18nKey.CANCEL_TEXT),
                     IconLoader.getIcon("/icons/warning.svg", Objects.requireNonNull(ReflectionUtil.getGrandCallerClass())));
+
             clickOk = flag == 0;
         }
 
@@ -140,6 +145,7 @@ public abstract class AbstractMergeAction extends AnAction {
         }
 
         List<String> finalSelectServices = selectServices;
+
         new Task.Backgroundable(project, getTaskTitle(project), false) {
             @SuppressWarnings("ConstantConditions")
             @Override
@@ -162,10 +168,12 @@ public abstract class AbstractMergeAction extends AnAction {
                 if (isStartTest) {
                     finalSelectServices.forEach(serviceName -> {
                         try {
-                            KubesphereService kubesphereService = KubesphereService.getInstance(project);
+                            KubesphereService kubesphereService = KubesphereService.Companion.getInstance(project);
+
                             kubesphereService.triggerPipeline(serviceName);
                         } catch (Exception e) {
                             LOG.warn(e);
+
                             NotifyUtil.notifyError(project, serviceName + "触发流水线出错了:" + ExceptionUtils.getStackTrace(e));
                         }
                     });

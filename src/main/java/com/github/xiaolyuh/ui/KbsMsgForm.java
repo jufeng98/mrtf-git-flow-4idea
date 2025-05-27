@@ -6,7 +6,7 @@ import com.github.xiaolyuh.action.toolbar.RefreshLogAction;
 import com.github.xiaolyuh.action.toolbar.ScrollToEndAction;
 import com.github.xiaolyuh.action.toolbar.ScrollToTopAction;
 import com.github.xiaolyuh.action.toolbar.SoftWrapAction;
-import com.github.xiaolyuh.utils.ExecutorUtils;
+import com.github.xiaolyuh.service.ExecutorService;
 import com.github.xiaolyuh.service.KubesphereService;
 import com.github.xiaolyuh.utils.NotifyUtil;
 import com.github.xiaolyuh.utils.VirtualFileUtils;
@@ -22,7 +22,6 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.ScrollType;
 import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Pair;
@@ -61,6 +60,10 @@ public class KbsMsgForm extends JComponent implements Disposable {
         this.pair = pair;
         this.project = project;
 
+        ActionToolbar toolbar = createSimpleToolbar();
+
+        toolbarPanel.add(toolbar.getComponent());
+
         fillEditorWithErrorTxt();
     }
 
@@ -74,7 +77,7 @@ public class KbsMsgForm extends JComponent implements Disposable {
 
         toolbarPanel.add(toolbar.getComponent());
 
-        fillEditorWithRunningTxt(project, textBytes, false);
+        fillEditorWithRunningTxt(textBytes, false);
     }
 
     public void openLiveLog() {
@@ -88,6 +91,25 @@ public class KbsMsgForm extends JComponent implements Disposable {
 
         insRefreshFuture.cancel(true);
         insRefreshFuture = null;
+    }
+
+    private @NotNull ActionToolbar createSimpleToolbar() {
+        DefaultActionGroup defaultActionGroup = new DefaultActionGroup();
+
+        SoftWrapAction softWrapAction = new SoftWrapAction();
+        ScrollToTopAction scrollToTopAction = new ScrollToTopAction();
+        ScrollToEndAction scrollToEndAction = new ScrollToEndAction();
+
+
+        defaultActionGroup.add(softWrapAction);
+        defaultActionGroup.addSeparator();
+        defaultActionGroup.add(scrollToTopAction);
+        defaultActionGroup.add(scrollToEndAction);
+
+        ActionManager actionManager = ActionManager.getInstance();
+        ActionToolbar toolbar = actionManager.createActionToolbar("gitFlowPlusLogVerticalToolbar", defaultActionGroup, false);
+        toolbar.setTargetComponent(this);
+        return toolbar;
     }
 
     private @NotNull ActionToolbar createToolbar() {
@@ -127,32 +149,41 @@ public class KbsMsgForm extends JComponent implements Disposable {
     }
 
     public void refreshLogData() {
-        Task.Modal task = new Task.Modal(project, mainPanel, "Loading......", true) {
+        new Task.Backgroundable(project, "Loading......", true) {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 byte[] textBytes;
                 try {
-                    textBytes = KubesphereService.getContainerStartInfo(selectService, newInstanceName, tailLines,
+                    KubesphereService kubesphereService = KubesphereService.Companion.getInstance(project);
+                    textBytes = kubesphereService.getContainerStartInfo(selectService, newInstanceName, tailLines,
                             previews, false);
                 } catch (Exception e) {
+                    //noinspection CallToPrintStackTrace
+                    e.printStackTrace();
+
                     NotifyUtil.notifyError(project, "出错了:" + ExceptionUtils.getStackTrace(e));
                     return;
                 }
-                ApplicationManager.getApplication().invokeLater(() -> fillEditorWithRunningTxt(project, textBytes, false));
+                ApplicationManager.getApplication().invokeLater(() -> fillEditorWithRunningTxt(textBytes, false));
             }
-        };
-        ProgressManager.getInstance().run(task);
+        }.queue();
     }
 
     private Future<?> refreshInsRunningData() {
-        return ExecutorUtils.addTask(() -> {
+        ExecutorService executorService = ExecutorService.Companion.getInstance(project);
+
+        return executorService.addTask(() -> {
             try {
-                KubesphereService.getContainerStartInfo(selectService, newInstanceName,
+                KubesphereService kubesphereService = KubesphereService.Companion.getInstance(project);
+                kubesphereService.getContainerStartInfo(selectService, newInstanceName,
                         1000, false, true, body -> SwingUtilities
                                 .invokeLater(() -> ApplicationManager.getApplication()
-                                        .invokeLater(() -> fillEditorWithRunningTxt(project, body, true))
+                                        .invokeLater(() -> fillEditorWithRunningTxt(body, true))
                                 ));
             } catch (Exception e) {
+                //noinspection CallToPrintStackTrace
+                e.printStackTrace();
+
                 NotifyUtil.notifyInfo(project, "实时刷新出错了:" + ExceptionUtils.getStackTrace(e));
             }
         });
@@ -161,22 +192,31 @@ public class KbsMsgForm extends JComponent implements Disposable {
     private void fillEditorWithErrorTxt() {
         addTab("compile", pair.getSecond());
         addTab("push", pair.getFirst());
+
+        jTabbedPane.setSelectedIndex(0);
+
+        editor = releaseEditorList.get(0);
+
+        jTabbedPane.addChangeListener(e -> {
+            int selectedIndex = jTabbedPane.getSelectedIndex();
+            editor = releaseEditorList.get(selectedIndex);
+        });
     }
 
     private void addTab(String tabTitle, byte[] txtBytes) {
-        Editor textEditor = createTextEditorAndSetText(project, txtBytes);
+        editor = createTextEditorAndSetText(project, txtBytes);
 
-        jTabbedPane.addTab(tabTitle, textEditor.getComponent());
+        jTabbedPane.addTab(tabTitle, editor.getComponent());
     }
 
-    private void fillEditorWithRunningTxt(Project project, byte[] txtBytes, boolean append) {
+    private void fillEditorWithRunningTxt(byte[] txtBytes, boolean append) {
         DocumentUtil.writeInRunUndoTransparentAction(() -> {
             if (editor != null) {
                 Document document = editor.getDocument();
 
                 String txt = new String(txtBytes, StandardCharsets.UTF_8);
 
-                String res = txt.replace("\r","");
+                String res = txt.replace("\r", "");
 
                 if (append) {
                     document.setText(document.getText() + res);
@@ -189,18 +229,14 @@ public class KbsMsgForm extends JComponent implements Disposable {
                 return;
             }
 
-            editor = createTextEditorAndSetText(project, txtBytes);
+            addTab("容器日志", txtBytes);
 
-            JComponent component = editor.getComponent();
-
-            jTabbedPane.addTab("容器日志", component);
-
-            jTabbedPane.setSelectedComponent(component);
+            jTabbedPane.setSelectedIndex(0);
         });
     }
 
     private Editor createTextEditorAndSetText(Project project, byte[] txtBytes) {
-        VirtualFile virtualFile = VirtualFileUtils.createLogVirtualFileFromText(txtBytes);
+        VirtualFile virtualFile = VirtualFileUtils.INSTANCE.createLogVirtualFileFromText(txtBytes);
 
         PsiManager psiManager = PsiManager.getInstance(project);
         PsiFile psiFile = psiManager.findFile(virtualFile);
@@ -217,7 +253,7 @@ public class KbsMsgForm extends JComponent implements Disposable {
         return editor;
     }
 
-    private void scrollToBottom() {
+    public void scrollToBottom() {
         Caret caret = editor.getCaretModel().getPrimaryCaret();
 
         caret.moveToOffset(editor.getDocument().getTextLength());
@@ -230,10 +266,6 @@ public class KbsMsgForm extends JComponent implements Disposable {
     }
 
     public JComponent getMainPanel() {
-        jTabbedPane.setSelectedComponent(editor.getComponent());
-
-        scrollToBottom();
-
         return mainPanel;
     }
 

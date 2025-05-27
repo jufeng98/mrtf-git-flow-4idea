@@ -1,11 +1,11 @@
-package com.github.xiaolyuh.utils
+package com.github.xiaolyuh.service
 
-import com.github.xiaolyuh.service.ConfigService.Companion.getInstance
-import com.github.xiaolyuh.service.KubesphereService
-import com.github.xiaolyuh.service.RunTask
+import com.github.xiaolyuh.action.ServiceLogAction.Companion.showLogInRunToolWindow
 import com.github.xiaolyuh.ui.KbsMsgForm
+import com.github.xiaolyuh.utils.NotifyUtil
 import com.google.gson.JsonObject
 import com.intellij.openapi.application.runInEdt
+import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.util.application
@@ -13,35 +13,43 @@ import org.apache.commons.lang3.exception.ExceptionUtils
 import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
 
-object ExecutorUtils {
-    private val LOG = Logger.getInstance(ExecutorUtils::class.java)
+/**
+ * @author yudong
+ */
+@Service(Service.Level.PROJECT)
+class ExecutorService(private val project: Project) {
+    private val logger = Logger.getInstance(ExecutorService::class.java)
 
     fun addTask(runnable: RunTask): Future<*> {
         return application.executeOnPooledThread(runnable)
     }
 
-    fun monitorBuildTask(id: String, selectService: String, project: Project) {
+    fun monitorBuildTask(id: String, selectService: String) {
         addTask {
             sleep(30)
-            createMonitorBuildTask(id, selectService, project)
+
+            createMonitorBuildTask(id, selectService)
         }
     }
 
-    private fun createMonitorBuildTask(id: String, selectService: String, project: Project) {
-        val task = createMonitorBuildTaskReal(id, selectService, project)
+    private fun createMonitorBuildTask(id: String, selectService: String) {
+        val task = createMonitorBuildTaskReal(id, selectService)
 
         addTask(task)
     }
 
-    private fun createMonitorBuildTaskReal(id: String, selectService: String, project: Project): RunTask {
+    private fun createMonitorBuildTaskReal(id: String, selectService: String): RunTask {
         return RunTask {
             try {
-                val configService = getInstance(project)
+                val configService = ConfigService.getInstance(project)
 
                 val url = configService.getRunsUrl() + "/" + id
-                val resObj = HttpClientUtil.getForObjectWithToken(
+
+                val httpClientService = HttpClientService.getInstance(project)
+
+                val resObj = httpClientService.getForObjectWithToken(
                     "$url/", null,
-                    JsonObject::class.java, project
+                    JsonObject::class.java
                 )
 
                 val state = resObj["state"].asString
@@ -49,21 +57,22 @@ object ExecutorUtils {
                     sleep(10)
 
                     // 构建未完成,重新监控
-                    createMonitorBuildTask(id, selectService, project)
+                    createMonitorBuildTask(id, selectService)
                     return@RunTask
                 }
 
                 val result = resObj["result"].asString
                 if ("SUCCESS" != result) {
                     val title = selectService + " id为" + id + "构建失败"
-                    NotifyUtil.notifyInfo(project, title)
+                    NotifyUtil.notifyError(project, title)
 
                     val kubesphereService = KubesphereService.getInstance(project)
                     val pair = kubesphereService.getBuildErrorInfo(url)
 
                     runInEdt {
-                        val dialog = KbsMsgForm(pair, project)
-                        dialog.isVisible = true
+                        val form = KbsMsgForm(pair, project)
+
+                        showLogInRunToolWindow(form, project, "$selectService-built-error")
                     }
 
                     return@RunTask
@@ -71,11 +80,12 @@ object ExecutorUtils {
 
                 NotifyUtil.notifySuccess(project, selectService + " id为" + id + "构建成功")
 
-                monitorStartTask(selectService, id, project)
+                monitorStartTask(selectService, id)
 
                 NotifyUtil.notifyInfo(project, "开始监控" + selectService + " id为" + id + "启动情况")
             } catch (e: Exception) {
-                LOG.warn(e)
+                logger.warn(e)
+
                 NotifyUtil.notifyError(
                     project,
                     "检测" + selectService + " id为" + id + "的构建情况出错,原因:" + ExceptionUtils.getStackTrace(e)
@@ -84,10 +94,12 @@ object ExecutorUtils {
         }
     }
 
-    private fun monitorStartTask(selectService: String, id: String, project: Project) {
+    private fun monitorStartTask(selectService: String, id: String) {
         addTask {
             sleep(10)
-            val configService = getInstance(project)
+
+            val configService = ConfigService.getInstance(project)
+
             val podUrl = configService.getPodsUrl(selectService)
 
             val newInstanceName: String
@@ -95,6 +107,8 @@ object ExecutorUtils {
                 val kubesphereService = KubesphereService.getInstance(project)
                 newInstanceName = kubesphereService.findInstanceName(podUrl, id, 0)
             } catch (e: Exception) {
+                e.printStackTrace()
+
                 NotifyUtil.notifyError(
                     project, "检测" + selectService + " id为" + id +
                             "的启动情况出错啦,原因:" + ExceptionUtils.getStackTrace(e)
@@ -105,32 +119,34 @@ object ExecutorUtils {
             NotifyUtil.notifyInfo(project, "新实例" + newInstanceName + "启动中......")
 
             sleep(10)
-            monitorStartedTask(podUrl, selectService, project, newInstanceName)
+
+            monitorStartedTask(podUrl, selectService, newInstanceName)
         }
     }
 
     private fun monitorStartedTask(
-        podUrl: String, selectService: String, project: Project,
-        newInstanceName: String,
+        podUrl: String, selectService: String, newInstanceName: String,
     ) {
-        val task = createMonitorStartTask(podUrl, selectService, project, newInstanceName)
+        val task = createMonitorStartTask(podUrl, selectService, newInstanceName)
 
         addTask(task)
     }
 
     private fun createMonitorStartTask(
-        podUrl: String, selectService: String, project: Project,
-        newInstanceName: String,
+        podUrl: String, selectService: String, newInstanceName: String,
     ): RunTask {
         return RunTask {
             try {
-                val resObj = HttpClientUtil.getForObjectWithToken(
+                val httpClientService = HttpClientService.getInstance(project)
+
+                val resObj = httpClientService.getForObjectWithToken(
                     podUrl, null,
-                    JsonObject::class.java, project
+                    JsonObject::class.java
                 )
+
                 val items = resObj.getAsJsonArray("items")
 
-                val list: MutableList<JsonObject> = ArrayList()
+                val list = mutableListOf<JsonObject>()
                 for (item in items) {
                     val itemObject = item as JsonObject
                     val instanceName = itemObject.getAsJsonObject("metadata")["name"].asString
@@ -146,15 +162,17 @@ object ExecutorUtils {
                         newInstanceName + "实例已不存在,直接开始监控实例数量,当前数量:" + items.size()
                     )
 
-                    monitorServiceNumTask(podUrl, selectService, project)
+                    monitorServiceNumTask(podUrl, selectService)
 
                     return@RunTask
                 }
 
                 val newItemObject = list[0]
 
-                checkNewInstance(newItemObject, newInstanceName, project, selectService, podUrl)
+                checkNewInstance(newItemObject, newInstanceName, selectService, podUrl)
             } catch (e: Exception) {
+                e.printStackTrace()
+
                 NotifyUtil.notifyError(
                     project,
                     "检测" + newInstanceName + "启动情况出错,原因:" + ExceptionUtils.getStackTrace(e)
@@ -164,8 +182,8 @@ object ExecutorUtils {
     }
 
     private fun checkNewInstance(
-        newItemObject: JsonObject, newInstanceName: String, project: Project,
-        selectService: String, podUrl: String,
+        newItemObject: JsonObject, newInstanceName: String, selectService: String,
+        podUrl: String,
     ) {
         val statusObj = newItemObject.getAsJsonObject("status")
         val kubesphereService = KubesphereService.getInstance(project)
@@ -174,7 +192,7 @@ object ExecutorUtils {
             sleep(30)
 
             val title = newInstanceName + "容器初始化失败,当前重启次数:" + restartCount
-            NotifyUtil.notifyInfo(project, title)
+            NotifyUtil.notifyError(project, title)
 
             val errorBytes = kubesphereService.getContainerStartInfo(
                 selectService, newInstanceName,
@@ -182,11 +200,12 @@ object ExecutorUtils {
             )
 
             runInEdt {
-                val dialog = KbsMsgForm(
+                val form = KbsMsgForm(
                     errorBytes, project, selectService,
                     newInstanceName, false
                 )
-                dialog.isVisible = true
+
+                showLogInRunToolWindow(form, project, "$selectService-initialed-error")
             }
 
             return
@@ -197,7 +216,7 @@ object ExecutorUtils {
             sleep(30)
 
             val title = newInstanceName + "容器启动失败,当前重启次数:" + restartCount
-            NotifyUtil.notifyInfo(project, title)
+            NotifyUtil.notifyError(project, title)
 
             val errorBytes = kubesphereService.getContainerStartInfo(
                 selectService, newInstanceName,
@@ -205,11 +224,12 @@ object ExecutorUtils {
             )
 
             runInEdt {
-                val dialog = KbsMsgForm(
+                val form = KbsMsgForm(
                     errorBytes, project, selectService,
                     newInstanceName, false
                 )
-                dialog.isVisible = true
+
+                showLogInRunToolWindow(form, project, "$selectService-started-error")
             }
 
             return
@@ -219,7 +239,7 @@ object ExecutorUtils {
         if (!ready) {
             sleep(10)
 
-            monitorStartedTask(podUrl, selectService, project, newInstanceName)
+            monitorStartedTask(podUrl, selectService, newInstanceName)
 
             return
         }
@@ -228,40 +248,43 @@ object ExecutorUtils {
         if (!ready) {
             sleep(10)
 
-            monitorStartedTask(podUrl, selectService, project, newInstanceName)
+            monitorStartedTask(podUrl, selectService, newInstanceName)
 
             return
         }
 
         NotifyUtil.notifySuccess(project, newInstanceName + "新实例已启动成功,开始监控实例数量")
 
-        monitorServiceNumTask(podUrl, selectService, project)
+        monitorServiceNumTask(podUrl, selectService)
     }
 
-    private fun monitorServiceNumTask(podUrl: String, selectService: String, project: Project?) {
-        val task = createMonitorServiceNumTask(podUrl, selectService, project)
+    private fun monitorServiceNumTask(podUrl: String, selectService: String) {
+        val task = createMonitorServiceNumTask(podUrl, selectService)
 
         addTask(task)
     }
 
-    private fun createMonitorServiceNumTask(podUrl: String, selectService: String, project: Project?): RunTask {
+    private fun createMonitorServiceNumTask(podUrl: String, selectService: String): RunTask {
         return RunTask {
             try {
-                val resObj = HttpClientUtil.getForObjectWithToken(
+                val httpClientService = HttpClientService.getInstance(project)
+                val resObj = httpClientService.getForObjectWithToken(
                     podUrl, null,
-                    JsonObject::class.java, project
+                    JsonObject::class.java
                 )
                 val items = resObj.getAsJsonArray("items")
                 if (items.size() > 1) {
                     sleep(10)
 
-                    monitorServiceNumTask(podUrl, selectService, project)
+                    monitorServiceNumTask(podUrl, selectService)
 
                     return@RunTask
                 }
 
                 NotifyUtil.notifySuccess(project, selectService + "新实例已完全替换成功!")
             } catch (e: Exception) {
+                e.printStackTrace()
+
                 NotifyUtil.notifyError(
                     project,
                     "检测" + selectService + "服务实例数量出错,原因:" + ExceptionUtils.getStackTrace(e)
@@ -272,5 +295,11 @@ object ExecutorUtils {
 
     private fun sleep(seconds: Int) {
         TimeUnit.SECONDS.sleep(seconds.toLong())
+    }
+
+    companion object {
+        fun getInstance(project: Project): ExecutorService {
+            return project.getService(ExecutorService::class.java)
+        }
     }
 }

@@ -3,11 +3,11 @@ package com.github.xiaolyuh.ui;
 import com.github.xiaolyuh.config.K8sOptions;
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.service.ConfigService;
-import com.github.xiaolyuh.utils.ExecutorUtils;
+import com.github.xiaolyuh.service.ExecutorService;
 import com.github.xiaolyuh.utils.NotifyUtil;
 import com.github.xiaolyuh.vo.InstanceVo;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.Pair;
 import com.intellij.ui.jcef.JBCefApp;
@@ -20,12 +20,9 @@ import org.cef.browser.CefFrame;
 import org.cef.handler.CefAppHandlerAdapter;
 import org.cef.handler.CefLoadHandlerAdapter;
 import org.cef.network.CefCookie;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.im.InputContext;
 import java.text.MessageFormat;
@@ -33,7 +30,7 @@ import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-public class JcefK8sConsoleDialog extends DialogWrapper {
+public class JcefK8sConsoleForm implements Disposable {
     private final Project project;
     private JPanel contentPanel;
     private JPanel mainPanel;
@@ -41,23 +38,20 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
     private JButton debugBtn;
     private JButton errorBtn;
     private JButton infoBtn;
-    private JButton closeBtn;
     private JButton watchBtn;
     private JButton copyBtn;
     private JButton pasteBtn;
 
-    public JcefK8sConsoleDialog(InstanceVo instanceVo, Project project, String selectService) {
-        super(project);
+
+    public JcefK8sConsoleForm(InstanceVo instanceVo, Project project, String selectService) {
         this.project = project;
-        setModal(false);
         selectService = selectService.toLowerCase();
-        setTitle(instanceVo.getDesc() + ":" + instanceVo.getName());
-        init();
 
         ConfigService configService = ConfigService.Companion.getInstance(project);
         String url = configService.getConsoleUrl(selectService, instanceVo.getName());
 
         String finalSelectService = selectService;
+
         initJcef(url, jbCefBrowser -> {
             if (jbCefBrowser == null) {
                 NotifyUtil.notifySuccess(project, I18n.getContent("reopen.menu"));
@@ -89,11 +83,7 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
             errorBtn.addActionListener(e -> executeCommand("less " + logDir + "/" + pair.getSecond().getFirst() + "\n", cefBrowser, url));
             infoBtn.addActionListener(e -> executeCommand("less " + logDir + "/" + pair.getSecond().getSecond() + "\n", cefBrowser, url));
 
-            closeBtn.addActionListener(e -> JcefK8sConsoleDialog.this.close(CLOSE_EXIT_CODE, true));
-
             contentPanel.add(jbCefBrowser.getComponent(), BorderLayout.CENTER);
-
-            show();
         });
     }
 
@@ -149,10 +139,14 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
             @Override
             public void onLoadEnd(CefBrowser browser, CefFrame frame, int httpStatusCode) {
                 browser.executeJavaScript(interceptWs(), url, 1);
-                ExecutorUtils.addTask(() -> {
+
+                ExecutorService executorService = ExecutorService.Companion.getInstance(project);
+
+                executorService.addTask(() -> {
                     while (browser.isLoading()) {
                         TimeUnit.MILLISECONDS.sleep(100);
                     }
+
                     browser.executeJavaScript("document.getElementsByClassName('_1jhjCgxv3S5BKvppnuJpUJ')[0].style.display='none';", url, 1);
                     browser.executeJavaScript("document.getElementsByClassName('_2s7aowlSdhOYMXS2Jm7vG6')[0].style.display='none';", url, 1);
                     browser.executeJavaScript("document.getElementsByClassName('_1L_vmkiDzIokO_PY6QgCyV')[0].style.top='5px';", url, 1);
@@ -166,8 +160,8 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
 
         jbCefBrowser.loadURL(url);
 
-        Disposer.register(getDisposable(), jbCefClient);
-        Disposer.register(getDisposable(), jbCefBrowser);
+        Disposer.register(this, jbCefClient);
+        Disposer.register(this, jbCefBrowser);
 
         return jbCefBrowser;
     }
@@ -238,18 +232,13 @@ public class JcefK8sConsoleDialog extends DialogWrapper {
         cefBrowser.setFocus(true);
     }
 
-    @Override
-    protected Action @NotNull [] createActions() {
-        return new Action[0];
-    }
 
-    @Override
-    protected @Nullable ActionListener createCancelAction() {
-        return null;
-    }
-
-    @Override
-    protected @Nullable JComponent createCenterPanel() {
+    public JComponent getMainPanel() {
         return mainPanel;
+    }
+
+    @Override
+    public void dispose() {
+
     }
 }

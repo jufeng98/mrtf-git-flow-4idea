@@ -56,6 +56,8 @@ public class InitPluginDialog extends DialogWrapper {
         initDialog(project);
 
         init();
+
+        languageComboBox.setEnabled(false);
         languageComboBox.addItemListener(e -> languageSwitch(LanguageEnum.getByLanguage((String) languageComboBox.getSelectedItem())));
     }
 
@@ -101,7 +103,8 @@ public class InitPluginDialog extends DialogWrapper {
      */
     private void initDialog(Project project) {
         ConfigService configService = ConfigService.Companion.getInstance(project);
-        InitOptions options = configService.getInitOptions();
+
+        InitOptions options = configService.getInitOptionsNullable();
         List<String> remoteBranches = GitBranchUtil.getRemoteBranches(project);
         List<String> languages = LanguageEnum.getAllLanguage();
 

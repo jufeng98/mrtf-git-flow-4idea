@@ -1,5 +1,6 @@
 package com.github.xiaolyuh.action.toolbar
 
+import com.github.xiaolyuh.i18n.I18n
 import com.github.xiaolyuh.icons.GitFlowPlusIcons
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.editor.ScrollType
@@ -7,7 +8,7 @@ import com.intellij.openapi.editor.ScrollType
 /**
  * @author yudong
  */
-class ScrollToTopAction : LogBaseAction("滚动到顶部", GitFlowPlusIcons.SCROLL_UP) {
+class ScrollToTopAction : LogBaseAction(I18n.nls("scroll.top"), GitFlowPlusIcons.SCROLL_UP) {
 
     override fun actionPerformed(e: AnActionEvent) {
         val editor = getEditor(e)

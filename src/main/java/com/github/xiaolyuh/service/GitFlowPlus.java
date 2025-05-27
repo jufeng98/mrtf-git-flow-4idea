@@ -79,7 +79,7 @@ public interface GitFlowPlus {
      * @param isDeleteLocalBranch 是否删除本地分支
      */
     void deleteBranch(@NotNull GitRepository repository,
-                      @Nullable String branchName,
+                      @NotNull String branchName,
                       boolean isDeleteLocalBranch);
 
     /**

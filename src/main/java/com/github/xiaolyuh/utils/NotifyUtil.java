@@ -1,6 +1,8 @@
 package com.github.xiaolyuh.utils;
 
 import com.github.xiaolyuh.service.ConfigService;
+import com.github.xiaolyuh.service.ExecutorService;
+import com.github.xiaolyuh.service.HttpClientService;
 import com.github.xiaolyuh.service.KubesphereService;
 import com.google.gson.JsonParser;
 import com.intellij.notification.NotificationGroup;
@@ -75,13 +77,15 @@ public class NotifyUtil {
             StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
             StackTraceElement traceElement = stackTrace[4];
             if (!traceElement.getClassName().equals(KubesphereService.class.getName())
-                    && !traceElement.getClassName().equals(ExecutorUtils.class.getName())) {
+                    && !traceElement.getClassName().equals(ExecutorService.class.getName())) {
                 return;
             }
 
             String now = DateFormatUtils.format(new Date(), "yyyy-MM-dd HH:mm:ss");
             String content = String.format(contentTemplate, now, title, message, project.getName());
-            HttpClientUtil.postApplicationJson(url, generateJSONStr(content), String.class, project);
+
+            HttpClientService httpClientService = HttpClientService.Companion.getInstance(project);
+            httpClientService.postApplicationJson(url, generateJSONStr(content), String.class);
         } catch (Exception ignored) {
         }
     }

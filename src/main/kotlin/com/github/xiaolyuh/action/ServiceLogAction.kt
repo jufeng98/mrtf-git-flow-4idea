@@ -3,13 +3,13 @@ package com.github.xiaolyuh.action
 import com.github.xiaolyuh.i18n.I18n
 import com.github.xiaolyuh.service.ConfigService.Companion.getInstance
 import com.github.xiaolyuh.service.KubesphereService
+import com.github.xiaolyuh.action.support.MyRunContentDescriptor
 import com.github.xiaolyuh.ui.KbsMsgForm
 import com.github.xiaolyuh.ui.ServiceDialog
 import com.github.xiaolyuh.utils.NotifyUtil
 import com.github.xiaolyuh.utils.StringUtils
 import com.github.xiaolyuh.vo.InstanceVo
 import com.intellij.execution.executors.DefaultRunExecutor
-import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.execution.ui.RunContentManager
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -19,6 +19,9 @@ import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
+import com.intellij.openapi.wm.ToolWindowId
+import com.intellij.openapi.wm.ToolWindowManager
+import com.intellij.ui.content.ContentFactory
 import org.apache.commons.lang3.exception.ExceptionUtils
 
 
@@ -57,6 +60,8 @@ class ServiceLogAction : AnAction(), DumbAware {
                     val kubesphereService = KubesphereService.getInstance(project)
                     instanceVos = kubesphereService.findInstanceName(selectService)
                 } catch (e: Exception) {
+                    e.printStackTrace()
+
                     NotifyUtil.notifyError(project, ExceptionUtils.getStackTrace(e))
                     return
                 }
@@ -93,7 +98,6 @@ class ServiceLogAction : AnAction(), DumbAware {
             .toList()
             .toTypedArray()
 
-
         return Messages.showDialog(
             project, I18n.getContent("multi.service.instances"), "温馨提示",
             options, 0, null
@@ -113,31 +117,52 @@ class ServiceLogAction : AnAction(), DumbAware {
                         500, instanceVo.isPreviews, false
                     )
                 } catch (e: Exception) {
+                    e.printStackTrace()
+
                     NotifyUtil.notifyError(project, ExceptionUtils.getStackTrace(e))
                     return
                 }
-
                 runInEdt {
                     val form = KbsMsgForm(textBytes, project, selectService, instanceVo.name, false)
 
-                    val descriptor = object : RunContentDescriptor(
-                        null, null, form.mainPanel,
-                        "$selectService-remote"
-                    ) {
-                        override fun dispose() {
-                            super.dispose()
-                            form.dispose()
-                        }
-                    }
-
-                    val executor = DefaultRunExecutor.getRunExecutorInstance()
-
-                    val runContentManager = RunContentManager.getInstance(project)
-
-                    runContentManager.showRunContent(executor, descriptor)
+                    showLogInRunToolWindow(form, project, selectService)
                 }
             }
 
         }.queue()
+    }
+
+    companion object {
+
+        fun showLogInRunToolWindow(form: KbsMsgForm, project: Project, tabName: String) {
+            val toolWindow = ToolWindowManager.getInstance(project).getToolWindow(ToolWindowId.RUN)
+            val displayName = "$tabName-remote"
+            if (toolWindow == null) {
+                val descriptor = MyRunContentDescriptor(form, displayName) {
+                    form.editor.component.requestFocus()
+                    form.scrollToBottom()
+                }
+
+                val executor = DefaultRunExecutor.getRunExecutorInstance()
+                val runContentManager = RunContentManager.getInstance(project)
+
+                runContentManager.showRunContent(executor, descriptor)
+            } else {
+                val contentFactory = ContentFactory.getInstance()
+                val contentManager = toolWindow.contentManager
+
+                val content = contentFactory.createContent(form.mainPanel, displayName, true)
+
+                contentManager.addContent(content)
+
+                contentManager.setSelectedContent(content)
+
+                toolWindow.activate {
+                    form.editor.component.requestFocus()
+                    form.scrollToBottom()
+                }
+            }
+
+        }
     }
 }

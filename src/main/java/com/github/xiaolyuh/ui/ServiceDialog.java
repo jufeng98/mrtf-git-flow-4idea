@@ -1,7 +1,6 @@
 package com.github.xiaolyuh.ui;
 
 import com.github.xiaolyuh.service.ConfigService;
-import com.github.xiaolyuh.utils.ConfigUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import org.jetbrains.annotations.Nullable;
@@ -10,6 +9,9 @@ import javax.swing.*;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * @author yudong
+ */
 public class ServiceDialog extends DialogWrapper {
     private JPanel mainPanel;
     private JList<String> jlist;
@@ -23,7 +25,9 @@ public class ServiceDialog extends DialogWrapper {
         jlist.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         DefaultListModel<String> listModel = new DefaultListModel<>();
+
         ConfigService configService = ConfigService.Companion.getInstance(project);
+
         if (configService.existsK8sOptions()) {
             List<String> services = configService.getK8sOptions().getServices();
             for (String service : services) {
@@ -33,6 +37,7 @@ public class ServiceDialog extends DialogWrapper {
             listModel.addElement("缺少服务配置,请先在 git-flow-k8s.json 文件配置项目服务!");
             jlist.setEnabled(false);
         }
+
         jlist.setModel(listModel);
     }
 
@@ -40,9 +45,11 @@ public class ServiceDialog extends DialogWrapper {
         if (jlist.getSelectedIndex() != -1) {
             lastChoose = jlist.getSelectedIndex();
         }
+
         if (jlist.isEnabled()) {
             return jlist.getSelectedValue();
         }
+
         return "";
     }
 
@@ -50,9 +57,11 @@ public class ServiceDialog extends DialogWrapper {
         if (jlist.getSelectedIndex() != -1) {
             lastChoose = jlist.getSelectedIndex();
         }
+
         if (jlist.isEnabled()) {
             return jlist.getSelectedValuesList();
         }
+
         return Collections.emptyList();
     }
 
@@ -60,9 +69,11 @@ public class ServiceDialog extends DialogWrapper {
         if (!jlist.isEnabled()) {
             return;
         }
+
         if (lastChoose >= jlist.getModel().getSize()) {
             lastChoose = 0;
         }
+
         jlist.setSelectedIndex(lastChoose);
     }
 

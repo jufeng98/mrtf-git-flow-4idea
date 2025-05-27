@@ -1,6 +1,7 @@
 package com.github.xiaolyuh.action.toolbar
 
-import com.github.xiaolyuh.support.MyActionButton
+import com.github.xiaolyuh.i18n.I18n
+import com.github.xiaolyuh.action.support.MyActionButton
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.Presentation
@@ -10,7 +11,7 @@ import javax.swing.JComponent
 /**
  * @author yudong
  */
-class LoadMoreAction : LogBaseAction("加载更多", AllIcons.Actions.MoveDown) {
+class LoadMoreAction : LogBaseAction(I18n.nls("load.more"), AllIcons.Actions.MoveDown) {
     private lateinit var actionButton: ActionButton
 
     override fun createCustomComponent(presentation: Presentation, place: String): JComponent {

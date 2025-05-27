@@ -1,9 +1,10 @@
 package com.github.xiaolyuh.action
 
 import com.github.xiaolyuh.i18n.I18n
+import com.github.xiaolyuh.provider.ConsoleVirtualFile
 import com.github.xiaolyuh.service.ConfigService.Companion.getInstance
 import com.github.xiaolyuh.service.KubesphereService
-import com.github.xiaolyuh.ui.JcefK8sConsoleDialog
+import com.github.xiaolyuh.ui.JcefK8sConsoleForm
 import com.github.xiaolyuh.ui.ServiceDialog
 import com.github.xiaolyuh.utils.NotifyUtil
 import com.github.xiaolyuh.utils.StringUtils
@@ -11,6 +12,7 @@ import com.github.xiaolyuh.vo.InstanceVo
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.runInEdt
+import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.DumbAware
@@ -18,12 +20,19 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import org.apache.commons.lang3.exception.ExceptionUtils
 
+/**
+ * @author yudong
+ */
 class ServiceConsoleAction : AnAction(), DumbAware {
+    private var jcefInitialed = false
 
     override fun actionPerformed(e: AnActionEvent) {
-        val project = e.project
+        val project = e.project!!
+
         val serviceDialog = ServiceDialog(I18n.getContent("choose.console"), project)
+
         serviceDialog.selectLastChoose()
+
         if (!serviceDialog.showAndGet()) {
             return
         }
@@ -33,7 +42,7 @@ class ServiceConsoleAction : AnAction(), DumbAware {
             return
         }
 
-        val configService = getInstance(project!!)
+        val configService = getInstance(project)
 
         if (configService.notExistsK8sOptions()) {
             NotifyUtil.notifyError(project, I18n.getContent("lack.k8s.config"))
@@ -47,6 +56,8 @@ class ServiceConsoleAction : AnAction(), DumbAware {
                     val kubesphereService = KubesphereService.getInstance(project)
                     instanceVos = kubesphereService.findInstanceName(selectService)
                 } catch (e: Exception) {
+                    e.printStackTrace()
+
                     NotifyUtil.notifyError(project, ExceptionUtils.getStackTrace(e))
                     return
                 }
@@ -63,7 +74,7 @@ class ServiceConsoleAction : AnAction(), DumbAware {
         }.queue()
     }
 
-    fun showInstances(project: Project?, instanceVos: List<InstanceVo>, selectService: String?) {
+    fun showInstances(project: Project, instanceVos: List<InstanceVo>, selectService: String) {
         var choose = 0
         if (instanceVos.size > 1) {
             val options = instanceVos.stream()
@@ -83,14 +94,17 @@ class ServiceConsoleAction : AnAction(), DumbAware {
 
         val instanceVo = instanceVos[choose]
 
-        showInstanceDialog(project, instanceVo, selectService)
+        if (!jcefInitialed) {
+            val form = JcefK8sConsoleForm(instanceVo, project, selectService)
+
+            form.dispose()
+
+            jcefInitialed = true
+            return
+        }
+
+        val fileEditorManager = FileEditorManager.getInstance(project)
+        fileEditorManager.openFile(ConsoleVirtualFile("${selectService}-console", selectService, instanceVo, project))
     }
 
-    private fun showInstanceDialog(project: Project?, instanceVo: InstanceVo, selectService: String?) {
-        try {
-            JcefK8sConsoleDialog(instanceVo, project, selectService)
-        } catch (e: Exception) {
-            NotifyUtil.notifyError(project, ExceptionUtils.getStackTrace(e))
-        }
-    }
 }

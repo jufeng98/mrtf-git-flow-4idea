@@ -4,7 +4,6 @@ import com.github.xiaolyuh.consts.Constants;
 import com.github.xiaolyuh.service.ConfigService;
 import com.github.xiaolyuh.service.Git;
 import com.github.xiaolyuh.utils.CollectionUtils;
-import com.github.xiaolyuh.utils.ConfigUtil;
 import com.github.xiaolyuh.utils.NotifyUtil;
 import com.github.xiaolyuh.vo.MergeRequestOptions;
 import com.intellij.openapi.progress.ProgressManager;
@@ -24,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -90,7 +88,7 @@ public class GitImpl implements Git {
 
     @Override
     public GitCommandResult renameBranch(@NotNull GitRepository repository,
-                                         @Nullable String oldBranch,
+                                         @NotNull String oldBranch,
                                          @NotNull String newBranchName) {
 
         return git.renameBranch(repository, oldBranch, newBranchName);
@@ -142,7 +140,7 @@ public class GitImpl implements Git {
     }
 
     @Override
-    public GitCommandResult deleteLocalBranch(@NotNull GitRepository repository, @Nullable String branchName) {
+    public GitCommandResult deleteLocalBranch(@NotNull GitRepository repository, @NotNull String branchName) {
         // 删除本地分支
         NotifyUtil.notifyGitCommand(repository.getProject(), String.format("git -c core.quotepath=false -c log.showSignature=false branch -D %s", branchName));
         return git.branchDelete(repository, branchName, true);
@@ -184,7 +182,7 @@ public class GitImpl implements Git {
     public GitCommandResult getLastReleaseTime(@NotNull GitRepository repository) {
         //git reflog show --date=iso <branch name>
         GitRemote remote = getDefaultRemote(repository);
-        GitLineHandler h = new GitLineHandler(repository.getProject(), repository.getRoot(), getReadGitCommand("reflog"));
+        GitLineHandler h = new GitLineHandler(repository.getProject(), repository.getRoot(), getReadGitCommand());
         h.setSilent(false);
         h.setStdoutSuppressed(false);
         h.setUrls(remote.getUrls());
@@ -202,7 +200,7 @@ public class GitImpl implements Git {
         GitLineHandler h = new GitLineHandler(repository.getProject(), repository.getRoot(), GitCommand.BRANCH);
         h.setSilent(false);
         h.setStdoutSuppressed(false);
-        h.setUrls(Objects.requireNonNull(remote).getUrls());
+        h.setUrls(remote.getUrls());
         h.addParameters("-a");
         h.addParameters("--sort", "committerdate");
         h.addParameters("--format", "%(committerdate:short)@@@%(authorname)@@@%(refname:short)");
@@ -255,8 +253,8 @@ public class GitImpl implements Git {
 
     @Override
     public GitCommandResult fetch(@NotNull GitRepository repository) {
-        NotifyUtil.notifyGitCommand(repository.getProject(), String.format("git -c core.quotepath=false -c log.showSignature=false fetch origin"));
-        return git.fetch(repository, getDefaultRemote(repository), Collections.singletonList(new GitFetchPruneDetector()), new String[0]);
+        NotifyUtil.notifyGitCommand(repository.getProject(), "git -c core.quotepath=false -c log.showSignature=false fetch origin");
+        return git.fetch(repository, getDefaultRemote(repository), Collections.singletonList(new GitFetchPruneDetector()));
     }
 
     @Override
@@ -318,16 +316,17 @@ public class GitImpl implements Git {
     private GitRemote getDefaultRemote(@NotNull GitRepository repository) {
         Collection<GitRemote> remotes = repository.getRemotes();
         if (CollectionUtils.isEmpty(remotes)) {
-            return null;
+            throw new RuntimeException("no default remotes found");
         }
+
         return remotes.iterator().next();
     }
 
-    private GitCommand getReadGitCommand(String name) {
+    private GitCommand getReadGitCommand() {
         try {
             Method m = GitCommand.class.getDeclaredMethod("read", String.class);
             m.setAccessible(true);
-            return (GitCommand) m.invoke(null, name);
+            return (GitCommand) m.invoke(null, "reflog");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

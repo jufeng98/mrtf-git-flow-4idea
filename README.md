@@ -3,7 +3,7 @@ GitFlowTools 插件是一款基于[mrtf-git-flow](https://xiaolyuh.blog.csdn.net
 Fork code from [GitFlowPlus](https://plugins.jetbrains.com/plugin/14056-gitflowplus).
 
 #### mrtf说明
-![mrrtf.png](https://github.com/xiaolyuh/mrtf-git-flow-4idea/blob/master/images/mrrtf.png)
+![mrrtf.png](images/mrrtf.png)
 
 > 在初始化插件之前必须先保证仓库中具有```origin/master```分支。
 
@@ -33,28 +33,25 @@ Fork code from [GitFlowPlus](https://plugins.jetbrains.com/plugin/14056-gitflowp
 5. 发布完成后忘记打Tag
 6. 修改代码后部署 Kubesphere 测试环境的繁琐性
 
-# Switch To English
-![switch_to_english.gif](https://github.com/xiaolyuh/mrtf-git-flow-4idea/blob/master/images/switch_to_english.gif)
-
 # 安装
 ## 在线安装
-![local_install.gif](https://github.com/xiaolyuh/mrtf-git-flow-4idea/blob/master/images/online_install.gif)
+![local_install.gif](images/online_install.gif)
 
 
 ## 离线安装
-![local_install.gif](https://github.com/xiaolyuh/mrtf-git-flow-4idea/blob/master/images/local_install.gif)
+![local_install.gif](images/local_install.gif)
 
 # 插件入口
-![插件入口.png](https://github.com/xiaolyuh/mrtf-git-flow-4idea/blob/master/images/main.png)
+![插件入口.png](images/main.png)
 
 插件入口有2个：
 1. 在Toolbar栏，这个需要显示Toolbar（View->Toolbar）
 2. 在Statusbar中
 
 # 配置管理
-每个仓库都需要进行插件初始化，配置完成后会生成一个```mrtf-git-flow.config```配置文件，该文件可以添加到git版本管理中进行组内同步，同步完成后组内成员可以共享配置。
+每个仓库都需要进行插件初始化，配置完成后会生成一个```git-flow-plus.config```配置文件，该文件可以添加到git版本管理中进行组内同步，同步完成后组内成员可以共享配置。
 
-![init.gif](https://github.com/xiaolyuh/mrtf-git-flow-4idea/blob/master/images/init.gif)
+![init.gif](images/init.gif)
 
 
 如果配置了钉钉机器人Token，那么在点击[开始发布]的时候，钉钉机器人会在钉钉群发布一条发布分支被锁定的消息，格式如下：
@@ -72,7 +69,7 @@ xxx 服务发布分支已被锁定，最后一次操作：
 
 # 新建分支
 新建开发分支和修复分支都会直接从```origin/master```新建分支，新建分支后会自动切换到新建后的分支。
-![new_branch.gif](https://github.com/xiaolyuh/mrtf-git-flow-4idea/blob/master/images/new_branch.gif)
+![new_branch.gif](images/new_branch.gif)
 
 执行命令：
 ```git
@@ -107,7 +104,7 @@ git push origin rebuildBranchName:rebuildBranchName --tag  --set-upstream
 # 提测
 提测会将当前分支合并到```origin/test```，在合并过程中如果出现冲突并且选择未解决，那么当前分支会切换到本地```test分支```，等待解决冲突；如果没有任何异常情况，那么合并完成后当前分支不会发生切换。
 > 当前分支必须是开发分支或者修复分支时，才允许提测。
-![test.gif](https://github.com/xiaolyuh/mrtf-git-flow-4idea/blob/master/images/test.gif)
+![test.gif](images/test.gif)
 
 执行命令：
 测试分支在远程和本地都不存在，会新建测试分支：
@@ -137,7 +134,7 @@ git checkout featureBranchName --force
 1. 让第一个发布人点发布完成，发布完成会将发布分支合并到```origin/master```，并解除发布分支锁定。
 2. 让第一个发布人点发布失败，发布失败将直接解除发布分支锁定。
 
-![release.gif](https://github.com/xiaolyuh/mrtf-git-flow-4idea/blob/master/images/release.gif)
+![release.gif](images/release.gif)
 
 执行命令：
 加锁
@@ -173,7 +170,7 @@ git checkout featureBranchName --force
 发布完成会将发布分支合并到```origin/master```，并解除发布分支锁定，必须打Tag；
 > 只有发布分支处于锁定状态，该按钮才可用
 
-![finish_release.gif](https://github.com/xiaolyuh/mrtf-git-flow-4idea/blob/master/images/finish_release.gif)
+![finish_release.gif](images/finish_release.gif)
 
 执行命令：
 先fetch在判断发布分支是否处于锁定状态：
@@ -201,7 +198,7 @@ git push origin --delete GFP_LOCK_BRANCH_NAME（解锁）
 直接解除发布分支锁定。
 > 只有发布分支处于锁定状态，该按钮才可用
 
-![failure_release.gif](https://github.com/xiaolyuh/mrtf-git-flow-4idea/blob/master/images/failure_release.gif)
+![failure_release.gif](images/failure_release.gif)
 
 执行命令：
 先fetch在判断发布分支是否处于锁定状态：
@@ -217,19 +214,27 @@ git push origin --delete GFP_LOCK_BRANCH_NAME（解锁）
 # 帮助
 点击帮助会直接跳转插件首页
 
+# 批量删除分支
+![delete-branches.png](images/delete-branches.png)
+
+# 查看 Kubesphere 远程服务实例日志
+![Kubesphere-log.png](images/kubesphere-log.png)
+
+# 连接 Kubesphere 远程服务实例控制台
+![Kubesphere-console.png](images/kubesphere-console.png)
+
 # 作者信息
 - 作者博客：[https://www.zhihu.com/people/liang-yu-dong-44](https://www.zhihu.com/people/liang-yu-dong-44)
 - 作者邮箱： 375709770@qq.com  
 - github 地址：[https://github.com/jufeng98](https://github.com/jufeng98)
 
-
 # 捐赠
 如果项目帮到了您，请作者喝杯咖啡吧！
-![donate.jpg](https://github.com/xiaolyuh/mrtf-git-flow-4idea/blob/master/images/donate.jpg)
+![donate.jpg](images/donate.jpg)
 
 # 技术支持
 添加微信记得备注 ```GitFlowTools```。
-![wechat.jpg](https://github.com/xiaolyuh/layering-cache/blob/master/images/wechat.jpg)
+![wechat.jpg](images/wechat.jpg)
 
 
 

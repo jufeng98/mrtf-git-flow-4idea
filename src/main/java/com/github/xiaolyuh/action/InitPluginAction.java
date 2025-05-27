@@ -7,7 +7,7 @@ import com.github.xiaolyuh.service.ConfigService;
 import com.github.xiaolyuh.service.GitFlowPlus;
 import com.github.xiaolyuh.ui.InitPluginDialog;
 import com.github.xiaolyuh.utils.GitBranchUtil;
-import com.github.xiaolyuh.utils.HttpClientUtil;
+import com.github.xiaolyuh.utils.GsonUtils;
 import com.github.xiaolyuh.utils.NotifyUtil;
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -15,7 +15,6 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFileManager;
 import git4idea.commands.GitCommandResult;
 import git4idea.repo.GitRepository;
 import org.jetbrains.annotations.NotNull;
@@ -35,9 +34,14 @@ public class InitPluginAction extends AnAction {
     @Override
     public void update(@NotNull AnActionEvent event) {
         super.update(event);
-        event.getPresentation().setEnabledAndVisible(GitBranchUtil.isGitProject(event.getProject()));
+        Project project = event.getProject();
+        if (project == null) {
+            return;
+        }
 
-        ConfigService configService = ConfigService.Companion.getInstance(event.getProject());
+        event.getPresentation().setEnabledAndVisible(GitBranchUtil.isGitProject(project));
+
+        ConfigService configService = ConfigService.Companion.getInstance(project);
 
         event.getPresentation().setText(configService.isInit()
                 ? I18n.getContent(I18nKey.INIT_PLUGIN_ACTION$TEXT_UPDATE) : I18n.getContent(I18nKey.INIT_PLUGIN_ACTION$TEXT_INIT));
@@ -114,11 +118,9 @@ public class InitPluginAction extends AnAction {
                 configService.saveFsWebHookUrl(initOptions.getFsWebHookUrl());
 
                 // 存储配置
-                String configJson = HttpClientUtil.gson.toJson(initOptions);
+                String configJson = GsonUtils.INSTANCE.getGson().toJson(initOptions);
                 configService.saveConfigToLocal(configJson);
-                configService.saveConfigToFile(configJson);
-
-                configService.tryInitConfig();
+                configService.saveConfigToFile(configJson, configService::tryInitConfig);
 
                 // 将配置文件加入GIT管理
                 gitFlowPlus.addConfigToGit(repository);
@@ -127,8 +129,8 @@ public class InitPluginAction extends AnAction {
 
                 //update the widget
                 myProject.getMessageBus().syncPublisher(GitRepository.GIT_REPO_CHANGE).repositoryChanged(repository);
+
                 repository.update();
-                VirtualFileManager.getInstance().asyncRefresh(null);
             }
         }.queue();
     }

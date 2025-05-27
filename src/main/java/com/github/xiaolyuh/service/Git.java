@@ -69,7 +69,7 @@ public interface Git {
      * @return GitCommandResult
      */
     GitCommandResult renameBranch(@NotNull GitRepository repository,
-                                  @Nullable String oldBranch,
+                                  @NotNull String oldBranch,
                                   @NotNull String newBranchName);
 
     /**
@@ -107,7 +107,7 @@ public interface Git {
      * @param branchName branchName
      * @return GitCommandResult
      */
-    GitCommandResult deleteLocalBranch(@NotNull GitRepository repository, @Nullable String branchName);
+    GitCommandResult deleteLocalBranch(@NotNull GitRepository repository, @NotNull String branchName);
 
     /**
      * 查看对应分支最后一次提交信息

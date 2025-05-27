@@ -1,6 +1,6 @@
 package com.github.xiaolyuh.action.toolbar
 
-import com.github.xiaolyuh.support.MyActionButton
+import com.github.xiaolyuh.action.support.MyActionButton
 import com.github.xiaolyuh.ui.KbsMsgForm
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent

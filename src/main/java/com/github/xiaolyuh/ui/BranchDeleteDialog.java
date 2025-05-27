@@ -46,13 +46,16 @@ public class BranchDeleteDialog extends DialogWrapper {
     private JTextField branchNameField;
     private JTextField deleteBeforeDate;
 
-    @SuppressWarnings("DataFlowIssue")
-    public BranchDeleteDialog(@Nullable GitRepository repository) {
+    public BranchDeleteDialog(GitRepository repository) {
         super(repository.getProject(), true);
+
         deleteBranchOptions = new DeleteBranchOptions();
+
         gitFlowPlus = GitFlowPlus.getInstance();
-        setTitle("Branch Delete");
-        setOKButtonText("Delete");
+
+        setTitle(I18n.nls("DeleteBranchAction.text"));
+        setOKButtonText(I18n.nls("delete"));
+
         searchButton.addActionListener((actionEvent) -> refreshBranchList(repository));
 
         init();
@@ -70,13 +73,16 @@ public class BranchDeleteDialog extends DialogWrapper {
                 List<BranchVo> branchVoList = getBranchListFiltered(repository);
 
                 String selectedItem = (String) branchModel.getSelectedItem();
+
                 //noinspection DataFlowIssue
                 switch (selectedItem) {
                     case "已上线分支":
                         List<String> mergedBranches = gitFlowPlus.getMergedBranchList(repository);
+
                         branchVoList = branchVoList.stream()
                                 .filter((branchVo) -> mergedBranches.contains(branchVo.getBranch()))
                                 .collect(Collectors.toList());
+
                         break;
                     case "全部开发分支":
                         branchVoList = branchVoList.stream()
@@ -86,11 +92,13 @@ public class BranchDeleteDialog extends DialogWrapper {
                                             || branch.contains(initOptions.getHotfixPrefix());
                                 })
                                 .collect(Collectors.toList());
+
                         break;
                     default:
                 }
 
                 List<BranchVo> finalBranchVoList = branchVoList;
+
                 ApplicationManager.getApplication().invokeLater(() -> renderingBranchTable(finalBranchVoList));
             }
         };
@@ -117,6 +125,7 @@ public class BranchDeleteDialog extends DialogWrapper {
                 return false;
             }
         };
+
         branchTable.setModel(dataModel);
         branchTable.updateUI();
     }
@@ -132,6 +141,7 @@ public class BranchDeleteDialog extends DialogWrapper {
 
         if (StringUtils.isNotBlank(deleteBeforeDate.getText())) {
             Date date = Date.from(ZonedDateTime.now().minusDays(Integer.parseInt(deleteBeforeDate.getText().trim())).toInstant());
+
             allBranches = allBranches.stream()
                     .filter((branchVo) -> branchVo.getLastCommitDate().compareTo(date) > 0)
                     .collect(Collectors.toList());
@@ -142,10 +152,14 @@ public class BranchDeleteDialog extends DialogWrapper {
 
     protected void doOKAction() {
         int[] selectedRows = branchTable.getSelectedRows();
+
         if (selectedRows.length == 0) {
-            JBPopupFactory.getInstance().createMessage(I18n.getContent("at.least.one.branch")).showInCenterOf(branchTable);
+            JBPopupFactory.getInstance()
+                    .createMessage(I18n.getContent("at.least.one.branch"))
+                    .showInCenterOf(branchTable);
             return;
         }
+
         List<Integer> list = Arrays.stream(selectedRows).boxed().toList();
 
         List<BranchVo> tmpList = branchVos.stream()
@@ -153,7 +167,9 @@ public class BranchDeleteDialog extends DialogWrapper {
                 .collect(Collectors.toList());
 
         deleteBranchOptions.setBranches(tmpList);
+
         deleteBranchOptions.setDeleteLocalBranch(isDeleteLocalBranchBox.isSelected());
+
         super.doOKAction();
     }
 

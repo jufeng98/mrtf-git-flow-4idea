@@ -8,8 +8,10 @@
 
     <description>
         <![CDATA[
-        This is a branch management plugin for the <a href="https://xiaolyuh.blog.csdn.net/article/details/105180250"> mrtf git flow </a> (master, release, test, feature) process <a href="https://xiaolyuh.blog.csdn.net/article/details/105150446"> Usage Guide </a>. <br>
-        The biggest advantage is to reduce the operation of switching branches and merging branches in the agile development process, and reduce the labor cost of branch management.<br>
+        This is a branch management plugin for the <a href="https://xiaolyuh.blog.csdn.net/article/details/105180250">
+        mrtf git flow </a> (master, release, test, feature) process <a href="https://xiaolyuh.blog.csdn.net/article/details/105150446"> Usage Guide </a>. <br>
+        The biggest advantage is to reduce the operation of switching branches and merging branches in the agile development process,
+        and reduce the labor cost of branch management.<br>
         <br>
         The main functions are as follows: <br>
         <ol>
@@ -23,9 +25,14 @@
             <li>Only those who lock the release branch can click [release complete] and [release failed]</li>
             <li>All executed git commands can be viewed in "Event Log"</li>
             <li>Support to initiate Merge Request locally</li>
+            <li>Batch delete branches</li>
+            <li>When start test, you can choose to trigger the Kubesphere pipeline</li>
+            <li>Connect to Kubesphere pod console</li>
+            <li>Show Kubesphere pod log</li>
         </ol><br>
         Fork code from <a herf="https://plugins.jetbrains.com/plugin/14056-gitflowplus">GitFlowPlus</a><br>
-        这是一个适用于<a href="https://xiaolyuh.blog.csdn.net/article/details/105180250">mrtf git flow</a> (master,release,test,feature) 流程的分支管理插件 <a href="https://xiaolyuh.blog.csdn.net/article/details/105150446">使用指南</a>。<br>
+        这是一个适用于<a href="https://xiaolyuh.blog.csdn.net/article/details/105180250">mrtf git flow</a>
+        (master,release,test,feature) 流程的分支管理插件 <a href="https://xiaolyuh.blog.csdn.net/article/details/105150446">使用指南</a>。<br>
         最大优势是减少敏捷开发过程中切换分支和合并分支的操作，降低分支管理的人力成本。<br><br>
         主要功能如下：<br>
         <ol>
@@ -47,6 +54,22 @@
         </ol>
     ]]>
     </description>
+
+    <change-notes>
+        <![CDATA[
+            <ul>
+                <li><b>2.0.0</b></li>
+                <ul>
+                    <li>Kubesphere 远程实例日志改为在 Run 工具窗显示</li>
+                    <li>Kubesphere 远程实例控制台改为在 Code Editor 显示</li>
+                </ul>
+                <li><b>1.4.0</b></li>
+                <ul>
+                    <li>支持2025.1</li>
+                </ul>
+            </ul>
+        ]]>
+    </change-notes>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.vcs</depends>
@@ -72,6 +95,8 @@
         <notificationGroup id="GitflowPlus.NONE"
                            isLogByDefault="true"
                            displayType="NONE"/>
+
+        <fileEditorProvider implementation="com.github.xiaolyuh.provider.ConsoleFileEditorProvider"/>
     </extensions>
 
     <actions>

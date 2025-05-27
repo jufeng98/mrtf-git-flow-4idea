@@ -1,6 +1,7 @@
 package com.github.xiaolyuh.action.toolbar
 
-import com.github.xiaolyuh.support.MyActionButton
+import com.github.xiaolyuh.i18n.I18n
+import com.github.xiaolyuh.action.support.MyActionButton
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.Presentation
@@ -11,7 +12,7 @@ import javax.swing.JComponent
 /**
  * @author yudong
  */
-class LiveLogAction : LogBaseAction("实时日志", AllIcons.General.Web) {
+class LiveLogAction : LogBaseAction(I18n.nls("live.log"), AllIcons.General.Web) {
     private lateinit var actionButton: ActionButton
     private var liveOpen = false
 

@@ -1,18 +1,18 @@
 package com.github.xiaolyuh.action.toolbar
 
-import com.github.xiaolyuh.support.MyActionButton
+import com.github.xiaolyuh.i18n.I18n
+import com.github.xiaolyuh.action.support.MyActionButton
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.Presentation
 import com.intellij.openapi.actionSystem.impl.ActionButton
 import com.intellij.ui.JBColor
-import java.awt.Dimension
 import javax.swing.JComponent
 
 /**
  * @author yudong
  */
-class SoftWrapAction : LogBaseAction("软换行", AllIcons.Actions.ToggleSoftWrap) {
+class SoftWrapAction : LogBaseAction(I18n.nls("soft.wrap"), AllIcons.Actions.ToggleSoftWrap) {
     private var useSoftWrap = false
     private lateinit var actionButton: ActionButton
 
