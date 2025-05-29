@@ -4,6 +4,7 @@ import com.github.xiaolyuh.config.InitOptions;
 import com.github.xiaolyuh.enums.LanguageEnum;
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
+import com.github.xiaolyuh.i18n.UiBundle;
 import com.github.xiaolyuh.service.ConfigService;
 import com.github.xiaolyuh.utils.GitBranchUtil;
 import com.intellij.openapi.project.Project;
@@ -123,14 +124,14 @@ public class InitPluginDialog extends DialogWrapper {
             kubesphereUsernameTextField.setText(options.getKubesphereUsername());
             kubespherePasswordTextField.setText(options.getKubespherePassword());
             fsWebHookUrlTextField.setText(options.getFsWebHookUrl());
-
-            languageSwitch(LanguageEnum.getByLanguage((String) languageComboBox.getSelectedItem()));
         } else {
             masterBranchComboBox.setModel(new CollectionComboBoxModel<>(remoteBranches));
             releaseBranchComboBox.setModel(new CollectionComboBoxModel<>(remoteBranches));
             testBranchComboBox.setModel(new CollectionComboBoxModel<>(remoteBranches));
-            languageComboBox.setModel(new CollectionComboBoxModel<>(languages));
+            languageComboBox.setModel(new CollectionComboBoxModel<>(languages, UiBundle.INSTANCE.getLanguageEnum().getLanguage()));
         }
+
+        languageSwitch(LanguageEnum.getByLanguage((String) languageComboBox.getSelectedItem()));
     }
 
     @Override

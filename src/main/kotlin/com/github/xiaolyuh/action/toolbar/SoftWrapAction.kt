@@ -1,7 +1,8 @@
 package com.github.xiaolyuh.action.toolbar
 
-import com.github.xiaolyuh.i18n.I18n
 import com.github.xiaolyuh.action.support.MyActionButton
+import com.github.xiaolyuh.i18n.I18n
+import com.intellij.execution.impl.ConsoleViewImpl
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.Presentation
@@ -31,7 +32,8 @@ class SoftWrapAction : LogBaseAction(I18n.nls("soft.wrap"), AllIcons.Actions.Tog
 
         changeActionButton(useSoftWrap)
 
-        getEditor(e).settings.isUseSoftWraps = useSoftWrap
+        val consoleView = getConsoleView(e) as ConsoleViewImpl
+        consoleView.editor!!.settings.isUseSoftWraps = useSoftWrap
     }
 
     private fun changeActionButton(useSoftWrap: Boolean) {

@@ -2,6 +2,7 @@ package com.github.xiaolyuh.action;
 
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
+import com.github.xiaolyuh.icons.GitFlowPlusIcons;
 import com.github.xiaolyuh.service.ConfigService;
 import com.github.xiaolyuh.service.GitFlowPlus;
 import com.github.xiaolyuh.ui.MergeRequestDialog;
@@ -31,6 +32,11 @@ import java.util.Objects;
  */
 public class MergeRequestAction extends AbstractMergeAction {
     protected GitFlowPlus gitFlowPlus = GitFlowPlus.getInstance();
+
+    @SuppressWarnings("ActionPresentationInstantiatedInCtor")
+    public MergeRequestAction() {
+        super(I18n.nls("action.merge.txt"), I18n.nls("action.merge.desc"), GitFlowPlusIcons.INSTANCE.getMergeToTest());
+    }
 
     @Override
     protected void setEnabledAndText(AnActionEvent event) {

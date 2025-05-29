@@ -1,0 +1,11 @@
+<idea-plugin>
+    <actions>
+        <action id="GitFlowPlus.ServiceConsoleAction" class="com.github.xiaolyuh.action.ServiceConsoleAction">
+            <add-to-group group-id="GitFlowPlus.Menu" relative-to-action="GitFlowPlus.StartTestAction" anchor="after"/>
+        </action>
+        <action id="GitFlowPlus.ServiceRunningShowAction" class="com.github.xiaolyuh.action.ServiceLogAction">
+            <add-to-group group-id="GitFlowPlus.Menu" relative-to-action="GitFlowPlus.ServiceConsoleAction"
+                          anchor="after"/>
+        </action>
+    </actions>
+</idea-plugin>

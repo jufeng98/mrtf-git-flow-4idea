@@ -2,6 +2,7 @@ package com.github.xiaolyuh.action;
 
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
+import com.github.xiaolyuh.icons.GitFlowPlusIcons;
 import com.github.xiaolyuh.service.ConfigService;
 import com.github.xiaolyuh.utils.StringUtils;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -18,6 +19,11 @@ import java.util.Objects;
  * @author yuhao.wang3
  */
 public class RebuildTestAction extends AbstractNewBranchAction {
+
+    @SuppressWarnings("ActionPresentationInstantiatedInCtor")
+    public RebuildTestAction() {
+        super(I18n.nls("action.rebuild.txt"), I18n.nls("action.rebuild.desc"), GitFlowPlusIcons.INSTANCE.getTest());
+    }
 
     @Override
     protected void setEnabledAndText(AnActionEvent event) {

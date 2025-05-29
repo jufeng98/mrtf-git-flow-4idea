@@ -18,6 +18,7 @@ import git4idea.commands.GitCommandResult;
 import git4idea.repo.GitRepository;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.*;
 import java.util.Objects;
 
 /**
@@ -27,6 +28,10 @@ import java.util.Objects;
  */
 public abstract class AbstractNewBranchAction extends AnAction {
     GitFlowPlus gitFlowPlus = GitFlowPlus.getInstance();
+
+    public AbstractNewBranchAction(String text, String desc, Icon icon) {
+        super(text, desc, icon);
+    }
 
     @Override
     public void update(@NotNull AnActionEvent event) {

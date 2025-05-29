@@ -333,7 +333,7 @@ class HttpClientService(private val project: Project) {
             while (!Thread.currentThread().isInterrupted) {
                 inputStream = connection.inputStream
 
-                val bytes = inputStream.readNBytes(4096)
+                val bytes = inputStream.readNBytes(1024)
 
                 if (!Thread.currentThread().isInterrupted) {
                     when (resType) {

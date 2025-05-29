@@ -2,6 +2,7 @@ package com.github.xiaolyuh.action;
 
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
+import com.github.xiaolyuh.icons.GitFlowPlusIcons;
 import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -14,6 +15,11 @@ import org.jetbrains.annotations.NotNull;
  * @author yuhao.wang3
  */
 public class HelpAction extends AnAction {
+
+    @SuppressWarnings("ActionPresentationInstantiatedInCtor")
+    public HelpAction() {
+        super(I18n.nls("action.help.txt"), I18n.nls("action.help.txt"), GitFlowPlusIcons.INSTANCE.getHelp());
+    }
 
     @Override
     public void update(@NotNull AnActionEvent event) {

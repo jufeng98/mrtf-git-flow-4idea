@@ -1,6 +1,7 @@
 package com.github.xiaolyuh.action
 
 import com.github.xiaolyuh.i18n.I18n
+import com.github.xiaolyuh.icons.GitFlowPlusIcons
 import com.github.xiaolyuh.provider.ConsoleVirtualFile
 import com.github.xiaolyuh.service.ConfigService.Companion.getInstance
 import com.github.xiaolyuh.service.KubesphereService
@@ -23,7 +24,10 @@ import org.apache.commons.lang3.exception.ExceptionUtils
 /**
  * @author yudong
  */
-class ServiceConsoleAction : AnAction(), DumbAware {
+@Suppress("ActionPresentationInstantiatedInCtor")
+class ServiceConsoleAction :
+    AnAction(I18n.nls("action.console.txt"), I18n.nls("action.console.desc"), GitFlowPlusIcons.show),
+    DumbAware {
     private var jcefInitialed = false
 
     override fun actionPerformed(e: AnActionEvent) {
@@ -104,7 +108,14 @@ class ServiceConsoleAction : AnAction(), DumbAware {
         }
 
         val fileEditorManager = FileEditorManager.getInstance(project)
-        fileEditorManager.openFile(ConsoleVirtualFile("${selectService}-console", selectService, instanceVo, project))
+        fileEditorManager.openFile(
+            ConsoleVirtualFile(
+                "${selectService}-remote-console",
+                selectService,
+                instanceVo,
+                project
+            )
+        )
     }
 
 }

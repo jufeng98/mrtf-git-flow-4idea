@@ -9,26 +9,27 @@ import com.github.xiaolyuh.action.toolbar.SoftWrapAction;
 import com.github.xiaolyuh.service.ExecutorService;
 import com.github.xiaolyuh.service.KubesphereService;
 import com.github.xiaolyuh.utils.NotifyUtil;
-import com.github.xiaolyuh.utils.VirtualFileUtils;
 import com.google.common.collect.Lists;
+import com.intellij.execution.filters.ExceptionFilter;
+import com.intellij.execution.filters.TextConsoleBuilder;
+import com.intellij.execution.filters.TextConsoleBuilderFactory;
+import com.intellij.execution.impl.ConsoleViewImpl;
+import com.intellij.execution.ui.ConsoleView;
+import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.editor.Caret;
-import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.ScrollType;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiDocumentManager;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
+import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.ui.components.JBTabbedPane;
 import com.intellij.util.DocumentUtil;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -39,6 +40,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.Future;
 
+/**
+ * @author yudong
+ */
 public class KbsMsgForm extends JComponent implements Disposable {
     private String newInstanceName;
     private Pair<byte[], byte[]> pair;
@@ -52,8 +56,8 @@ public class KbsMsgForm extends JComponent implements Disposable {
 
     private Future<?> insRefreshFuture;
     private int tailLines = 500;
-    private Editor editor;
-    private final List<Editor> releaseEditorList = Lists.newArrayList();
+    private ConsoleView consoleView;
+    private final List<ConsoleView> consoleViewList = Lists.newArrayList();
 
 
     public KbsMsgForm(Pair<byte[], byte[]> pair, Project project) {
@@ -143,9 +147,6 @@ public class KbsMsgForm extends JComponent implements Disposable {
     @Override
     public void dispose() {
         closeLiveLog();
-
-        EditorFactory editorFactory = EditorFactory.getInstance();
-        releaseEditorList.forEach(editorFactory::releaseEditor);
     }
 
     public void refreshLogData() {
@@ -190,75 +191,75 @@ public class KbsMsgForm extends JComponent implements Disposable {
     }
 
     private void fillEditorWithErrorTxt() {
-        addTab("compile", pair.getSecond());
-        addTab("push", pair.getFirst());
+        createViewAndAddToTab("compile", pair.getSecond());
+        createViewAndAddToTab("push", pair.getFirst());
 
         jTabbedPane.setSelectedIndex(0);
 
-        editor = releaseEditorList.get(0);
+        consoleView = consoleViewList.get(0);
 
         jTabbedPane.addChangeListener(e -> {
             int selectedIndex = jTabbedPane.getSelectedIndex();
-            editor = releaseEditorList.get(selectedIndex);
+            consoleView = consoleViewList.get(selectedIndex);
         });
     }
 
-    private void addTab(String tabTitle, byte[] txtBytes) {
-        editor = createTextEditorAndSetText(project, txtBytes);
+    private void createViewAndAddToTab(String tabTitle, byte[] txtBytes) {
+        ConsoleView consoleView = createViewAndSetText(project, txtBytes);
 
-        jTabbedPane.addTab(tabTitle, editor.getComponent());
+        jTabbedPane.addTab(tabTitle, consoleView.getComponent());
     }
 
     private void fillEditorWithRunningTxt(byte[] txtBytes, boolean append) {
         DocumentUtil.writeInRunUndoTransparentAction(() -> {
-            if (editor != null) {
-                Document document = editor.getDocument();
-
+            if (consoleView != null) {
                 String txt = new String(txtBytes, StandardCharsets.UTF_8);
 
                 String res = txt.replace("\r", "");
 
-                if (append) {
-                    document.setText(document.getText() + res);
-                } else {
-                    document.setText(res);
+                if (!append) {
+                    consoleView.clear();
                 }
+
+                consoleView.print(res, ConsoleViewContentType.NORMAL_OUTPUT);
 
                 scrollToBottom();
 
                 return;
             }
 
-            addTab("容器日志", txtBytes);
+            createViewAndAddToTab("容器日志", txtBytes);
 
             jTabbedPane.setSelectedIndex(0);
+
+            scrollToBottom();
         });
     }
 
-    private Editor createTextEditorAndSetText(Project project, byte[] txtBytes) {
-        VirtualFile virtualFile = VirtualFileUtils.INSTANCE.createLogVirtualFileFromText(txtBytes);
+    private ConsoleView createViewAndSetText(Project project, byte[] txtBytes) {
+        TextConsoleBuilder consoleBuilder = TextConsoleBuilderFactory.getInstance().createBuilder(project);
 
-        PsiManager psiManager = PsiManager.getInstance(project);
-        PsiFile psiFile = psiManager.findFile(virtualFile);
+        consoleBuilder.filters(new ExceptionFilter(project, GlobalSearchScope.projectScope(project)));
 
-        @SuppressWarnings("DataFlowIssue")
-        Document document = PsiDocumentManager.getInstance(project).getDocument(psiFile);
+        consoleView = consoleBuilder.getConsole();
 
-        EditorFactory editorFactory = EditorFactory.getInstance();
-        @SuppressWarnings("DataFlowIssue")
-        Editor editor = editorFactory.createEditor(document, project, virtualFile, true);
+        consoleView.print(new String(txtBytes, StandardCharsets.UTF_8), ConsoleViewContentType.NORMAL_OUTPUT);
 
-        releaseEditorList.add(editor);
+        consoleViewList.add(consoleView);
 
-        return editor;
+        Disposer.register(this, consoleView);
+
+        return consoleView;
     }
 
     public void scrollToBottom() {
-        Caret caret = editor.getCaretModel().getPrimaryCaret();
+        Editor editor = ((ConsoleViewImpl) consoleView).getEditor();
 
-        caret.moveToOffset(editor.getDocument().getTextLength());
+        //noinspection DataFlowIssue
+        CaretModel caretModel = editor.getCaretModel();
+        caretModel.moveToOffset(editor.getDocument().getTextLength());
 
-        editor.getScrollingModel().scrollToCaret(ScrollType.RELATIVE);
+        editor.getScrollingModel().scrollToCaret(ScrollType.CENTER);
     }
 
     public void increaseTailLines() {
@@ -269,8 +270,8 @@ public class KbsMsgForm extends JComponent implements Disposable {
         return mainPanel;
     }
 
-    public Editor getEditor() {
-        return editor;
+    public ConsoleView getConsoleView() {
+        return consoleView;
     }
 
     public Project getProject() {

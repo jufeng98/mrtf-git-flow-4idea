@@ -19,7 +19,9 @@ import git4idea.repo.GitRepository
 /**
  * @author yudong
  */
-class DeleteBranchAction : AbstractMergeAction() {
+@Suppress("ActionPresentationInstantiatedInCtor")
+class DeleteBranchAction :
+    AbstractMergeAction(I18n.nls("action.delete.txt"), I18n.nls("action.delete.desc"), GitFlowPlusIcons.deleteTag) {
 
     override fun setEnabledAndText(event: AnActionEvent) {
         event.presentation.isEnabled = true
@@ -42,7 +44,7 @@ class DeleteBranchAction : AbstractMergeAction() {
             project,
             I18n.getContent("DeleteBranchAction.confirm"), I18n.getContent("DeleteBranchAction.text"),
             I18n.getContent("OkText"), I18n.getContent("CancelText"),
-            GitFlowPlusIcons.WARNING
+            GitFlowPlusIcons.warning
         )
         if (flag != 0) {
             return

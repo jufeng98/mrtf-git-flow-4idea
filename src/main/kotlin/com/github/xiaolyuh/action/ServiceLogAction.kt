@@ -1,15 +1,16 @@
 package com.github.xiaolyuh.action
 
 import com.github.xiaolyuh.i18n.I18n
+import com.github.xiaolyuh.icons.GitFlowPlusIcons
 import com.github.xiaolyuh.service.ConfigService.Companion.getInstance
 import com.github.xiaolyuh.service.KubesphereService
-import com.github.xiaolyuh.action.support.MyRunContentDescriptor
 import com.github.xiaolyuh.ui.KbsMsgForm
 import com.github.xiaolyuh.ui.ServiceDialog
 import com.github.xiaolyuh.utils.NotifyUtil
 import com.github.xiaolyuh.utils.StringUtils
 import com.github.xiaolyuh.vo.InstanceVo
 import com.intellij.execution.executors.DefaultRunExecutor
+import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.execution.ui.RunContentManager
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -19,6 +20,7 @@ import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
+import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.wm.ToolWindowId
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.ui.content.ContentFactory
@@ -28,7 +30,9 @@ import org.apache.commons.lang3.exception.ExceptionUtils
 /**
  * @author yudong
  */
-class ServiceLogAction : AnAction(), DumbAware {
+@Suppress("ActionPresentationInstantiatedInCtor")
+class ServiceLogAction : AnAction(I18n.nls("action.log.txt"), I18n.nls("action.log.desc"), GitFlowPlusIcons.show),
+    DumbAware {
 
     override fun actionPerformed(e: AnActionEvent) {
         val project = e.project!!
@@ -137,13 +141,16 @@ class ServiceLogAction : AnAction(), DumbAware {
         fun showLogInRunToolWindow(form: KbsMsgForm, project: Project, tabName: String) {
             val toolWindow = ToolWindowManager.getInstance(project).getToolWindow(ToolWindowId.RUN)
             val displayName = "$tabName-remote"
-            if (toolWindow == null) {
-                val descriptor = MyRunContentDescriptor(form, displayName) {
-                    form.editor.component.requestFocus()
-                    form.scrollToBottom()
-                }
 
-                val executor = DefaultRunExecutor.getRunExecutorInstance()
+            val executor = DefaultRunExecutor.getRunExecutorInstance()
+
+            if (toolWindow == null) {
+                val descriptor = RunContentDescriptor(form.consoleView, null, form.mainPanel, displayName)
+                descriptor.isActivateToolWindowWhenAdded = true
+                descriptor.isAutoFocusContent = true
+
+                Disposer.register(descriptor, form)
+
                 val runContentManager = RunContentManager.getInstance(project)
 
                 runContentManager.showRunContent(executor, descriptor)
@@ -153,12 +160,13 @@ class ServiceLogAction : AnAction(), DumbAware {
 
                 val content = contentFactory.createContent(form.mainPanel, displayName, true)
 
+                content.setDisposer(form)
+
                 contentManager.addContent(content)
 
                 contentManager.setSelectedContent(content)
 
                 toolWindow.activate {
-                    form.editor.component.requestFocus()
                     form.scrollToBottom()
                 }
             }

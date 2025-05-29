@@ -3,6 +3,7 @@ package com.github.xiaolyuh.action;
 import com.github.xiaolyuh.config.InitOptions;
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
+import com.github.xiaolyuh.icons.GitFlowPlusIcons;
 import com.github.xiaolyuh.service.ConfigService;
 import com.github.xiaolyuh.service.GitFlowPlus;
 import com.github.xiaolyuh.ui.InitPluginDialog;
@@ -28,6 +29,11 @@ import java.util.Objects;
  * @author yuhao.wang3
  */
 public class InitPluginAction extends AnAction {
+
+    @SuppressWarnings("ActionPresentationInstantiatedInCtor")
+    public InitPluginAction() {
+        super(I18n.nls("action.init.txt"), I18n.nls("action.init.desc"), GitFlowPlusIcons.INSTANCE.getConfig());
+    }
 
     private final GitFlowPlus gitFlowPlus = GitFlowPlus.getInstance();
 
@@ -68,7 +74,7 @@ public class InitPluginAction extends AnAction {
             return;
         }
 
-        final InitOptions initOptions = initPluginDialog.getOptions();
+        InitOptions initOptions = initPluginDialog.getOptions();
 
         new Task.Backgroundable(project, "Init gitFlowPlus plugins", false) {
             @SuppressWarnings("ConstantConditions")

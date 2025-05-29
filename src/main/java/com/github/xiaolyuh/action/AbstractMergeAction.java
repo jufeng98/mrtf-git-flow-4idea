@@ -46,6 +46,10 @@ public abstract class AbstractMergeAction extends AnAction {
     private static final Logger LOG = Logger.getInstance(AbstractMergeAction.class);
     protected GitFlowPlus gitFlowPlus = GitFlowPlus.getInstance();
 
+    public AbstractMergeAction(String txt, String desc, Icon icon) {
+        super(txt, desc, icon);
+    }
+
     @Override
     public void update(@NotNull AnActionEvent event) {
         super.update(event);

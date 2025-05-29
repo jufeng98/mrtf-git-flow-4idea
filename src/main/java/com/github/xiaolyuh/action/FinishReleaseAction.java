@@ -2,6 +2,7 @@ package com.github.xiaolyuh.action;
 
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
+import com.github.xiaolyuh.icons.GitFlowPlusIcons;
 import com.github.xiaolyuh.service.ConfigService;
 import com.github.xiaolyuh.ui.TagDialog;
 import com.github.xiaolyuh.valve.merge.ChangeFileValve;
@@ -22,6 +23,11 @@ import java.util.List;
  * @author yuhao.wang3
  */
 public class FinishReleaseAction extends AbstractMergeAction {
+
+    @SuppressWarnings("ActionPresentationInstantiatedInCtor")
+    public FinishReleaseAction() {
+        super(I18n.nls("action.finish.txt"), I18n.nls("action.finish.desc"), GitFlowPlusIcons.INSTANCE.getFinished());
+    }
 
     @Override
     protected void setEnabledAndText(AnActionEvent event) {

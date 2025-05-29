@@ -2,6 +2,7 @@ package com.github.xiaolyuh.action;
 
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
+import com.github.xiaolyuh.icons.GitFlowPlusIcons;
 import com.github.xiaolyuh.service.ConfigService;
 import com.github.xiaolyuh.validator.GitNewBranchNameValidator;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -22,6 +23,11 @@ import static com.github.xiaolyuh.consts.Constants.DATE_PATTERN_SHORT;
  * @author yuhao.wang3
  */
 public class NewFeatureAction extends AbstractNewBranchAction {
+
+    @SuppressWarnings("ActionPresentationInstantiatedInCtor")
+    public NewFeatureAction() {
+        super(I18n.nls("action.feature.txt"), I18n.nls("action.feature.desc"), GitFlowPlusIcons.INSTANCE.getFeature());
+    }
 
     @Override
     protected void setEnabledAndText(AnActionEvent event) {

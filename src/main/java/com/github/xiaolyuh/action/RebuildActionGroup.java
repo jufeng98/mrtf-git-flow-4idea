@@ -13,6 +13,10 @@ import org.jetbrains.annotations.NotNull;
  */
 public class RebuildActionGroup extends DefaultActionGroup {
 
+    public RebuildActionGroup() {
+        super(I18n.nls("action.group.txt"), I18n.nls("action.group.txt"), null);
+    }
+
     @Override
     public void update(@NotNull AnActionEvent event) {
         super.update(event);

@@ -1,4 +1,3 @@
-<!--suppress PluginXmlCapitalization -->
 <idea-plugin>
     <id>com.github.xiaolyuh.mrtf-git-flow-tools</id>
     <name>GitFlowTools</name>
@@ -58,6 +57,11 @@
     <change-notes>
         <![CDATA[
             <ul>
+                <li><b>2.2.0</b></li>
+                <ul>
+                    <li>完善Kubesphere 远程实例日志显示,识别异常堆栈以便能点击跳转</li>
+                    <li>bug 修复</li>
+                </ul>
                 <li><b>2.0.0</b></li>
                 <ul>
                     <li>Kubesphere 远程实例日志改为在 Run 工具窗显示</li>
@@ -74,6 +78,7 @@
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.vcs</depends>
     <depends>Git4Idea</depends>
+    <depends optional="true" config-file="gitFlowTools-Java.xml">com.intellij.java</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <postStartupActivity implementation="com.github.xiaolyuh.startup.ProjectStartupActivity"/>
@@ -106,72 +111,44 @@
             <add-to-group group-id="MainToolBar" anchor="last"/>
 
             <!--配置管理-->
-            <action id="GitFlowPlus.InitPluginAction" class="com.github.xiaolyuh.action.InitPluginAction"
-                    text="初始化配置" description="初始化仓库配置，如果测试分支与发布分支不存在，将基于master新建"
-                    icon="/icons/config.svg"/>
+            <action id="GitFlowPlus.InitPluginAction" class="com.github.xiaolyuh.action.InitPluginAction"/>
             <separator/>
 
             <!--新建分支-->
-            <action id="GitFlowPlus.NewFeatureAction" class="com.github.xiaolyuh.action.NewFeatureAction"
-                    text="新建开发分支" description="新建开发分支，并推送到远程仓库" icon="/icons/feature.svg"/>
-            <action id="GitFlowPlus.NewHotFixAction" class="com.github.xiaolyuh.action.NewHotFixAction"
-                    text="新建修复分支" description="新建修复分支，并推送到远程仓库" icon="/actions/quickfixBulb.svg"/>
+            <action id="GitFlowPlus.NewFeatureAction" class="com.github.xiaolyuh.action.NewFeatureAction"/>
+            <action id="GitFlowPlus.NewHotFixAction" class="com.github.xiaolyuh.action.NewHotFixAction"/>
             <separator/>
 
-            <group id="GitFlowPlus.RebuildBranch" popup="true" text="重建分支"
-                   class="com.github.xiaolyuh.action.RebuildActionGroup">
-                <action id="GitFlowPlus.RebuildTestAction" class="com.github.xiaolyuh.action.RebuildTestAction"
-                        text="重建测试分支" description="重建测试分支，并推送到远程仓库，原来的分支将被删除"
-                        icon="/icons/test.svg"/>
-                <action id="GitFlowPlus.RebuildReleaseAction" class="com.github.xiaolyuh.action.RebuildReleaseAction"
-                        text="重建发布分支" description="重建发布分支，并推送到远程仓库，原来的分支将被删除"
-                        icon="/icons/release.svg"/>
+            <group id="GitFlowPlus.RebuildBranch" popup="true" class="com.github.xiaolyuh.action.RebuildActionGroup">
+                <action id="GitFlowPlus.RebuildTestAction" class="com.github.xiaolyuh.action.RebuildTestAction"/>
+                <action id="GitFlowPlus.RebuildReleaseAction" class="com.github.xiaolyuh.action.RebuildReleaseAction"/>
             </group>
             <separator/>
 
             <!--解决冲突-->
-            <action id="GitFlowPlus.ResolveConflicts" class="com.github.xiaolyuh.action.GitResolveConflictsAction"
-                    text="解决冲突" description="解决冲突"/>
+            <action id="GitFlowPlus.ResolveConflicts" class="com.github.xiaolyuh.action.GitResolveConflictsAction"/>
             <separator/>
 
             <!--merge request-->
-            <action id="GitFlowPlus.MergeRequestAction" class="com.github.xiaolyuh.action.MergeRequestAction"
-                    text="Merge Request" description="发起 code review" icon="/icons/mergeToTest.svg">
-            </action>
+            <action id="GitFlowPlus.MergeRequestAction" class="com.github.xiaolyuh.action.MergeRequestAction"/>
             <separator/>
 
-            <action id="GitFlowPlus.DeleteBranchAction"
-                    class="com.github.xiaolyuh.action.DeleteBranchAction" text="删除分支"
-                    description="批量删除无效分支" icon="/actions/deleteTag.svg"/>
+            <action id="GitFlowPlus.DeleteBranchAction" class="com.github.xiaolyuh.action.DeleteBranchAction"/>
             <separator/>
 
             <!--发布流程-->
-            <action id="GitFlowPlus.StartReleaseAction" class="com.github.xiaolyuh.action.StartReleaseAction"
-                    text="开始发布" description="将当前开发分支合并到发布分支，加锁，防止再有开发分支合并到发布分支"
-                    icon="/icons/start.svg"/>
-            <action id="GitFlowPlus.FinishReleaseAction" class="com.github.xiaolyuh.action.FinishReleaseAction"
-                    text="发布完成" description="解锁，并将发布分支合并到主干分支" icon="/icons/finished.svg"/>
-            <action id="GitFlowPlus.FailureReleaseAction" class="com.github.xiaolyuh.action.FailureReleaseAction"
-                    text="发布失败" description="解锁，这时新的开发分支可以合并到发布分支了" icon="/icons/failure.svg"/>
+            <action id="GitFlowPlus.StartReleaseAction" class="com.github.xiaolyuh.action.StartReleaseAction"/>
+            <action id="GitFlowPlus.FinishReleaseAction" class="com.github.xiaolyuh.action.FinishReleaseAction"/>
+            <action id="GitFlowPlus.FailureReleaseAction" class="com.github.xiaolyuh.action.FailureReleaseAction"/>
             <separator/>
 
             <!--提测-->
-            <action id="GitFlowPlus.StartTestAction" class="com.github.xiaolyuh.action.StartTestAction"
-                    text="提测" description="将当前开发分支合并到test分支" icon="/icons/mergeToTest.svg">
-            </action>
-            <separator/>
-
-            <action id="GitFlowPlus.ServiceConsoleAction" class="com.github.xiaolyuh.action.ServiceConsoleAction"
-                    text="连接服务控制台" description="连接 Kubesphere 服务的控制台" icon="/actions/show.svg">
-            </action>
-            <action id="GitFlowPlus.ServiceRunningShowAction" class="com.github.xiaolyuh.action.ServiceLogAction"
-                    text="查看服务日志" description="查看 Kubesphere 服务的运行信息" icon="/actions/show.svg">
+            <action id="GitFlowPlus.StartTestAction" class="com.github.xiaolyuh.action.StartTestAction">
             </action>
             <separator/>
 
             <!--帮助-->
-            <action id="GitFlowPlus.HelpAction" class="com.github.xiaolyuh.action.HelpAction"
-                    text="帮助" description="帮助" icon="/icons/help.svg"/>
+            <action id="GitFlowPlus.HelpAction" class="com.github.xiaolyuh.action.HelpAction"/>
         </group>
     </actions>
 </idea-plugin>

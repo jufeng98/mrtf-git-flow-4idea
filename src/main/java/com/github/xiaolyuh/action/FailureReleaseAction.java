@@ -2,6 +2,7 @@ package com.github.xiaolyuh.action;
 
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
+import com.github.xiaolyuh.icons.GitFlowPlusIcons;
 import com.github.xiaolyuh.service.ConfigService;
 import com.github.xiaolyuh.valve.merge.ChangeFileValve;
 import com.github.xiaolyuh.valve.merge.UnLockCheckValve;
@@ -19,6 +20,11 @@ import java.util.List;
  * @author yuhao.wang3
  */
 public class FailureReleaseAction extends AbstractMergeAction {
+
+    @SuppressWarnings("ActionPresentationInstantiatedInCtor")
+    public FailureReleaseAction() {
+        super(I18n.nls("action.failure.txt"), I18n.nls("action.failure.desc"), GitFlowPlusIcons.INSTANCE.getFailure());
+    }
 
     @Override
     protected void setEnabledAndText(AnActionEvent event) {
