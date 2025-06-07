@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "com.github.xiaolyuh"
-version = "2.2.0"
+version = "2.3.0"
 
 repositories {
     maven { url = URI("https://maven.aliyun.com/nexus/content/groups/public/") }

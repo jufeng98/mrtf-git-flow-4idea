@@ -130,10 +130,10 @@ public class KbsMsgForm extends JComponent implements Disposable {
 
         defaultActionGroup.add(softWrapAction);
         defaultActionGroup.addSeparator();
+        defaultActionGroup.add(liveLogAction);
+        defaultActionGroup.addSeparator();
         defaultActionGroup.add(scrollToTopAction);
         defaultActionGroup.add(scrollToEndAction);
-        defaultActionGroup.addSeparator();
-        defaultActionGroup.add(liveLogAction);
         defaultActionGroup.addSeparator();
         defaultActionGroup.add(refreshLogAction);
         defaultActionGroup.add(loadMoreAction);
@@ -165,6 +165,7 @@ public class KbsMsgForm extends JComponent implements Disposable {
                     NotifyUtil.notifyError(project, "出错了:" + ExceptionUtils.getStackTrace(e));
                     return;
                 }
+
                 ApplicationManager.getApplication().invokeLater(() -> fillEditorWithRunningTxt(textBytes, false));
             }
         }.queue();
@@ -213,15 +214,21 @@ public class KbsMsgForm extends JComponent implements Disposable {
     private void fillEditorWithRunningTxt(byte[] txtBytes, boolean append) {
         DocumentUtil.writeInRunUndoTransparentAction(() -> {
             if (consoleView != null) {
-                String txt = new String(txtBytes, StandardCharsets.UTF_8);
-
-                String res = txt.replace("\r", "");
-
                 if (!append) {
                     consoleView.clear();
                 }
 
-                consoleView.print(res, ConsoleViewContentType.NORMAL_OUTPUT);
+                String txt = new String(txtBytes, StandardCharsets.UTF_8);
+
+                String[] lines = txt.split("\\r?\\n");
+
+                for (String line : lines) {
+                    if (line.length() > 32) {
+                        consoleView.print(line.substring(31) + "\n", ConsoleViewContentType.NORMAL_OUTPUT);
+                    } else {
+                        consoleView.print(line + "\n", ConsoleViewContentType.NORMAL_OUTPUT);
+                    }
+                }
 
                 scrollToBottom();
 
@@ -243,7 +250,16 @@ public class KbsMsgForm extends JComponent implements Disposable {
 
         consoleView = consoleBuilder.getConsole();
 
-        consoleView.print(new String(txtBytes, StandardCharsets.UTF_8), ConsoleViewContentType.NORMAL_OUTPUT);
+        String txt = new String(txtBytes, StandardCharsets.UTF_8);
+        String[] lines = txt.split("\\r?\\n");
+
+        for (String line : lines) {
+            if (line.length() > 32) {
+                consoleView.print(line.substring(31) + "\n", ConsoleViewContentType.NORMAL_OUTPUT);
+            } else {
+                consoleView.print(line + "\n", ConsoleViewContentType.NORMAL_OUTPUT);
+            }
+        }
 
         consoleViewList.add(consoleView);
 
@@ -259,7 +275,7 @@ public class KbsMsgForm extends JComponent implements Disposable {
         CaretModel caretModel = editor.getCaretModel();
         caretModel.moveToOffset(editor.getDocument().getTextLength());
 
-        editor.getScrollingModel().scrollToCaret(ScrollType.CENTER);
+        editor.getScrollingModel().scrollToCaret(ScrollType.RELATIVE);
     }
 
     public void increaseTailLines() {
