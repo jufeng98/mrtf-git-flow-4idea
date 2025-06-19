@@ -126,6 +126,7 @@ class ServiceLogAction : AnAction(I18n.nls("action.log.txt"), I18n.nls("action.l
                     NotifyUtil.notifyError(project, ExceptionUtils.getStackTrace(e))
                     return
                 }
+
                 runInEdt {
                     val form = KbsMsgForm(textBytes, project, selectService, instanceVo.name, false)
 

@@ -214,20 +214,14 @@ public class KbsMsgForm extends JComponent implements Disposable {
     private void fillEditorWithRunningTxt(byte[] txtBytes, boolean append) {
         DocumentUtil.writeInRunUndoTransparentAction(() -> {
             if (consoleView != null) {
-                if (!append) {
-                    consoleView.clear();
-                }
-
                 String txt = new String(txtBytes, StandardCharsets.UTF_8);
 
-                String[] lines = txt.split("\\r?\\n");
+                if (append) {
+                    consoleView.print(txt, ConsoleViewContentType.NORMAL_OUTPUT);
+                } else {
+                    consoleView.clear();
 
-                for (String line : lines) {
-                    if (line.length() > 32) {
-                        consoleView.print(line.substring(31) + "\n", ConsoleViewContentType.NORMAL_OUTPUT);
-                    } else {
-                        consoleView.print(line + "\n", ConsoleViewContentType.NORMAL_OUTPUT);
-                    }
+                    trimPrefixTimeAndPrint(txt);
                 }
 
                 scrollToBottom();
@@ -243,14 +237,7 @@ public class KbsMsgForm extends JComponent implements Disposable {
         });
     }
 
-    private ConsoleView createViewAndSetText(Project project, byte[] txtBytes) {
-        TextConsoleBuilder consoleBuilder = TextConsoleBuilderFactory.getInstance().createBuilder(project);
-
-        consoleBuilder.filters(new ExceptionFilter(project, GlobalSearchScope.projectScope(project)));
-
-        consoleView = consoleBuilder.getConsole();
-
-        String txt = new String(txtBytes, StandardCharsets.UTF_8);
+    private void trimPrefixTimeAndPrint(String txt) {
         String[] lines = txt.split("\\r?\\n");
 
         for (String line : lines) {
@@ -260,6 +247,18 @@ public class KbsMsgForm extends JComponent implements Disposable {
                 consoleView.print(line + "\n", ConsoleViewContentType.NORMAL_OUTPUT);
             }
         }
+    }
+
+    private ConsoleView createViewAndSetText(Project project, byte[] txtBytes) {
+        TextConsoleBuilder consoleBuilder = TextConsoleBuilderFactory.getInstance().createBuilder(project);
+
+        consoleBuilder.filters(new ExceptionFilter(project, GlobalSearchScope.projectScope(project)));
+
+        consoleView = consoleBuilder.getConsole();
+
+        String txt = new String(txtBytes, StandardCharsets.UTF_8);
+
+        trimPrefixTimeAndPrint(txt);
 
         consoleViewList.add(consoleView);
 

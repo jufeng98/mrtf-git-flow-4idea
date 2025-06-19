@@ -23,9 +23,11 @@ import git4idea.repo.GitRepository
 class DeleteBranchAction :
     AbstractMergeAction(I18n.nls("action.delete.txt"), I18n.nls("action.delete.desc"), GitFlowPlusIcons.deleteTag) {
 
+    override fun update(event: AnActionEvent) {
+        event.presentation.isEnabled = GitBranchUtil.isGitProject(event.project)
+    }
+
     override fun setEnabledAndText(event: AnActionEvent) {
-        event.presentation.isEnabled = true
-        event.presentation.text = I18n.nls("DeleteBranchAction.text")
     }
 
     override fun actionPerformed(event: AnActionEvent) {

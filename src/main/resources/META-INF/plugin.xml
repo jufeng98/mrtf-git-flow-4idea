@@ -57,6 +57,10 @@
     <change-notes>
         <![CDATA[
             <ul>
+                <li><b>2.3.0</b></li>
+                <ul>
+                    <li>bug 修复及功能优化</li>
+                </ul>
                 <li><b>2.2.0</b></li>
                 <ul>
                     <li>完善Kubesphere 远程实例日志显示,识别异常堆栈以便能点击跳转</li>
