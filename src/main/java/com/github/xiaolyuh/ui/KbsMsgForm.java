@@ -22,6 +22,7 @@ import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.CaretModel;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.ScrollType;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -29,6 +30,7 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.Pair;
+import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.ui.components.JBTabbedPane;
 import com.intellij.util.DocumentUtil;
@@ -178,10 +180,9 @@ public class KbsMsgForm extends JComponent implements Disposable {
             try {
                 KubesphereService kubesphereService = KubesphereService.Companion.getInstance(project);
                 kubesphereService.getContainerStartInfo(selectService, newInstanceName,
-                        1000, false, true, body -> SwingUtilities
-                                .invokeLater(() -> ApplicationManager.getApplication()
-                                        .invokeLater(() -> fillEditorWithRunningTxt(body, true))
-                                ));
+                        1000, false, true, body -> ApplicationManager.getApplication()
+                                .invokeLater(() -> fillEditorWithRunningTxt(body, true))
+                );
             } catch (Exception e) {
                 //noinspection CallToPrintStackTrace
                 e.printStackTrace();
@@ -271,10 +272,15 @@ public class KbsMsgForm extends JComponent implements Disposable {
         Editor editor = ((ConsoleViewImpl) consoleView).getEditor();
 
         //noinspection DataFlowIssue
-        CaretModel caretModel = editor.getCaretModel();
-        caretModel.moveToOffset(editor.getDocument().getTextLength());
+        Document document = editor.getDocument();
 
-        editor.getScrollingModel().scrollToCaret(ScrollType.RELATIVE);
+        PsiDocumentManager.getInstance(project)
+                .performForCommittedDocument(document, () -> {
+                    CaretModel caretModel = editor.getCaretModel();
+                    caretModel.moveToOffset(document.getTextLength());
+
+                    editor.getScrollingModel().scrollToCaret(ScrollType.CENTER);
+                });
     }
 
     public void increaseTailLines() {
