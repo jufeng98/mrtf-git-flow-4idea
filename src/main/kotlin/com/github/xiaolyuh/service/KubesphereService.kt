@@ -82,6 +82,11 @@ class KubesphereService(private val project: Project) {
 
         NotifyUtil.notifyInfo(project, "$selectService 触发流水线成功!")
 
+        if ("all" == selectService) {
+            NotifyUtil.notifyInfo(project, "已选择构建所有服务，请自行检查服务构建情况")
+            return
+        }
+
         val executorService = ExecutorService.getInstance(project)
 
         executorService.monitorBuildTask(id, selectService)
