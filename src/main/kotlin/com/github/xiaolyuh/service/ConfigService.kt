@@ -32,7 +32,7 @@ class ConfigService(private val project: Project) {
     private var initOptions: InitOptions? = null
     private var k8sOptions: K8sOptions? = null
 
-    val kubesphereUser = Pair(preferences["kubesphereUsername", ""], preferences["kubespherePassword", ""])
+    var kubesphereUser = Pair(preferences["kubesphereUsername", ""], preferences["kubespherePassword", ""])
 
     fun getInitOptionsNullable(): InitOptions? {
         return initOptions
