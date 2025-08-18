@@ -49,6 +49,8 @@ class ConfigService(private val project: Project) {
     fun saveKubesphereUser(name: String, pwd: String) {
         preferences.put("kubesphereUsername", name)
         preferences.put("kubespherePassword", pwd)
+
+        kubesphereUser = Pair(name, pwd)
     }
 
     fun saveFsWebHookUrl(url: String) {
