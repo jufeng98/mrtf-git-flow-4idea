@@ -32,8 +32,6 @@ class ConfigService(private val project: Project) {
     private var initOptions: InitOptions? = null
     private var k8sOptions: K8sOptions? = null
 
-    var kubesphereUser = Pair(preferences["kubesphereUsername", ""], preferences["kubespherePassword", ""])
-
     fun getInitOptionsNullable(): InitOptions? {
         return initOptions
     }
@@ -46,11 +44,13 @@ class ConfigService(private val project: Project) {
         return k8sOptions!!
     }
 
+    fun getKubesphereUser(): Pair<String, String> {
+        return Pair(preferences["kubesphereUsername", ""], preferences["kubespherePassword", ""])
+    }
+
     fun saveKubesphereUser(name: String, pwd: String) {
         preferences.put("kubesphereUsername", name)
         preferences.put("kubespherePassword", pwd)
-
-        kubesphereUser = Pair(name, pwd)
     }
 
     fun saveFsWebHookUrl(url: String) {
@@ -94,7 +94,7 @@ class ConfigService(private val project: Project) {
      *
      * @param configJson configJson
      */
-    fun saveConfigToFile(configJson: String,finished: Runnable) {
+    fun saveConfigToFile(configJson: String, finished: Runnable) {
         val filePath = project.basePath + File.separator + Constants.CONFIG_FILE_NAME
         val file = File(filePath)
         if (!file.exists()) {
@@ -131,7 +131,7 @@ class ConfigService(private val project: Project) {
         }
 
         if (Objects.nonNull(options)) {
-            val pair = kubesphereUser
+            val pair = getKubesphereUser()
             options!!.kubesphereUsername = pair.first
             options.kubespherePassword = pair.second
             options.fsWebHookUrl = fsWebHookUrl

@@ -96,7 +96,7 @@ class KubesphereService(private val project: Project) {
 
     fun loginAndSaveToken() {
         val configService = ConfigService.getInstance(project)
-        val pair = configService.kubesphereUser
+        val pair = configService.getKubesphereUser()
         val kubesphereUsername = pair.first
         if (StringUtils.isBlank(kubesphereUsername)) {
             throw RuntimeException("请先在配置菜单配置Kubesphere用户信息")
