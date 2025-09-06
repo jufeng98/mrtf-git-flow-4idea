@@ -125,7 +125,9 @@ public class InitPluginAction extends AnAction {
 
                 // 存储配置
                 String configJson = GsonUtils.INSTANCE.getGson().toJson(initOptions);
+
                 configService.saveConfigToLocal(configJson);
+
                 configService.saveConfigToFile(configJson, configService::tryInitConfig);
 
                 // 将配置文件加入GIT管理

@@ -5,6 +5,7 @@ import com.github.xiaolyuh.config.K8sOptions
 import com.github.xiaolyuh.consts.Constants
 import com.github.xiaolyuh.utils.GsonUtils.gson
 import com.github.xiaolyuh.utils.StringUtils
+import com.github.xiaolyuh.utils.VirtualFileUtils
 import com.intellij.ide.util.PropertiesComponent
 import com.intellij.openapi.application.runInEdt
 import com.intellij.openapi.application.runWriteAction
@@ -12,7 +13,8 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VfsUtil
-import com.intellij.openapi.vfs.readText
+import com.intellij.psi.PsiDocumentManager
+import com.intellij.util.application
 import java.io.File
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -101,16 +103,19 @@ class ConfigService(private val project: Project) {
             file.createNewFile()
         }
 
-        val virtualFile = VfsUtil.findFileByIoFile(file, true)!!
-
         initOptions = null
         k8sOptions = null
 
         runInEdt {
             runWriteAction {
+                val virtualFile = VfsUtil.findFileByIoFile(file, true)!!
+
                 VfsUtil.saveText(virtualFile, configJson)
 
-                finished.run()
+                PsiDocumentManager.getInstance(project)
+                    .performWhenAllCommitted {
+                        finished.run()
+                    }
             }
         }
     }
@@ -125,22 +130,24 @@ class ConfigService(private val project: Project) {
     }
 
     fun tryInitConfig() {
-        var options = getFromProjectConfigFile()
-        if (Objects.isNull(options)) {
-            options = getFromProjectWorkspace()
-        }
+        application.executeOnPooledThread {
+            var options = getFromProjectConfigFile()
+            if (Objects.isNull(options)) {
+                options = getFromProjectWorkspace()
+            }
 
-        if (Objects.nonNull(options)) {
-            val pair = getKubesphereUser()
-            options!!.kubesphereUsername = pair.first
-            options.kubespherePassword = pair.second
-            options.fsWebHookUrl = fsWebHookUrl
-            initOptions = options
-        }
+            if (Objects.nonNull(options)) {
+                val pair = getKubesphereUser()
+                options!!.kubesphereUsername = pair.first
+                options.kubespherePassword = pair.second
+                options.fsWebHookUrl = fsWebHookUrl
+                initOptions = options
+            }
 
-        val k8sOptions = getFromProjectK8sFile()
-        if (k8sOptions != null) {
-            this.k8sOptions = k8sOptions
+            val k8sOptions = getFromProjectK8sFile()
+            if (k8sOptions != null) {
+                this.k8sOptions = k8sOptions
+            }
         }
     }
 
@@ -169,14 +176,11 @@ class ConfigService(private val project: Project) {
         val filePath = project.basePath + File.separator + Constants.CONFIG_FILE_NAME
         val file = File(filePath)
 
-        val virtualFile = VfsUtil.findFileByIoFile(file, true)
-
-        if (virtualFile == null) {
-            logger.info(filePath + "不存在")
+        val configJsonStr = VirtualFileUtils.readNewestContent(file)
+        if (configJsonStr == null) {
             return null
         }
 
-        val configJsonStr = virtualFile.readText()
         logger.info("完成读取配置文件:$filePath")
 
         return gson.fromJson(configJsonStr, InitOptions::class.java)
@@ -288,13 +292,12 @@ class ConfigService(private val project: Project) {
         val filePath = project.basePath + File.separator + Constants.CONFIG_FILE_NAME_PROJECT
         val file = File(filePath)
 
-        val virtualFile = VfsUtil.findFileByIoFile(file, true)
-        if (virtualFile == null) {
-            logger.info(filePath + "不存在")
+        val configJsonStr = VirtualFileUtils.readNewestContent(file)
+        if (configJsonStr == null) {
             return null
         }
 
-        val configJsonStr = virtualFile.readText()
+        logger.info("完成读取k8s配置文件:$filePath")
 
         return gson.fromJson(configJsonStr, K8sOptions::class.java)
     }

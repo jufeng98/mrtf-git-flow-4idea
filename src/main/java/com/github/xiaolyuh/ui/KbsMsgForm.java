@@ -211,13 +211,11 @@ public class KbsMsgForm extends JComponent implements Disposable {
             if (consoleView != null) {
                 String txt = new String(txtBytes, StandardCharsets.UTF_8);
 
-                if (append) {
-                    consoleView.print(txt, ConsoleViewContentType.NORMAL_OUTPUT);
-                } else {
+                if (!append) {
                     consoleView.clear();
-
-                    trimPrefixTimeAndPrint(txt);
                 }
+
+                consoleView.print(txt, ConsoleViewContentType.NORMAL_OUTPUT);
 
                 scrollToBottom();
 
@@ -232,18 +230,6 @@ public class KbsMsgForm extends JComponent implements Disposable {
         });
     }
 
-    private void trimPrefixTimeAndPrint(String txt) {
-        String[] lines = txt.split("\\r?\\n");
-
-        for (String line : lines) {
-            if (line.length() > 32) {
-                consoleView.print(line.substring(31) + "\n", ConsoleViewContentType.NORMAL_OUTPUT);
-            } else {
-                consoleView.print(line + "\n", ConsoleViewContentType.NORMAL_OUTPUT);
-            }
-        }
-    }
-
     private ConsoleView createViewAndSetText(Project project, byte[] txtBytes) {
         TextConsoleBuilder consoleBuilder = TextConsoleBuilderFactory.getInstance().createBuilder(project);
 
@@ -253,7 +239,7 @@ public class KbsMsgForm extends JComponent implements Disposable {
 
         String txt = new String(txtBytes, StandardCharsets.UTF_8);
 
-        trimPrefixTimeAndPrint(txt);
+        consoleView.print(txt, ConsoleViewContentType.NORMAL_OUTPUT);
 
         consoleViewList.add(consoleView);
 
