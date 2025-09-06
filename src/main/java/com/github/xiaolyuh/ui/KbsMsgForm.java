@@ -13,7 +13,6 @@ import com.google.common.collect.Lists;
 import com.intellij.execution.filters.ExceptionFilter;
 import com.intellij.execution.filters.TextConsoleBuilder;
 import com.intellij.execution.filters.TextConsoleBuilderFactory;
-import com.intellij.execution.impl.ConsoleViewImpl;
 import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.openapi.Disposable;
@@ -21,16 +20,11 @@ import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.editor.CaretModel;
-import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.editor.ScrollType;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.Pair;
-import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.ui.components.JBTabbedPane;
 import com.intellij.util.DocumentUtil;
@@ -269,18 +263,7 @@ public class KbsMsgForm extends JComponent implements Disposable {
     }
 
     public void scrollToBottom() {
-        Editor editor = ((ConsoleViewImpl) consoleView).getEditor();
-
-        //noinspection DataFlowIssue
-        Document document = editor.getDocument();
-
-        PsiDocumentManager.getInstance(project)
-                .performForCommittedDocument(document, () -> {
-                    CaretModel caretModel = editor.getCaretModel();
-                    caretModel.moveToOffset(document.getTextLength());
-
-                    editor.getScrollingModel().scrollToCaret(ScrollType.CENTER);
-                });
+        consoleView.requestScrollingToEnd();
     }
 
     public void increaseTailLines() {
