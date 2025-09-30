@@ -269,33 +269,29 @@ class KubesphereService(private val project: Project) {
         return list.stream().allMatch { it }
     }
 
-    fun getBuildErrorInfo(url: String): Pair<ByteArray, ByteArray> {
+    fun getBuildErrorInfo(id: String): Pair<ByteArray, ByteArray> {
         val httpClientService = HttpClientService.getInstance(project)
 
-        val urlPush = "$url/log/?start=0"
+        val configService = ConfigService.getInstance(project)
 
         val futurePush = CompletableFuture.supplyAsync {
             httpClientService.getForObjectWithToken(
-                urlPush, null,
+                configService.getPushLogUrl(id), null,
                 ByteArray::class.java
             )
         }.exceptionally {
             ExceptionUtils.getStackTrace(it).toByteArray(StandardCharsets.UTF_8)
         }
 
-        val configService = ConfigService.getInstance(project)
+        val compileLogUrl = configService.getCompileLogUrl(id)
 
-        val compileLogPath = configService.getCompileLogPath()
-
-        if (StringUtils.isBlank(compileLogPath)) {
+        if (StringUtils.isBlank(compileLogUrl)) {
             throw RuntimeException("构建失败了,由于未配置 compileLogPath 参数,无法获取详细构建错误信息")
         }
 
-        val urlCompile = url + compileLogPath
-
         val futureCompile = CompletableFuture.supplyAsync {
             httpClientService.getForObjectWithToken(
-                urlCompile, null,
+                compileLogUrl!!, null,
                 ByteArray::class.java
             )
         }.exceptionally {
@@ -308,7 +304,7 @@ class KubesphereService(private val project: Project) {
     }
 
     fun getContainerStartInfo(
-        selectService: String, newInstanceName: String, tailLines: Int, previous: Boolean, follow: Boolean
+        selectService: String, newInstanceName: String, tailLines: Int, previous: Boolean, follow: Boolean,
     ): ByteArray {
         val httpClientService = HttpClientService.getInstance(project)
         val configService = ConfigService.getInstance(project)
@@ -323,7 +319,7 @@ class KubesphereService(private val project: Project) {
 
     fun getContainerStartInfo(
         selectService: String, newInstanceName: String, tailLines: Int, previous: Boolean,
-        follow: Boolean, consumer: Consumer<ByteArray>
+        follow: Boolean, consumer: Consumer<ByteArray>,
     ) {
         val httpClientService = HttpClientService.getInstance(project)
         val configService = ConfigService.getInstance(project)

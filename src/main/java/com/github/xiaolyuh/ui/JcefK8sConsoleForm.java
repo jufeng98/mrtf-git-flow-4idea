@@ -196,17 +196,17 @@ public class JcefK8sConsoleForm implements Disposable {
     private Pair<Pair<String, String>, Pair<String, String>> getLogPath(Project project, String selectService) {
         ConfigService configService = ConfigService.Companion.getInstance(project);
         K8sOptions k8sOptions = configService.getK8sOptions();
-        String logDir = k8sOptions.getLogDir();
         String debugFile = MessageFormat.format(k8sOptions.getLogDebugFile(), selectService);
         String errorFile = MessageFormat.format(k8sOptions.getLogErrorFile(), selectService);
         String infoFile = MessageFormat.format(k8sOptions.getLogInfoFile(), selectService);
 
+        String logDir;
         if (selectService.equals("washingservicemana")) {
-            logDir = MessageFormat.format(logDir, "bluemoonMana");
+            logDir = configService.getLogDir("bluemoonMana");
         } else if (selectService.equals("washingservice-controller")) {
-            logDir = MessageFormat.format(logDir, "bluemoon-control");
+            logDir = configService.getLogDir("bluemoon-control");
         } else {
-            logDir = MessageFormat.format(logDir, selectService);
+            logDir = configService.getLogDir(selectService);
         }
 
         Pair<String, String> p1 = Pair.create(logDir, debugFile);

@@ -67,7 +67,7 @@ class ExecutorService(private val project: Project) {
                     NotifyUtil.notifyError(project, title)
 
                     val kubesphereService = KubesphereService.getInstance(project)
-                    val pair = kubesphereService.getBuildErrorInfo(url)
+                    val pair = kubesphereService.getBuildErrorInfo(id)
 
                     runInEdt {
                         val form = KbsMsgForm(pair, project)

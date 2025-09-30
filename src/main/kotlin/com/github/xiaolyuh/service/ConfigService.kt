@@ -18,9 +18,9 @@ import com.intellij.util.application
 import java.io.File
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
-import java.text.MessageFormat
 import java.util.*
 import java.util.prefs.Preferences
+import java.util.regex.Pattern
 
 /**
  * 配置管理工具
@@ -28,11 +28,40 @@ import java.util.prefs.Preferences
 @Service(Service.Level.PROJECT)
 class ConfigService(private val project: Project) {
     private val logger = Logger.getInstance(ConfigService::class.java)
+    private val variablePattern = Pattern.compile("(\\{[^{}]+})")
 
     private val preferences: Preferences = Preferences.userRoot().node("com.github.xiaolyuh")
 
     private var initOptions: InitOptions? = null
     private var k8sOptions: K8sOptions? = null
+
+    fun resolveStr(str: String, map: Map<String, String> = emptyMap()): String {
+        val clazz = K8sOptions::class.java
+        val matcher = variablePattern.matcher(str)
+
+        return matcher.replaceAll {
+            var variableName = it.group()
+            variableName = variableName.substring(1, variableName.length - 1)
+
+            val myValue = map[variableName]
+            if (myValue != null) {
+                return@replaceAll myValue
+            }
+
+            try {
+                val field = clazz.getDeclaredField(variableName)
+                field.isAccessible = true
+                val value = field.get(k8sOptions!!)
+                if (value !is String) {
+                    throw IllegalArgumentException("$str 配置有误,$variableName 不是字符串类型!")
+                }
+
+                resolveStr(value, map)
+            } catch (_: NoSuchFieldException) {
+                throw IllegalArgumentException("$str 配置有误,$variableName 不存在,请检查!")
+            }
+        }
+    }
 
     fun getInitOptionsNullable(): InitOptions? {
         return initOptions
@@ -197,44 +226,63 @@ class ConfigService(private val project: Project) {
     fun getConsoleUrl(serviceName: String, instanceName: String): String {
         val k8sOptions = getK8sOptions()
 
-        val consoleUrl = k8sOptions.host + k8sOptions.consolePath
-
-        return MessageFormat.format(consoleUrl, k8sOptions.cluster, k8sOptions.namespace, instanceName, serviceName)
+        return resolveStr(
+            k8sOptions.consoleUrl, mapOf(
+                Pair("instanceName", instanceName),
+                Pair("serviceName", serviceName),
+            )
+        )
     }
 
     fun getRunsUrl(): String {
         val k8sOptions = getK8sOptions()
 
-        val runsUrl = k8sOptions.host + k8sOptions.runsPath
-
         var testBranch = URLEncoder.encode(initOptions!!.testBranch, StandardCharsets.UTF_8)
 
         testBranch = URLEncoder.encode(testBranch, StandardCharsets.UTF_8)
 
-        val pipelines = k8sOptions.pipelines
-
-        val str = if (StringUtils.isNotBlank(pipelines)) pipelines else k8sOptions.namespace
-
-        return MessageFormat.format(runsUrl, k8sOptions.cluster, str, testBranch)
+        return resolveStr(
+            k8sOptions.runsUrl, mapOf(
+                Pair("testBranch", testBranch),
+            )
+        )
     }
 
-    fun getCompileLogPath(): String? {
+    fun getCompileLogUrl(id: String): String? {
         val k8sOptions = getK8sOptions()
 
-        return k8sOptions.compileLogPath
+        val url = k8sOptions.compileLogUrl
+        if (url.isNullOrBlank()) {
+            return null
+        }
+
+        var testBranch = URLEncoder.encode(initOptions!!.testBranch, StandardCharsets.UTF_8)
+
+
+        return resolveStr(
+            url, mapOf(
+                Pair("id", id),
+                Pair("testBranch", testBranch)
+            )
+        )
+    }
+
+    fun getPushLogUrl(id: String): String {
+        val k8sOptions = getK8sOptions()
+
+        return resolveStr(k8sOptions.pushLogUrl, mapOf(Pair("id", id)))
     }
 
     fun getPodsUrl(serviceName: String): String {
         val k8sOptions = getK8sOptions()
 
-        val podsUrl = k8sOptions.host + k8sOptions.podsPath
+        return resolveStr(k8sOptions.podsUrl, mapOf(Pair("serviceName", serviceName.lowercase())))
+    }
 
-        return MessageFormat.format(
-            podsUrl,
-            k8sOptions.cluster,
-            k8sOptions.namespace,
-            serviceName.lowercase()
-        )
+    fun getLogDir(serviceName: String): String {
+        val k8sOptions = getK8sOptions()
+
+        return resolveStr(k8sOptions.logDir, mapOf(Pair("selectService", serviceName)))
     }
 
     fun getLogsUrl(
@@ -243,20 +291,22 @@ class ConfigService(private val project: Project) {
     ): String {
         val k8sOptions = getK8sOptions()
 
-        val logsUrl = k8sOptions.host + k8sOptions.logsPath
-
-        return MessageFormat.format(
-            logsUrl, k8sOptions.cluster, k8sOptions.namespace, instanceName,
-            serviceName.lowercase(), "" + tailLines, follow, previous
+        return resolveStr(
+            k8sOptions.logsUrl,
+            mapOf(
+                Pair("instanceName", instanceName),
+                Pair("serviceName", serviceName.lowercase()),
+                Pair("tailLines", "" + tailLines),
+                Pair("follow", "" + follow),
+                Pair("previous", "" + previous),
+            ),
         )
     }
 
     fun getCrumbissuerUrl(): String {
         val k8sOptions = getK8sOptions()
 
-        val podsUrl = k8sOptions.host + k8sOptions.crumbissuerPath
-
-        return MessageFormat.format(podsUrl, k8sOptions.cluster)
+        return resolveStr(k8sOptions.crumbissuerUrl)
     }
 
     fun isGroupKubesphere(): Boolean {
@@ -283,8 +333,7 @@ class ConfigService(private val project: Project) {
         return if (isMhKubesphere()) {
             k8sOptions.loginUrl
         } else {
-            // 集团登录接口
-            k8sOptions.host + "/login"
+            k8sOptions.loginUrlGroup
         }
     }
 

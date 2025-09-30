@@ -6,21 +6,27 @@ import java.util.List;
 public class K8sOptions {
     private String apolloUrl;
     private String loginUrl;
+    private String loginUrlGroup;
     private String host;
     private String namespace;
-    private String pipelines;
+    private String pipeline;
     private String cluster;
-    private String runsPath;
-    private String crumbissuerPath;
-    private String compileLogPath;
-    private String podsPath;
-    private String logsPath;
+    private String devop;
+
+    private String runsUrl;
+    private String crumbissuerUrl;
+    private String compileLogUrl;
+    private String pushLogUrl;
+    private String podsUrl;
+    private String logsUrl;
+    private String consoleUrl;
+
     private String logDir;
     private String logInfoFile;
     private String logDebugFile;
     private String logErrorFile;
-    private String consolePath;
     private boolean isFrontProject;
+
     private List<String> services;
 
     public String getApolloUrl() {
@@ -31,6 +37,10 @@ public class K8sOptions {
         return loginUrl;
     }
 
+    public String getLoginUrlGroup() {
+        return loginUrlGroup;
+    }
+
     public String getHost() {
         return host;
     }
@@ -39,36 +49,44 @@ public class K8sOptions {
         return namespace;
     }
 
-    public String getPipelines() {
-        return pipelines;
+    public String getPipeline() {
+        return pipeline;
     }
 
     public String getCluster() {
         return cluster;
     }
 
-    public String getRunsPath() {
-        return runsPath;
+    public String getDevop() {
+        return devop;
     }
 
-    public String getCrumbissuerPath() {
-        return crumbissuerPath;
+    public String getRunsUrl() {
+        return runsUrl;
     }
 
-    public String getCompileLogPath() {
-        return compileLogPath;
+    public String getCrumbissuerUrl() {
+        return crumbissuerUrl;
     }
 
-    public String getPodsPath() {
-        return podsPath;
+    public String getCompileLogUrl() {
+        return compileLogUrl;
     }
 
-    public String getLogsPath() {
-        return logsPath;
+    public String getPushLogUrl() {
+        return pushLogUrl;
     }
 
-    public String getConsolePath() {
-        return consolePath;
+    public String getPodsUrl() {
+        return podsUrl;
+    }
+
+    public String getLogsUrl() {
+        return logsUrl;
+    }
+
+    public String getConsoleUrl() {
+        return consoleUrl;
     }
 
     public String getLogDir() {
