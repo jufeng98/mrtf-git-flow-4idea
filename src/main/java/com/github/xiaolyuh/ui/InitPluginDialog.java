@@ -24,6 +24,8 @@ import java.util.Objects;
  * @author yuhao.wang3
  */
 public class InitPluginDialog extends DialogWrapper {
+    private String testBranchSec;
+
     private JPanel contentPane;
 
     private JComboBox<String> masterBranchComboBox;
@@ -96,6 +98,8 @@ public class InitPluginDialog extends DialogWrapper {
         options.setFsWebHookUrl(String.valueOf(fsWebHookUrlTextField.getText()));
         options.setLanguage(LanguageEnum.getByLanguage((String) languageComboBox.getSelectedItem()));
 
+        options.setTestBranchSec(testBranchSec);
+
         return options;
     }
 
@@ -124,6 +128,8 @@ public class InitPluginDialog extends DialogWrapper {
             kubesphereUsernameTextField.setText(options.getKubesphereUsername());
             kubespherePasswordTextField.setText(options.getKubespherePassword());
             fsWebHookUrlTextField.setText(options.getFsWebHookUrl());
+
+            this.testBranchSec = options.getTestBranchSec();
         } else {
             masterBranchComboBox.setModel(new CollectionComboBoxModel<>(remoteBranches));
             releaseBranchComboBox.setModel(new CollectionComboBoxModel<>(remoteBranches));

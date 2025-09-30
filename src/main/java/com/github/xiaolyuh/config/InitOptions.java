@@ -26,6 +26,8 @@ public class InitOptions {
      */
     private String testBranch;
 
+    private String testBranchSec;
+
     /**
      * 开发分支前缀
      */
@@ -95,6 +97,14 @@ public class InitOptions {
 
     public void setTestBranch(String testBranch) {
         this.testBranch = testBranch;
+    }
+
+    public String getTestBranchSec() {
+        return testBranchSec;
+    }
+
+    public void setTestBranchSec(String testBranchSec) {
+        this.testBranchSec = testBranchSec;
     }
 
     public String getFeaturePrefix() {
