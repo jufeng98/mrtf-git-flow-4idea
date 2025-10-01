@@ -91,7 +91,13 @@ class KubesphereService(private val project: Project) {
 
         executorService.monitorBuildTask(id, selectService, mainTest)
 
-        NotifyUtil.notifyInfo(project, "开始监控 $selectService id为 $id 的构建情况")
+        NotifyUtil.notifyInfo(
+            project, "开始监控 $selectService id为 $id 的构建情况" + if (mainTest) {
+                ""
+            } else {
+                "(Sec)"
+            }
+        )
     }
 
     fun loginAndSaveToken() {
