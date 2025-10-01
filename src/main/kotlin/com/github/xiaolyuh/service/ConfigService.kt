@@ -223,11 +223,15 @@ class ConfigService(private val project: Project) {
         return !existsK8sOptions()
     }
 
-    fun getConsoleUrl(serviceName: String, instanceName: String): String {
+    fun getConsoleUrl(serviceName: String, instanceName: String, mainTest: Boolean): String {
         val k8sOptions = getK8sOptions()
 
         return resolveOption(
-            k8sOptions.consoleUrl, mapOf(
+            if (mainTest) {
+                k8sOptions.consoleUrl
+            } else {
+                k8sOptions.consoleUrlSec
+            }, mapOf(
                 Pair("instanceName", instanceName),
                 Pair("serviceName", serviceName),
             )
@@ -361,11 +365,13 @@ class ConfigService(private val project: Project) {
     fun getLoginUrl(): String {
         val k8sOptions = getK8sOptions()
 
-        return if (isMhKubesphere()) {
-            k8sOptions.loginUrl
-        } else {
-            k8sOptions.loginUrlGroup
-        }
+        return resolveOption(
+            if (isMhKubesphere()) {
+                k8sOptions.loginUrl
+            } else {
+                k8sOptions.loginUrlGroup
+            }
+        )
     }
 
     private fun getFromProjectK8sFile(): K8sOptions? {

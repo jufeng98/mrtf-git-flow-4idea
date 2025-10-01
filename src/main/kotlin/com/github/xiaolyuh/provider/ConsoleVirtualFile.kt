@@ -7,5 +7,11 @@ import com.intellij.testFramework.LightVirtualFile
 /**
  * @author yudong
  */
-class ConsoleVirtualFile(name: String, val selectService: String, val instanceVo: InstanceVo, val project: Project) :
+class ConsoleVirtualFile(
+    name: String,
+    val selectService: String,
+    val instanceVo: InstanceVo,
+    val project: Project,
+    val mainTest: Boolean,
+) :
     LightVirtualFile(name)

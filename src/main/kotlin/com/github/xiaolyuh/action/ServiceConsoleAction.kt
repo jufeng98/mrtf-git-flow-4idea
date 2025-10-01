@@ -101,7 +101,7 @@ class ServiceConsoleAction :
         val instanceVo = instanceVos[choose]
 
         if (!jcefInitialed) {
-            val form = JcefK8sConsoleForm(instanceVo, project, selectService)
+            val form = JcefK8sConsoleForm(instanceVo, project, selectService, true)
 
             form.dispose()
 
@@ -115,7 +115,8 @@ class ServiceConsoleAction :
                 "${selectService}-remote-console",
                 selectService,
                 instanceVo,
-                project
+                project,
+                true
             )
         )
     }

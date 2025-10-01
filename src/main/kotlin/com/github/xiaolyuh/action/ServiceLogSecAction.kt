@@ -146,7 +146,7 @@ class ServiceLogSecAction :
 
         fun showLogInRunToolWindow(form: KbsMsgForm, project: Project, tabName: String) {
             val toolWindow = ToolWindowManager.getInstance(project).getToolWindow(ToolWindowId.RUN)
-            val displayName = "$tabName-remote"
+            val displayName = "$tabName-remote(Sec)"
 
             val executor = DefaultRunExecutor.getRunExecutorInstance()
 

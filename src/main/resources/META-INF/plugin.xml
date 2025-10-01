@@ -147,8 +147,8 @@
             <separator/>
 
             <!--提测-->
-            <action id="GitFlowPlus.StartTestSecAction" class="com.github.xiaolyuh.action.StartTestSecAction" />
             <action id="GitFlowPlus.StartTestAction" class="com.github.xiaolyuh.action.StartTestAction"/>
+            <action id="GitFlowPlus.StartTestSecAction" class="com.github.xiaolyuh.action.StartTestSecAction" />
             <separator/>
 
             <!--帮助-->

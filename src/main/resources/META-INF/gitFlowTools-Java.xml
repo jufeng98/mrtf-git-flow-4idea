@@ -1,7 +1,7 @@
 <idea-plugin>
     <actions>
         <action id="GitFlowPlus.ServiceConsoleAction" class="com.github.xiaolyuh.action.ServiceConsoleAction">
-            <add-to-group group-id="GitFlowPlus.Menu" relative-to-action="GitFlowPlus.StartTestAction" anchor="after"/>
+            <add-to-group group-id="GitFlowPlus.Menu" relative-to-action="GitFlowPlus.FailureReleaseAction" anchor="after"/>
         </action>
         <action id="GitFlowPlus.ServiceConsoleSecAction" class="com.github.xiaolyuh.action.ServiceConsoleSecAction">
             <add-to-group group-id="GitFlowPlus.Menu" relative-to-action="GitFlowPlus.ServiceConsoleAction" anchor="after"/>

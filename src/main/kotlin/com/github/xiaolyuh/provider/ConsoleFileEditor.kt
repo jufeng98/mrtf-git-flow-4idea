@@ -18,8 +18,9 @@ class ConsoleFileEditor(private val consoleVirtualFile: ConsoleVirtualFile) : Fi
         val instanceVo = consoleVirtualFile.instanceVo
         val project = consoleVirtualFile.project
         val selectService = consoleVirtualFile.selectService
+        val mainTest = consoleVirtualFile.mainTest
 
-        form = JcefK8sConsoleForm(instanceVo, project, selectService)
+        form = JcefK8sConsoleForm(instanceVo, project, selectService, mainTest)
     }
 
     override fun getFile(): VirtualFile {

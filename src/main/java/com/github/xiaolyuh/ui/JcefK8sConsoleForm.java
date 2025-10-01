@@ -43,12 +43,12 @@ public class JcefK8sConsoleForm implements Disposable {
     private JButton pasteBtn;
 
 
-    public JcefK8sConsoleForm(InstanceVo instanceVo, Project project, String selectService) {
+    public JcefK8sConsoleForm(InstanceVo instanceVo, Project project, String selectService, boolean mainTest) {
         this.project = project;
         selectService = selectService.toLowerCase();
 
         ConfigService configService = ConfigService.Companion.getInstance(project);
-        String url = configService.getConsoleUrl(selectService, instanceVo.getName());
+        String url = configService.getConsoleUrl(selectService, instanceVo.getName(), mainTest);
 
         String finalSelectService = selectService;
 

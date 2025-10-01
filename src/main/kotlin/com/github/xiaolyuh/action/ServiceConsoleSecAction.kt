@@ -3,7 +3,6 @@ package com.github.xiaolyuh.action
 import com.github.xiaolyuh.i18n.I18n
 import com.github.xiaolyuh.icons.GitFlowPlusIcons
 import com.github.xiaolyuh.provider.ConsoleVirtualFile
-import com.github.xiaolyuh.service.ConfigService.Companion.getInstance
 import com.github.xiaolyuh.service.KubesphereService
 import com.github.xiaolyuh.ui.JcefK8sConsoleForm
 import com.github.xiaolyuh.ui.ServiceDialog
@@ -106,7 +105,7 @@ class ServiceConsoleSecAction :
         val instanceVo = instanceVos[choose]
 
         if (!jcefInitialed) {
-            val form = JcefK8sConsoleForm(instanceVo, project, selectService)
+            val form = JcefK8sConsoleForm(instanceVo, project, selectService, false)
 
             form.dispose()
 
@@ -117,10 +116,11 @@ class ServiceConsoleSecAction :
         val fileEditorManager = FileEditorManager.getInstance(project)
         fileEditorManager.openFile(
             ConsoleVirtualFile(
-                "${selectService}-remote-console",
+                "${selectService}-remote-console(Sec)",
                 selectService,
                 instanceVo,
-                project
+                project,
+                false
             )
         )
     }
