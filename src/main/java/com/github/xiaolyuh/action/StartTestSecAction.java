@@ -5,13 +5,13 @@ import com.github.xiaolyuh.i18n.I18nKey;
 import com.github.xiaolyuh.icons.GitFlowPlusIcons;
 import com.github.xiaolyuh.service.ConfigService;
 import com.github.xiaolyuh.service.GitFlowPlus;
-import com.github.xiaolyuh.utils.StringUtils;
+import com.github.xiaolyuh.utils.ActionUtils;
 import com.github.xiaolyuh.valve.merge.ChangeFileValve;
 import com.github.xiaolyuh.valve.merge.MergeValve;
 import com.github.xiaolyuh.valve.merge.Valve;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,18 +24,14 @@ public class StartTestSecAction extends AbstractMergeAction {
     }
 
     @Override
-    protected void setEnabledAndText(AnActionEvent event) {
-        @SuppressWarnings("DataFlowIssue")
-        ConfigService configService = ConfigService.Companion.getInstance(event.getProject());
-        String testBranchSec = configService.getInitOptions().getTestBranchSec();
+    public void update(@NotNull AnActionEvent event) {
+        boolean showSec = ActionUtils.INSTANCE.shouldShowStartTestSec(event);
 
-        Presentation presentation = event.getPresentation();
-        if (StringUtils.isNotBlank(testBranchSec)) {
-            presentation.setEnabledAndVisible(true);
-            presentation.setText(I18n.getContent("action.test.txt") + "(Sec)");
-        } else {
-            presentation.setEnabledAndVisible(false);
-        }
+        event.getPresentation().setEnabledAndVisible(showSec);
+    }
+
+    @Override
+    protected void setEnabledAndText(AnActionEvent event) {
     }
 
     @Override
