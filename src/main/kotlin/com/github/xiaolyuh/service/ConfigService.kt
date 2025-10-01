@@ -241,9 +241,9 @@ class ConfigService(private val project: Project) {
     fun getRunsUrl(mainTest: Boolean): String {
         val k8sOptions = getK8sOptions()
 
-        var testBranch = URLEncoder.encode(initOptions!!.testBranch, StandardCharsets.UTF_8)
+        val testBranch = URLEncoder.encode(initOptions!!.testBranch, StandardCharsets.UTF_8)
 
-        testBranch = URLEncoder.encode(testBranch, StandardCharsets.UTF_8)
+        val testBranchSec = URLEncoder.encode(initOptions!!.testBranchSec ?: "", StandardCharsets.UTF_8)
 
         return resolveOption(
             if (mainTest) {
@@ -252,6 +252,7 @@ class ConfigService(private val project: Project) {
                 k8sOptions.runsUrlSec
             }, mapOf(
                 Pair("testBranch", testBranch),
+                Pair("testBranchSec", testBranchSec),
             )
         )
     }
