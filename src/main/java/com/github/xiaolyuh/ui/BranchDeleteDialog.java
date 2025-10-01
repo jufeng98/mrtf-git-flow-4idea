@@ -71,7 +71,7 @@ public class BranchDeleteDialog extends DialogWrapper {
                 if (!configService.isInit()) {
                     return;
                 }
-                
+
                 InitOptions initOptions = configService.getInitOptions();
 
                 List<BranchVo> branchVoList = getBranchListFiltered(repository);
