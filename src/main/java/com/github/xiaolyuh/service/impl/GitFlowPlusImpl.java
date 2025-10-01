@@ -151,13 +151,19 @@ public class GitFlowPlusImpl implements GitFlowPlus {
     @Override
     public List<BranchVo> getBranchList(GitRepository repository) {
         ConfigService configService = ConfigService.Companion.getInstance(repository.getProject());
-        InitOptions initOptions = configService.getInitOptions();
+
         GitCommandResult gitCommandResult = git.getAllBranchList(repository);
+
         List<String> output = gitCommandResult.getOutput();
         return output.stream()
                 .map((row) -> row.replace("origin/", ""))
                 .filter((row) -> {
+                    if (!configService.isInit()) {
+                        return true;
+                    }
+
                     String[] msg = row.split("@@@");
+                    InitOptions initOptions = configService.getInitOptions();
                     if (msg[2].equalsIgnoreCase(initOptions.getMasterBranch())) {
                         return false;
                     } else if (msg[2].equalsIgnoreCase(initOptions.getReleaseBranch())) {
