@@ -3,6 +3,7 @@ package com.github.xiaolyuh.action
 import com.github.xiaolyuh.i18n.I18n
 import com.github.xiaolyuh.icons.GitFlowPlusIcons
 import com.github.xiaolyuh.provider.ConsoleVirtualFile
+import com.github.xiaolyuh.service.ConfigService.Companion.getInstance
 import com.github.xiaolyuh.service.KubesphereService
 import com.github.xiaolyuh.ui.JcefK8sConsoleForm
 import com.github.xiaolyuh.ui.ServiceDialog
@@ -26,13 +27,17 @@ import org.apache.commons.lang3.exception.ExceptionUtils
  * @author yudong
  */
 @Suppress("ActionPresentationInstantiatedInCtor")
-class ServiceConsoleAction :
-    AnAction(I18n.nls("action.console.txt"), I18n.nls("action.console.desc"), GitFlowPlusIcons.show),
+class ServiceConsoleSecAction :
+    AnAction(
+        I18n.nls("action.console.txt") + "(Sec)",
+        I18n.nls("action.console.desc") + "(Sec)",
+        GitFlowPlusIcons.show
+    ),
     DumbAware {
     private var jcefInitialed = false
 
     override fun update(e: AnActionEvent) {
-        e.presentation.isEnabledAndVisible = ActionUtils.shouldShow(e)
+        e.presentation.isEnabledAndVisible = ActionUtils.shouldShowSec(e)
     }
 
     override fun getActionUpdateThread(): ActionUpdateThread {
@@ -60,7 +65,7 @@ class ServiceConsoleAction :
                 val instanceVos: List<InstanceVo>
                 try {
                     val kubesphereService = KubesphereService.getInstance(project)
-                    instanceVos = kubesphereService.findInstanceName(selectService, true)
+                    instanceVos = kubesphereService.findInstanceName(selectService, false)
                 } catch (e: Exception) {
                     e.printStackTrace()
 

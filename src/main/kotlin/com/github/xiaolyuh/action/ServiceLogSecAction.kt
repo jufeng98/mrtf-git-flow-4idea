@@ -2,7 +2,6 @@ package com.github.xiaolyuh.action
 
 import com.github.xiaolyuh.i18n.I18n
 import com.github.xiaolyuh.icons.GitFlowPlusIcons
-import com.github.xiaolyuh.service.ConfigService.Companion.getInstance
 import com.github.xiaolyuh.service.KubesphereService
 import com.github.xiaolyuh.ui.KbsMsgForm
 import com.github.xiaolyuh.ui.ServiceDialog
@@ -33,11 +32,12 @@ import org.apache.commons.lang3.exception.ExceptionUtils
  * @author yudong
  */
 @Suppress("ActionPresentationInstantiatedInCtor")
-class ServiceLogAction : AnAction(I18n.nls("action.log.txt"), I18n.nls("action.log.desc"), GitFlowPlusIcons.show),
+class ServiceLogSecAction :
+    AnAction(I18n.nls("action.log.txt") + "(Sec)", I18n.nls("action.log.desc") + "(Sec)", GitFlowPlusIcons.show),
     DumbAware {
 
     override fun update(e: AnActionEvent) {
-        e.presentation.isEnabledAndVisible = ActionUtils.shouldShow(e)
+        e.presentation.isEnabledAndVisible = ActionUtils.shouldShowSec(e)
     }
 
     override fun getActionUpdateThread(): ActionUpdateThread {
@@ -67,7 +67,7 @@ class ServiceLogAction : AnAction(I18n.nls("action.log.txt"), I18n.nls("action.l
 
                 try {
                     val kubesphereService = KubesphereService.getInstance(project)
-                    instanceVos = kubesphereService.findInstanceName(selectService, true)
+                    instanceVos = kubesphereService.findInstanceName(selectService, false)
                 } catch (e: Exception) {
                     e.printStackTrace()
 
@@ -123,7 +123,7 @@ class ServiceLogAction : AnAction(I18n.nls("action.log.txt"), I18n.nls("action.l
                     val kubesphereService = KubesphereService.getInstance(project)
                     textBytes = kubesphereService.getContainerStartInfo(
                         selectService, instanceVo.name,
-                        500, instanceVo.isPreviews, false, true
+                        500, instanceVo.isPreviews, false, false
                     )
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -133,7 +133,7 @@ class ServiceLogAction : AnAction(I18n.nls("action.log.txt"), I18n.nls("action.l
                 }
 
                 runInEdt {
-                    val form = KbsMsgForm(textBytes, project, selectService, instanceVo.name, false, true)
+                    val form = KbsMsgForm(textBytes, project, selectService, instanceVo.name, false, false)
 
                     showLogInRunToolWindow(form, project, selectService)
                 }
