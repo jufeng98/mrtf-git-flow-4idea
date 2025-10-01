@@ -68,11 +68,6 @@ public class BranchDeleteDialog extends DialogWrapper {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 ConfigService configService = ConfigService.Companion.getInstance(repository.getProject());
-                if (!configService.isInit()) {
-                    return;
-                }
-
-                InitOptions initOptions = configService.getInitOptions();
 
                 List<BranchVo> branchVoList = getBranchListFiltered(repository);
 
@@ -91,9 +86,17 @@ public class BranchDeleteDialog extends DialogWrapper {
                     case "全部开发分支":
                         branchVoList = branchVoList.stream()
                                 .filter((branchVo) -> {
+                                    if (!configService.isInit()) {
+                                        return true;
+                                    }
+
+                                    InitOptions initOptions = configService.getInitOptions();
+
+                                    String featurePrefix = initOptions.getFeaturePrefix();
+                                    String hotfixPrefix = initOptions.getHotfixPrefix();
+
                                     String branch = branchVo.getBranch();
-                                    return branch.contains(initOptions.getFeaturePrefix())
-                                            || branch.contains(initOptions.getHotfixPrefix());
+                                    return branch.contains(featurePrefix) || branch.contains(hotfixPrefix);
                                 })
                                 .collect(Collectors.toList());
 
