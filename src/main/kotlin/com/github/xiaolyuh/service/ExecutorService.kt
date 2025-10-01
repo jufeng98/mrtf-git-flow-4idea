@@ -24,6 +24,14 @@ class ExecutorService(private val project: Project) {
         return application.executeOnPooledThread(runnable)
     }
 
+    fun txt(mainTest: Boolean): String {
+        return if (mainTest) {
+            ""
+        } else {
+            "(Sec)"
+        }
+    }
+
     fun monitorBuildTask(id: String, selectService: String, mainTest: Boolean) {
         addTask {
             sleep(30)
@@ -63,7 +71,7 @@ class ExecutorService(private val project: Project) {
 
                 val result = resObj["result"].asString
                 if ("SUCCESS" != result) {
-                    val title = selectService + " id为" + id + "构建失败"
+                    val title = selectService + " id为" + id + "构建失败" + txt(mainTest)
                     NotifyUtil.notifyError(project, title)
 
                     val kubesphereService = KubesphereService.getInstance(project)
@@ -78,17 +86,23 @@ class ExecutorService(private val project: Project) {
                     return@RunTask
                 }
 
-                NotifyUtil.notifySuccess(project, selectService + " id为" + id + "构建成功")
+                NotifyUtil.notifySuccess(
+                    project, selectService + " id为" + id + "构建成功" + txt(mainTest)
+                )
 
                 monitorStartTask(selectService, id, mainTest)
 
-                NotifyUtil.notifyInfo(project, "开始监控" + selectService + " id为" + id + "启动情况")
+                NotifyUtil.notifyInfo(
+                    project, "开始监控" + selectService + " id为" + id + "启动情况" + txt(mainTest)
+                )
             } catch (e: Exception) {
                 logger.warn(e)
 
                 NotifyUtil.notifyError(
                     project,
-                    "检测" + selectService + " id为" + id + "的构建情况出错,原因:" + ExceptionUtils.getStackTrace(e)
+                    txt(mainTest) + "检测" + selectService + " id为" + id + "的构建情况出错,原因:" + ExceptionUtils.getStackTrace(
+                        e
+                    )
                 )
             }
         }
@@ -110,13 +124,17 @@ class ExecutorService(private val project: Project) {
                 e.printStackTrace()
 
                 NotifyUtil.notifyError(
-                    project, "检测" + selectService + " id为" + id +
-                            "的启动情况出错啦,原因:" + ExceptionUtils.getStackTrace(e)
+                    project,
+                    txt(mainTest) + "检测" + selectService + " id为" + id + "的启动情况出错啦,原因:" + ExceptionUtils.getStackTrace(
+                        e
+                    )
                 )
                 return@addTask
             }
 
-            NotifyUtil.notifyInfo(project, "新实例" + newInstanceName + "启动中......")
+            NotifyUtil.notifyInfo(
+                project, "新实例" + newInstanceName + "启动中......" + txt(mainTest)
+            )
 
             sleep(10)
 
@@ -159,10 +177,10 @@ class ExecutorService(private val project: Project) {
                 if (list.isEmpty()) {
                     NotifyUtil.notifyError(
                         project,
-                        newInstanceName + "实例已不存在,直接开始监控实例数量,当前数量:" + items.size()
+                        newInstanceName + "实例已不存在,直接开始监控实例数量,当前数量:" + items.size() + txt(mainTest)
                     )
 
-                    monitorServiceNumTask(podUrl, selectService)
+                    monitorServiceNumTask(podUrl, selectService, mainTest)
 
                     return@RunTask
                 }
@@ -175,7 +193,7 @@ class ExecutorService(private val project: Project) {
 
                 NotifyUtil.notifyError(
                     project,
-                    "检测" + newInstanceName + "启动情况出错,原因:" + ExceptionUtils.getStackTrace(e)
+                    txt(mainTest) + "检测" + newInstanceName + "启动情况出错,原因:" + ExceptionUtils.getStackTrace(e)
                 )
             }
         }
@@ -191,7 +209,7 @@ class ExecutorService(private val project: Project) {
         if (restartCount > 0) {
             sleep(30)
 
-            val title = newInstanceName + "容器初始化失败,当前重启次数:" + restartCount
+            val title = newInstanceName + "容器初始化失败,当前重启次数:" + restartCount + txt(mainTest)
             NotifyUtil.notifyError(project, title)
 
             val errorBytes = kubesphereService.getContainerStartInfo(
@@ -215,7 +233,7 @@ class ExecutorService(private val project: Project) {
         if (restartCount > 0) {
             sleep(30)
 
-            val title = newInstanceName + "容器启动失败,当前重启次数:" + restartCount
+            val title = newInstanceName + "容器启动失败,当前重启次数:" + restartCount + txt(mainTest)
             NotifyUtil.notifyError(project, title)
 
             val errorBytes = kubesphereService.getContainerStartInfo(
@@ -253,18 +271,20 @@ class ExecutorService(private val project: Project) {
             return
         }
 
-        NotifyUtil.notifySuccess(project, newInstanceName + "新实例已启动成功,开始监控实例数量")
+        NotifyUtil.notifySuccess(
+            project, newInstanceName + "新实例已启动成功,开始监控实例数量" + txt(mainTest)
+        )
 
-        monitorServiceNumTask(podUrl, selectService)
+        monitorServiceNumTask(podUrl, selectService, mainTest)
     }
 
-    private fun monitorServiceNumTask(podUrl: String, selectService: String) {
-        val task = createMonitorServiceNumTask(podUrl, selectService)
+    private fun monitorServiceNumTask(podUrl: String, selectService: String, mainTest: Boolean) {
+        val task = createMonitorServiceNumTask(podUrl, selectService, mainTest)
 
         addTask(task)
     }
 
-    private fun createMonitorServiceNumTask(podUrl: String, selectService: String): RunTask {
+    private fun createMonitorServiceNumTask(podUrl: String, selectService: String, mainTest: Boolean): RunTask {
         return RunTask {
             try {
                 val httpClientService = HttpClientService.getInstance(project)
@@ -276,18 +296,20 @@ class ExecutorService(private val project: Project) {
                 if (items.size() > 1) {
                     sleep(10)
 
-                    monitorServiceNumTask(podUrl, selectService)
+                    monitorServiceNumTask(podUrl, selectService, mainTest)
 
                     return@RunTask
                 }
 
-                NotifyUtil.notifySuccess(project, selectService + "新实例已完全替换成功!")
+                NotifyUtil.notifySuccess(
+                    project, selectService + "新实例已完全替换成功!" + txt(mainTest)
+                )
             } catch (e: Exception) {
                 e.printStackTrace()
 
                 NotifyUtil.notifyError(
                     project,
-                    "检测" + selectService + "服务实例数量出错,原因:" + ExceptionUtils.getStackTrace(e)
+                    txt(mainTest) + "检测" + selectService + "服务实例数量出错,原因:" + ExceptionUtils.getStackTrace(e)
                 )
             }
         }
