@@ -23,7 +23,7 @@ import java.util.function.Consumer
 @Service(Service.Level.PROJECT)
 class KubesphereService(private val project: Project) {
 
-    fun triggerPipeline(selectService: String) {
+    fun triggerPipeline(selectService: String, mainTest: Boolean) {
         if (selectService.isEmpty()) {
             NotifyUtil.notifyInfo(project, "未选择服务,跳过触发流水线")
             return
@@ -57,7 +57,7 @@ class KubesphereService(private val project: Project) {
             String.format("{\"parameters\":[{\"name\":\"MDL_NAME\",\"value\":\"%s\"}]}", selectService)
         }
 
-        val runsUrl = configService.getRunsUrl()
+        val runsUrl = configService.getRunsUrl(mainTest)
 
         val headers = mutableMapOf<String, String>()
 
@@ -89,7 +89,7 @@ class KubesphereService(private val project: Project) {
 
         val executorService = ExecutorService.getInstance(project)
 
-        executorService.monitorBuildTask(id, selectService)
+        executorService.monitorBuildTask(id, selectService, mainTest)
 
         NotifyUtil.notifyInfo(project, "开始监控 $selectService id为 $id 的构建情况")
     }
@@ -211,11 +211,11 @@ class KubesphereService(private val project: Project) {
         return findInstanceName(podUrl, id, detectTimes)
     }
 
-    fun findInstanceName(serviceName: String): List<InstanceVo> {
+    fun findInstanceName(serviceName: String, mainTest: Boolean): List<InstanceVo> {
         val configService = ConfigService.getInstance(project)
         val httpClientService = HttpClientService.getInstance(project)
 
-        val podsUrl = configService.getPodsUrl(serviceName)
+        val podsUrl = configService.getPodsUrl(serviceName, mainTest)
 
         val resObj = httpClientService.getForObjectWithToken(
             podsUrl, null,
@@ -269,21 +269,21 @@ class KubesphereService(private val project: Project) {
         return list.stream().allMatch { it }
     }
 
-    fun getBuildErrorInfo(id: String): Pair<ByteArray, ByteArray> {
+    fun getBuildErrorInfo(id: String, mainTest: Boolean): Pair<ByteArray, ByteArray> {
         val httpClientService = HttpClientService.getInstance(project)
 
         val configService = ConfigService.getInstance(project)
 
         val futurePush = CompletableFuture.supplyAsync {
             httpClientService.getForObjectWithToken(
-                configService.getPushLogUrl(id), null,
+                configService.getPushLogUrl(id, mainTest), null,
                 ByteArray::class.java
             )
         }.exceptionally {
             ExceptionUtils.getStackTrace(it).toByteArray(StandardCharsets.UTF_8)
         }
 
-        val compileLogUrl = configService.getCompileLogUrl(id)
+        val compileLogUrl = configService.getCompileLogUrl(id, mainTest)
 
         if (StringUtils.isBlank(compileLogUrl)) {
             throw RuntimeException("构建失败了,由于未配置 compileLogPath 参数,无法获取详细构建错误信息")
@@ -304,12 +304,17 @@ class KubesphereService(private val project: Project) {
     }
 
     fun getContainerStartInfo(
-        selectService: String, newInstanceName: String, tailLines: Int, previous: Boolean, follow: Boolean,
+        selectService: String,
+        newInstanceName: String,
+        tailLines: Int,
+        previous: Boolean,
+        follow: Boolean,
+        mainTest: Boolean,
     ): ByteArray {
         val httpClientService = HttpClientService.getInstance(project)
         val configService = ConfigService.getInstance(project)
 
-        val logsUrl = configService.getLogsUrl(selectService, newInstanceName, tailLines, previous, follow)
+        val logsUrl = configService.getLogsUrl(selectService, newInstanceName, tailLines, previous, follow, mainTest)
 
         return httpClientService.getForObjectWithTokenUseUrl(
             logsUrl, null,
@@ -319,12 +324,12 @@ class KubesphereService(private val project: Project) {
 
     fun getContainerStartInfo(
         selectService: String, newInstanceName: String, tailLines: Int, previous: Boolean,
-        follow: Boolean, consumer: Consumer<ByteArray>,
+        follow: Boolean, mainTest: Boolean, consumer: Consumer<ByteArray>,
     ) {
         val httpClientService = HttpClientService.getInstance(project)
         val configService = ConfigService.getInstance(project)
 
-        val logsUrl = configService.getLogsUrl(selectService, newInstanceName, tailLines, previous, follow)
+        val logsUrl = configService.getLogsUrl(selectService, newInstanceName, tailLines, previous, follow, mainTest)
 
         httpClientService.getForObjectWithTokenUseUrl(
             logsUrl, null,

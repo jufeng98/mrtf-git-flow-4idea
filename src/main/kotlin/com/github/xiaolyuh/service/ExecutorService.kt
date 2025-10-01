@@ -24,26 +24,26 @@ class ExecutorService(private val project: Project) {
         return application.executeOnPooledThread(runnable)
     }
 
-    fun monitorBuildTask(id: String, selectService: String) {
+    fun monitorBuildTask(id: String, selectService: String, mainTest: Boolean) {
         addTask {
             sleep(30)
 
-            createMonitorBuildTask(id, selectService)
+            createMonitorBuildTask(id, selectService, mainTest)
         }
     }
 
-    private fun createMonitorBuildTask(id: String, selectService: String) {
-        val task = createMonitorBuildTaskReal(id, selectService)
+    private fun createMonitorBuildTask(id: String, selectService: String, mainTest: Boolean) {
+        val task = createMonitorBuildTaskReal(id, selectService, mainTest)
 
         addTask(task)
     }
 
-    private fun createMonitorBuildTaskReal(id: String, selectService: String): RunTask {
+    private fun createMonitorBuildTaskReal(id: String, selectService: String, mainTest: Boolean): RunTask {
         return RunTask {
             try {
                 val configService = ConfigService.getInstance(project)
 
-                val url = configService.getRunsUrl() + "/" + id
+                val url = configService.getRunsUrl(mainTest) + "/" + id
 
                 val httpClientService = HttpClientService.getInstance(project)
 
@@ -57,7 +57,7 @@ class ExecutorService(private val project: Project) {
                     sleep(10)
 
                     // 构建未完成,重新监控
-                    createMonitorBuildTask(id, selectService)
+                    createMonitorBuildTask(id, selectService, mainTest)
                     return@RunTask
                 }
 
@@ -67,10 +67,10 @@ class ExecutorService(private val project: Project) {
                     NotifyUtil.notifyError(project, title)
 
                     val kubesphereService = KubesphereService.getInstance(project)
-                    val pair = kubesphereService.getBuildErrorInfo(id)
+                    val pair = kubesphereService.getBuildErrorInfo(id, mainTest)
 
                     runInEdt {
-                        val form = KbsMsgForm(pair, project)
+                        val form = KbsMsgForm(pair, project, mainTest)
 
                         showLogInRunToolWindow(form, project, "$selectService-built-error")
                     }
@@ -80,7 +80,7 @@ class ExecutorService(private val project: Project) {
 
                 NotifyUtil.notifySuccess(project, selectService + " id为" + id + "构建成功")
 
-                monitorStartTask(selectService, id)
+                monitorStartTask(selectService, id, mainTest)
 
                 NotifyUtil.notifyInfo(project, "开始监控" + selectService + " id为" + id + "启动情况")
             } catch (e: Exception) {
@@ -94,13 +94,13 @@ class ExecutorService(private val project: Project) {
         }
     }
 
-    private fun monitorStartTask(selectService: String, id: String) {
+    private fun monitorStartTask(selectService: String, id: String, mainTest: Boolean) {
         addTask {
             sleep(10)
 
             val configService = ConfigService.getInstance(project)
 
-            val podUrl = configService.getPodsUrl(selectService)
+            val podUrl = configService.getPodsUrl(selectService, mainTest)
 
             val newInstanceName: String
             try {
@@ -120,20 +120,20 @@ class ExecutorService(private val project: Project) {
 
             sleep(10)
 
-            monitorStartedTask(podUrl, selectService, newInstanceName)
+            monitorStartedTask(podUrl, selectService, newInstanceName, mainTest)
         }
     }
 
     private fun monitorStartedTask(
-        podUrl: String, selectService: String, newInstanceName: String,
+        podUrl: String, selectService: String, newInstanceName: String, mainTest: Boolean,
     ) {
-        val task = createMonitorStartTask(podUrl, selectService, newInstanceName)
+        val task = createMonitorStartTask(podUrl, selectService, newInstanceName, mainTest)
 
         addTask(task)
     }
 
     private fun createMonitorStartTask(
-        podUrl: String, selectService: String, newInstanceName: String,
+        podUrl: String, selectService: String, newInstanceName: String, mainTest: Boolean,
     ): RunTask {
         return RunTask {
             try {
@@ -169,7 +169,7 @@ class ExecutorService(private val project: Project) {
 
                 val newItemObject = list[0]
 
-                checkNewInstance(newItemObject, newInstanceName, selectService, podUrl)
+                checkNewInstance(newItemObject, newInstanceName, selectService, podUrl, mainTest)
             } catch (e: Exception) {
                 e.printStackTrace()
 
@@ -183,7 +183,7 @@ class ExecutorService(private val project: Project) {
 
     private fun checkNewInstance(
         newItemObject: JsonObject, newInstanceName: String, selectService: String,
-        podUrl: String,
+        podUrl: String, mainTest: Boolean,
     ) {
         val statusObj = newItemObject.getAsJsonObject("status")
         val kubesphereService = KubesphereService.getInstance(project)
@@ -196,13 +196,13 @@ class ExecutorService(private val project: Project) {
 
             val errorBytes = kubesphereService.getContainerStartInfo(
                 selectService, newInstanceName,
-                500, previous = false, follow = false
+                500, previous = false, follow = false, mainTest
             )
 
             runInEdt {
                 val form = KbsMsgForm(
                     errorBytes, project, selectService,
-                    newInstanceName, false
+                    newInstanceName, false, mainTest
                 )
 
                 showLogInRunToolWindow(form, project, "$selectService-initialed-error")
@@ -220,13 +220,13 @@ class ExecutorService(private val project: Project) {
 
             val errorBytes = kubesphereService.getContainerStartInfo(
                 selectService, newInstanceName,
-                500, previous = false, follow = false
+                500, previous = false, follow = false, mainTest
             )
 
             runInEdt {
                 val form = KbsMsgForm(
                     errorBytes, project, selectService,
-                    newInstanceName, false
+                    newInstanceName, false, mainTest
                 )
 
                 showLogInRunToolWindow(form, project, "$selectService-started-error")
@@ -239,7 +239,7 @@ class ExecutorService(private val project: Project) {
         if (!ready) {
             sleep(10)
 
-            monitorStartedTask(podUrl, selectService, newInstanceName)
+            monitorStartedTask(podUrl, selectService, newInstanceName, mainTest)
 
             return
         }
@@ -248,7 +248,7 @@ class ExecutorService(private val project: Project) {
         if (!ready) {
             sleep(10)
 
-            monitorStartedTask(podUrl, selectService, newInstanceName)
+            monitorStartedTask(podUrl, selectService, newInstanceName, mainTest)
 
             return
         }

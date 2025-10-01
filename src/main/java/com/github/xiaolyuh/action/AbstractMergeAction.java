@@ -120,6 +120,7 @@ public abstract class AbstractMergeAction extends AnAction {
         final String targetBranch = getTargetBranch(project);
 
         final boolean isStartTest = getClass() == StartTestAction.class;
+        final boolean isStartTestSec = getClass() == StartTestSecAction.class;
 
         final GitRepository repository = GitBranchUtil.getCurrentRepository(project);
         if (Objects.isNull(repository)) {
@@ -128,7 +129,7 @@ public abstract class AbstractMergeAction extends AnAction {
 
         boolean clickOk;
         List<String> selectServices = Lists.newArrayList();
-        if (isStartTest) {
+        if (isStartTest || isStartTestSec) {
             ServiceDialog serviceDialog = new ServiceDialog(getDialogContent(project, true), project);
             serviceDialog.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
             serviceDialog.show();
@@ -169,12 +170,12 @@ public abstract class AbstractMergeAction extends AnAction {
 
                 VirtualFileManager.getInstance().asyncRefresh(null);
 
-                if (isStartTest) {
+                if (isStartTest || isStartTestSec) {
                     finalSelectServices.forEach(serviceName -> {
                         try {
                             KubesphereService kubesphereService = KubesphereService.Companion.getInstance(project);
 
-                            kubesphereService.triggerPipeline(serviceName);
+                            kubesphereService.triggerPipeline(serviceName, isStartTest);
                         } catch (Exception e) {
                             LOG.warn(e);
 

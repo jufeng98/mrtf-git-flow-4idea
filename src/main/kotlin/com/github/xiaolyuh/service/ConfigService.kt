@@ -35,7 +35,7 @@ class ConfigService(private val project: Project) {
     private var initOptions: InitOptions? = null
     private var k8sOptions: K8sOptions? = null
 
-    fun resolveStr(str: String, map: Map<String, String> = emptyMap()): String {
+    fun resolveOption(str: String, map: Map<String, String> = emptyMap()): String {
         val clazz = K8sOptions::class.java
         val matcher = variablePattern.matcher(str)
 
@@ -56,7 +56,7 @@ class ConfigService(private val project: Project) {
                     throw IllegalArgumentException("$str 配置有误,$variableName 不是字符串类型!")
                 }
 
-                resolveStr(value, map)
+                resolveOption(value, map)
             } catch (_: NoSuchFieldException) {
                 throw IllegalArgumentException("$str 配置有误,$variableName 不存在,请检查!")
             }
@@ -226,7 +226,7 @@ class ConfigService(private val project: Project) {
     fun getConsoleUrl(serviceName: String, instanceName: String): String {
         val k8sOptions = getK8sOptions()
 
-        return resolveStr(
+        return resolveOption(
             k8sOptions.consoleUrl, mapOf(
                 Pair("instanceName", instanceName),
                 Pair("serviceName", serviceName),
@@ -234,32 +234,47 @@ class ConfigService(private val project: Project) {
         )
     }
 
-    fun getRunsUrl(): String {
+    fun getRunsUrl(mainTest: Boolean): String {
         val k8sOptions = getK8sOptions()
 
         var testBranch = URLEncoder.encode(initOptions!!.testBranch, StandardCharsets.UTF_8)
 
         testBranch = URLEncoder.encode(testBranch, StandardCharsets.UTF_8)
 
-        return resolveStr(
-            k8sOptions.runsUrl, mapOf(
+        return resolveOption(
+            if (mainTest) {
+                k8sOptions.runsUrl
+            } else {
+                k8sOptions.runsUrlSec
+            }, mapOf(
                 Pair("testBranch", testBranch),
             )
         )
     }
 
-    fun getCompileLogUrl(id: String): String? {
+    fun getCompileLogUrl(id: String, mainTest: Boolean): String? {
         val k8sOptions = getK8sOptions()
 
-        val url = k8sOptions.compileLogUrl
+        val url = if (mainTest) {
+            k8sOptions.compileLogUrl
+        } else {
+            k8sOptions.compileLogUrlSec
+        }
+
         if (url.isNullOrBlank()) {
             return null
         }
 
-        var testBranch = URLEncoder.encode(initOptions!!.testBranch, StandardCharsets.UTF_8)
+        var testBranch = URLEncoder.encode(
+            if (mainTest) {
+                initOptions!!.testBranch
+            } else {
+                initOptions!!.testBranchSec
+            }, StandardCharsets.UTF_8
+        )
 
 
-        return resolveStr(
+        return resolveOption(
             url, mapOf(
                 Pair("id", id),
                 Pair("testBranch", testBranch)
@@ -267,32 +282,48 @@ class ConfigService(private val project: Project) {
         )
     }
 
-    fun getPushLogUrl(id: String): String {
+    fun getPushLogUrl(id: String, mainTest: Boolean): String {
         val k8sOptions = getK8sOptions()
 
-        return resolveStr(k8sOptions.pushLogUrl, mapOf(Pair("id", id)))
+        return resolveOption(
+            if (mainTest) {
+                k8sOptions.pushLogUrl
+            } else {
+                k8sOptions.pushLogUrlSec
+            }, mapOf(Pair("id", id))
+        )
     }
 
-    fun getPodsUrl(serviceName: String): String {
+    fun getPodsUrl(serviceName: String, mainTest: Boolean): String {
         val k8sOptions = getK8sOptions()
 
-        return resolveStr(k8sOptions.podsUrl, mapOf(Pair("serviceName", serviceName.lowercase())))
+        return resolveOption(
+            if (mainTest) {
+                k8sOptions.podsUrl
+            } else {
+                k8sOptions.podsUrlSec
+            }, mapOf(Pair("serviceName", serviceName.lowercase()))
+        )
     }
 
     fun getLogDir(serviceName: String): String {
         val k8sOptions = getK8sOptions()
 
-        return resolveStr(k8sOptions.logDir, mapOf(Pair("selectService", serviceName)))
+        return resolveOption(k8sOptions.logDir, mapOf(Pair("selectService", serviceName)))
     }
 
     fun getLogsUrl(
         serviceName: String, instanceName: String, tailLines: Int,
-        previous: Boolean, follow: Boolean,
+        previous: Boolean, follow: Boolean, mainTest: Boolean,
     ): String {
         val k8sOptions = getK8sOptions()
 
-        return resolveStr(
-            k8sOptions.logsUrl,
+        return resolveOption(
+            if (mainTest) {
+                k8sOptions.logsUrl
+            } else {
+                k8sOptions.logsUrlSec
+            },
             mapOf(
                 Pair("instanceName", instanceName),
                 Pair("serviceName", serviceName.lowercase()),
@@ -306,7 +337,7 @@ class ConfigService(private val project: Project) {
     fun getCrumbissuerUrl(): String {
         val k8sOptions = getK8sOptions()
 
-        return resolveStr(k8sOptions.crumbissuerUrl)
+        return resolveOption(k8sOptions.crumbissuerUrl)
     }
 
     fun isGroupKubesphere(): Boolean {

@@ -38,6 +38,7 @@ public class KbsMsgForm extends JComponent implements Disposable {
     private String newInstanceName;
     private Pair<byte[], byte[]> pair;
     private final Project project;
+    private final boolean mainTest;
     private String selectService;
     private boolean previews;
 
@@ -51,9 +52,10 @@ public class KbsMsgForm extends JComponent implements Disposable {
     private final List<ConsoleView> consoleViewList = Lists.newArrayList();
 
 
-    public KbsMsgForm(Pair<byte[], byte[]> pair, Project project) {
+    public KbsMsgForm(Pair<byte[], byte[]> pair, Project project, boolean mainTest) {
         this.pair = pair;
         this.project = project;
+        this.mainTest = mainTest;
 
         ActionToolbar toolbar = createSimpleToolbar();
 
@@ -62,11 +64,13 @@ public class KbsMsgForm extends JComponent implements Disposable {
         fillEditorWithErrorTxt();
     }
 
-    public KbsMsgForm(byte[] textBytes, Project project, String selectService, String newInstanceName, boolean previews) {
+    public KbsMsgForm(byte[] textBytes, Project project, String selectService, String newInstanceName,
+                      boolean previews, boolean mainTest) {
         this.newInstanceName = newInstanceName;
         this.project = project;
         this.selectService = selectService;
         this.previews = previews;
+        this.mainTest = mainTest;
 
         ActionToolbar toolbar = createToolbar();
 
@@ -148,7 +152,7 @@ public class KbsMsgForm extends JComponent implements Disposable {
                 try {
                     KubesphereService kubesphereService = KubesphereService.Companion.getInstance(project);
                     textBytes = kubesphereService.getContainerStartInfo(selectService, newInstanceName, tailLines,
-                            previews, false);
+                            previews, false, mainTest);
                 } catch (Exception e) {
                     //noinspection CallToPrintStackTrace
                     e.printStackTrace();
@@ -169,7 +173,7 @@ public class KbsMsgForm extends JComponent implements Disposable {
             try {
                 KubesphereService kubesphereService = KubesphereService.Companion.getInstance(project);
                 kubesphereService.getContainerStartInfo(selectService, newInstanceName,
-                        1000, false, true, body -> ApplicationManager.getApplication()
+                        1000, false, true, mainTest, body -> ApplicationManager.getApplication()
                                 .invokeLater(() -> fillEditorWithRunningTxt(body, true))
                 );
             } catch (Exception e) {

@@ -20,7 +20,7 @@ public class StartTestSecAction extends AbstractMergeAction {
 
     @SuppressWarnings("ActionPresentationInstantiatedInCtor")
     public StartTestSecAction() {
-        super(I18n.nls("action.test.txt2"), I18n.nls("action.test.desc2"), GitFlowPlusIcons.INSTANCE.getMergeToTest());
+        super(I18n.nls("action.test.txt") + "(Sec)", I18n.nls("action.test.desc") + "(Sec)", GitFlowPlusIcons.INSTANCE.getMergeToTest());
     }
 
     @Override
@@ -32,7 +32,7 @@ public class StartTestSecAction extends AbstractMergeAction {
         Presentation presentation = event.getPresentation();
         if (StringUtils.isNotBlank(testBranchSec)) {
             presentation.setEnabledAndVisible(true);
-            presentation.setText(I18n.getContent("action.test.txt2"));
+            presentation.setText(I18n.getContent("action.test.txt") + "(Sec)");
         } else {
             presentation.setEnabledAndVisible(false);
         }
