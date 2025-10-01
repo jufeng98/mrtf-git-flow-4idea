@@ -68,6 +68,10 @@ public class BranchDeleteDialog extends DialogWrapper {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 ConfigService configService = ConfigService.Companion.getInstance(repository.getProject());
+                if (!configService.isInit()) {
+                    return;
+                }
+                
                 InitOptions initOptions = configService.getInitOptions();
 
                 List<BranchVo> branchVoList = getBranchListFiltered(repository);
