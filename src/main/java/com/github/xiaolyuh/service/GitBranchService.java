@@ -80,17 +80,17 @@ public final class GitBranchService {
     public static boolean isGitProject(Project project) {
         GitBranchService gitBranchService = getInstance(project);
 
-        Boolean match = gitBranchService.gitProject;
+        Boolean gitProject = gitBranchService.gitProject;
 
-        if (match != null) {
-            return match;
+        if (gitProject != null) {
+            return gitProject;
         }
 
-        match = CollectionUtils.isNotEmpty(GitUtil.getRepositoryManager(project).getRepositories());
+        gitProject = CollectionUtils.isNotEmpty(GitUtil.getRepositoryManager(project).getRepositories());
 
-        gitBranchService.gitProject = match;
+        gitBranchService.gitProject = gitProject;
 
-        return match;
+        return gitProject;
     }
 
     /**
