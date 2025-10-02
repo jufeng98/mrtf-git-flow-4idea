@@ -10,6 +10,7 @@ import com.github.xiaolyuh.valve.merge.ChangeFileValve;
 import com.github.xiaolyuh.valve.merge.MergeValve;
 import com.github.xiaolyuh.valve.merge.Valve;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,9 +26,17 @@ public class StartTestSecAction extends AbstractMergeAction {
 
     @Override
     public void update(@NotNull AnActionEvent event) {
-        boolean showSec = ActionUtils.INSTANCE.shouldShowStartTestSec(event);
+        Presentation presentation = event.getPresentation();
 
-        event.getPresentation().setEnabledAndVisible(showSec);
+        boolean showSec = ActionUtils.INSTANCE.shouldShowSec(event);
+        if (!showSec) {
+            presentation.setVisible(false);
+            return;
+        }
+
+        presentation.setVisible(true);
+
+        presentation.setEnabled(ActionUtils.INSTANCE.isDevBranch(event));
     }
 
     @Override

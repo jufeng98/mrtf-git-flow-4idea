@@ -1,15 +1,14 @@
 package com.github.xiaolyuh.action;
 
-import com.github.xiaolyuh.config.InitOptions;
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
 import com.github.xiaolyuh.service.ConfigService;
+import com.github.xiaolyuh.service.GitBranchService;
 import com.github.xiaolyuh.service.GitFlowPlus;
 import com.github.xiaolyuh.service.KubesphereService;
 import com.github.xiaolyuh.ui.ServiceDialog;
-import com.github.xiaolyuh.service.GitBranchService;
+import com.github.xiaolyuh.utils.ActionUtils;
 import com.github.xiaolyuh.utils.NotifyUtil;
-import com.github.xiaolyuh.utils.StringUtils;
 import com.github.xiaolyuh.valve.merge.Valve;
 import com.github.xiaolyuh.vo.TagOptions;
 import com.google.common.collect.Lists;
@@ -48,8 +47,6 @@ public abstract class AbstractMergeAction extends AnAction {
 
     @Override
     public void update(@NotNull AnActionEvent event) {
-        super.update(event);
-
         if (Objects.isNull(event.getProject())) {
             event.getPresentation().setEnabled(false);
             return;
@@ -63,16 +60,8 @@ public abstract class AbstractMergeAction extends AnAction {
             return;
         }
 
-        String currentBranch = gitFlowPlus.getCurrentBranch(event.getProject());
-
-        InitOptions initOptions = configService.getInitOptions();
-
-        String featurePrefix = initOptions.getFeaturePrefix();
-        String hotfixPrefix = initOptions.getHotfixPrefix();
-
-        // 已经初始化并且前缀是开发分支才显示
-        boolean isDevBranch = StringUtils.startsWith(currentBranch, featurePrefix)
-                || StringUtils.startsWith(currentBranch, hotfixPrefix);
+        // 已经初始化并且前缀是开发分支才可用
+        boolean isDevBranch = ActionUtils.INSTANCE.isDevBranch(event);
 
         event.getPresentation().setEnabled(isDevBranch);
 

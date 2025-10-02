@@ -1,7 +1,6 @@
 package com.github.xiaolyuh.utils
 
 import com.github.xiaolyuh.service.ConfigService
-import com.github.xiaolyuh.service.GitBranchService
 import com.github.xiaolyuh.service.GitFlowPlus
 import com.intellij.openapi.actionSystem.AnActionEvent
 
@@ -18,38 +17,21 @@ object ActionUtils {
     fun shouldShowSec(e: AnActionEvent): Boolean {
         val project = e.project ?: return false
 
-        val configService = ConfigService.getInstance(project)
-
-        return shouldShow(e) && !configService.getInitOptions().testBranchSec.isNullOrBlank()
+        return shouldShow(e) && !ConfigService.getInstance(project).getInitOptions().testBranchSec.isNullOrBlank()
     }
 
-    fun shouldShowStartTestSec(event: AnActionEvent): Boolean {
+    fun isDevBranch(event: AnActionEvent): Boolean {
         val project = event.project ?: return false
 
-        val configService = ConfigService.getInstance(project)
+        val currentBranch = GitFlowPlus.getInstance().getCurrentBranch(project)
 
-        val isInit = GitBranchService.isGitProject(project) && configService.isInit()
-        if (!isInit) {
-            return false
-        }
-
-        if (configService.getInitOptions().testBranchSec.isNullOrBlank()) {
-            return false
-        }
-
-        var gitFlowPlus = GitFlowPlus.getInstance()
-
-        val currentBranch = gitFlowPlus.getCurrentBranch(project)
-
-        val initOptions = configService.getInitOptions()
+        val initOptions = ConfigService.getInstance(project).getInitOptions()
 
         val featurePrefix = initOptions.featurePrefix
         val hotfixPrefix = initOptions.hotfixPrefix
 
-        val isDevBranch = StringUtils.startsWith(currentBranch, featurePrefix)
+        return StringUtils.startsWith(currentBranch, featurePrefix)
                 || StringUtils.startsWith(currentBranch, hotfixPrefix)
-
-        return isDevBranch
     }
 
 }
