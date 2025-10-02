@@ -1,5 +1,6 @@
-package com.github.xiaolyuh.utils;
+package com.github.xiaolyuh.service;
 
+import com.github.xiaolyuh.utils.CollectionUtils;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
 import git4idea.GitLocalBranch;
@@ -21,12 +22,12 @@ import java.util.stream.Collectors;
  * @since 2020/3/17 15:16
  */
 @Service(Service.Level.PROJECT)
-public final class GitBranchUtil {
+public final class GitBranchService {
     private Boolean gitProject;
     private GitRepository currentRepository;
 
-    public static GitBranchUtil getInstance(Project project) {
-        return project.getService(GitBranchUtil.class);
+    public static GitBranchService getInstance(Project project) {
+        return project.getService(GitBranchService.class);
     }
 
     /**
@@ -77,9 +78,9 @@ public final class GitBranchUtil {
      * @return boolean
      */
     public static boolean isGitProject(Project project) {
-        GitBranchUtil gitBranchUtil = getInstance(project);
+        GitBranchService gitBranchService = getInstance(project);
 
-        Boolean match = gitBranchUtil.gitProject;
+        Boolean match = gitBranchService.gitProject;
 
         if (match != null) {
             return match;
@@ -87,7 +88,7 @@ public final class GitBranchUtil {
 
         match = CollectionUtils.isNotEmpty(GitUtil.getRepositoryManager(project).getRepositories());
 
-        gitBranchUtil.gitProject = match;
+        gitBranchService.gitProject = match;
 
         return match;
     }
@@ -98,9 +99,9 @@ public final class GitBranchUtil {
      * @param project project
      */
     public static GitRepository getCurrentRepository(@NotNull Project project) {
-        GitBranchUtil gitBranchUtil = getInstance(project);
+        GitBranchService gitBranchService = getInstance(project);
 
-        GitRepository currentRepository = gitBranchUtil.currentRepository;
+        GitRepository currentRepository = gitBranchService.currentRepository;
 
         if (currentRepository != null) {
             return currentRepository;
@@ -109,7 +110,7 @@ public final class GitBranchUtil {
         //noinspection deprecation
         currentRepository = git4idea.branch.GitBranchUtil.getCurrentRepository(project);
 
-        gitBranchUtil.currentRepository = currentRepository;
+        gitBranchService.currentRepository = currentRepository;
 
         return currentRepository;
     }

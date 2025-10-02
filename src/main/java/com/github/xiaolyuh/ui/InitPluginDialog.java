@@ -6,7 +6,7 @@ import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
 import com.github.xiaolyuh.i18n.UiBundle;
 import com.github.xiaolyuh.service.ConfigService;
-import com.github.xiaolyuh.utils.GitBranchUtil;
+import com.github.xiaolyuh.service.GitBranchService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
@@ -110,7 +110,7 @@ public class InitPluginDialog extends DialogWrapper {
         ConfigService configService = ConfigService.Companion.getInstance(project);
 
         InitOptions options = configService.getInitOptionsNullable();
-        List<String> remoteBranches = GitBranchUtil.getRemoteBranches(project);
+        List<String> remoteBranches = GitBranchService.getRemoteBranches(project);
         List<String> languages = LanguageEnum.getAllLanguage();
 
         if (options != null) {

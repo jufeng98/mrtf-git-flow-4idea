@@ -7,7 +7,7 @@ import com.github.xiaolyuh.icons.GitFlowPlusIcons;
 import com.github.xiaolyuh.service.ConfigService;
 import com.github.xiaolyuh.service.GitFlowPlus;
 import com.github.xiaolyuh.ui.InitPluginDialog;
-import com.github.xiaolyuh.utils.GitBranchUtil;
+import com.github.xiaolyuh.service.GitBranchService;
 import com.github.xiaolyuh.utils.GsonUtils;
 import com.github.xiaolyuh.utils.NotifyUtil;
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
@@ -45,7 +45,7 @@ public class InitPluginAction extends AnAction {
             return;
         }
 
-        event.getPresentation().setEnabledAndVisible(GitBranchUtil.isGitProject(project));
+        event.getPresentation().setEnabledAndVisible(GitBranchService.isGitProject(project));
 
         ConfigService configService = ConfigService.Companion.getInstance(project);
 
@@ -62,7 +62,7 @@ public class InitPluginAction extends AnAction {
     public void actionPerformed(@NotNull AnActionEvent event) {
         final Project project = event.getProject();
         @SuppressWarnings("ConstantConditions")
-        GitRepository repository = GitBranchUtil.getCurrentRepository(project);
+        GitRepository repository = GitBranchService.getCurrentRepository(project);
         if (Objects.isNull(repository)) {
             return;
         }
@@ -83,7 +83,7 @@ public class InitPluginAction extends AnAction {
                 NotifyUtil.notifyGitCommand(event.getProject(), "=============================================");
 
                 // 校验主干分支是否存在
-                List<String> remoteBranches = GitBranchUtil.getRemoteBranches(project);
+                List<String> remoteBranches = GitBranchService.getRemoteBranches(project);
                 if (!remoteBranches.contains(initOptions.getMasterBranch())) {
                     String msg = I18n.getContent(I18nKey.INIT_PLUGIN_ACTION$NOT_EXIST_MASTER_INFO, initOptions.getMasterBranch());
                     NotifyUtil.notifyError(myProject, "Error", msg);

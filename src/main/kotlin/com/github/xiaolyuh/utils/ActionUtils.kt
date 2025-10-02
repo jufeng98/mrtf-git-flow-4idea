@@ -1,6 +1,7 @@
 package com.github.xiaolyuh.utils
 
 import com.github.xiaolyuh.service.ConfigService
+import com.github.xiaolyuh.service.GitBranchService
 import com.github.xiaolyuh.service.GitFlowPlus
 import com.intellij.openapi.actionSystem.AnActionEvent
 
@@ -27,7 +28,7 @@ object ActionUtils {
 
         val configService = ConfigService.getInstance(project)
 
-        val isInit = GitBranchUtil.isGitProject(project) && configService.isInit()
+        val isInit = GitBranchService.isGitProject(project) && configService.isInit()
         if (!isInit) {
             return false
         }

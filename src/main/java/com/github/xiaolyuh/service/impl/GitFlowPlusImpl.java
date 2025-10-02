@@ -9,7 +9,7 @@ import com.github.xiaolyuh.service.Git;
 import com.github.xiaolyuh.service.GitFlowPlus;
 import com.github.xiaolyuh.service.HttpClientService;
 import com.github.xiaolyuh.utils.CollectionUtils;
-import com.github.xiaolyuh.utils.GitBranchUtil;
+import com.github.xiaolyuh.service.GitBranchService;
 import com.github.xiaolyuh.utils.NotifyUtil;
 import com.github.xiaolyuh.utils.StringUtils;
 import com.github.xiaolyuh.vo.BranchVo;
@@ -113,7 +113,7 @@ public class GitFlowPlusImpl implements GitFlowPlus {
 
     @Override
     public String getCurrentBranch(@NotNull Project project) {
-        GitRepository repository = GitBranchUtil.getCurrentRepository(project);
+        GitRepository repository = GitBranchService.getCurrentRepository(project);
         //noinspection DataFlowIssue
         return repository.getCurrentBranch().getName();
     }
@@ -295,7 +295,7 @@ public class GitFlowPlusImpl implements GitFlowPlus {
             return mockLockFlag;
         }
 
-        return GitBranchUtil.getRemoteBranches(project).contains(Constants.LOCK_BRANCH_NAME);
+        return GitBranchService.getRemoteBranches(project).contains(Constants.LOCK_BRANCH_NAME);
     }
 
     @Override
@@ -386,8 +386,8 @@ public class GitFlowPlusImpl implements GitFlowPlus {
     private GitCommandResult checkTargetBranchIsExist(GitRepository repository, String
             targetBranch) {
         // 判断本地是否存在分支
-        if (!GitBranchUtil.getLocalBranches(repository.getProject()).contains(targetBranch)) {
-            if (GitBranchUtil.getRemoteBranches(repository.getProject()).contains(targetBranch)) {
+        if (!GitBranchService.getLocalBranches(repository.getProject()).contains(targetBranch)) {
+            if (GitBranchService.getRemoteBranches(repository.getProject()).contains(targetBranch)) {
                 return git.checkoutNewBranch(repository, targetBranch);
             } else {
                 ConfigService configService = ConfigService.Companion.getInstance(repository.getProject());

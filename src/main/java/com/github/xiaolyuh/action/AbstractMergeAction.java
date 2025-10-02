@@ -7,7 +7,7 @@ import com.github.xiaolyuh.service.ConfigService;
 import com.github.xiaolyuh.service.GitFlowPlus;
 import com.github.xiaolyuh.service.KubesphereService;
 import com.github.xiaolyuh.ui.ServiceDialog;
-import com.github.xiaolyuh.utils.GitBranchUtil;
+import com.github.xiaolyuh.service.GitBranchService;
 import com.github.xiaolyuh.utils.NotifyUtil;
 import com.github.xiaolyuh.utils.StringUtils;
 import com.github.xiaolyuh.valve.merge.Valve;
@@ -57,7 +57,7 @@ public abstract class AbstractMergeAction extends AnAction {
 
         ConfigService configService = ConfigService.Companion.getInstance(event.getProject());
 
-        boolean isInit = GitBranchUtil.isGitProject(event.getProject()) && configService.isInit();
+        boolean isInit = GitBranchService.isGitProject(event.getProject()) && configService.isInit();
         if (!isInit) {
             event.getPresentation().setEnabled(false);
             return;
@@ -102,7 +102,7 @@ public abstract class AbstractMergeAction extends AnAction {
         final boolean isStartTest = getClass() == StartTestAction.class;
         final boolean isStartTestSec = getClass() == StartTestSecAction.class;
 
-        final GitRepository repository = GitBranchUtil.getCurrentRepository(project);
+        final GitRepository repository = GitBranchService.getCurrentRepository(project);
         if (Objects.isNull(repository)) {
             return;
         }

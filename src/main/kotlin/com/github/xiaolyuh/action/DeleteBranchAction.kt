@@ -4,7 +4,7 @@ import com.github.xiaolyuh.i18n.I18n
 import com.github.xiaolyuh.icons.GitFlowPlusIcons
 import com.github.xiaolyuh.service.ConfigService.Companion.getInstance
 import com.github.xiaolyuh.ui.BranchDeleteDialog
-import com.github.xiaolyuh.utils.GitBranchUtil
+import com.github.xiaolyuh.service.GitBranchService
 import com.github.xiaolyuh.utils.NotifyUtil
 import com.github.xiaolyuh.valve.merge.ChangeFileValve
 import com.github.xiaolyuh.valve.merge.Valve
@@ -24,7 +24,7 @@ class DeleteBranchAction :
     AbstractMergeAction(I18n.nls("action.delete.txt"), I18n.nls("action.delete.desc"), GitFlowPlusIcons.deleteTag) {
 
     override fun update(event: AnActionEvent) {
-        event.presentation.isEnabled = GitBranchUtil.isGitProject(event.project)
+        event.presentation.isEnabled = GitBranchService.isGitProject(event.project)
     }
 
     override fun setEnabledAndText(event: AnActionEvent) {
@@ -32,7 +32,7 @@ class DeleteBranchAction :
 
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project!!
-        val repository = GitBranchUtil.getCurrentRepository(project)
+        val repository = GitBranchService.getCurrentRepository(project)
         if (gitFlowPlus.isExistChangeFile(project)) {
             return
         }

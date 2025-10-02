@@ -3,7 +3,7 @@ package com.github.xiaolyuh.ui;
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
 import com.github.xiaolyuh.service.GitFlowPlus;
-import com.github.xiaolyuh.utils.GitBranchUtil;
+import com.github.xiaolyuh.service.GitBranchService;
 import com.github.xiaolyuh.utils.StringUtils;
 import com.github.xiaolyuh.vo.TagOptions;
 import com.intellij.openapi.project.Project;
@@ -57,7 +57,7 @@ public class TagDialog extends DialogWrapper {
         if (!isMatch) {
             return new ValidationInfo(I18n.getContent(I18nKey.TAG_DIALOG$TAG_NAME_ILLEGAL), titleTextField);
         }
-        final GitRepository repository = GitBranchUtil.getCurrentRepository(project);
+        final GitRepository repository = GitBranchService.getCurrentRepository(project);
         if (GitFlowPlus.getInstance().isExistTag(repository, titleTextField.getText())) {
             return new ValidationInfo(I18n.getContent(I18nKey.TAG_DIALOG$TAG_NAME_EXIST), titleTextField);
         }

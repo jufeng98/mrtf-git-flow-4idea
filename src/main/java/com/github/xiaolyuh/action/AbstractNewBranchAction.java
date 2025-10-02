@@ -4,7 +4,7 @@ import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
 import com.github.xiaolyuh.service.ConfigService;
 import com.github.xiaolyuh.service.GitFlowPlus;
-import com.github.xiaolyuh.utils.GitBranchUtil;
+import com.github.xiaolyuh.service.GitBranchService;
 import com.github.xiaolyuh.utils.NotifyUtil;
 import com.github.xiaolyuh.utils.StringUtils;
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
@@ -43,7 +43,7 @@ public abstract class AbstractNewBranchAction extends AnAction {
 
         ConfigService configService = ConfigService.Companion.getInstance(project);
 
-        event.getPresentation().setEnabled(GitBranchUtil.isGitProject(project) && configService.isInit());
+        event.getPresentation().setEnabled(GitBranchService.isGitProject(project) && configService.isInit());
         setEnabledAndText(event);
     }
 
@@ -69,7 +69,7 @@ public abstract class AbstractNewBranchAction extends AnAction {
 
         // 获取开发分支完整名称
         final String newBranchName = featurePrefix + inputString;
-        @SuppressWarnings("ConstantConditions") final GitRepository repository = GitBranchUtil.getCurrentRepository(project);
+        @SuppressWarnings("ConstantConditions") final GitRepository repository = GitBranchService.getCurrentRepository(project);
         if (Objects.isNull(repository)) {
             return;
         }

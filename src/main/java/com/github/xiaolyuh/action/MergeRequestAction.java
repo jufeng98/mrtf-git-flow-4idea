@@ -7,7 +7,7 @@ import com.github.xiaolyuh.service.ConfigService;
 import com.github.xiaolyuh.service.GitFlowPlus;
 import com.github.xiaolyuh.ui.MergeRequestDialog;
 import com.github.xiaolyuh.utils.CollectionUtils;
-import com.github.xiaolyuh.utils.GitBranchUtil;
+import com.github.xiaolyuh.service.GitBranchService;
 import com.github.xiaolyuh.utils.NotifyUtil;
 import com.github.xiaolyuh.valve.merge.Valve;
 import com.github.xiaolyuh.vo.MergeRequestOptions;
@@ -50,7 +50,7 @@ public class MergeRequestAction extends AbstractMergeAction {
 
         ConfigService configService = ConfigService.Companion.getInstance(project);
         final String targetBranch = configService.getInitOptions().getTestBranch();
-        final GitRepository repository = GitBranchUtil.getCurrentRepository(project);
+        final GitRepository repository = GitBranchService.getCurrentRepository(project);
         if (Objects.isNull(repository)) {
             return;
         }
