@@ -3,10 +3,6 @@ package com.github.xiaolyuh.utils
 import com.github.xiaolyuh.service.ConfigService
 import com.github.xiaolyuh.service.GitFlowPlus
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.vcs.FileStatus
-import com.intellij.openapi.vcs.changes.Change
-import com.intellij.openapi.vcs.changes.ChangeListManager
 
 object ActionUtils {
 
@@ -36,6 +32,10 @@ object ActionUtils {
             return false
         }
 
+        if (configService.getInitOptions().testBranchSec.isNullOrBlank()) {
+            return false
+        }
+
         var gitFlowPlus = GitFlowPlus.getInstance()
 
         val currentBranch = gitFlowPlus.getCurrentBranch(project)
@@ -48,17 +48,7 @@ object ActionUtils {
         val isDevBranch = StringUtils.startsWith(currentBranch, featurePrefix)
                 || StringUtils.startsWith(currentBranch, hotfixPrefix)
 
-        return isDevBranch && !isConflicts(project) && !configService.getInitOptions().testBranchSec.isNullOrBlank()
-    }
-
-    private fun isConflicts(project: Project): Boolean {
-        val changes = ChangeListManager.getInstance(project).allChanges
-
-        if (changes.size > 1000) {
-            return true
-        }
-
-        return changes.stream().anyMatch { it: Change? -> it!!.fileStatus === FileStatus.MERGED_WITH_CONFLICTS }
+        return isDevBranch
     }
 
 }

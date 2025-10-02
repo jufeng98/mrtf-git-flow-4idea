@@ -1,5 +1,6 @@
 package com.github.xiaolyuh.utils;
 
+import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
 import git4idea.GitLocalBranch;
 import git4idea.GitReference;
@@ -11,7 +12,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -20,7 +20,14 @@ import java.util.stream.Collectors;
  * @author yuhao.wang3
  * @since 2020/3/17 15:16
  */
-public class GitBranchUtil {
+@Service(Service.Level.PROJECT)
+public final class GitBranchUtil {
+    private Boolean gitProject;
+    private GitRepository currentRepository;
+
+    public static GitBranchUtil getInstance(Project project) {
+        return project.getService(GitBranchUtil.class);
+    }
 
     /**
      * 获取远程分支名
@@ -31,12 +38,16 @@ public class GitBranchUtil {
     public static List<String> getRemoteBranches(Project project) {
         // 获取仓库名称
         List<GitRepository> gitRepositories = GitUtil.getRepositoryManager(project).getRepositories();
-        if (CollectionUtils.isNotEmpty(gitRepositories)) {
-            Collection<GitRemoteBranch> remoteBranches = gitRepositories.get(0).getBranches().getRemoteBranches();
-            return remoteBranches.parallelStream().map(GitRemoteBranch::getNameForRemoteOperations).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(gitRepositories)) {
+            return Collections.emptyList();
         }
 
-        return Collections.emptyList();
+        Collection<GitRemoteBranch> remoteBranches = gitRepositories.get(0).getBranches().getRemoteBranches();
+
+        return remoteBranches.parallelStream()
+                .map(GitRemoteBranch::getNameForRemoteOperations)
+                .collect(Collectors.toList());
+
     }
 
     /**
@@ -48,12 +59,15 @@ public class GitBranchUtil {
     public static List<String> getLocalBranches(Project project) {
         // 获取仓库名称
         List<GitRepository> gitRepositories = GitUtil.getRepositoryManager(project).getRepositories();
-        if (CollectionUtils.isNotEmpty(gitRepositories)) {
-            Collection<GitLocalBranch> localBranches = gitRepositories.get(0).getBranches().getLocalBranches();
-            return localBranches.parallelStream().map(GitReference::getName).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(gitRepositories)) {
+            return Collections.emptyList();
         }
 
-        return Collections.emptyList();
+        Collection<GitLocalBranch> localBranches = gitRepositories.get(0).getBranches().getLocalBranches();
+
+        return localBranches.parallelStream()
+                .map(GitReference::getName)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -63,11 +77,19 @@ public class GitBranchUtil {
      * @return boolean
      */
     public static boolean isGitProject(Project project) {
-        if (Objects.isNull(project)) {
-            return false;
+        GitBranchUtil gitBranchUtil = getInstance(project);
+
+        Boolean match = gitBranchUtil.gitProject;
+
+        if (match != null) {
+            return match;
         }
 
-        return CollectionUtils.isNotEmpty(GitUtil.getRepositoryManager(project).getRepositories());
+        match = CollectionUtils.isNotEmpty(GitUtil.getRepositoryManager(project).getRepositories());
+
+        gitBranchUtil.gitProject = match;
+
+        return match;
     }
 
     /**
@@ -76,6 +98,19 @@ public class GitBranchUtil {
      * @param project project
      */
     public static GitRepository getCurrentRepository(@NotNull Project project) {
-        return git4idea.branch.GitBranchUtil.getCurrentRepository(project);
+        GitBranchUtil gitBranchUtil = getInstance(project);
+
+        GitRepository currentRepository = gitBranchUtil.currentRepository;
+
+        if (currentRepository != null) {
+            return currentRepository;
+        }
+
+        //noinspection deprecation
+        currentRepository = git4idea.branch.GitBranchUtil.getCurrentRepository(project);
+
+        gitBranchUtil.currentRepository = currentRepository;
+
+        return currentRepository;
     }
 }

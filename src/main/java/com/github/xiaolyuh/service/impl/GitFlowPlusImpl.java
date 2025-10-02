@@ -7,9 +7,9 @@ import com.github.xiaolyuh.i18n.I18nKey;
 import com.github.xiaolyuh.service.ConfigService;
 import com.github.xiaolyuh.service.Git;
 import com.github.xiaolyuh.service.GitFlowPlus;
+import com.github.xiaolyuh.service.HttpClientService;
 import com.github.xiaolyuh.utils.CollectionUtils;
 import com.github.xiaolyuh.utils.GitBranchUtil;
-import com.github.xiaolyuh.service.HttpClientService;
 import com.github.xiaolyuh.utils.NotifyUtil;
 import com.github.xiaolyuh.utils.StringUtils;
 import com.github.xiaolyuh.vo.BranchVo;
@@ -42,14 +42,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.text.ParseException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.github.xiaolyuh.consts.Constants.DATE_PATTERN;
@@ -121,7 +114,8 @@ public class GitFlowPlusImpl implements GitFlowPlus {
     @Override
     public String getCurrentBranch(@NotNull Project project) {
         GitRepository repository = GitBranchUtil.getCurrentRepository(project);
-        return Objects.requireNonNull(repository.getCurrentBranch()).getName();
+        //noinspection DataFlowIssue
+        return repository.getCurrentBranch().getName();
     }
 
     @Override
@@ -334,13 +328,18 @@ public class GitFlowPlusImpl implements GitFlowPlus {
     @Override
     public boolean isExistChangeFile(@NotNull Project project) {
         Collection<Change> changes = ChangeListManager.getInstance(project).getAllChanges();
-        if (CollectionUtils.isNotEmpty(changes)) {
-            StringBuffer builder = new StringBuffer();
-            changes.parallelStream().forEach(change -> builder.append(change.toString()).append("\r\n"));
-            NotifyUtil.notifyError(project, "Error", I18n.getContent(I18nKey.CHANGE_FILE_VALVE$FILE_NOT_SUBMITTED, builder));
-            return true;
+        if (CollectionUtils.isEmpty(changes)) {
+            return false;
         }
-        return false;
+
+        String desc = changes.stream()
+                .map(Change::toString)
+                .limit(8)
+                .collect(Collectors.joining("、"));
+
+        NotifyUtil.notifyError(project, "Error", I18n.getContent(I18nKey.CHANGE_FILE_VALVE$FILE_NOT_SUBMITTED, desc));
+
+        return true;
     }
 
 

@@ -22,9 +22,6 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.IconLoader;
-import com.intellij.openapi.vcs.FileStatus;
-import com.intellij.openapi.vcs.changes.Change;
-import com.intellij.openapi.vcs.changes.ChangeListManager;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.ReflectionUtil;
 import git4idea.repo.GitRepository;
@@ -32,7 +29,6 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -78,7 +74,7 @@ public abstract class AbstractMergeAction extends AnAction {
         boolean isDevBranch = StringUtils.startsWith(currentBranch, featurePrefix)
                 || StringUtils.startsWith(currentBranch, hotfixPrefix);
 
-        event.getPresentation().setEnabled(isDevBranch && !isConflicts(event.getProject()));
+        event.getPresentation().setEnabled(isDevBranch);
 
         setEnabledAndText(event);
     }
@@ -92,22 +88,6 @@ public abstract class AbstractMergeAction extends AnAction {
      * 设置是否启用和Text
      */
     protected abstract void setEnabledAndText(AnActionEvent event);
-
-    /**
-     * 代码是否存在冲突
-     *
-     * @param project project
-     * @return 是=true
-     */
-    boolean isConflicts(@NotNull Project project) {
-        Collection<Change> changes = ChangeListManager.getInstance(project).getAllChanges();
-
-        if (changes.size() > 1000) {
-            return true;
-        }
-
-        return changes.stream().anyMatch(it -> it.getFileStatus() == FileStatus.MERGED_WITH_CONFLICTS);
-    }
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
