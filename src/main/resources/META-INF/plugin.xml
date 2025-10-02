@@ -89,11 +89,9 @@
         <statusBarWidgetFactory implementation="com.github.xiaolyuh.ui.GitFlowPlusStatusBarWidgetFactory"
                                 id="GitFlowPlusStatusBarWidgetFactory" order="last"/>
 
-        <!-- Add your extensions here -->
         <applicationService serviceInterface="com.github.xiaolyuh.service.GitFlowPlus"
                             serviceImplementation="com.github.xiaolyuh.service.impl.GitFlowPlusImpl"/>
 
-        <!-- Add your extensions here -->
         <applicationService serviceInterface="com.github.xiaolyuh.service.Git"
                             serviceImplementation="com.github.xiaolyuh.service.impl.GitImpl"/>
 
@@ -150,9 +148,11 @@
             <action id="GitFlowPlus.StartTestAction" class="com.github.xiaolyuh.action.StartTestAction"/>
             <action id="GitFlowPlus.StartTestSecAction" class="com.github.xiaolyuh.action.StartTestSecAction" />
             <separator/>
-
-            <!--帮助-->
-            <action id="GitFlowPlus.HelpAction" class="com.github.xiaolyuh.action.HelpAction"/>
         </group>
+
+        <!--帮助-->
+        <action id="GitFlowPlus.HelpAction" class="com.github.xiaolyuh.action.HelpAction">
+            <add-to-group group-id="HelpMenu" relative-to-action="About" anchor="after"/>
+        </action>
     </actions>
 </idea-plugin>
