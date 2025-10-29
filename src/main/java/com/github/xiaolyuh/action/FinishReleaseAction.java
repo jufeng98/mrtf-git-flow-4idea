@@ -10,6 +10,7 @@ import com.github.xiaolyuh.valve.merge.MergeValve;
 import com.github.xiaolyuh.valve.merge.UnLockCheckValve;
 import com.github.xiaolyuh.valve.merge.UnLockValve;
 import com.github.xiaolyuh.valve.merge.Valve;
+import com.github.xiaolyuh.vo.TagOptions;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
@@ -41,14 +42,24 @@ public class FinishReleaseAction extends AbstractMergeAction {
     public void actionPerformed(@NotNull AnActionEvent event) {
         Project project = event.getProject();
 
-        TagDialog tagDialog = new TagDialog(project);
-        tagDialog.show();
+        @SuppressWarnings("DataFlowIssue")
+        ConfigService configService = ConfigService.Companion.getInstance(project);
 
-        if (!tagDialog.isOK()) {
-            return;
+        TagOptions tagOptions;
+        if (configService.getInitOptions().isNeedTag()) {
+            TagDialog tagDialog = new TagDialog(project);
+            tagDialog.show();
+
+            if (!tagDialog.isOK()) {
+                return;
+            }
+
+            tagOptions = tagDialog.getTagOptions();
+        } else {
+            tagOptions = new TagOptions();
         }
 
-        super.actionPerformed(event, tagDialog.getTagOptions());
+        super.actionPerformed(event, tagOptions);
     }
 
     @Override

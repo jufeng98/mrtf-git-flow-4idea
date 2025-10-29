@@ -53,6 +53,7 @@ public class InitOptions {
      */
     private boolean releaseFinishIsDeleteFeature;
 
+    private boolean needTag;
     /**
      * 钉钉Token
      */
@@ -145,6 +146,14 @@ public class InitOptions {
 
     public void setReleaseFinishIsDeleteFeature(boolean releaseFinishIsDeleteFeature) {
         this.releaseFinishIsDeleteFeature = releaseFinishIsDeleteFeature;
+    }
+
+    public boolean isNeedTag() {
+        return needTag;
+    }
+
+    public void setNeedTag(boolean needTag) {
+        this.needTag = needTag;
     }
 
     public String getDingtalkToken() {

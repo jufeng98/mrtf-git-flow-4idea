@@ -26,6 +26,7 @@ import com.intellij.util.ReflectionUtil;
 import git4idea.repo.GitRepository;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.util.List;
@@ -83,7 +84,7 @@ public abstract class AbstractMergeAction extends AnAction {
         actionPerformed(event, null);
     }
 
-    void actionPerformed(@NotNull AnActionEvent event, TagOptions tagOptions) {
+    void actionPerformed(@NotNull AnActionEvent event, @Nullable TagOptions tagOptions) {
         final Project project = event.getProject();
         @SuppressWarnings("ConstantConditions") final String currentBranch = gitFlowPlus.getCurrentBranch(project);
         final String targetBranch = getTargetBranch(project);

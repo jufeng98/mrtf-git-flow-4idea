@@ -6,6 +6,7 @@ import com.github.xiaolyuh.service.Git;
 import com.github.xiaolyuh.utils.CollectionUtils;
 import com.github.xiaolyuh.utils.NotifyUtil;
 import com.github.xiaolyuh.vo.MergeRequestOptions;
+import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.util.Key;
 import git4idea.commands.GitCommand;
@@ -115,7 +116,16 @@ public class GitImpl implements Git {
         h.setUrls(remote.getUrls());
         h.addParameters("origin");
         h.addParameters(localBranchName + ":" + remoteBranchName);
-        h.addParameters("--tag");
+
+        Boolean needTag = ReadAction.compute(() -> {
+            ConfigService configService = ConfigService.Companion.getInstance(repository.getProject());
+            return configService.getInitOptions().isNeedTag();
+        });
+
+        if (needTag) {
+            h.addParameters("--tag");
+        }
+
         if (isNewBranch) {
             h.addParameters("--set-upstream");
         }

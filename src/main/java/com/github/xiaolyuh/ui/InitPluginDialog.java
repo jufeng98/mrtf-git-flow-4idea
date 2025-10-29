@@ -40,6 +40,7 @@ public class InitPluginDialog extends DialogWrapper {
     private JTextField fsWebHookUrlTextField;
     private JCheckBox releaseFinishIsDeleteReleaseCheckBox;
     private JCheckBox releaseFinishIsDeleteFeatureCheckBox;
+    private JCheckBox needTagCheckBox;
     private JComboBox<String> languageComboBox;
     private JLabel specialBranchConfigLabel;
     private JLabel mastBranchLabel;
@@ -74,6 +75,7 @@ public class InitPluginDialog extends DialogWrapper {
         branchOptionsConfig.setText(I18n.getContent(I18nKey.INIT_PLUGIN_DIALOG$BRANCH_OPTIONS_CONFIG, language));
         releaseFinishIsDeleteReleaseCheckBox.setText(I18n.getContent(I18nKey.INIT_PLUGIN_DIALOG$RELEASE_FINISH_DELETE_RELEASE, language));
         releaseFinishIsDeleteFeatureCheckBox.setText(I18n.getContent(I18nKey.INIT_PLUGIN_DIALOG$RELEASE_FINISH_DELETE_FEATURE, language));
+        needTagCheckBox.setText(I18n.getContent("need.tag", language));
         branchPrefixConfigLabel.setText(I18n.getContent(I18nKey.INIT_PLUGIN_DIALOG$BRANCH_PREFIX_CONFIG_LABEL, language));
         featureBranchPrefixLabel.setText(I18n.getContent(I18nKey.INIT_PLUGIN_DIALOG$FEATURE_BRANCH_PREFIX_LABEL, language));
         hotfixBranchPrefixLabel.setText(I18n.getContent(I18nKey.INIT_PLUGIN_DIALOG$HOTFIX_BRANCH_PREFIX_LABEL, language));
@@ -92,6 +94,7 @@ public class InitPluginDialog extends DialogWrapper {
         options.setTagPrefix(tagPrefixTextField.getText());
         options.setReleaseFinishIsDeleteFeature(releaseFinishIsDeleteFeatureCheckBox.isSelected());
         options.setReleaseFinishIsDeleteRelease(releaseFinishIsDeleteReleaseCheckBox.isSelected());
+        options.setNeedTag(needTagCheckBox.isSelected());
         options.setDingtalkToken(dingtalkTokenTextField.getText());
         options.setKubesphereUsername(kubesphereUsernameTextField.getText());
         options.setKubespherePassword(String.valueOf(kubespherePasswordTextField.getPassword()));
@@ -124,6 +127,7 @@ public class InitPluginDialog extends DialogWrapper {
             tagPrefixTextField.setText(options.getTagPrefix());
             releaseFinishIsDeleteReleaseCheckBox.setSelected(false);
             releaseFinishIsDeleteFeatureCheckBox.setSelected(false);
+            needTagCheckBox.setSelected(options.isNeedTag());
             dingtalkTokenTextField.setText(options.getDingtalkToken());
             kubesphereUsernameTextField.setText(options.getKubesphereUsername());
             kubespherePasswordTextField.setText(options.getKubespherePassword());

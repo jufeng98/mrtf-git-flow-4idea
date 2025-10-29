@@ -247,7 +247,7 @@ public class GitFlowPlusImpl implements GitFlowPlus {
         }
 
         // 发布完成打tag
-        if (Objects.nonNull(tagOptions)) {
+        if (Objects.nonNull(tagOptions) && tagOptions.getTagName() != null) {
             result = git.createNewTag(repository, tagOptions.getTagName(), tagOptions.getMessage());
             if (!result.success()) {
                 return result;
