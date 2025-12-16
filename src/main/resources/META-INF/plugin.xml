@@ -57,6 +57,10 @@
     <change-notes>
         <![CDATA[
             <ul>
+                <li><b>2.3.8</b></li>
+                <ul>
+                    <li>支持 253</li>
+                </ul>
                 <li><b>2.3.0</b></li>
                 <ul>
                     <li>bug 修复及功能优化</li>
