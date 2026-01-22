@@ -119,7 +119,7 @@ public class GitImpl implements Git {
 
         Boolean needTag = ReadAction.compute(() -> {
             ConfigService configService = ConfigService.Companion.getInstance(repository.getProject());
-            return configService.getInitOptions().isNeedTag();
+            return configService.isInit() && configService.getInitOptions().isNeedTag();
         });
 
         if (needTag) {
