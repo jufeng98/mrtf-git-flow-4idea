@@ -48,14 +48,15 @@ public abstract class AbstractMergeAction extends AnAction {
 
     @Override
     public void update(@NotNull AnActionEvent event) {
-        if (Objects.isNull(event.getProject())) {
+        Project project = event.getProject();
+        if (Objects.isNull(project)) {
             event.getPresentation().setEnabled(false);
             return;
         }
 
-        ConfigService configService = ConfigService.Companion.getInstance(event.getProject());
+        ConfigService configService = ConfigService.Companion.getInstance(project);
 
-        boolean isInit = GitBranchService.isGitProject(event.getProject()) && configService.isInit();
+        boolean isInit = GitBranchService.isGitProject(project) && configService.isInit();
         if (!isInit) {
             event.getPresentation().setEnabled(false);
             return;
