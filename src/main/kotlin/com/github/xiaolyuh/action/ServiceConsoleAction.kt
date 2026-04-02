@@ -27,7 +27,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils
  */
 @Suppress("ActionPresentationInstantiatedInCtor")
 class ServiceConsoleAction :
-    AnAction(I18n.nls("action.console.txt"), I18n.nls("action.console.desc"), GitFlowPlusIcons.show),
+    AnAction(I18n.nls("action.console.txt"), I18n.nls("action.console.desc"), GitFlowPlusIcons.console),
     DumbAware {
     private var jcefInitialed = false
 

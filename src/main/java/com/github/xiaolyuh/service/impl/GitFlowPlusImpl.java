@@ -4,18 +4,9 @@ import com.github.xiaolyuh.config.InitOptions;
 import com.github.xiaolyuh.consts.Constants;
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
-import com.github.xiaolyuh.service.ConfigService;
-import com.github.xiaolyuh.service.Git;
-import com.github.xiaolyuh.service.GitFlowPlus;
-import com.github.xiaolyuh.service.HttpClientService;
-import com.github.xiaolyuh.utils.CollectionUtils;
-import com.github.xiaolyuh.service.GitBranchService;
-import com.github.xiaolyuh.utils.NotifyUtil;
-import com.github.xiaolyuh.utils.StringUtils;
-import com.github.xiaolyuh.vo.BranchVo;
-import com.github.xiaolyuh.vo.DingtalkMessage;
-import com.github.xiaolyuh.vo.MergeRequestOptions;
-import com.github.xiaolyuh.vo.TagOptions;
+import com.github.xiaolyuh.service.*;
+import com.github.xiaolyuh.utils.*;
+import com.github.xiaolyuh.vo.*;
 import com.google.common.collect.Lists;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.progress.ProcessCanceledException;
@@ -32,9 +23,7 @@ import git4idea.i18n.GitBundle;
 import git4idea.merge.GitMergeCommittingConflictResolver;
 import git4idea.merge.GitMerger;
 import git4idea.repo.GitRepository;
-import git4idea.util.GitFileUtils;
-import git4idea.util.GitUIUtil;
-import git4idea.util.StringScanner;
+import git4idea.util.*;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.jetbrains.annotations.NotNull;
@@ -46,6 +35,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.github.xiaolyuh.consts.Constants.DATE_PATTERN;
+import static com.github.xiaolyuh.consts.Constants.DATE_PATTERN_FULL;
 
 /**
  * @author yuhao.wang3
@@ -91,6 +81,12 @@ public class GitFlowPlusImpl implements GitFlowPlus {
         git.checkout(repository, checkoutBranchName);
         git.deleteRemoteBranch(repository, branchName);
         return git.deleteLocalBranch(repository, branchName);
+    }
+
+    @Override
+    public GitCommandResult deleteTag(@NotNull GitRepository repository, @NotNull String tagName) {
+        git.deleteRemoteTag(repository, tagName);
+        return git.deleteLocalTag(repository, tagName);
     }
 
     public void deleteBranch(@NotNull GitRepository repository,
@@ -169,20 +165,43 @@ public class GitFlowPlusImpl implements GitFlowPlus {
                     } else {
                         return !msg[2].endsWith("_mr");
                     }
-                }).map((row) -> {
+                })
+                .map((row) -> {
                     String[] msg = row.split("@@@");
                     BranchVo branchVo = new BranchVo();
                     try {
-                        branchVo.setLastCommitDate(DateUtils.parseDate(msg[0], DATE_PATTERN));
+                        branchVo.setLastCommitDate(DateUtils.parseDate(msg[0], DATE_PATTERN_FULL));
                     } catch (ParseException e) {
                         throw new RuntimeException(e);
                     }
                     branchVo.setCreateUser(msg[1]);
                     branchVo.setBranch(msg[2]);
                     return branchVo;
-                }).distinct()
+                })
+                .distinct()
                 .sorted(Comparator.comparing(BranchVo::getLastCommitDate))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TagVo> getTagDetailList(GitRepository repository) {
+        GitCommandResult gitCommandResult = git.tagDetailList(repository);
+        List<String> output = gitCommandResult.getOutput();
+        return output.stream()
+                .map(it -> {
+                    TagVo tagVo = new TagVo();
+                    String[] split = it.split("\\|");
+                    tagVo.setTag(split[0]);
+                    tagVo.setCreateUser(split[1]);
+                    try {
+                        tagVo.setCreateDate(DateUtils.parseDate(split[2], "yyyy-MM-dd HH:mm:ss"));
+                    } catch (ParseException e) {
+                        throw new RuntimeException(e);
+                    }
+                    return tagVo;
+                })
+                .sorted(Comparator.comparing(TagVo::getCreateDate))
+                .toList();
     }
 
     @Override

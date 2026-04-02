@@ -21,7 +21,7 @@ import git4idea.repo.GitRepository
  */
 @Suppress("ActionPresentationInstantiatedInCtor")
 class DeleteBranchAction :
-    AbstractMergeAction(I18n.nls("action.delete.txt"), I18n.nls("action.delete.desc"), GitFlowPlusIcons.deleteTag) {
+    AbstractMergeAction(I18n.nls("action.delete.txt"), I18n.nls("action.delete.desc"), GitFlowPlusIcons.deleteBlack) {
 
     override fun update(event: AnActionEvent) {
         event.presentation.isEnabled = GitBranchService.isGitProject(event.project)
@@ -42,17 +42,19 @@ class DeleteBranchAction :
             return
         }
 
+        val deleteBranchOptions = branchDeleteDialog.deleteBranchOptions
+
         val flag = Messages.showOkCancelDialog(
             project,
-            I18n.getContent("DeleteBranchAction.confirm"), I18n.getContent("DeleteBranchAction.text"),
-            I18n.getContent("OkText"), I18n.getContent("CancelText"),
+            I18n.getContent("DeleteBranchAction.confirm", deleteBranchOptions.branches.size),
+            I18n.getContent("DeleteBranchAction.text"),
+            I18n.getContent("OkText"),
+            I18n.getContent("CancelText"),
             GitFlowPlusIcons.warning
         )
         if (flag != 0) {
             return
         }
-
-        val deleteBranchOptions = branchDeleteDialog.deleteBranchOptions
 
         val tip = I18n.getContent("deleting.branches", deleteBranchOptions.branches.size)
         object : Task.Backgroundable(project, tip, false) {

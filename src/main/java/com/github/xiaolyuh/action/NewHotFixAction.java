@@ -26,7 +26,7 @@ public class NewHotFixAction extends AbstractNewBranchAction {
 
     @SuppressWarnings("ActionPresentationInstantiatedInCtor")
     public NewHotFixAction() {
-        super(I18n.nls("action.hotfix.txt"), I18n.nls("action.hotfix.desc"), GitFlowPlusIcons.INSTANCE.getQuickfixBulb());
+        super(I18n.nls("action.hotfix.txt"), I18n.nls("action.hotfix.desc"), GitFlowPlusIcons.INSTANCE.getQuickfixOffBulb());
     }
 
     @Override

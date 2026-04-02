@@ -33,7 +33,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils
  */
 @Suppress("ActionPresentationInstantiatedInCtor")
 class ServiceLogSecAction :
-    AnAction(I18n.nls("action.log.txt") + "(Sec)", I18n.nls("action.log.desc") + "(Sec)", GitFlowPlusIcons.show),
+    AnAction(I18n.nls("action.log.txt") + "(Sec)", I18n.nls("action.log.desc") + "(Sec)", GitFlowPlusIcons.mainChangelog),
     DumbAware {
 
     override fun update(e: AnActionEvent) {

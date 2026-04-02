@@ -104,12 +104,12 @@ class HttpClientService(private val project: Project) {
         builder: HttpRequest.Builder, headers: MutableMap<String, String>?, resType: Class<T>,
     ): T {
         val client = HttpClient.newBuilder()
-            .connectTimeout(Duration.ofSeconds(6))
+            .connectTimeout(Duration.ofSeconds(12))
             .build()
 
         headers?.forEach { (name, value) -> builder.setHeader(name, value) }
 
-        val request = builder.timeout(Duration.ofSeconds(6)).build()
+        val request = builder.timeout(Duration.ofSeconds(12)).build()
 
         @Suppress("UNCHECKED_CAST")
         val response = if (resType == ByteArray::class.java) {

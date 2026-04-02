@@ -13,7 +13,7 @@ object GitFlowPlusIcons {
     val show = getIcon("/actions/show.svg", GitFlowPlusIcons::class.java)
     val config = getIcon("/icons/config.svg", GitFlowPlusIcons::class.java)
     val feature = getIcon("/icons/feature.svg", GitFlowPlusIcons::class.java)
-    val quickfixBulb = getIcon("/actions/quickfixBulb.svg", GitFlowPlusIcons::class.java)
+    val quickfixOffBulb = getIcon("/actions/quickfixOffBulb.svg", GitFlowPlusIcons::class.java)
     val test = getIcon("/icons/test.svg", GitFlowPlusIcons::class.java)
     val release = getIcon("/icons/release.svg", GitFlowPlusIcons::class.java)
     val mergeToTest = getIcon("/icons/mergeToTest.svg", GitFlowPlusIcons::class.java)
@@ -22,5 +22,11 @@ object GitFlowPlusIcons {
     val finished = getIcon("/icons/finished.svg", GitFlowPlusIcons::class.java)
     val failure = getIcon("/icons/failure.svg", GitFlowPlusIcons::class.java)
     val help = getIcon("/icons/help.svg", GitFlowPlusIcons::class.java)
+    val console = getIcon("/icons/console.svg", GitFlowPlusIcons::class.java)
+    val consoleJupyter = getIcon("/icons/consoleJupyter.svg", GitFlowPlusIcons::class.java)
+    val changelog = getIcon("/icons/changelog.svg", GitFlowPlusIcons::class.java)
+    val mainChangelog = getIcon("/icons/mainChangelog.svg", GitFlowPlusIcons::class.java)
+    val rebuild = getIcon("/icons/rebuild.svg", GitFlowPlusIcons::class.java)
+    val deleteBlack = getIcon("/icons/delete_black.svg", GitFlowPlusIcons::class.java)
 
 }

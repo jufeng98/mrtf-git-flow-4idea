@@ -100,6 +100,8 @@ public interface Git {
      */
     GitCommandResult deleteRemoteBranch(@NotNull GitRepository repository, @Nullable String branchName);
 
+    GitCommandResult deleteRemoteTag(@NotNull GitRepository repository, @Nullable String tagName);
+
     /**
      * 删除本地分支 git branch -D dev
      *
@@ -156,6 +158,8 @@ public interface Git {
      */
     GitCommandResult tagList(@NotNull GitRepository repository);
 
+    GitCommandResult tagDetailList(@NotNull GitRepository repository);
+
     /**
      * git fetch origin
      *
@@ -199,4 +203,6 @@ public interface Git {
      * @param mergeRequestOptions merge request参数
      */
     GitCommandResult mergeRequest(GitRepository repository, String sourceBranch, String targetBranch, MergeRequestOptions mergeRequestOptions);
+
+    GitCommandResult deleteLocalTag(@NotNull GitRepository repository, @NotNull String tagName);
 }

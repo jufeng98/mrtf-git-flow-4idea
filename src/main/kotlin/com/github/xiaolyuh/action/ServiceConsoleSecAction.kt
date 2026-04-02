@@ -30,7 +30,7 @@ class ServiceConsoleSecAction :
     AnAction(
         I18n.nls("action.console.txt") + "(Sec)",
         I18n.nls("action.console.desc") + "(Sec)",
-        GitFlowPlusIcons.show
+        GitFlowPlusIcons.consoleJupyter
     ),
     DumbAware {
     private var jcefInitialed = false

@@ -2,6 +2,7 @@ package com.github.xiaolyuh.action;
 
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
+import com.github.xiaolyuh.icons.GitFlowPlusIcons;
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
@@ -14,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 public class RebuildActionGroup extends DefaultActionGroup {
 
     public RebuildActionGroup() {
-        super(I18n.nls("action.group.txt"), I18n.nls("action.group.txt"), null);
+        super(I18n.nls("action.group.txt"), I18n.nls("action.group.txt"), GitFlowPlusIcons.INSTANCE.getRebuild());
     }
 
     @Override

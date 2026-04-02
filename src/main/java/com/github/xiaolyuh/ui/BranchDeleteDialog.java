@@ -8,34 +8,31 @@ import com.github.xiaolyuh.utils.StringUtils;
 import com.github.xiaolyuh.vo.BranchVo;
 import com.github.xiaolyuh.vo.DeleteBranchOptions;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.ProgressManager;
-import com.intellij.openapi.progress.Task;
+import com.intellij.openapi.progress.*;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import git4idea.repo.GitRepository;
 import org.apache.commons.lang3.time.DateFormatUtils;
+import org.jdesktop.swingx.combobox.ListComboBoxModel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
+import javax.swing.table.*;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.github.xiaolyuh.consts.Constants.DATE_PATTERN;
+import static com.github.xiaolyuh.consts.Constants.DATE_PATTERN_FULL;
 
 /**
  * @author yudong
  */
 public class BranchDeleteDialog extends DialogWrapper {
+    private static final String[] COLUMN_NAMES = I18n.getContent("branch.column.name").split(",");
+    private static final List<String> BOX_LIST_NAMES = Arrays.stream(I18n.getContent("branch.list").split(",")).toList();
     private final DeleteBranchOptions deleteBranchOptions;
     private final GitFlowPlus gitFlowPlus;
-    private static final String[] COLUMN_NAMES = {"序号", "最后一次提交时间", "分支名称", "创建人"};
     private static List<BranchVo> branchVos;
 
     private JPanel mainPanel;
@@ -48,6 +45,10 @@ public class BranchDeleteDialog extends DialogWrapper {
 
     public BranchDeleteDialog(GitRepository repository) {
         super(repository.getProject(), true);
+
+        ListComboBoxModel<String> model = new ListComboBoxModel<>(BOX_LIST_NAMES);
+        //noinspection unchecked
+        branchModel.setModel(model);
 
         deleteBranchOptions = new DeleteBranchOptions();
 
@@ -71,11 +72,10 @@ public class BranchDeleteDialog extends DialogWrapper {
 
                 List<BranchVo> branchVoList = getBranchListFiltered(repository);
 
-                String selectedItem = (String) branchModel.getSelectedItem();
+                int selectedIdx = branchModel.getSelectedIndex();
 
-                //noinspection DataFlowIssue
-                switch (selectedItem) {
-                    case "已上线分支":
+                switch (selectedIdx) {
+                    case 0:
                         List<String> mergedBranches = gitFlowPlus.getMergedBranchList(repository);
 
                         branchVoList = branchVoList.stream()
@@ -83,7 +83,7 @@ public class BranchDeleteDialog extends DialogWrapper {
                                 .collect(Collectors.toList());
 
                         break;
-                    case "全部开发分支":
+                    case 1:
                         branchVoList = branchVoList.stream()
                                 .filter((branchVo) -> {
                                     if (!configService.isInit()) {
@@ -121,7 +121,7 @@ public class BranchDeleteDialog extends DialogWrapper {
             branchVo.setId(i);
             rowData[i][0] = i + 1;
 
-            rowData[i][1] = DateFormatUtils.format(branchVo.getLastCommitDate(), DATE_PATTERN);
+            rowData[i][1] = DateFormatUtils.format(branchVo.getLastCommitDate(), DATE_PATTERN_FULL);
             rowData[i][2] = branchVo.getBranch();
             rowData[i][3] = branchVo.getCreateUser();
         }
@@ -134,6 +134,13 @@ public class BranchDeleteDialog extends DialogWrapper {
         };
 
         branchTable.setModel(dataModel);
+
+        TableColumnModel columnModel = branchTable.getColumnModel();
+        int width = 80;
+        columnModel.getColumn(0).setWidth(width);
+        columnModel.getColumn(0).setPreferredWidth(width);
+        columnModel.getColumn(0).setMaxWidth(width);
+
         branchTable.updateUI();
     }
 

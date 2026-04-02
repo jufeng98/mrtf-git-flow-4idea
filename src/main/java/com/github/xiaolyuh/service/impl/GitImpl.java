@@ -150,10 +150,31 @@ public class GitImpl implements Git {
     }
 
     @Override
+    public GitCommandResult deleteRemoteTag(@NotNull GitRepository repository, @Nullable String tagName) {
+        GitRemote remote = getDefaultRemote(repository);
+        GitLineHandler h = new GitLineHandler(repository.getProject(), repository.getRoot(), GitCommand.PUSH);
+        h.setSilent(false);
+        h.setStdoutSuppressed(false);
+        h.setUrls(remote.getUrls());
+        h.addParameters("origin");
+        h.addParameters("--delete");
+        h.addParameters(tagName);
+
+        NotifyUtil.notifyGitCommand(repository.getProject(), h.printableCommandLine());
+        return git.runCommand(h);
+    }
+
+    @Override
     public GitCommandResult deleteLocalBranch(@NotNull GitRepository repository, @NotNull String branchName) {
         // 删除本地分支
         NotifyUtil.notifyGitCommand(repository.getProject(), String.format("git -c core.quotepath=false -c log.showSignature=false branch -D %s", branchName));
         return git.branchDelete(repository, branchName, true);
+    }
+
+    @Override
+    public GitCommandResult deleteLocalTag(@NotNull GitRepository repository, @NotNull String tagName) {
+        NotifyUtil.notifyGitCommand(repository.getProject(), String.format("git -c core.quotepath=false -c log.showSignature=false tag -d %s", tagName));
+        return git.deleteTag(repository, tagName);
     }
 
     @Override
@@ -213,7 +234,7 @@ public class GitImpl implements Git {
         h.setUrls(remote.getUrls());
         h.addParameters("-a");
         h.addParameters("--sort", "committerdate");
-        h.addParameters("--format", "%(committerdate:short)@@@%(authorname)@@@%(refname:short)");
+        h.addParameters("--format", "%(committerdate:format:%Y-%m-%d %H:%M:%S)@@@%(authorname)@@@%(refname:short)");
         NotifyUtil.notifyGitCommand(repository.getProject(), h.printableCommandLine());
         return git.runCommand(h);
     }
@@ -251,6 +272,20 @@ public class GitImpl implements Git {
     @Override
     public GitCommandResult tagList(@NotNull GitRepository repository) {
         GitLineHandler h = new GitLineHandler(repository.getProject(), repository.getRoot(), GitCommand.TAG);
+        h.setSilent(true);
+        NotifyUtil.notifyGitCommand(repository.getProject(), h.printableCommandLine());
+
+        return ProgressManager.getInstance()
+                .runProcessWithProgressSynchronously(() -> git.runCommand(h),
+                        GitBundle.message("tag.getting.existing.tags"),
+                        false,
+                        repository.getProject());
+    }
+
+    @Override
+    public GitCommandResult tagDetailList(@NotNull GitRepository repository) {
+        GitLineHandler h = new GitLineHandler(repository.getProject(), repository.getRoot(), GitCommand.TAG);
+        h.addParameters("--format", "%(refname:short)|%(taggername)|%(creatordate:format:%Y-%m-%d %H:%M:%S)");
         h.setSilent(true);
         NotifyUtil.notifyGitCommand(repository.getProject(), h.printableCommandLine());
 

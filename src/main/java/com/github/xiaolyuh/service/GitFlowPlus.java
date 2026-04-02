@@ -1,8 +1,6 @@
 package com.github.xiaolyuh.service;
 
-import com.github.xiaolyuh.vo.BranchVo;
-import com.github.xiaolyuh.vo.MergeRequestOptions;
-import com.github.xiaolyuh.vo.TagOptions;
+import com.github.xiaolyuh.vo.*;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import git4idea.commands.GitCommandResult;
@@ -71,6 +69,9 @@ public interface GitFlowPlus {
                                   @Nullable String checkoutBranchName,
                                   @Nullable String branchName);
 
+    GitCommandResult deleteTag(@NotNull GitRepository repository,
+                               @NotNull String tagName);
+
     /**
      * 删除分支
      *
@@ -124,6 +125,8 @@ public interface GitFlowPlus {
      * 获取分支列表
      */
     List<BranchVo> getBranchList(GitRepository repository);
+
+    List<TagVo> getTagDetailList(GitRepository repository);
 
     /**
      * 获取Merge过的分支列表
