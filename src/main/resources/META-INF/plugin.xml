@@ -57,6 +57,12 @@
     <change-notes>
         <![CDATA[
             <ul>
+                <li><b>2.4.2</b></li>
+                <ul>
+                    <li>新增批量删除Tag功能</li>
+                    <li>界面优化</li>
+                    <li>bug修复</li>
+                </ul>
                 <li><b>2.3.8</b></li>
                 <ul>
                     <li>支持 253</li>
@@ -140,6 +146,7 @@
             <separator/>
 
             <action id="GitFlowPlus.DeleteBranchAction" class="com.github.xiaolyuh.action.DeleteBranchAction"/>
+            <action id="GitFlowPlus.DeleteTagAction" class="com.github.xiaolyuh.action.DeleteTagAction"/>
             <separator/>
 
             <!--发布流程-->
