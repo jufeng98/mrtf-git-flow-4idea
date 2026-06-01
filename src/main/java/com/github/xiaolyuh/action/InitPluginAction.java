@@ -121,7 +121,6 @@ public class InitPluginAction extends AnAction {
 
                 ConfigService configService = ConfigService.Companion.getInstance(project);
                 configService.saveKubesphereUser(initOptions.getKubesphereUsername(), initOptions.getKubespherePassword());
-                configService.saveFsWebHookUrl(initOptions.getFsWebHookUrl());
 
                 // 存储配置
                 String configJson = GsonUtils.INSTANCE.getGson().toJson(initOptions);

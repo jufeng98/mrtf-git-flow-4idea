@@ -1,5 +1,6 @@
 package com.github.xiaolyuh.service
 
+import com.github.xiaolyuh.exception.BizException
 import com.github.xiaolyuh.utils.GsonUtils.gson
 import com.google.gson.JsonObject
 import com.intellij.openapi.components.Service
@@ -120,25 +121,26 @@ class HttpClientService(private val project: Project) {
 
         val statusCode = response.statusCode()
         if (statusCode == 404) {
-            throw RuntimeException("链接 404:" + request.uri())
+            throw BizException("链接 404:" + request.uri())
         }
 
         val kubesphereService = KubesphereService.getInstance(project)
 
+        val requestUrl = request.uri().toString()
         if (statusCode == 401 || statusCode == 403) {
-            if (kubesphereService.isLoginUrl(request.uri().toString())) {
-                throw RuntimeException("用户名或密码无效," + response.body())
+            if (kubesphereService.isLoginUrl(requestUrl)) {
+                throw BizException("用户名或密码无效,响应体:" + response.body())
             }
 
             kubesphereService.loginAndSaveToken()
 
-            return getForObjectWithToken(request.uri().toString(), headers, resType)
+            return getForObjectWithToken(requestUrl, headers, resType)
         }
 
         val cookies = response.headers().allValues("set-cookie")
 
         val resJson = handleGroupLogin(
-            request.uri().toString(), project, statusCode,
+            requestUrl, project, statusCode,
             cookies, response.body().toString() + ""
         )
         if (resJson != null) {
@@ -152,7 +154,13 @@ class HttpClientService(private val project: Project) {
             return body
         }
 
-        return gson.fromJson(body as String, resType)
+        val resBodyStr = body as String
+
+        try {
+            return gson.fromJson(resBodyStr, resType)
+        } catch (e: Exception) {
+            throw BizException("响应体无法转换成json,请求的url为 $requestUrl ,响应体内容: $resBodyStr", e)
+        }
     }
 
     private fun handleGroupLogin(
@@ -172,7 +180,7 @@ class HttpClientService(private val project: Project) {
         }
 
         if (status == 200) {
-            throw RuntimeException("用户名或密码无效,$body")
+            throw BizException("用户名或密码无效,响应体:$body")
         }
 
         if (status == 302) {
@@ -238,7 +246,7 @@ class HttpClientService(private val project: Project) {
 
             val responseCode = connection.responseCode
             if (responseCode == 404) {
-                throw RuntimeException("链接 404:$url")
+                throw RuntimeException("链接 404: $url")
             }
 
             if (responseCode == 401 || responseCode == 403) {
@@ -248,7 +256,7 @@ class HttpClientService(private val project: Project) {
                     inputStream = connection.inputStream
                     val bytes = inputStream.readAllBytes()
                     val body = String(bytes)
-                    throw RuntimeException("用户名或密码无效,$body")
+                    throw BizException("用户名或密码无效,响应体:$body")
                 }
 
                 kubesphereService.loginAndSaveToken()
@@ -278,7 +286,11 @@ class HttpClientService(private val project: Project) {
                 return body as T
             }
 
-            return gson.fromJson(body, resType)
+            try {
+                return gson.fromJson(body, resType)
+            } catch (e: Exception) {
+                throw BizException("响应体无法转换成json,请求的url为 $url ,响应体内容: $body", e)
+            }
         } finally {
             inputStream?.close()
             connection?.disconnect()
@@ -304,7 +316,7 @@ class HttpClientService(private val project: Project) {
             val responseCode = connection.responseCode
 
             if (responseCode == 404) {
-                throw RuntimeException("链接 404:$url")
+                throw BizException("链接 404: $url")
             }
 
             val kubesphereService = KubesphereService.getInstance(project)
@@ -316,7 +328,7 @@ class HttpClientService(private val project: Project) {
                     val bytes = inputStream.readAllBytes()
                     val body = String(bytes)
 
-                    throw RuntimeException("用户名或密码无效,$body")
+                    throw BizException("用户名或密码无效,响应体: $body")
                 }
 
                 kubesphereService.loginAndSaveToken()

@@ -7,8 +7,7 @@ import com.github.xiaolyuh.service.GitBranchService;
 import com.github.xiaolyuh.service.GitFlowPlus;
 import com.github.xiaolyuh.service.KubesphereService;
 import com.github.xiaolyuh.ui.ServiceDialog;
-import com.github.xiaolyuh.utils.ActionUtils;
-import com.github.xiaolyuh.utils.NotifyUtil;
+import com.github.xiaolyuh.utils.*;
 import com.github.xiaolyuh.valve.merge.Valve;
 import com.github.xiaolyuh.vo.TagOptions;
 import com.google.common.collect.Lists;
@@ -24,7 +23,6 @@ import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.ReflectionUtil;
 import git4idea.repo.GitRepository;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -150,7 +148,7 @@ public abstract class AbstractMergeAction extends AnAction {
                         } catch (Exception e) {
                             LOG.warn(e);
 
-                            NotifyUtil.notifyError(project, serviceName + "触发流水线出错了:" + ExceptionUtils.getStackTrace(e));
+                            NotifyUtil.notifyError(project, serviceName + "触发流水线出错了,堆栈信息:" + ExceptionUtils.getStackTrace(e));
                         }
                     });
                 }

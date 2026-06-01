@@ -2,9 +2,7 @@ package com.github.xiaolyuh.ui;
 
 import com.github.xiaolyuh.config.InitOptions;
 import com.github.xiaolyuh.enums.LanguageEnum;
-import com.github.xiaolyuh.i18n.I18n;
-import com.github.xiaolyuh.i18n.I18nKey;
-import com.github.xiaolyuh.i18n.UiBundle;
+import com.github.xiaolyuh.i18n.*;
 import com.github.xiaolyuh.service.ConfigService;
 import com.github.xiaolyuh.service.GitBranchService;
 import com.intellij.openapi.project.Project;
@@ -31,21 +29,23 @@ public class InitPluginDialog extends DialogWrapper {
     private JComboBox<String> masterBranchComboBox;
     private JComboBox<String> releaseBranchComboBox;
     private JComboBox<String> testBranchComboBox;
+    private JComboBox<String> testBranchComboBoxSec;
     private JTextField featurePrefixTextField;
     private JTextField hotfixPrefixTextField;
     private JTextField tagPrefixTextField;
     private JTextField dingtalkTokenTextField;
     private JTextField kubesphereUsernameTextField;
     private JPasswordField kubespherePasswordTextField;
-    private JTextField fsWebHookUrlTextField;
     private JCheckBox releaseFinishIsDeleteReleaseCheckBox;
     private JCheckBox releaseFinishIsDeleteFeatureCheckBox;
     private JCheckBox needTagCheckBox;
+    private JLabel langLabel;
     private JComboBox<String> languageComboBox;
     private JLabel specialBranchConfigLabel;
     private JLabel mastBranchLabel;
     private JLabel releaseBranchLabel;
     private JLabel testBranchLabel;
+    private JLabel testBranchLabelSec;
     private JLabel branchOptionsConfig;
     private JLabel branchPrefixConfigLabel;
     private JLabel featureBranchPrefixLabel;
@@ -61,7 +61,8 @@ public class InitPluginDialog extends DialogWrapper {
 
         init();
 
-        languageComboBox.setEnabled(false);
+        langLabel.setVisible(false);
+        languageComboBox.setVisible(false);
         languageComboBox.addItemListener(e -> languageSwitch(LanguageEnum.getByLanguage((String) languageComboBox.getSelectedItem())));
     }
 
@@ -72,6 +73,7 @@ public class InitPluginDialog extends DialogWrapper {
         mastBranchLabel.setText(I18n.getContent(I18nKey.INIT_PLUGIN_DIALOG$MAST_BRANCH_LABEL, language));
         releaseBranchLabel.setText(I18n.getContent(I18nKey.INIT_PLUGIN_DIALOG$RELEASE_BRANCH_LABEL, language));
         testBranchLabel.setText(I18n.getContent(I18nKey.INIT_PLUGIN_DIALOG$TEST_BRANCH_LABEL, language));
+        testBranchLabelSec.setText(I18n.getContent(I18nKey.INIT_PLUGIN_DIALOG$TEST_BRANCH_LABEL2, language));
         branchOptionsConfig.setText(I18n.getContent(I18nKey.INIT_PLUGIN_DIALOG$BRANCH_OPTIONS_CONFIG, language));
         releaseFinishIsDeleteReleaseCheckBox.setText(I18n.getContent(I18nKey.INIT_PLUGIN_DIALOG$RELEASE_FINISH_DELETE_RELEASE, language));
         releaseFinishIsDeleteFeatureCheckBox.setText(I18n.getContent(I18nKey.INIT_PLUGIN_DIALOG$RELEASE_FINISH_DELETE_FEATURE, language));
@@ -89,6 +91,7 @@ public class InitPluginDialog extends DialogWrapper {
         options.setMasterBranch((String) masterBranchComboBox.getSelectedItem());
         options.setReleaseBranch((String) releaseBranchComboBox.getSelectedItem());
         options.setTestBranch((String) testBranchComboBox.getSelectedItem());
+        options.setTestBranchSec((String) testBranchComboBoxSec.getSelectedItem());
         options.setFeaturePrefix(featurePrefixTextField.getText());
         options.setHotfixPrefix(hotfixPrefixTextField.getText());
         options.setTagPrefix(tagPrefixTextField.getText());
@@ -98,7 +101,6 @@ public class InitPluginDialog extends DialogWrapper {
         options.setDingtalkToken(dingtalkTokenTextField.getText());
         options.setKubesphereUsername(kubesphereUsernameTextField.getText());
         options.setKubespherePassword(String.valueOf(kubespherePasswordTextField.getPassword()));
-        options.setFsWebHookUrl(String.valueOf(fsWebHookUrlTextField.getText()));
         options.setLanguage(LanguageEnum.getByLanguage((String) languageComboBox.getSelectedItem()));
 
         options.setTestBranchSec(testBranchSec);
@@ -120,6 +122,7 @@ public class InitPluginDialog extends DialogWrapper {
             masterBranchComboBox.setModel(new CollectionComboBoxModel<>(remoteBranches, options.getMasterBranch()));
             releaseBranchComboBox.setModel(new CollectionComboBoxModel<>(remoteBranches, options.getReleaseBranch()));
             testBranchComboBox.setModel(new CollectionComboBoxModel<>(remoteBranches, options.getTestBranch()));
+            testBranchComboBoxSec.setModel(new CollectionComboBoxModel<>(remoteBranches, options.getTestBranchSec()));
             languageComboBox.setModel(new CollectionComboBoxModel<>(languages, options.getLanguage().getLanguage()));
 
             featurePrefixTextField.setText(options.getFeaturePrefix());
@@ -131,13 +134,13 @@ public class InitPluginDialog extends DialogWrapper {
             dingtalkTokenTextField.setText(options.getDingtalkToken());
             kubesphereUsernameTextField.setText(options.getKubesphereUsername());
             kubespherePasswordTextField.setText(options.getKubespherePassword());
-            fsWebHookUrlTextField.setText(options.getFsWebHookUrl());
 
             this.testBranchSec = options.getTestBranchSec();
         } else {
             masterBranchComboBox.setModel(new CollectionComboBoxModel<>(remoteBranches));
             releaseBranchComboBox.setModel(new CollectionComboBoxModel<>(remoteBranches));
             testBranchComboBox.setModel(new CollectionComboBoxModel<>(remoteBranches));
+            testBranchComboBoxSec.setModel(new CollectionComboBoxModel<>(remoteBranches));
             languageComboBox.setModel(new CollectionComboBoxModel<>(languages, UiBundle.INSTANCE.getLanguageEnum().getLanguage()));
         }
 
@@ -160,12 +163,23 @@ public class InitPluginDialog extends DialogWrapper {
         if (Objects.equals(masterBranchComboBox.getSelectedItem(), releaseBranchComboBox.getSelectedItem())) {
             return new ValidationInfo(I18n.getContent(I18nKey.INIT_PLUGIN_DIALOG$RELEASE_LIKE_MASTER), releaseBranchComboBox);
         }
-        if (Objects.equals(masterBranchComboBox.getSelectedItem(), testBranchComboBox.getSelectedItem())) {
+
+        Object testBranch = testBranchComboBox.getSelectedItem();
+        if (Objects.equals(masterBranchComboBox.getSelectedItem(), testBranch)) {
             return new ValidationInfo(I18n.getContent(I18nKey.INIT_PLUGIN_DIALOG$TEST_LIKE_MASTER), testBranchComboBox);
         }
-        if (Objects.equals(releaseBranchComboBox.getSelectedItem(), testBranchComboBox.getSelectedItem())) {
+        if (Objects.equals(releaseBranchComboBox.getSelectedItem(), testBranch)) {
             return new ValidationInfo(I18n.getContent(I18nKey.INIT_PLUGIN_DIALOG$TEST_LIKE_RELEASE), testBranchComboBox);
         }
+
+        Object testBranchSec = testBranchComboBoxSec.getSelectedItem();
+        if (Objects.equals(masterBranchComboBox.getSelectedItem(), testBranchSec)) {
+            return new ValidationInfo(I18n.getContent(I18nKey.INIT_PLUGIN_DIALOG$TEST_LIKE_MASTER), testBranchComboBox);
+        }
+        if (Objects.equals(releaseBranchComboBox.getSelectedItem(), testBranchSec)) {
+            return new ValidationInfo(I18n.getContent(I18nKey.INIT_PLUGIN_DIALOG$TEST_LIKE_RELEASE), testBranchComboBox);
+        }
+
         if (StringUtil.isEmptyOrSpaces(featurePrefixTextField.getText())) {
             return new ValidationInfo(I18n.getContent(I18nKey.INIT_PLUGIN_DIALOG$FEATURE_PREFIX_REQUIRED), featurePrefixTextField);
         }

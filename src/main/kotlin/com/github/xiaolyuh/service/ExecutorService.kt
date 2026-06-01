@@ -2,6 +2,7 @@ package com.github.xiaolyuh.service
 
 import com.github.xiaolyuh.action.ServiceLogAction.Companion.showLogInRunToolWindow
 import com.github.xiaolyuh.ui.KbsMsgForm
+import com.github.xiaolyuh.utils.ExceptionUtils
 import com.github.xiaolyuh.utils.NotifyUtil
 import com.google.gson.JsonObject
 import com.intellij.openapi.application.runInEdt
@@ -9,7 +10,6 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.util.application
-import org.apache.commons.lang3.exception.ExceptionUtils
 import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
 
@@ -100,7 +100,7 @@ class ExecutorService(private val project: Project) {
 
                 NotifyUtil.notifyError(
                     project,
-                    txt(mainTest) + "检测" + selectService + " id为" + id + "的构建情况出错,原因:" + ExceptionUtils.getStackTrace(
+                    txt(mainTest) + "检测" + selectService + " id为" + id + "的构建情况出错,堆栈信息:" + ExceptionUtils.getStackTrace(
                         e
                     )
                 )
@@ -125,7 +125,7 @@ class ExecutorService(private val project: Project) {
 
                 NotifyUtil.notifyError(
                     project,
-                    txt(mainTest) + "检测" + selectService + " id为" + id + "的启动情况出错啦,原因:" + ExceptionUtils.getStackTrace(
+                    txt(mainTest) + "检测" + selectService + " id为" + id + "的启动情况出错啦,堆栈信息:" + ExceptionUtils.getStackTrace(
                         e
                     )
                 )
@@ -193,7 +193,7 @@ class ExecutorService(private val project: Project) {
 
                 NotifyUtil.notifyError(
                     project,
-                    txt(mainTest) + "检测" + newInstanceName + "启动情况出错,原因:" + ExceptionUtils.getStackTrace(e)
+                    txt(mainTest) + "检测" + newInstanceName + "启动情况出错,堆栈信息:" + ExceptionUtils.getStackTrace(e)
                 )
             }
         }
@@ -309,7 +309,7 @@ class ExecutorService(private val project: Project) {
 
                 NotifyUtil.notifyError(
                     project,
-                    txt(mainTest) + "检测" + selectService + "服务实例数量出错,原因:" + ExceptionUtils.getStackTrace(e)
+                    txt(mainTest) + "检测" + selectService + "服务实例数量出错,堆栈信息:" + ExceptionUtils.getStackTrace(e)
                 )
             }
         }

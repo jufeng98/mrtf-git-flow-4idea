@@ -3,6 +3,7 @@ package com.github.xiaolyuh.ui;
 import com.github.xiaolyuh.action.toolbar.*;
 import com.github.xiaolyuh.service.ExecutorService;
 import com.github.xiaolyuh.service.KubesphereService;
+import com.github.xiaolyuh.utils.ExceptionUtils;
 import com.github.xiaolyuh.utils.NotifyUtil;
 import com.google.common.collect.Lists;
 import com.intellij.execution.filters.ExceptionFilter;
@@ -23,7 +24,6 @@ import com.intellij.openapi.util.Pair;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.ui.components.JBTabbedPane;
 import com.intellij.util.DocumentUtil;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -157,7 +157,7 @@ public class KbsMsgForm extends JComponent implements Disposable {
                     //noinspection CallToPrintStackTrace
                     e.printStackTrace();
 
-                    NotifyUtil.notifyError(project, "出错了:" + ExceptionUtils.getStackTrace(e));
+                    NotifyUtil.notifyError(project, "出错了,堆栈信息:" + ExceptionUtils.getStackTrace(e));
                     return;
                 }
 

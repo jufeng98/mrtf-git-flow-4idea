@@ -1,5 +1,7 @@
 package com.github.xiaolyuh.service
 
+import com.github.xiaolyuh.consts.Constants
+import com.github.xiaolyuh.utils.ExceptionUtils
 import com.github.xiaolyuh.utils.NotifyUtil
 import com.github.xiaolyuh.utils.StringUtils
 import com.github.xiaolyuh.vo.InstanceVo
@@ -9,7 +11,6 @@ import com.intellij.ide.impl.ProjectUtil.getActiveProject
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Pair
-import org.apache.commons.lang3.exception.ExceptionUtils
 import org.apache.http.entity.ContentType
 import java.nio.charset.StandardCharsets
 import java.util.*
@@ -32,7 +33,7 @@ class KubesphereService(private val project: Project) {
         val configService = ConfigService.getInstance(project)
 
         if (configService.notExistsK8sOptions()) {
-            NotifyUtil.notifyInfo(project, "缺少k8s配置文件,跳过触发流水线")
+            NotifyUtil.notifyInfo(project, "缺少k8s配置文件(" + Constants.CONFIG_FILE_NAME_PROJECT + "),跳过触发流水线")
             return
         }
 
@@ -45,9 +46,9 @@ class KubesphereService(private val project: Project) {
         )
 
         val crumb = resObj["crumb"].asString
-        NotifyUtil.notifyInfo(project, "请求url:$crumbissuerUrl,结果crumb:$crumb")
+        NotifyUtil.notifyInfo(project, "请求crumbissuerUrl:$crumbissuerUrl,结果crumb:$crumb")
         if (StringUtils.isBlank(crumb)) {
-            throw RuntimeException(crumbissuerUrl + "配置有误:" + resObj)
+            throw RuntimeException("crumbissuerUrl: $crumbissuerUrl 配置有误,当前响应结果:$resObj")
         }
 
         val isFrontProject = configService.getK8sOptions().isFrontProject

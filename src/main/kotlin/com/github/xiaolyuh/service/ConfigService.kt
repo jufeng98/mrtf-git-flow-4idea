@@ -84,12 +84,6 @@ class ConfigService(private val project: Project) {
         preferences.put("kubespherePassword", pwd)
     }
 
-    fun saveFsWebHookUrl(url: String) {
-        preferences.put("fsWebHookUrl", url)
-    }
-
-    private val fsWebHookUrl = preferences["fsWebHookUrl", ""]
-
     fun getKubesphereToken(): String {
         return if (isMhKubesphere()) {
             preferences["kubesphereToken", "abed"]
@@ -169,7 +163,6 @@ class ConfigService(private val project: Project) {
                 val pair = getKubesphereUser()
                 options!!.kubesphereUsername = pair.first
                 options.kubespherePassword = pair.second
-                options.fsWebHookUrl = fsWebHookUrl
                 initOptions = options
             }
 

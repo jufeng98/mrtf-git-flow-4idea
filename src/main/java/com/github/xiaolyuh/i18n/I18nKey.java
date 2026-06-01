@@ -12,6 +12,7 @@ public abstract class I18nKey {
     public static final String INIT_PLUGIN_DIALOG$MAST_BRANCH_LABEL = "InitPluginDialog.mastBranchLabel";
     public static final String INIT_PLUGIN_DIALOG$RELEASE_BRANCH_LABEL = "InitPluginDialog.releaseBranchLabel";
     public static final String INIT_PLUGIN_DIALOG$TEST_BRANCH_LABEL = "InitPluginDialog.testBranchLabel";
+    public static final String INIT_PLUGIN_DIALOG$TEST_BRANCH_LABEL2 = "InitPluginDialog.testBranchLabelSec";
     public static final String INIT_PLUGIN_DIALOG$BRANCH_OPTIONS_CONFIG = "InitPluginDialog.branchOptionsConfig";
     public static final String INIT_PLUGIN_DIALOG$RELEASE_FINISH_DELETE_RELEASE = "InitPluginDialog.releaseFinishIsDeleteReleaseCheckBox";
     public static final String INIT_PLUGIN_DIALOG$RELEASE_FINISH_DELETE_FEATURE = "InitPluginDialog.releaseFinishIsDeleteFeatureCheckBox";

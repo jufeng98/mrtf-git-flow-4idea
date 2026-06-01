@@ -11,7 +11,7 @@ object UiBundle {
 
     val languageEnum by lazy {
         val locale = Locale.getDefault()
-        if (locale == Locale.CHINESE) {
+        if (locale.language == Locale.CHINA.language) {
             LanguageEnum.CN
         } else {
             LanguageEnum.EN

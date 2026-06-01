@@ -66,7 +66,7 @@
               </component>
               <component id="403d6" class="javax.swing.JLabel" binding="featureBranchPrefixLabel">
                 <constraints>
-                  <grid row="13" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="14" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text value="开发分支前缀"/>
@@ -74,7 +74,7 @@
               </component>
               <component id="817b1" class="javax.swing.JLabel" binding="branchPrefixConfigLabel">
                 <constraints>
-                  <grid row="12" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="13" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text value="分支前缀配置"/>
@@ -82,7 +82,7 @@
               </component>
               <component id="b62e3" class="javax.swing.JLabel" binding="hotfixBranchPrefixLabel">
                 <constraints>
-                  <grid row="14" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="15" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text value="修复分支前缀"/>
@@ -90,7 +90,7 @@
               </component>
               <component id="a646b" class="javax.swing.JLabel" binding="tagNamePrefixLabel">
                 <constraints>
-                  <grid row="15" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="16" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text value="Tag名称前缀"/>
@@ -98,7 +98,7 @@
               </component>
               <component id="30903" class="javax.swing.JTextField" binding="featurePrefixTextField" default-binding="true">
                 <constraints>
-                  <grid row="13" column="3" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                  <grid row="14" column="3" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                     <preferred-size width="150" height="-1"/>
                   </grid>
                 </constraints>
@@ -109,7 +109,7 @@
               </component>
               <component id="7ac25" class="javax.swing.JTextField" binding="hotfixPrefixTextField" default-binding="true">
                 <constraints>
-                  <grid row="14" column="3" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                  <grid row="15" column="3" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                     <preferred-size width="150" height="-1"/>
                   </grid>
                 </constraints>
@@ -120,7 +120,7 @@
               </component>
               <component id="29a7" class="javax.swing.JTextField" binding="tagPrefixTextField">
                 <constraints>
-                  <grid row="15" column="3" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                  <grid row="16" column="3" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                     <preferred-size width="150" height="-1"/>
                   </grid>
                 </constraints>
@@ -165,7 +165,7 @@
               </component>
               <component id="75cdd" class="javax.swing.JLabel" binding="branchOptionsConfig">
                 <constraints>
-                  <grid row="7" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="8" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text value="分支操作配置"/>
@@ -173,7 +173,7 @@
               </component>
               <component id="4edd5" class="javax.swing.JCheckBox" binding="releaseFinishIsDeleteReleaseCheckBox">
                 <constraints>
-                  <grid row="9" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="10" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <enabled value="false"/>
@@ -183,7 +183,7 @@
               </component>
               <component id="d7142" class="javax.swing.JCheckBox" binding="releaseFinishIsDeleteFeatureCheckBox">
                 <constraints>
-                  <grid row="10" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="11" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <enabled value="false"/>
@@ -193,7 +193,7 @@
               </component>
               <component id="8a86a" class="javax.swing.JLabel">
                 <constraints>
-                  <grid row="6" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="7" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text value=""/>
@@ -201,7 +201,7 @@
               </component>
               <component id="746c6" class="javax.swing.JLabel">
                 <constraints>
-                  <grid row="11" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="12" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text value=""/>
@@ -209,32 +209,13 @@
               </component>
               <component id="a647b" class="javax.swing.JLabel">
                 <constraints>
-                  <grid row="16" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="17" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text value="kubesphere用户名"/>
                 </properties>
               </component>
               <component id="29f7" class="javax.swing.JTextField" binding="kubesphereUsernameTextField">
-                <constraints>
-                  <grid row="16" column="3" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                    <preferred-size width="150" height="-1"/>
-                  </grid>
-                </constraints>
-                <properties>
-                  <enabled value="true"/>
-                  <text value=""/>
-                </properties>
-              </component>
-              <component id="a648b" class="javax.swing.JLabel">
-                <constraints>
-                  <grid row="17" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <text value="kubesphere密码"/>
-                </properties>
-              </component>
-              <component id="29h7" class="javax.swing.JPasswordField" binding="kubespherePasswordTextField">
                 <constraints>
                   <grid row="17" column="3" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                     <preferred-size width="150" height="-1"/>
@@ -245,9 +226,28 @@
                   <text value=""/>
                 </properties>
               </component>
+              <component id="a648b" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="18" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="kubesphere密码"/>
+                </properties>
+              </component>
+              <component id="29h7" class="javax.swing.JPasswordField" binding="kubespherePasswordTextField">
+                <constraints>
+                  <grid row="18" column="3" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="150" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <enabled value="true"/>
+                  <text value=""/>
+                </properties>
+              </component>
               <component id="19587" class="javax.swing.JLabel">
                 <constraints>
-                  <grid row="18" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="19" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text value="钉钉 Token"/>
@@ -255,7 +255,7 @@
               </component>
               <component id="767a" class="javax.swing.JTextField" binding="dingtalkTokenTextField">
                 <constraints>
-                  <grid row="18" column="3" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                  <grid row="19" column="3" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                     <preferred-size width="150" height="-1"/>
                   </grid>
                 </constraints>
@@ -281,7 +281,7 @@
                   <enabled value="true"/>
                 </properties>
               </component>
-              <component id="7d448" class="javax.swing.JLabel">
+              <component id="7d448" class="javax.swing.JLabel" binding="langLabel">
                 <constraints>
                   <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
@@ -289,31 +289,32 @@
                   <text value="Language"/>
                 </properties>
               </component>
-              <component id="7fb5f" class="javax.swing.JLabel">
+              <component id="3036d" class="javax.swing.JCheckBox" binding="needTagCheckBox">
                 <constraints>
-                  <grid row="19" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="9" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="飞书机器人Url"/>
+                  <text value="需要标签"/>
                 </properties>
               </component>
-              <component id="27c4b" class="javax.swing.JTextField" binding="fsWebHookUrlTextField">
+              <component id="38068" class="javax.swing.JLabel" binding="testBranchLabelSec">
                 <constraints>
-                  <grid row="19" column="3" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                  <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="测试分支名称2(testSec)"/>
+                </properties>
+              </component>
+              <component id="f8dfb" class="javax.swing.JComboBox" binding="testBranchComboBoxSec">
+                <constraints>
+                  <grid row="6" column="3" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                     <preferred-size width="150" height="-1"/>
                   </grid>
                 </constraints>
                 <properties>
+                  <editable value="true"/>
                   <enabled value="true"/>
-                  <text value=""/>
-                </properties>
-              </component>
-              <component id="3036d" class="javax.swing.JCheckBox" binding="needTagCheckBox">
-                <constraints>
-                  <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <text value="需要标签"/>
+                  <model/>
                 </properties>
               </component>
             </children>
