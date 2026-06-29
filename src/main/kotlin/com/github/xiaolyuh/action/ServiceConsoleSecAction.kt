@@ -2,6 +2,7 @@ package com.github.xiaolyuh.action
 
 import com.github.xiaolyuh.i18n.I18n
 import com.github.xiaolyuh.icons.GitFlowPlusIcons
+import com.github.xiaolyuh.logger.GitFlowPlusLogger.logWarn
 import com.github.xiaolyuh.provider.ConsoleVirtualFile
 import com.github.xiaolyuh.service.KubesphereService
 import com.github.xiaolyuh.ui.JcefK8sConsoleForm
@@ -40,11 +41,11 @@ class ServiceConsoleSecAction :
     }
 
     override fun getActionUpdateThread(): ActionUpdateThread {
-        return ActionUpdateThread.EDT
+        return ActionUpdateThread.BGT
     }
 
     override fun actionPerformed(e: AnActionEvent) {
-        val project = e.project!!
+        val project = e.project ?: return
 
         val serviceDialog = ServiceDialog(I18n.getContent("choose.console"), project)
 
@@ -66,7 +67,7 @@ class ServiceConsoleSecAction :
                     val kubesphereService = KubesphereService.getInstance(project)
                     instanceVos = kubesphereService.findInstanceName(selectService, false)
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    logWarn("error", e)
 
                     NotifyUtil.notifyError(project, ExceptionUtils.getStackTrace(e))
                     return
@@ -113,16 +114,9 @@ class ServiceConsoleSecAction :
             return
         }
 
-        val fileEditorManager = FileEditorManager.getInstance(project)
-        fileEditorManager.openFile(
-            ConsoleVirtualFile(
-                "${selectService}-remote-console(Sec)",
-                selectService,
-                instanceVo,
-                project,
-                false
-            )
-        )
+        val file = ConsoleVirtualFile("${selectService}-remote-console(Sec)", selectService, instanceVo, project, false)
+
+        FileEditorManager.getInstance(project).openFile(file)
     }
 
 }

@@ -2,19 +2,14 @@ package com.github.xiaolyuh.action;
 
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
-import com.github.xiaolyuh.service.ConfigService;
-import com.github.xiaolyuh.service.GitBranchService;
-import com.github.xiaolyuh.service.GitFlowPlus;
-import com.github.xiaolyuh.service.KubesphereService;
+import com.github.xiaolyuh.logger.GitFlowPlusLogger;
+import com.github.xiaolyuh.service.*;
 import com.github.xiaolyuh.ui.ServiceDialog;
 import com.github.xiaolyuh.utils.*;
 import com.github.xiaolyuh.valve.merge.Valve;
 import com.github.xiaolyuh.vo.TagOptions;
 import com.google.common.collect.Lists;
-import com.intellij.openapi.actionSystem.ActionUpdateThread;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
@@ -37,7 +32,6 @@ import java.util.Objects;
  * @author yuhao.wang3
  */
 public abstract class AbstractMergeAction extends AnAction {
-    private static final Logger LOG = Logger.getInstance(AbstractMergeAction.class);
     protected GitFlowPlus gitFlowPlus = GitFlowPlus.getInstance();
 
     public AbstractMergeAction(String txt, String desc, Icon icon) {
@@ -52,9 +46,7 @@ public abstract class AbstractMergeAction extends AnAction {
             return;
         }
 
-        ConfigService configService = ConfigService.Companion.getInstance(project);
-
-        boolean isInit = GitBranchService.isGitProject(project) && configService.isInit();
+        boolean isInit = GitBranchService.isGitProject(project) && ConfigService.Companion.getInstance(project).isInit();
         if (!isInit) {
             event.getPresentation().setEnabled(false);
             return;
@@ -70,7 +62,7 @@ public abstract class AbstractMergeAction extends AnAction {
 
     @Override
     public @NotNull ActionUpdateThread getActionUpdateThread() {
-        return ActionUpdateThread.EDT;
+        return ActionUpdateThread.BGT;
     }
 
     /**
@@ -80,21 +72,27 @@ public abstract class AbstractMergeAction extends AnAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
-        actionPerformed(event, null);
+        Project project = event.getProject();
+        if (project == null) {
+            return;
+        }
+
+        actionPerformed(project, null);
     }
 
-    void actionPerformed(@NotNull AnActionEvent event, @Nullable TagOptions tagOptions) {
-        final Project project = event.getProject();
-        @SuppressWarnings("ConstantConditions") final String currentBranch = gitFlowPlus.getCurrentBranch(project);
-        final String targetBranch = getTargetBranch(project);
-
-        final boolean isStartTest = getClass() == StartTestAction.class;
-        final boolean isStartTestSec = getClass() == StartTestSecAction.class;
-
-        final GitRepository repository = GitBranchService.getCurrentRepository(project);
+    void actionPerformed(@NotNull Project project, @Nullable TagOptions tagOptions) {
+        GitRepository repository = GitBranchService.getCurrentRepository(project);
         if (Objects.isNull(repository)) {
             return;
         }
+
+        String currentBranch = gitFlowPlus.getCurrentBranch(project);
+        if (currentBranch == null) {
+            return;
+        }
+
+        boolean isStartTest = getClass() == StartTestAction.class;
+        boolean isStartTestSec = getClass() == StartTestSecAction.class;
 
         boolean clickOk;
         List<String> selectServices = Lists.newArrayList();
@@ -118,13 +116,15 @@ public abstract class AbstractMergeAction extends AnAction {
             return;
         }
 
+        String targetBranch = getTargetBranch(project);
+
         List<String> finalSelectServices = selectServices;
 
         new Task.Backgroundable(project, getTaskTitle(project), false) {
-            @SuppressWarnings("ConstantConditions")
+
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
-                NotifyUtil.notifyGitCommand(event.getProject(), "=========================");
+                NotifyUtil.notifyGitCommand(project, "=========================");
                 List<Valve> valves = getValves();
                 for (Valve valve : valves) {
                     if (!valve.invoke(project, repository, currentBranch, targetBranch, tagOptions)) {
@@ -135,7 +135,7 @@ public abstract class AbstractMergeAction extends AnAction {
                 // 刷新
                 repository.update();
 
-                myProject.getMessageBus().syncPublisher(GitRepository.GIT_REPO_CHANGE).repositoryChanged(repository);
+                project.getMessageBus().syncPublisher(GitRepository.GIT_REPO_CHANGE).repositoryChanged(repository);
 
                 VirtualFileManager.getInstance().asyncRefresh(null);
 
@@ -146,7 +146,7 @@ public abstract class AbstractMergeAction extends AnAction {
 
                             kubesphereService.triggerPipeline(serviceName, isStartTest);
                         } catch (Exception e) {
-                            LOG.warn(e);
+                            GitFlowPlusLogger.INSTANCE.logWarn("触发流水线出错了", e);
 
                             NotifyUtil.notifyError(project, serviceName + "触发流水线出错了,堆栈信息:" + ExceptionUtils.getStackTrace(e));
                         }

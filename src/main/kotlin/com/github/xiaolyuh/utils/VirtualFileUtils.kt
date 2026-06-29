@@ -14,6 +14,7 @@ object VirtualFileUtils {
 
     fun readNewestContent(file: File): String? {
         val virtualFile = findFileByIoFile(file, true)
+        virtualFile?.refresh(false, false)
 
         if (virtualFile != null && isVirtualFileNewest(virtualFile, file)) {
             return readNewestContent(virtualFile)
@@ -34,7 +35,7 @@ object VirtualFileUtils {
 
     private fun isVirtualFileNewest(virtualFile: VirtualFile, file: File): Boolean {
         if (!file.exists()) {
-            return false
+            return true
         }
 
         val timeStamp = virtualFile.timeStamp

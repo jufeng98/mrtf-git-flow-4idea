@@ -15,15 +15,15 @@ import java.awt.event.MouseEvent
 class MyActionButton(action: AnAction, presentation: Presentation?, place: String, minimumSize: Dimension) :
     ActionButton(action, presentation, place, minimumSize) {
 
-    @Suppress("DEPRECATION")
     override fun performAction(e: MouseEvent) {
         super.performAction(e)
 
-        @Suppress("removal")
+        @Suppress("removal", "DEPRECATION")
         val event = AnActionEvent(e, dataContext, myPlace, presentation, ActionManager.getInstance(), e.modifiers)
 
         if (lastUpdateAndCheckDumb(this.myAction, event, false) && this.isEnabled) {
             this.actionPerformed(event)
         }
     }
+
 }

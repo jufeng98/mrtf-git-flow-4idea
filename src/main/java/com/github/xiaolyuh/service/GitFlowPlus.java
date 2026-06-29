@@ -31,7 +31,7 @@ public interface GitFlowPlus {
      *
      * @param repository GitRepository
      */
-    void addConfigToGit(GitRepository repository);
+    void addConfigToGit(GitRepository repository, Project project);
 
     /**
      * 以远程master为根新创建本地分支
@@ -101,7 +101,7 @@ public interface GitFlowPlus {
      * @param project project
      * @return GitCommandResult
      */
-    String getCurrentBranch(@NotNull Project project);
+    @Nullable String getCurrentBranch(@NotNull Project project);
 
     /**
      * 获取远程分支最后一次Commit信息

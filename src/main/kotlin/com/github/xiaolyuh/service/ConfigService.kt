@@ -3,14 +3,13 @@ package com.github.xiaolyuh.service
 import com.github.xiaolyuh.config.InitOptions
 import com.github.xiaolyuh.config.K8sOptions
 import com.github.xiaolyuh.consts.Constants
+import com.github.xiaolyuh.logger.GitFlowPlusLogger.logInfo
 import com.github.xiaolyuh.utils.GsonUtils.gson
 import com.github.xiaolyuh.utils.StringUtils
 import com.github.xiaolyuh.utils.VirtualFileUtils
 import com.intellij.ide.util.PropertiesComponent
-import com.intellij.openapi.application.runInEdt
-import com.intellij.openapi.application.runWriteAction
+import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.components.Service
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.psi.PsiDocumentManager
@@ -27,7 +26,6 @@ import java.util.regex.Pattern
  */
 @Service(Service.Level.PROJECT)
 class ConfigService(private val project: Project) {
-    private val logger = Logger.getInstance(ConfigService::class.java)
     private val variablePattern = Pattern.compile("(\\{[^{}]+})")
 
     private val preferences: Preferences = Preferences.userRoot().node("com.github.xiaolyuh")
@@ -129,17 +127,12 @@ class ConfigService(private val project: Project) {
         initOptions = null
         k8sOptions = null
 
-        runInEdt {
-            runWriteAction {
-                val virtualFile = VfsUtil.findFileByIoFile(file, true)!!
+        val virtualFile = VfsUtil.findFileByIoFile(file, true)!!
 
-                VfsUtil.saveText(virtualFile, configJson)
+        WriteCommandAction.runWriteCommandAction(project) {
+            VfsUtil.saveText(virtualFile, configJson)
 
-                PsiDocumentManager.getInstance(project)
-                    .performWhenAllCommitted {
-                        finished.run()
-                    }
-            }
+            PsiDocumentManager.getInstance(project).performWhenAllCommitted { finished.run() }
         }
     }
 
@@ -186,7 +179,7 @@ class ConfigService(private val project: Project) {
             return null
         }
 
-        logger.info("完成读取项目空间配置workspace.xml,key:$key")
+        logInfo("完成读取项目空间配置workspace.xml,key:$key")
 
         return gson.fromJson(json, InitOptions::class.java)
     }
@@ -203,7 +196,7 @@ class ConfigService(private val project: Project) {
             return null
         }
 
-        logger.info("完成读取配置文件:$filePath")
+        logInfo("完成读取配置文件:$file")
 
         return gson.fromJson(configJsonStr, InitOptions::class.java)
     }
@@ -380,7 +373,7 @@ class ConfigService(private val project: Project) {
             return null
         }
 
-        logger.info("完成读取k8s配置文件:$filePath")
+        logInfo("完成读取k8s配置文件:$file")
 
         return gson.fromJson(configJsonStr, K8sOptions::class.java)
     }

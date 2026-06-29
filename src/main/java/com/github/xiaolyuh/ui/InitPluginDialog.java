@@ -22,8 +22,6 @@ import java.util.Objects;
  * @author yuhao.wang3
  */
 public class InitPluginDialog extends DialogWrapper {
-    private String testBranchSec;
-
     private JPanel contentPane;
 
     private JComboBox<String> masterBranchComboBox;
@@ -51,6 +49,7 @@ public class InitPluginDialog extends DialogWrapper {
     private JLabel featureBranchPrefixLabel;
     private JLabel hotfixBranchPrefixLabel;
     private JLabel tagNamePrefixLabel;
+    private JPanel mainPanel;
 
     public InitPluginDialog(Project project) {
         super(project);
@@ -64,6 +63,11 @@ public class InitPluginDialog extends DialogWrapper {
         langLabel.setVisible(false);
         languageComboBox.setVisible(false);
         languageComboBox.addItemListener(e -> languageSwitch(LanguageEnum.getByLanguage((String) languageComboBox.getSelectedItem())));
+
+        mainPanel.remove(langLabel);
+        mainPanel.remove(languageComboBox);
+        mainPanel.remove(releaseFinishIsDeleteFeatureCheckBox);
+        mainPanel.remove(releaseFinishIsDeleteReleaseCheckBox);
     }
 
     private void languageSwitch(LanguageEnum language) {
@@ -103,8 +107,6 @@ public class InitPluginDialog extends DialogWrapper {
         options.setKubespherePassword(String.valueOf(kubespherePasswordTextField.getPassword()));
         options.setLanguage(LanguageEnum.getByLanguage((String) languageComboBox.getSelectedItem()));
 
-        options.setTestBranchSec(testBranchSec);
-
         return options;
     }
 
@@ -134,8 +136,6 @@ public class InitPluginDialog extends DialogWrapper {
             dingtalkTokenTextField.setText(options.getDingtalkToken());
             kubesphereUsernameTextField.setText(options.getKubesphereUsername());
             kubespherePasswordTextField.setText(options.getKubespherePassword());
-
-            this.testBranchSec = options.getTestBranchSec();
         } else {
             masterBranchComboBox.setModel(new CollectionComboBoxModel<>(remoteBranches));
             releaseBranchComboBox.setModel(new CollectionComboBoxModel<>(remoteBranches));

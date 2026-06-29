@@ -2,6 +2,7 @@ package com.github.xiaolyuh.action
 
 import com.github.xiaolyuh.i18n.I18n
 import com.github.xiaolyuh.icons.GitFlowPlusIcons
+import com.github.xiaolyuh.logger.GitFlowPlusLogger.logWarn
 import com.github.xiaolyuh.service.KubesphereService
 import com.github.xiaolyuh.ui.KbsMsgForm
 import com.github.xiaolyuh.ui.ServiceDialog
@@ -33,7 +34,11 @@ import org.apache.commons.lang3.exception.ExceptionUtils
  */
 @Suppress("ActionPresentationInstantiatedInCtor")
 class ServiceLogSecAction :
-    AnAction(I18n.nls("action.log.txt") + "(Sec)", I18n.nls("action.log.desc") + "(Sec)", GitFlowPlusIcons.mainChangelog),
+    AnAction(
+        I18n.nls("action.log.txt") + "(Sec)",
+        I18n.nls("action.log.desc") + "(Sec)",
+        GitFlowPlusIcons.mainChangelog
+    ),
     DumbAware {
 
     override fun update(e: AnActionEvent) {
@@ -41,11 +46,11 @@ class ServiceLogSecAction :
     }
 
     override fun getActionUpdateThread(): ActionUpdateThread {
-        return ActionUpdateThread.EDT
+        return ActionUpdateThread.BGT
     }
 
     override fun actionPerformed(e: AnActionEvent) {
-        val project = e.project!!
+        val project = e.project ?: return
 
         val serviceDialog = ServiceDialog(I18n.getContent("choose.service"), project)
 
@@ -69,7 +74,7 @@ class ServiceLogSecAction :
                     val kubesphereService = KubesphereService.getInstance(project)
                     instanceVos = kubesphereService.findInstanceName(selectService, false)
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    logWarn("error", e)
 
                     NotifyUtil.notifyError(project, ExceptionUtils.getStackTrace(e))
                     return
@@ -126,7 +131,7 @@ class ServiceLogSecAction :
                         500, instanceVo.isPreviews, false, false
                     )
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    logWarn("error", e)
 
                     NotifyUtil.notifyError(project, ExceptionUtils.getStackTrace(e))
                     return
@@ -172,9 +177,7 @@ class ServiceLogSecAction :
 
                 contentManager.setSelectedContent(content)
 
-                toolWindow.activate {
-                    form.scrollToBottom()
-                }
+                toolWindow.activate { form.scrollToBottom() }
             }
 
         }

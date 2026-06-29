@@ -41,8 +41,10 @@ public class FinishReleaseAction extends AbstractMergeAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
         Project project = event.getProject();
+        if (project == null) {
+            return;
+        }
 
-        @SuppressWarnings("DataFlowIssue")
         ConfigService configService = ConfigService.Companion.getInstance(project);
 
         TagOptions tagOptions;
@@ -59,7 +61,7 @@ public class FinishReleaseAction extends AbstractMergeAction {
             tagOptions = new TagOptions();
         }
 
-        super.actionPerformed(event, tagOptions);
+        super.actionPerformed(project, tagOptions);
     }
 
     @Override

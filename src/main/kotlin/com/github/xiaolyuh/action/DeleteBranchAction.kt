@@ -3,8 +3,8 @@ package com.github.xiaolyuh.action
 import com.github.xiaolyuh.i18n.I18n
 import com.github.xiaolyuh.icons.GitFlowPlusIcons
 import com.github.xiaolyuh.service.ConfigService.Companion.getInstance
-import com.github.xiaolyuh.ui.BranchDeleteDialog
 import com.github.xiaolyuh.service.GitBranchService
+import com.github.xiaolyuh.ui.BranchDeleteDialog
 import com.github.xiaolyuh.utils.NotifyUtil
 import com.github.xiaolyuh.valve.merge.ChangeFileValve
 import com.github.xiaolyuh.valve.merge.Valve
@@ -31,11 +31,13 @@ class DeleteBranchAction :
     }
 
     override fun actionPerformed(event: AnActionEvent) {
-        val project = event.project!!
-        val repository = GitBranchService.getCurrentRepository(project)
+        val project = event.project ?: return
+
         if (gitFlowPlus.isExistChangeFile(project)) {
             return
         }
+
+        val repository = GitBranchService.getCurrentRepository(project) ?: return
 
         val branchDeleteDialog = BranchDeleteDialog(repository)
         if (!branchDeleteDialog.showAndGet()) {
@@ -63,7 +65,7 @@ class DeleteBranchAction :
                 var i = 1
                 val faction = 1.0 / deleteBranchOptions.branches.size
 
-                NotifyUtil.notifyGitCommand(event.project, "=====================================")
+                NotifyUtil.notifyGitCommand(project, "=====================================")
                 val currentBranchName = repository.currentBranch!!.name
 
                 val map = deleteBranchOptions.branches.groupBy { it.branch == currentBranchName }

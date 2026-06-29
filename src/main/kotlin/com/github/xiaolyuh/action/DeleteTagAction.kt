@@ -35,11 +35,13 @@ class DeleteTagAction :
     }
 
     override fun actionPerformed(event: AnActionEvent) {
-        val project = event.project!!
-        val repository = GitBranchService.getCurrentRepository(project)
+        val project = event.project ?: return
+
         if (gitFlowPlus.isExistChangeFile(project)) {
             return
         }
+
+        val repository = GitBranchService.getCurrentRepository(project) ?: return
 
         val tagDeleteDialog = TagDeleteDialog(repository)
         if (!tagDeleteDialog.showAndGet()) {
@@ -67,7 +69,7 @@ class DeleteTagAction :
                 var i = 1
                 val faction = 1.0 / deleteTagOptions.tags.size
 
-                NotifyUtil.notifyGitCommand(event.project, "=====================================")
+                NotifyUtil.notifyGitCommand(project, "=====================================")
                 deleteTagOptions.tags
                     .forEach {
                         gitFlowPlus.deleteTag(repository, it.tag)

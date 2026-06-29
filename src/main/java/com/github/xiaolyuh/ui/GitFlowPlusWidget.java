@@ -13,7 +13,6 @@ import com.intellij.openapi.wm.impl.status.EditorBasedWidget;
 import com.intellij.openapi.wm.impl.status.TextPanel;
 import com.intellij.ui.ClickListener;
 import com.intellij.ui.awt.RelativePoint;
-import com.intellij.ui.popup.PopupFactoryImpl;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -32,11 +31,12 @@ public class GitFlowPlusWidget extends EditorBasedWidget implements StatusBarWid
     @SuppressWarnings("deprecation")
     public GitFlowPlusWidget(@NotNull Project project) {
         super(project);
+
         this.project = project;
 
-        iconAnArrows = new TextPanel.WithIconAndArrows() {
-        };
         DefaultActionGroup defaultActionGroup = (DefaultActionGroup) ActionManager.getInstance().getAction("GitFlowPlus.Menu");
+
+        iconAnArrows = new TextPanel.WithIconAndArrows();
         iconAnArrows.setIcon(defaultActionGroup.getTemplatePresentation().getIcon());
         iconAnArrows.setBorder(WidgetBorder.WIDE);
         iconAnArrows.setText("GitFlowPlus");
@@ -55,18 +55,18 @@ public class GitFlowPlusWidget extends EditorBasedWidget implements StatusBarWid
     private void showPopup(MouseEvent e) {
         DefaultActionGroup defaultActionGroup = (DefaultActionGroup) ActionManager.getInstance().getAction("GitFlowPlus.Menu");
 
-        JBPopupFactory popupFactory = PopupFactoryImpl.getInstance();
+        JBPopupFactory popupFactory = JBPopupFactory.getInstance();
 
         ListPopup popup = popupFactory.createActionGroupPopup("",
-                defaultActionGroup, DataManager.getInstance().getDataContext(iconAnArrows)
-                , true, null, -1);
+                defaultActionGroup, DataManager.getInstance().getDataContext(iconAnArrows),
+                true, null, -1);
 
         Dimension dimension = popup.getContent().getPreferredSize();
-        Point at = new Point(0, -dimension.height);
+        Point point = new Point(0, -dimension.height);
 
         Disposer.register(this, popup);
 
-        popup.show(new RelativePoint(e.getComponent(), at));
+        popup.show(new RelativePoint(e.getComponent(), point));
     }
 
     @Override

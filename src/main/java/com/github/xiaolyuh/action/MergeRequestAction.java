@@ -46,47 +46,57 @@ public class MergeRequestAction extends AbstractMergeAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
         Project project = event.getProject();
-        @SuppressWarnings("ConstantConditions") final String currentBranch = gitFlowPlus.getCurrentBranch(project);
+        if (project == null) {
+            return;
+        }
 
-        ConfigService configService = ConfigService.Companion.getInstance(project);
-        final String targetBranch = configService.getInitOptions().getTestBranch();
         final GitRepository repository = GitBranchService.getCurrentRepository(project);
         if (Objects.isNull(repository)) {
             return;
         }
 
+        String currentBranch = gitFlowPlus.getCurrentBranch(project);
+        if (currentBranch == null) {
+            return;
+        }
+
+        ConfigService configService = ConfigService.Companion.getInstance(project);
+        String targetBranch = configService.getInitOptions().getTestBranch();
+
         new Task.Backgroundable(project, "Merge request", false) {
             @SuppressWarnings("ConstantConditions")
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
-                NotifyUtil.notifyGitCommand(event.getProject(), "==================================");
+                NotifyUtil.notifyGitCommand(project, "==================================");
 
                 GitCommandResult result = gitFlowPlus.getLocalLastCommit(repository, currentBranch);
-                String[] msgs = result.getOutputAsJoinedString().split("-body:");
+                String[] msgArray = result.getOutputAsJoinedString().split("-body:");
 
                 SwingUtilities.invokeLater(() -> {
                     MergeRequestDialog mergeRequestDialog = new MergeRequestDialog(project,
-                            msgs.length >= 1 ? msgs[0] : "",
-                            msgs.length >= 2 ? msgs[1] : "");
+                            msgArray.length >= 1 ? msgArray[0] : "",
+                            msgArray.length >= 2 ? msgArray[1] : "");
                     mergeRequestDialog.show();
                     if (!mergeRequestDialog.isOK()) {
                         return;
                     }
+
                     MergeRequestOptions mergeRequestOptions = mergeRequestDialog.getMergeRequestOptions();
 
                     new Task.Backgroundable(project, "Merge request", false) {
-
                         @Override
                         public void run(@NotNull ProgressIndicator indicator) {
                             String tempBranchName = currentBranch + "_temp";
                             // 删除分支
                             gitFlowPlus.deleteBranch(repository, currentBranch, tempBranchName);
+
                             // 新建分支
                             GitCommandResult result = gitFlowPlus.newNewBranchByLocalBranch(repository, currentBranch, tempBranchName);
                             if (!result.success()) {
                                 NotifyUtil.notifyError(project, "Error", result.getErrorOutputAsJoinedString());
                                 return;
                             }
+
                             // 发起merge request
                             result = gitFlowPlus.mergeRequest(repository, tempBranchName, targetBranch, mergeRequestOptions);
                             if (!result.success()) {
@@ -108,7 +118,9 @@ public class MergeRequestAction extends AbstractMergeAction {
 
                             // 刷新
                             repository.update();
-                            myProject.getMessageBus().syncPublisher(GitRepository.GIT_REPO_CHANGE).repositoryChanged(repository);
+
+                            project.getMessageBus().syncPublisher(GitRepository.GIT_REPO_CHANGE).repositoryChanged(repository);
+
                             VirtualFileManager.getInstance().asyncRefresh(null);
                         }
                     }.queue();

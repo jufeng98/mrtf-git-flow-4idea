@@ -23,15 +23,12 @@ object ActionUtils {
     fun isDevBranch(event: AnActionEvent): Boolean {
         val project = event.project ?: return false
 
-        val currentBranch = GitFlowPlus.getInstance().getCurrentBranch(project)
+        val currentBranch = GitFlowPlus.getInstance().getCurrentBranch(project) ?: return false
 
         val initOptions = ConfigService.getInstance(project).getInitOptions()
 
-        val featurePrefix = initOptions.featurePrefix
-        val hotfixPrefix = initOptions.hotfixPrefix
-
-        return StringUtils.startsWith(currentBranch, featurePrefix)
-                || StringUtils.startsWith(currentBranch, hotfixPrefix)
+        return StringUtils.startsWith(currentBranch, initOptions.featurePrefix)
+                || StringUtils.startsWith(currentBranch, initOptions.hotfixPrefix)
     }
 
 }

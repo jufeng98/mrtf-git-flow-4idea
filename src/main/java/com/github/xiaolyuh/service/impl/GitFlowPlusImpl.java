@@ -4,6 +4,7 @@ import com.github.xiaolyuh.config.InitOptions;
 import com.github.xiaolyuh.consts.Constants;
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
+import com.github.xiaolyuh.logger.GitFlowPlusLogger;
 import com.github.xiaolyuh.service.*;
 import com.github.xiaolyuh.utils.*;
 import com.github.xiaolyuh.vo.*;
@@ -13,9 +14,11 @@ import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.FilePath;
 import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vcs.changes.Change;
-import com.intellij.openapi.vcs.changes.ChangeListManager;
+import com.intellij.openapi.vcs.changes.*;
+import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.vcsUtil.VcsUtil;
+import git4idea.GitLocalBranch;
 import git4idea.GitUtil;
 import git4idea.commands.GitCommandResult;
 import git4idea.commands.GitSimpleEventDetector;
@@ -47,12 +50,20 @@ public class GitFlowPlusImpl implements GitFlowPlus {
     private final Git git = Git.getInstance();
 
     @Override
-    public void addConfigToGit(GitRepository repository) {
+    public void addConfigToGit(GitRepository repository, Project project) {
         try {
             String filePath = repository.getProject().getBasePath() + File.separator + Constants.CONFIG_FILE_NAME;
-            @SuppressWarnings("deprecation")
-            FilePath path = VcsUtil.getFilePath(filePath);
-            GitFileUtils.addPaths(repository.getProject(), repository.getRoot(), Lists.newArrayList(path));
+            VirtualFile virtualFile = LocalFileSystem.getInstance().findFileByPath(filePath);
+
+            FilePath path = VcsUtil.getFilePath(Objects.requireNonNull(virtualFile));
+
+            List<FilePath> filePaths = Lists.newArrayList(path);
+
+            GitUtil.sortFilePathsByGitRoot(repository.getProject(), filePaths);
+
+            GitFileUtils.addPaths(repository.getProject(), repository.getRoot(), filePaths);
+
+            VcsDirtyScopeManager.getInstance(project).filePathsDirty(filePaths, null);
         } catch (VcsException e) {
             throw new RuntimeException(e);
         }
@@ -61,6 +72,7 @@ public class GitFlowPlusImpl implements GitFlowPlus {
     @Override
     public GitCommandResult newNewBranchBaseRemoteMaster(@NotNull GitRepository repository, @Nullable String master, @NotNull String newBranchName) {
         git.fetchNewBranchByRemoteMaster(repository, master, newBranchName);
+
         git.checkout(repository, newBranchName);
 
         // 推送分支
@@ -70,7 +82,9 @@ public class GitFlowPlusImpl implements GitFlowPlus {
     @Override
     public GitCommandResult newNewBranchByLocalBranch(@NotNull GitRepository repository, String localBranchName, @NotNull String newBranchName) {
         git.checkout(repository, localBranchName);
+
         git.branch(repository, newBranchName);
+
         return git.checkout(repository, newBranchName);
     }
 
@@ -79,13 +93,16 @@ public class GitFlowPlusImpl implements GitFlowPlus {
                                          String checkoutBranchName,
                                          String branchName) {
         git.checkout(repository, checkoutBranchName);
+
         git.deleteRemoteBranch(repository, branchName);
+
         return git.deleteLocalBranch(repository, branchName);
     }
 
     @Override
     public GitCommandResult deleteTag(@NotNull GitRepository repository, @NotNull String tagName) {
         git.deleteRemoteTag(repository, tagName);
+
         return git.deleteLocalTag(repository, tagName);
     }
 
@@ -95,6 +112,7 @@ public class GitFlowPlusImpl implements GitFlowPlus {
         if (isDeleteLocalBranch) {
             git.deleteLocalBranch(repository, branchName);
         }
+
         git.deleteRemoteBranch(repository, branchName);
     }
 
@@ -102,23 +120,34 @@ public class GitFlowPlusImpl implements GitFlowPlus {
     public GitCommandResult deleteLocalBranch(@NotNull GitRepository repository,
                                               String checkoutBranchName,
                                               String branchName) {
-
         git.checkout(repository, checkoutBranchName);
+
         return git.deleteLocalBranch(repository, branchName);
     }
 
     @Override
-    public String getCurrentBranch(@NotNull Project project) {
+    public @Nullable String getCurrentBranch(@NotNull Project project) {
         GitRepository repository = GitBranchService.getCurrentRepository(project);
-        //noinspection DataFlowIssue
-        return repository.getCurrentBranch().getName();
+        if (repository == null) {
+            return null;
+        }
+
+        GitLocalBranch currentBranch = repository.getCurrentBranch();
+        if (currentBranch == null) {
+            return null;
+        }
+
+        return currentBranch.getName();
     }
 
     @Override
     public String getRemoteLastCommit(@NotNull GitRepository repository, @Nullable String remoteBranchName) {
         git.fetch(repository);
+
         GitCommandResult result = git.showRemoteLastCommit(repository, remoteBranchName);
+
         GitCommandResult lastReleaseTimeResult = git.getLastReleaseTime(repository);
+
         String msg = result.getOutputAsJoinedString();
         msg = msg.replaceFirst("Author:", "\r\n  Author: ");
         msg = msg.replaceFirst("-Message:", ";\r\n  Message: ");
@@ -135,6 +164,7 @@ public class GitFlowPlusImpl implements GitFlowPlus {
     @Override
     public GitCommandResult getLocalLastCommit(@NotNull GitRepository repository, @Nullable String branchName) {
         git.fetch(repository);
+
         return git.showLocalLastCommit(repository, branchName);
     }
 
@@ -186,6 +216,7 @@ public class GitFlowPlusImpl implements GitFlowPlus {
     @Override
     public List<TagVo> getTagDetailList(GitRepository repository) {
         GitCommandResult gitCommandResult = git.tagDetailList(repository);
+
         List<String> output = gitCommandResult.getOutput();
         return output.stream()
                 .map(it -> {
@@ -207,7 +238,9 @@ public class GitFlowPlusImpl implements GitFlowPlus {
     @Override
     public List<String> getMergedBranchList(GitRepository repository) {
         String date = DateFormatUtils.format(DateUtils.addYears(new Date(), -2), DATE_PATTERN);
+
         GitCommandResult branchList = git.getMergedBranchList(repository, date);
+
         List<String> output = branchList.getOutput();
         return output.stream()
                 .filter(StringUtils::isNotBlank)
@@ -228,6 +261,7 @@ public class GitFlowPlusImpl implements GitFlowPlus {
             ConfigService configService = ConfigService.Companion.getInstance(repository.getProject());
             return configService.getInitOptions().getReleaseBranch();
         });
+
         // 判断目标分支是否存在
         GitCommandResult result = checkTargetBranchIsExist(repository, targetBranch);
         if (Objects.nonNull(result) && !result.success()) {
@@ -249,9 +283,9 @@ public class GitFlowPlusImpl implements GitFlowPlus {
         }
 
         // 合并代码
-        GitSimpleEventDetector mergeConflict = new GitSimpleEventDetector(GitSimpleEventDetector.Event.MERGE_CONFLICT);
         String sourceBranch = Objects.nonNull(tagOptions) ? releaseBranch : currentBranch;
 
+        GitSimpleEventDetector mergeConflict = new GitSimpleEventDetector(GitSimpleEventDetector.Event.MERGE_CONFLICT);
         result = git.merge(repository, sourceBranch, targetBranch, mergeConflict);
 
         boolean allConflictsResolved = true;
@@ -320,7 +354,9 @@ public class GitFlowPlusImpl implements GitFlowPlus {
     @Override
     public boolean isLock(GitRepository repository) {
         git.fetch(repository);
+
         repository.update();
+
         return isLock(repository.getProject());
     }
 
@@ -329,6 +365,7 @@ public class GitFlowPlusImpl implements GitFlowPlus {
         try {
             Project project = repository.getProject();
             ConfigService configService = ConfigService.Companion.getInstance(project);
+
             String dingtalkToken = configService.getInitOptions().getDingtalkToken();
             if (StringUtils.isNotBlank(dingtalkToken)) {
                 String url = String.format("https://oapi.dingtalk.com/robot/send?access_token=%s", dingtalkToken);
@@ -371,8 +408,11 @@ public class GitFlowPlusImpl implements GitFlowPlus {
             if (result.getExitCode() != 0 || pos == -1) {
                 return "";
             }
+
             return output.substring(0, pos);
         } catch (VcsException e) {
+            GitFlowPlusLogger.INSTANCE.logWarn("错误", e);
+
             return "";
         }
     }
@@ -386,6 +426,7 @@ public class GitFlowPlusImpl implements GitFlowPlus {
             GitUIUtil.showOperationError(repository.getProject(), GitBundle.message("tag.getting.existing.tags"), result.getErrorOutputAsJoinedString());
             throw new ProcessCanceledException();
         }
+
         for (StringScanner s = new StringScanner(result.getOutputAsJoinedString()); s.hasMoreData(); ) {
             String line = s.line();
             if (line.isEmpty()) {
@@ -447,6 +488,5 @@ public class GitFlowPlusImpl implements GitFlowPlus {
             notifyWarning(I18n.getContent(I18nKey.MERGE_CONFLICT_TITLE), I18n.getContent(I18nKey.MERGE_CONFLICT_CONTENT, currentBranch, targetBranch));
         }
     }
-
 
 }

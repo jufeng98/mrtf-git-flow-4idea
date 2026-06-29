@@ -20,12 +20,11 @@ public class RebuildActionGroup extends DefaultActionGroup {
 
     @Override
     public void update(@NotNull AnActionEvent event) {
-        super.update(event);
         event.getPresentation().setText(I18n.getContent(I18nKey.REBUILD_ACTION_GROUP$TEXT));
     }
 
     @Override
     public @NotNull ActionUpdateThread getActionUpdateThread() {
-        return ActionUpdateThread.EDT;
+        return ActionUpdateThread.BGT;
     }
 }

@@ -23,6 +23,7 @@ public class UnLockCheckValve extends Valve {
 
     @Override
     public boolean invoke(Project project, GitRepository repository, String sourceBranch, String targetBranch, TagOptions tagOptions) {
+        //noinspection ConstantValue
         if (true) {
             return true;
         }

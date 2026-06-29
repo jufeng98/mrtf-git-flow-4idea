@@ -39,6 +39,7 @@ public class GitImpl implements Git {
     public GitCommandResult checkout(@NotNull GitRepository repository, @NotNull String reference) {
         // 切换分支
         NotifyUtil.notifyGitCommand(repository.getProject(), String.format("git -c core.quotepath=false -c log.showSignature=false checkout %s --force", reference));
+
         return git.checkout(repository, reference, null, true, false);
     }
 
@@ -51,7 +52,9 @@ public class GitImpl implements Git {
         h.addParameters("-b");
         h.addParameters(branchName);
         h.addParameters("origin/" + branchName);
+
         NotifyUtil.notifyGitCommand(repository.getProject(), h.printableCommandLine());
+
         return git.runCommand(h);
     }
 
@@ -59,6 +62,7 @@ public class GitImpl implements Git {
     public GitCommandResult fetchNewBranchByRemoteMaster(GitRepository repository, String master, String newBranchName) {
         //git fetch origin 远程分支名x:本地分支名x
         GitRemote remote = getDefaultRemote(repository);
+
         GitLineHandler h = new GitLineHandler(repository.getProject(), repository.getRoot(), GitCommand.FETCH);
         h.setSilent(false);
         h.setStdoutSuppressed(false);
@@ -69,6 +73,7 @@ public class GitImpl implements Git {
         h.addParameters("-f");
 
         NotifyUtil.notifyGitCommand(repository.getProject(), h.printableCommandLine());
+
         return git.runCommand(h);
     }
 
@@ -76,6 +81,7 @@ public class GitImpl implements Git {
     public GitCommandResult branch(@NotNull GitRepository repository, @NotNull String newBranchName) {
         //git branch 本地分支名x
         GitRemote remote = getDefaultRemote(repository);
+
         GitLineHandler h = new GitLineHandler(repository.getProject(), repository.getRoot(), GitCommand.BRANCH);
         h.setSilent(false);
         h.setStdoutSuppressed(false);
@@ -84,6 +90,7 @@ public class GitImpl implements Git {
         h.addParameters(newBranchName);
 
         NotifyUtil.notifyGitCommand(repository.getProject(), h.printableCommandLine());
+
         return git.runCommand(h);
     }
 
@@ -91,7 +98,6 @@ public class GitImpl implements Git {
     public GitCommandResult renameBranch(@NotNull GitRepository repository,
                                          @NotNull String oldBranch,
                                          @NotNull String newBranchName) {
-
         return git.renameBranch(repository, oldBranch, newBranchName);
     }
 
@@ -110,6 +116,7 @@ public class GitImpl implements Git {
     @Override
     public GitCommandResult push(GitRepository repository, String localBranchName, String remoteBranchName, boolean isNewBranch) {
         GitRemote remote = getDefaultRemote(repository);
+
         GitLineHandler h = new GitLineHandler(repository.getProject(), repository.getRoot(), GitCommand.PUSH);
         h.setSilent(false);
         h.setStdoutSuppressed(false);
@@ -131,12 +138,14 @@ public class GitImpl implements Git {
         }
 
         NotifyUtil.notifyGitCommand(repository.getProject(), h.printableCommandLine());
+
         return git.runCommand(h);
     }
 
     @Override
     public GitCommandResult deleteRemoteBranch(@NotNull GitRepository repository, @Nullable String branchName) {
         GitRemote remote = getDefaultRemote(repository);
+
         GitLineHandler h = new GitLineHandler(repository.getProject(), repository.getRoot(), GitCommand.PUSH);
         h.setSilent(false);
         h.setStdoutSuppressed(false);
@@ -146,12 +155,14 @@ public class GitImpl implements Git {
         h.addParameters(branchName);
 
         NotifyUtil.notifyGitCommand(repository.getProject(), h.printableCommandLine());
+
         return git.runCommand(h);
     }
 
     @Override
     public GitCommandResult deleteRemoteTag(@NotNull GitRepository repository, @Nullable String tagName) {
         GitRemote remote = getDefaultRemote(repository);
+
         GitLineHandler h = new GitLineHandler(repository.getProject(), repository.getRoot(), GitCommand.PUSH);
         h.setSilent(false);
         h.setStdoutSuppressed(false);
@@ -161,6 +172,7 @@ public class GitImpl implements Git {
         h.addParameters(tagName);
 
         NotifyUtil.notifyGitCommand(repository.getProject(), h.printableCommandLine());
+
         return git.runCommand(h);
     }
 
@@ -168,12 +180,14 @@ public class GitImpl implements Git {
     public GitCommandResult deleteLocalBranch(@NotNull GitRepository repository, @NotNull String branchName) {
         // 删除本地分支
         NotifyUtil.notifyGitCommand(repository.getProject(), String.format("git -c core.quotepath=false -c log.showSignature=false branch -D %s", branchName));
+
         return git.branchDelete(repository, branchName, true);
     }
 
     @Override
     public GitCommandResult deleteLocalTag(@NotNull GitRepository repository, @NotNull String tagName) {
         NotifyUtil.notifyGitCommand(repository.getProject(), String.format("git -c core.quotepath=false -c log.showSignature=false tag -d %s", tagName));
+
         return git.deleteTag(repository, tagName);
     }
 
@@ -181,6 +195,7 @@ public class GitImpl implements Git {
     public GitCommandResult showRemoteLastCommit(@NotNull GitRepository repository, @Nullable String remoteBranchName) {
         //git show origin/master -s --format=Author:%ae-Date:%ad-Message:%s --date=format:%Y-%m-%d_%H:%M:%S
         GitRemote remote = getDefaultRemote(repository);
+
         GitLineHandler h = new GitLineHandler(repository.getProject(), repository.getRoot(), GitCommand.SHOW);
         h.setSilent(false);
         h.setStdoutSuppressed(false);
@@ -190,6 +205,7 @@ public class GitImpl implements Git {
         h.addParameters("--format=Author:%ae-Message:%s");
 
         NotifyUtil.notifyGitCommand(repository.getProject(), h.printableCommandLine());
+
         return git.runCommand(h);
     }
 
@@ -197,6 +213,7 @@ public class GitImpl implements Git {
     public GitCommandResult showLocalLastCommit(@NotNull GitRepository repository, @Nullable String localBranchName) {
         //git show master  -s --format=%s-body:%b
         GitRemote remote = getDefaultRemote(repository);
+
         GitLineHandler h = new GitLineHandler(repository.getProject(), repository.getRoot(), GitCommand.SHOW);
         h.setSilent(false);
         h.setStdoutSuppressed(false);
@@ -206,6 +223,7 @@ public class GitImpl implements Git {
         h.addParameters("--format=%s-body:%b");
 
         NotifyUtil.notifyGitCommand(repository.getProject(), h.printableCommandLine());
+
         return git.runCommand(h);
     }
 
@@ -213,6 +231,7 @@ public class GitImpl implements Git {
     public GitCommandResult getLastReleaseTime(@NotNull GitRepository repository) {
         //git reflog show --date=iso <branch name>
         GitRemote remote = getDefaultRemote(repository);
+
         GitLineHandler h = new GitLineHandler(repository.getProject(), repository.getRoot(), getReadGitCommand());
         h.setSilent(false);
         h.setStdoutSuppressed(false);
@@ -222,12 +241,14 @@ public class GitImpl implements Git {
         h.addParameters("origin/" + Constants.LOCK_BRANCH_NAME);
 
         NotifyUtil.notifyGitCommand(repository.getProject(), h.printableCommandLine());
+
         return git.runCommand(h);
     }
 
     @Override
     public GitCommandResult getAllBranchList(GitRepository repository) {
         GitRemote remote = this.getDefaultRemote(repository);
+
         GitLineHandler h = new GitLineHandler(repository.getProject(), repository.getRoot(), GitCommand.BRANCH);
         h.setSilent(false);
         h.setStdoutSuppressed(false);
@@ -235,13 +256,16 @@ public class GitImpl implements Git {
         h.addParameters("-a");
         h.addParameters("--sort", "committerdate");
         h.addParameters("--format", "%(committerdate:format:%Y-%m-%d %H:%M:%S)@@@%(authorname)@@@%(refname:short)");
+
         NotifyUtil.notifyGitCommand(repository.getProject(), h.printableCommandLine());
+
         return git.runCommand(h);
     }
 
     @Override
     public GitCommandResult getMergedBranchList(GitRepository repository, String date) {
         GitRemote remote = this.getDefaultRemote(repository);
+
         GitLineHandler h = new GitLineHandler(repository.getProject(), repository.getRoot(), GitCommand.LOG);
         h.setSilent(false);
         h.setStdoutSuppressed(false);
@@ -250,7 +274,9 @@ public class GitImpl implements Git {
         h.addParameters(String.format("--after=%s", date));
         h.addParameters("--grep=Merge");
         h.addParameters("--format=%s-body:%b");
+
         NotifyUtil.notifyGitCommand(repository.getProject(), h.printableCommandLine());
+
         return this.git.runCommand(h);
     }
 
@@ -262,10 +288,12 @@ public class GitImpl implements Git {
         h.addParameters("-f");
         h.addParameters("-m");
         h.addParameters(message);
+
         ConfigService configService = ConfigService.Companion.getInstance(repository.getProject());
         h.addParameters(configService.getInitOptions().getTagPrefix() + tagName);
 
         NotifyUtil.notifyGitCommand(repository.getProject(), h.printableCommandLine());
+
         return git.runCommand(h);
     }
 
@@ -299,12 +327,14 @@ public class GitImpl implements Git {
     @Override
     public GitCommandResult fetch(@NotNull GitRepository repository) {
         NotifyUtil.notifyGitCommand(repository.getProject(), "git -c core.quotepath=false -c log.showSignature=false fetch origin");
+
         return git.fetch(repository, getDefaultRemote(repository), Collections.singletonList(new GitFetchPruneDetector()));
     }
 
     @Override
     public GitCommandResult pull(GitRepository repository, @Nullable String branchName) {
         GitRemote remote = getDefaultRemote(repository);
+
         GitLineHandler h = new GitLineHandler(repository.getProject(), repository.getRoot(), GitCommand.PULL);
         h.setSilent(false);
         h.setStdoutSuppressed(false);
@@ -313,6 +343,7 @@ public class GitImpl implements Git {
         h.addParameters(branchName + ":" + branchName);
 
         NotifyUtil.notifyGitCommand(repository.getProject(), h.printableCommandLine());
+
         return git.runCommand(h);
     }
 
@@ -320,9 +351,11 @@ public class GitImpl implements Git {
     public GitCommandResult merge(@NotNull GitRepository repository, @NotNull String sourceBranch, @Nullable String targetBranch, @NotNull GitLineHandlerListener... listeners) {
         NotifyUtil.notifyGitCommand(repository.getProject(),
                 String.format("git -c core.quotepath=false -c log.showSignature=false merge %s -m \"Merge branch '%s' into %s\"", sourceBranch, sourceBranch, targetBranch));
+
         List<String> params = new ArrayList<>();
         params.add("-m");
         params.add(String.format("Merge branch '%s' into %s", sourceBranch, targetBranch));
+
         return git.merge(repository, sourceBranch, params, listeners);
     }
 
@@ -331,7 +364,9 @@ public class GitImpl implements Git {
         GitLineHandler h = new GitLineHandler(repository.getProject(), repository.getRoot(), GitCommand.CONFIG);
         h.setSilent(true);
         h.addParameters("--null", "--get", "user.email");
+
         NotifyUtil.notifyGitCommand(repository.getProject(), h.printableCommandLine());
+
         return git.runCommand(h);
     }
 
@@ -339,6 +374,7 @@ public class GitImpl implements Git {
     public GitCommandResult mergeRequest(GitRepository repository, String sourceBranch, String targetBranch, MergeRequestOptions mergeRequestOptions) {
         // git push -o merge_request.create -o merge_request.target=%s -o merge_request.title=%s -o merge_request.description=%s -o merge_request.label="label1"
         GitRemote remote = getDefaultRemote(repository);
+
         GitLineHandler h = new GitLineHandler(repository.getProject(), repository.getRoot(), GitCommand.PUSH);
         h.setSilent(false);
         h.setStdoutSuppressed(false);
@@ -355,6 +391,7 @@ public class GitImpl implements Git {
         h.addParameters("-o", String.format("merge_request.description=%s", mergeRequestOptions.getMessage()));
 
         NotifyUtil.notifyGitCommand(repository.getProject(), h.printableCommandLine());
+
         return git.runCommand(h);
     }
 

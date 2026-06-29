@@ -1,18 +1,22 @@
 package com.github.xiaolyuh.service;
 
+import com.github.xiaolyuh.consts.Constants;
+import com.github.xiaolyuh.logger.GitFlowPlusLogger;
 import com.github.xiaolyuh.utils.CollectionUtils;
 import com.intellij.openapi.components.Service;
+import com.intellij.openapi.fileEditor.FileEditor;
+import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
-import git4idea.GitLocalBranch;
-import git4idea.GitReference;
-import git4idea.GitRemoteBranch;
-import git4idea.GitUtil;
+import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.openapi.vfs.VirtualFile;
+import git4idea.*;
+import git4idea.branch.GitBranchUtil;
 import git4idea.repo.GitRepository;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.io.File;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -23,8 +27,8 @@ import java.util.stream.Collectors;
  */
 @Service(Service.Level.PROJECT)
 public final class GitBranchService {
-    private Boolean gitProject;
-    private GitRepository currentRepository;
+    private volatile Boolean gitProject;
+    private volatile GitRepository currentRepository;
 
     public static GitBranchService getInstance(Project project) {
         return project.getService(GitBranchService.class);
@@ -84,12 +88,13 @@ public final class GitBranchService {
             return gitBranchService.gitProject;
         }
 
-        boolean gitProject = CollectionUtils.isNotEmpty(GitUtil.getRepositoryManager(project).getRepositories());
-        if (!gitProject) {
+        List<GitRepository> repositories = GitUtil.getRepositoryManager(project).getRepositories();
+        if (CollectionUtils.isEmpty(repositories)) {
             return false;
         }
 
         gitBranchService.gitProject = true;
+        GitFlowPlusLogger.INSTANCE.logInfo("当前属于 git 项目:" + repositories);
 
         return true;
     }
@@ -99,20 +104,35 @@ public final class GitBranchService {
      *
      * @param project project
      */
-    public static GitRepository getCurrentRepository(@NotNull Project project) {
+    public static @Nullable GitRepository getCurrentRepository(@NotNull Project project) {
         GitBranchService gitBranchService = getInstance(project);
 
         GitRepository currentRepository = gitBranchService.currentRepository;
-
         if (currentRepository != null) {
             return currentRepository;
         }
 
-        //noinspection deprecation
-        currentRepository = git4idea.branch.GitBranchUtil.getCurrentRepository(project);
+        String filePath = project.getBasePath() + File.separator + Constants.CONFIG_FILE_NAME;
+        VirtualFile virtualFile = LocalFileSystem.getInstance().findFileByPath(filePath);
+        if (virtualFile == null) {
+            FileEditor fileEditor = FileEditorManager.getInstance(project).getSelectedEditor();
+            if (fileEditor != null) {
+                virtualFile = fileEditor.getFile();
+            }
+        }
 
-        gitBranchService.currentRepository = currentRepository;
+        if (virtualFile == null) {
+            return null;
+        }
 
-        return currentRepository;
+        GitRepository repository = GitBranchUtil.guessWidgetRepository(project, virtualFile);
+        if (repository == null) {
+            return null;
+        }
+
+        gitBranchService.currentRepository = repository;
+        GitFlowPlusLogger.INSTANCE.logInfo("当前仓库为:" + repository);
+
+        return repository;
     }
 }

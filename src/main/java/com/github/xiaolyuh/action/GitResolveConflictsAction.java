@@ -8,7 +8,7 @@ import com.intellij.openapi.actionSystem.Presentation;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * 提测
+ * 解决冲突
  *
  * @author yuhao.wang3
  */
@@ -25,10 +25,6 @@ public class GitResolveConflictsAction extends git4idea.actions.GitResolveConfli
         event.getPresentation().setText(I18n.getContent(I18nKey.GIT_RESOLVE_CONFLICTS_ACTION$TEXT));
     }
 
-    @Override
-    public @NotNull ActionUpdateThread getActionUpdateThread() {
-        return ActionUpdateThread.EDT;
-    }
 }
 
 

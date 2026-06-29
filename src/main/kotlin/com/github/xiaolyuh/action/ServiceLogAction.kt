@@ -2,7 +2,7 @@ package com.github.xiaolyuh.action
 
 import com.github.xiaolyuh.i18n.I18n
 import com.github.xiaolyuh.icons.GitFlowPlusIcons
-import com.github.xiaolyuh.service.ConfigService.Companion.getInstance
+import com.github.xiaolyuh.logger.GitFlowPlusLogger.logWarn
 import com.github.xiaolyuh.service.KubesphereService
 import com.github.xiaolyuh.ui.KbsMsgForm
 import com.github.xiaolyuh.ui.ServiceDialog
@@ -41,11 +41,11 @@ class ServiceLogAction : AnAction(I18n.nls("action.log.txt"), I18n.nls("action.l
     }
 
     override fun getActionUpdateThread(): ActionUpdateThread {
-        return ActionUpdateThread.EDT
+        return ActionUpdateThread.BGT
     }
 
     override fun actionPerformed(e: AnActionEvent) {
-        val project = e.project!!
+        val project = e.project ?: return
 
         val serviceDialog = ServiceDialog(I18n.getContent("choose.service"), project)
 
@@ -69,7 +69,7 @@ class ServiceLogAction : AnAction(I18n.nls("action.log.txt"), I18n.nls("action.l
                     val kubesphereService = KubesphereService.getInstance(project)
                     instanceVos = kubesphereService.findInstanceName(selectService, true)
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    logWarn("error", e)
 
                     NotifyUtil.notifyError(project, ExceptionUtils.getStackTrace(e))
                     return
@@ -126,7 +126,7 @@ class ServiceLogAction : AnAction(I18n.nls("action.log.txt"), I18n.nls("action.l
                         500, instanceVo.isPreviews, false, true
                     )
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    logWarn("error", e)
 
                     NotifyUtil.notifyError(project, ExceptionUtils.getStackTrace(e))
                     return
@@ -172,9 +172,7 @@ class ServiceLogAction : AnAction(I18n.nls("action.log.txt"), I18n.nls("action.l
 
                 contentManager.setSelectedContent(content)
 
-                toolWindow.activate {
-                    form.scrollToBottom()
-                }
+                toolWindow.activate { form.scrollToBottom() }
             }
 
         }

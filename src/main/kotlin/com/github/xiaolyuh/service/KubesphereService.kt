@@ -293,7 +293,7 @@ class KubesphereService(private val project: Project) {
         val compileLogUrl = configService.getCompileLogUrl(id, mainTest)
 
         if (StringUtils.isBlank(compileLogUrl)) {
-            throw RuntimeException("构建失败了,由于未配置 compileLogPath 参数,无法获取详细构建错误信息")
+            throw RuntimeException("构建失败了,由于未配置 compileLogUrl 参数,无法获取详细构建错误信息")
         }
 
         val futureCompile = CompletableFuture.supplyAsync {

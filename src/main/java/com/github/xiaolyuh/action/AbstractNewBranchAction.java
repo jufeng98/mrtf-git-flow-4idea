@@ -2,14 +2,10 @@ package com.github.xiaolyuh.action;
 
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
-import com.github.xiaolyuh.service.ConfigService;
-import com.github.xiaolyuh.service.GitFlowPlus;
-import com.github.xiaolyuh.service.GitBranchService;
+import com.github.xiaolyuh.service.*;
 import com.github.xiaolyuh.utils.NotifyUtil;
 import com.github.xiaolyuh.utils.StringUtils;
-import com.intellij.openapi.actionSystem.ActionUpdateThread;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
@@ -35,21 +31,21 @@ public abstract class AbstractNewBranchAction extends AnAction {
 
     @Override
     public void update(@NotNull AnActionEvent event) {
-        super.update(event);
         Project project = event.getProject();
         if (project == null) {
             return;
         }
 
-        ConfigService configService = ConfigService.Companion.getInstance(project);
+        boolean enabled = GitBranchService.isGitProject(project) && ConfigService.Companion.getInstance(project).isInit();
 
-        event.getPresentation().setEnabled(GitBranchService.isGitProject(project) && configService.isInit());
+        event.getPresentation().setEnabled(enabled);
+
         setEnabledAndText(event);
     }
 
     @Override
     public @NotNull ActionUpdateThread getActionUpdateThread() {
-        return ActionUpdateThread.EDT;
+        return ActionUpdateThread.BGT;
     }
 
     /**
@@ -60,7 +56,12 @@ public abstract class AbstractNewBranchAction extends AnAction {
     @Override
     public void actionPerformed(AnActionEvent event) {
         Project project = event.getProject();
+        if (project == null) {
+            return;
+        }
+
         String featurePrefix = getPrefix(project);
+
         // 获取输入框内容
         String inputString = getInputString(project);
         if (StringUtils.isBlank(inputString)) {
@@ -68,29 +69,29 @@ public abstract class AbstractNewBranchAction extends AnAction {
         }
 
         // 获取开发分支完整名称
-        final String newBranchName = featurePrefix + inputString;
-        @SuppressWarnings("ConstantConditions") final GitRepository repository = GitBranchService.getCurrentRepository(project);
+        String newBranchName = featurePrefix + inputString;
+
+        GitRepository repository = GitBranchService.getCurrentRepository(project);
         if (Objects.isNull(repository)) {
+            return;
+        }
+
+        if (gitFlowPlus.isExistChangeFile(project)) {
             return;
         }
 
         new Task.Backgroundable(project, getTitle(newBranchName), false) {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
-                ConfigService configService = ConfigService.Companion.getInstance(project);
-                final String master = configService.getInitOptions().getMasterBranch();
-
-                if (gitFlowPlus.isExistChangeFile(project)) {
-                    return;
-                }
+                String master = ConfigService.Companion.getInstance(project).getInitOptions().getMasterBranch();
 
                 NotifyUtil.notifyGitCommand(event.getProject(), "==================================");
+
                 if (isDeleteBranch()) {
                     // 删除分支
                     GitCommandResult result = gitFlowPlus.deleteBranch(repository, master, newBranchName);
                     if (result.success()) {
-                        NotifyUtil.notifySuccess(myProject, "Success",
-                                I18n.getContent(I18nKey.DELETE_BRANCH_SUCCESS, newBranchName));
+                        NotifyUtil.notifySuccess(myProject, "Success", I18n.getContent(I18nKey.DELETE_BRANCH_SUCCESS, newBranchName));
                     } else {
                         NotifyUtil.notifyError(myProject, "Error",
                                 I18n.getContent(I18nKey.DELETE_BRANCH_ERROR) + "：" + result.getErrorOutputAsJoinedString());
@@ -108,6 +109,7 @@ public abstract class AbstractNewBranchAction extends AnAction {
 
                 // 刷新
                 repository.update();
+
                 VirtualFileManager.getInstance().asyncRefresh(null);
             }
         }.queue();

@@ -30,13 +30,17 @@ public class MergeValve extends Valve {
         GitCommandResult result = gitFlowPlus.mergeBranchAndPush(repository, sourceBranch, targetBranch, tagOptions);
         if (result.success()) {
             ConfigService configService = ConfigService.Companion.getInstance(project);
+
             String releaseBranch = ReadAction.compute(() -> configService.getInitOptions().getReleaseBranch());
+
             String source = Objects.nonNull(tagOptions) ? releaseBranch : sourceBranch;
             NotifyUtil.notifySuccess(project, "Success", I18n.getContent(I18nKey.MERGE_VALVE$MERGE_SUCCESS, source, targetBranch));
+
             return true;
         }
 
         NotifyUtil.notifyError(project, "Error", result.getErrorOutputAsJoinedString());
+
         return false;
     }
 }
