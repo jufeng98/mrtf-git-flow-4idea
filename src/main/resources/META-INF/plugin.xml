@@ -57,6 +57,10 @@
     <change-notes>
         <![CDATA[
             <ul>
+                <li><b>2.4.7</b></li>
+                <ul>
+                    <li>支持262</li>
+                </ul>
                 <li><b>2.4.6</b></li>
                 <ul>
                     <li>调整耗时逻辑,从 UI 线程移出,避免 IDEA 出现卡顿现象</li>

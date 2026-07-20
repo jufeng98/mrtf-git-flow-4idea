@@ -3,11 +3,11 @@ import java.net.URI
 plugins {
     id("java")
     id("org.jetbrains.kotlin.jvm") version "1.9.25"
-    id("org.jetbrains.intellij.platform") version "2.3.0"
+    id("org.jetbrains.intellij.platform") version "2.5.0"
 }
 
 group = "com.github.xiaolyuh"
-version = "2.4.6"
+version = "2.4.7"
 
 repositories {
     maven { url = URI("https://maven.aliyun.com/nexus/content/groups/public/") }
@@ -22,6 +22,7 @@ dependencies {
     intellijPlatform {
         create("IC", "2024.3")
         testFramework(org.jetbrains.intellij.platform.gradle.TestFrameworkType.Platform)
+        bundledPlugin("com.intellij.java")
         bundledPlugin("Git4Idea")
     }
 
@@ -32,7 +33,7 @@ intellijPlatform {
     pluginConfiguration {
         ideaVersion {
             sinceBuild = "230"
-            untilBuild = "261.*"
+            untilBuild = provider { null }
         }
     }
 }
