@@ -14,6 +14,15 @@ object ActionUtils {
         return configService.isInit() && configService.existsK8sOptions()
     }
 
+    fun shouldShowStaging(e: AnActionEvent): Boolean {
+        val project = e.project ?: return false
+
+        val configService = ConfigService.getInstance(project)
+
+        return configService.isInit() && !ConfigService.getInstance(project)
+            .getInitOptions().stagingBranch.isNullOrBlank()
+    }
+
     fun shouldShowSec(e: AnActionEvent): Boolean {
         val project = e.project ?: return false
 

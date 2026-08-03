@@ -28,6 +28,7 @@ public class InitPluginDialog extends DialogWrapper {
     private JComboBox<String> releaseBranchComboBox;
     private JComboBox<String> testBranchComboBox;
     private JComboBox<String> testBranchComboBoxSec;
+    private JComboBox<String> stagingComboBox;
     private JTextField featurePrefixTextField;
     private JTextField hotfixPrefixTextField;
     private JTextField tagPrefixTextField;
@@ -49,6 +50,7 @@ public class InitPluginDialog extends DialogWrapper {
     private JLabel featureBranchPrefixLabel;
     private JLabel hotfixBranchPrefixLabel;
     private JLabel tagNamePrefixLabel;
+    private JLabel stagingLabel;
     private JPanel mainPanel;
 
     public InitPluginDialog(Project project) {
@@ -78,6 +80,7 @@ public class InitPluginDialog extends DialogWrapper {
         releaseBranchLabel.setText(I18n.getContent(I18nKey.INIT_PLUGIN_DIALOG$RELEASE_BRANCH_LABEL, language));
         testBranchLabel.setText(I18n.getContent(I18nKey.INIT_PLUGIN_DIALOG$TEST_BRANCH_LABEL, language));
         testBranchLabelSec.setText(I18n.getContent(I18nKey.INIT_PLUGIN_DIALOG$TEST_BRANCH_LABEL2, language));
+        stagingLabel.setText(I18n.getContent("InitPluginDialog.stagingBranchLabel", language));
         branchOptionsConfig.setText(I18n.getContent(I18nKey.INIT_PLUGIN_DIALOG$BRANCH_OPTIONS_CONFIG, language));
         releaseFinishIsDeleteReleaseCheckBox.setText(I18n.getContent(I18nKey.INIT_PLUGIN_DIALOG$RELEASE_FINISH_DELETE_RELEASE, language));
         releaseFinishIsDeleteFeatureCheckBox.setText(I18n.getContent(I18nKey.INIT_PLUGIN_DIALOG$RELEASE_FINISH_DELETE_FEATURE, language));
@@ -96,6 +99,7 @@ public class InitPluginDialog extends DialogWrapper {
         options.setReleaseBranch((String) releaseBranchComboBox.getSelectedItem());
         options.setTestBranch((String) testBranchComboBox.getSelectedItem());
         options.setTestBranchSec((String) testBranchComboBoxSec.getSelectedItem());
+        options.setStagingBranch((String) stagingComboBox.getSelectedItem());
         options.setFeaturePrefix(featurePrefixTextField.getText());
         options.setHotfixPrefix(hotfixPrefixTextField.getText());
         options.setTagPrefix(tagPrefixTextField.getText());
@@ -125,6 +129,7 @@ public class InitPluginDialog extends DialogWrapper {
             releaseBranchComboBox.setModel(new CollectionComboBoxModel<>(remoteBranches, options.getReleaseBranch()));
             testBranchComboBox.setModel(new CollectionComboBoxModel<>(remoteBranches, options.getTestBranch()));
             testBranchComboBoxSec.setModel(new CollectionComboBoxModel<>(remoteBranches, options.getTestBranchSec()));
+            stagingComboBox.setModel(new CollectionComboBoxModel<>(remoteBranches, options.getStagingBranch()));
             languageComboBox.setModel(new CollectionComboBoxModel<>(languages, options.getLanguage().getLanguage()));
 
             featurePrefixTextField.setText(options.getFeaturePrefix());
@@ -141,6 +146,7 @@ public class InitPluginDialog extends DialogWrapper {
             releaseBranchComboBox.setModel(new CollectionComboBoxModel<>(remoteBranches));
             testBranchComboBox.setModel(new CollectionComboBoxModel<>(remoteBranches));
             testBranchComboBoxSec.setModel(new CollectionComboBoxModel<>(remoteBranches));
+            stagingComboBox.setModel(new CollectionComboBoxModel<>(remoteBranches));
             languageComboBox.setModel(new CollectionComboBoxModel<>(languages, UiBundle.INSTANCE.getLanguageEnum().getLanguage()));
         }
 

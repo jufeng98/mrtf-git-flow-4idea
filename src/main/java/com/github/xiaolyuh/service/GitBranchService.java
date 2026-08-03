@@ -51,6 +51,7 @@ public final class GitBranchService {
 
         return remoteBranches.parallelStream()
                 .map(GitRemoteBranch::getNameForRemoteOperations)
+                .sorted()
                 .collect(Collectors.toList());
 
     }
