@@ -13,13 +13,10 @@ import git4idea.repo.GitRepository;
 import java.util.Objects;
 
 /**
- * 分支合并阀门
- *
- * @author yuhao.wang3
- * @since 2020/4/7 16:42
+ * 分支合并阀门(合并完成后停留在目标分支)
  */
-public class MergeValve extends Valve {
-    private static final MergeValve valve = new MergeValve();
+public class MergeValveNotSwitchBack extends Valve {
+    private static final MergeValveNotSwitchBack valve = new MergeValveNotSwitchBack();
 
     public static Valve getInstance() {
         return valve;
@@ -27,7 +24,7 @@ public class MergeValve extends Valve {
 
     @Override
     public boolean invoke(Project project, GitRepository repository, String sourceBranch, String targetBranch, TagOptions tagOptions) {
-        GitCommandResult result = gitFlowPlus.mergeBranchAndPush(repository, sourceBranch, targetBranch, tagOptions, true);
+        GitCommandResult result = gitFlowPlus.mergeBranchAndPush(repository, sourceBranch, targetBranch, tagOptions, false);
         if (result.success()) {
             ConfigService configService = ConfigService.Companion.getInstance(project);
 

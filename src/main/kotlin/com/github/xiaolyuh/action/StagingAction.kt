@@ -3,13 +3,11 @@ package com.github.xiaolyuh.action
 import com.github.xiaolyuh.i18n.I18n
 import com.github.xiaolyuh.i18n.I18nKey
 import com.github.xiaolyuh.icons.GitFlowPlusIcons.start
-import com.github.xiaolyuh.service.ConfigService
 import com.github.xiaolyuh.service.ConfigService.Companion.getInstance
 import com.github.xiaolyuh.service.GitFlowPlus
 import com.github.xiaolyuh.utils.ActionUtils
-import com.github.xiaolyuh.utils.ActionUtils.shouldShow
 import com.github.xiaolyuh.valve.merge.ChangeFileValve
-import com.github.xiaolyuh.valve.merge.MergeValve
+import com.github.xiaolyuh.valve.merge.MergeValveNotSwitchBack
 import com.github.xiaolyuh.valve.merge.Valve
 import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -51,7 +49,7 @@ class StagingAction : AbstractMergeAction(I18n.nls("action.staging.txt"), I18n.n
     override fun getValves(): MutableList<Valve?> {
         val valves: MutableList<Valve?> = ArrayList<Valve?>()
         valves.add(ChangeFileValve.getInstance())
-        valves.add(MergeValve.getInstance())
+        valves.add(MergeValveNotSwitchBack.getInstance())
         return valves
     }
 }

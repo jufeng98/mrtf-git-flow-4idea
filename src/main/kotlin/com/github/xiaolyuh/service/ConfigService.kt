@@ -4,7 +4,9 @@ import com.github.xiaolyuh.config.InitOptions
 import com.github.xiaolyuh.config.K8sOptions
 import com.github.xiaolyuh.consts.Constants
 import com.github.xiaolyuh.logger.GitFlowPlusLogger.logInfo
+import com.github.xiaolyuh.logger.GitFlowPlusLogger.logWarn
 import com.github.xiaolyuh.utils.GsonUtils.gson
+import com.github.xiaolyuh.utils.SensitiveDataUtil
 import com.github.xiaolyuh.utils.StringUtils
 import com.github.xiaolyuh.utils.VirtualFileUtils
 import com.intellij.ide.util.PropertiesComponent
@@ -18,6 +20,7 @@ import java.io.File
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.util.*
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.prefs.Preferences
 import java.util.regex.Pattern
 
@@ -29,6 +32,8 @@ class ConfigService(private val project: Project) {
     private val variablePattern = Pattern.compile("(\\{[^{}]+})")
 
     private val preferences: Preferences = Preferences.userRoot().node("com.github.xiaolyuh")
+
+    private val isReloading = AtomicBoolean(false)
 
     private var initOptions: InitOptions? = null
     private var k8sOptions: K8sOptions? = null
@@ -74,12 +79,14 @@ class ConfigService(private val project: Project) {
     }
 
     fun getKubesphereUser(): Pair<String, String> {
-        return Pair(preferences["kubesphereUsername", ""], preferences["kubespherePassword", ""])
+        val name = SensitiveDataUtil.get("kubesphereUsername") ?: ""
+        val pwd = SensitiveDataUtil.get("kubespherePassword") ?: ""
+        return Pair(name, pwd)
     }
 
     fun saveKubesphereUser(name: String, pwd: String) {
-        preferences.put("kubesphereUsername", name)
-        preferences.put("kubespherePassword", pwd)
+        SensitiveDataUtil.save("kubesphereUsername", name)
+        SensitiveDataUtil.save("kubespherePassword", pwd)
     }
 
     fun getKubesphereToken(): String {
@@ -145,23 +152,40 @@ class ConfigService(private val project: Project) {
         return initOptions != null
     }
 
-    fun tryInitConfig() {
+    fun reloadConfigIfNeeded() {
+        if (!isReloading.compareAndSet(false, true)) {
+            // 上一次重载还未完成，跳过本次
+            return
+        }
+
+        tryInitConfig {
+            isReloading.set(false)
+        }
+    }
+
+    fun tryInitConfig(finished: Runnable?) {
         application.executeOnPooledThread {
-            var options = getFromProjectConfigFile()
-            if (Objects.isNull(options)) {
-                options = getFromProjectWorkspace()
-            }
+            try {
+                var options = getFromProjectConfigFile()
+                if (Objects.isNull(options)) {
+                    options = getFromProjectWorkspace()
+                }
 
-            if (Objects.nonNull(options)) {
-                val pair = getKubesphereUser()
-                options!!.kubesphereUsername = pair.first
-                options.kubespherePassword = pair.second
-                initOptions = options
-            }
+                if (Objects.nonNull(options)) {
+                    val pair = getKubesphereUser()
+                    options!!.kubesphereUsername = pair.first
+                    options.kubespherePassword = pair.second
+                    initOptions = options
+                }
 
-            val k8sOptions = getFromProjectK8sFile()
-            if (k8sOptions != null) {
-                this.k8sOptions = k8sOptions
+                val k8sOptions = getFromProjectK8sFile()
+                if (k8sOptions != null) {
+                    this.k8sOptions = k8sOptions
+                }
+            } catch (e: Exception) {
+                logWarn("读取配置文件错误", e)
+            } finally {
+                finished?.run()
             }
         }
     }

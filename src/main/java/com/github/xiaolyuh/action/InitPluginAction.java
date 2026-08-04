@@ -137,7 +137,7 @@ public class InitPluginAction extends AnAction {
 
                 configService.saveConfigToLocal(configJson);
 
-                configService.saveConfigToFile(configJson, configService::tryInitConfig);
+                configService.saveConfigToFile(configJson, () -> configService.tryInitConfig(null));
 
                 // 将配置文件加入GIT管理
                 gitFlowPlus.addConfigToGit(finalRepository, project);

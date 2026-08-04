@@ -1,0 +1,84 @@
+package com.github.xiaolyuh.action;
+
+import com.github.xiaolyuh.i18n.I18n;
+import com.github.xiaolyuh.i18n.I18nKey;
+import com.github.xiaolyuh.icons.GitFlowPlusIcons;
+import com.github.xiaolyuh.model.NewBranchOption;
+import com.github.xiaolyuh.service.ConfigService;
+import com.github.xiaolyuh.service.GitBranchService;
+import com.github.xiaolyuh.utils.StringUtils;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.util.IconLoader;
+import com.intellij.util.ReflectionUtil;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Objects;
+
+/**
+ * 重建预发布分支
+ */
+public class RebuildStagingAction extends AbstractNewBranchAction {
+
+    @SuppressWarnings("ActionPresentationInstantiatedInCtor")
+    public RebuildStagingAction() {
+        super(I18n.nls("action.rebuild.staging.txt"), I18n.nls("action.rebuild.staging.desc"), GitFlowPlusIcons.INSTANCE.getRelease());
+    }
+
+    @Override
+    public void update(@NotNull AnActionEvent event) {
+        Project project = event.getProject();
+        Presentation presentation = event.getPresentation();
+        if (project == null) {
+            presentation.setEnabledAndVisible(false);
+            return;
+        }
+
+        presentation.setText(I18n.getContent("RebuildStagingAction.text"));
+
+        ConfigService configService = ConfigService.Companion.getInstance(project);
+        String stagingBranch = configService.getInitOptions().getStagingBranch();
+
+        boolean valid = GitBranchService.isGitProject(project) && ConfigService.Companion.getInstance(project).isInit()
+                && StringUtils.isNotBlank(stagingBranch);
+
+        if (!valid) {
+            presentation.setEnabledAndVisible(false);
+            return;
+        }
+
+        presentation.setEnabled(!gitFlowPlus.isLock(project));
+    }
+
+    @Override
+    protected void setEnabledAndText(AnActionEvent event) {
+    }
+
+    @Override
+    public String getPrefix(Project project) {
+        return StringUtils.EMPTY;
+    }
+
+    @Override
+    public NewBranchOption getInputString(Project project) {
+        ConfigService configService = ConfigService.Companion.getInstance(project);
+        String staging = configService.getInitOptions().getStagingBranch();
+
+        String master = ConfigService.Companion.getInstance(project).getInitOptions().getMasterBranch();
+
+        int flag = Messages.showOkCancelDialog(project,
+                I18n.getContent(I18nKey.REBUILD_RELEASE_ACTION$DIALOG_MESSAGE, staging, staging),
+                I18n.getContent("RebuildStagingAction.text"),
+                I18n.getContent(I18nKey.OK_TEXT), I18n.getContent(I18nKey.CANCEL_TEXT),
+                IconLoader.getIcon("/icons/warning.svg", Objects.requireNonNull(ReflectionUtil.getGrandCallerClass())));
+
+        return flag == 0 ? new NewBranchOption(staging, master) : null;
+    }
+
+    @Override
+    public String getTitle(String branchName) {
+        return I18n.getContent("RebuildStagingAction.title") + ": " + branchName;
+    }
+}

@@ -1,8 +1,5 @@
 <idea-plugin>
     <actions>
-        <action id="GitFlowPlus.StagingAction" class="com.github.xiaolyuh.action.StagingAction">
-            <add-to-group group-id="GitFlowPlus.Menu" relative-to-action="GitFlowPlus.StartReleaseAction" anchor="before"/>
-        </action>
         <action id="GitFlowPlus.ServiceConsoleAction" class="com.github.xiaolyuh.action.ServiceConsoleAction">
             <add-to-group group-id="GitFlowPlus.Menu" relative-to-action="GitFlowPlus.FailureReleaseAction" anchor="after"/>
         </action>

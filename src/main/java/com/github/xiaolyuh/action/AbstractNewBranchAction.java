@@ -2,9 +2,9 @@ package com.github.xiaolyuh.action;
 
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
+import com.github.xiaolyuh.model.NewBranchOption;
 import com.github.xiaolyuh.service.*;
 import com.github.xiaolyuh.utils.NotifyUtil;
-import com.github.xiaolyuh.utils.StringUtils;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
@@ -63,11 +63,12 @@ public abstract class AbstractNewBranchAction extends AnAction {
         String featurePrefix = getPrefix(project);
 
         // 获取输入框内容
-        String inputString = getInputString(project);
-        if (StringUtils.isBlank(inputString)) {
+        NewBranchOption newBranchOption = getInputString(project);
+        if (newBranchOption == null) {
             return;
         }
 
+        String inputString = newBranchOption.getName();
         // 获取开发分支完整名称
         String newBranchName = featurePrefix + inputString;
 
@@ -80,16 +81,16 @@ public abstract class AbstractNewBranchAction extends AnAction {
             return;
         }
 
+        String baseBranchName = newBranchOption.getBaseBranchName();
+
         new Task.Backgroundable(project, getTitle(newBranchName), false) {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
-                String master = ConfigService.Companion.getInstance(project).getInitOptions().getMasterBranch();
-
                 NotifyUtil.notifyGitCommand(event.getProject(), "==================================");
 
                 if (isDeleteBranch()) {
                     // 删除分支
-                    GitCommandResult result = gitFlowPlus.deleteBranch(repository, master, newBranchName);
+                    GitCommandResult result = gitFlowPlus.deleteBranch(repository, baseBranchName, newBranchName);
                     if (result.success()) {
                         NotifyUtil.notifySuccess(myProject, "Success", I18n.getContent(I18nKey.DELETE_BRANCH_SUCCESS, newBranchName));
                     } else {
@@ -99,10 +100,10 @@ public abstract class AbstractNewBranchAction extends AnAction {
                 }
 
                 // 新建分支
-                GitCommandResult result = gitFlowPlus.newNewBranchBaseRemoteMaster(repository, master, newBranchName);
+                GitCommandResult result = gitFlowPlus.newNewBranchBaseRemoteMaster(repository, baseBranchName, newBranchName);
                 if (result.success()) {
                     NotifyUtil.notifySuccess(myProject, "Success",
-                            I18n.getContent(I18nKey.NEW_BRANCH_SUCCESS, master, newBranchName));
+                            I18n.getContent(I18nKey.NEW_BRANCH_SUCCESS, baseBranchName, newBranchName));
                 } else {
                     NotifyUtil.notifyError(myProject, "Error", result.getErrorOutputAsJoinedString());
                 }
@@ -130,7 +131,7 @@ public abstract class AbstractNewBranchAction extends AnAction {
      * @param project Project
      * @return String
      */
-    abstract public String getInputString(Project project);
+    abstract public NewBranchOption getInputString(Project project);
 
     /**
      * 获取标题

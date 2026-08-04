@@ -5,12 +5,10 @@ import com.github.xiaolyuh.i18n.I18nKey;
 import com.github.xiaolyuh.icons.GitFlowPlusIcons;
 import com.github.xiaolyuh.service.ConfigService;
 import com.github.xiaolyuh.service.GitFlowPlus;
-import com.github.xiaolyuh.valve.merge.ChangeFileValve;
-import com.github.xiaolyuh.valve.merge.LockValve;
-import com.github.xiaolyuh.valve.merge.MergeValve;
-import com.github.xiaolyuh.valve.merge.ReleaseLockNotifyValve;
-import com.github.xiaolyuh.valve.merge.Valve;
+import com.github.xiaolyuh.utils.ActionUtils;
+import com.github.xiaolyuh.valve.merge.*;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 
 import java.util.ArrayList;
@@ -30,7 +28,12 @@ public class StartReleaseAction extends AbstractMergeAction {
 
     @Override
     protected void setEnabledAndText(AnActionEvent event) {
-        event.getPresentation().setText(I18n.getContent(I18nKey.START_RELEASE_ACTION$TEXT));
+        Presentation presentation = event.getPresentation();
+        presentation.setText(I18n.getContent(I18nKey.START_RELEASE_ACTION$TEXT));
+
+        if (!presentation.isEnabled()) {
+            presentation.setEnabled(ActionUtils.INSTANCE.isStagingBranch(event));
+        }
     }
 
     @Override

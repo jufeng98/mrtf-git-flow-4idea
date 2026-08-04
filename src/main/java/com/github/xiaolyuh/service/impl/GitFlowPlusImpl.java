@@ -256,7 +256,7 @@ public class GitFlowPlusImpl implements GitFlowPlus {
 
     @Override
     public GitCommandResult mergeBranchAndPush(@NotNull GitRepository repository, String currentBranch, String targetBranch,
-                                               TagOptions tagOptions) {
+                                               TagOptions tagOptions, boolean switchBack) {
         String releaseBranch = ReadAction.compute(() -> {
             ConfigService configService = ConfigService.Companion.getInstance(repository.getProject());
             return configService.getInitOptions().getReleaseBranch();
@@ -313,8 +313,12 @@ public class GitFlowPlusImpl implements GitFlowPlus {
             return result;
         }
 
-        // 切换到当前分支
-        return git.checkout(repository, currentBranch);
+        if (switchBack) {
+            // 切换到当前分支
+            return git.checkout(repository, currentBranch);
+        } else {
+            return result;
+        }
     }
 
     @Override

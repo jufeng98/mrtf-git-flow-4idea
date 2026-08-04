@@ -3,6 +3,7 @@ package com.github.xiaolyuh.action;
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
 import com.github.xiaolyuh.icons.GitFlowPlusIcons;
+import com.github.xiaolyuh.model.NewBranchOption;
 import com.github.xiaolyuh.service.ConfigService;
 import com.github.xiaolyuh.utils.StringUtils;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -39,9 +40,11 @@ public class RebuildReleaseAction extends AbstractNewBranchAction {
     }
 
     @Override
-    public String getInputString(Project project) {
+    public NewBranchOption getInputString(Project project) {
         ConfigService configService = ConfigService.Companion.getInstance(project);
         String release = configService.getInitOptions().getReleaseBranch();
+
+        String master = ConfigService.Companion.getInstance(project).getInitOptions().getMasterBranch();
 
         int flag = Messages.showOkCancelDialog(project,
                 I18n.getContent(I18nKey.REBUILD_RELEASE_ACTION$DIALOG_MESSAGE, release, release),
@@ -49,7 +52,7 @@ public class RebuildReleaseAction extends AbstractNewBranchAction {
                 I18n.getContent(I18nKey.OK_TEXT), I18n.getContent(I18nKey.CANCEL_TEXT),
                 IconLoader.getIcon("/icons/warning.svg", Objects.requireNonNull(ReflectionUtil.getGrandCallerClass())));
 
-        return flag == 0 ? release : StringUtils.EMPTY;
+        return flag == 0 ? new NewBranchOption(release, master) : null;
     }
 
     @Override

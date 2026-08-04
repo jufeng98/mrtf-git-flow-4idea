@@ -5,6 +5,7 @@ import com.github.xiaolyuh.i18n.I18nKey;
 import com.github.xiaolyuh.icons.GitFlowPlusIcons;
 import com.github.xiaolyuh.service.ConfigService;
 import com.github.xiaolyuh.ui.TagDialog;
+import com.github.xiaolyuh.utils.ActionUtils;
 import com.github.xiaolyuh.valve.merge.ChangeFileValve;
 import com.github.xiaolyuh.valve.merge.MergeValve;
 import com.github.xiaolyuh.valve.merge.UnLockCheckValve;
@@ -12,6 +13,7 @@ import com.github.xiaolyuh.valve.merge.UnLockValve;
 import com.github.xiaolyuh.valve.merge.Valve;
 import com.github.xiaolyuh.vo.TagOptions;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,9 +34,15 @@ public class FinishReleaseAction extends AbstractMergeAction {
 
     @Override
     protected void setEnabledAndText(AnActionEvent event) {
-        event.getPresentation().setText(I18n.getContent(I18nKey.FINISH_RELEASE_ACTION$TEXT));
-        if (event.getPresentation().isEnabled()) {
-            event.getPresentation().setEnabled(gitFlowPlus.isLock(event.getProject()));
+        Presentation presentation = event.getPresentation();
+        presentation.setText(I18n.getContent(I18nKey.FINISH_RELEASE_ACTION$TEXT));
+
+        if (!presentation.isEnabled()) {
+            presentation.setEnabled(ActionUtils.INSTANCE.isStagingBranch(event));
+        }
+
+        if (presentation.isEnabled()) {
+            presentation.setEnabled(gitFlowPlus.isLock(event.getProject()));
         }
     }
 

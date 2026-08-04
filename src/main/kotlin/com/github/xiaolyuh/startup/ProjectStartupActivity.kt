@@ -12,7 +12,7 @@ class ProjectStartupActivity : ProjectActivity {
     override suspend fun execute(project: Project) {
         val configService = getInstance(project)
 
-        configService.tryInitConfig()
+        configService.tryInitConfig(null)
     }
 
 }

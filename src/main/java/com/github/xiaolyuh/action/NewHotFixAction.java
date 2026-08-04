@@ -3,11 +3,12 @@ package com.github.xiaolyuh.action;
 import com.github.xiaolyuh.i18n.I18n;
 import com.github.xiaolyuh.i18n.I18nKey;
 import com.github.xiaolyuh.icons.GitFlowPlusIcons;
+import com.github.xiaolyuh.model.NewBranchOption;
 import com.github.xiaolyuh.service.ConfigService;
+import com.github.xiaolyuh.ui.NewBranchOptionDialog;
 import com.github.xiaolyuh.validator.GitNewBranchNameValidator;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.Messages;
 import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
 import org.apache.commons.lang3.time.DateFormatUtils;
@@ -41,14 +42,22 @@ public class NewHotFixAction extends AbstractNewBranchAction {
     }
 
     @Override
-    public String getInputString(Project project) {
+    public NewBranchOption getInputString(Project project) {
         String prefix = getPrefix(project);
         List<GitRepository> repositories = GitUtil.getRepositoryManager(project).getRepositories();
         String dateStr = "_" + DateFormatUtils.format(new Date(), DATE_PATTERN_SHORT);
 
-        return Messages.showInputDialog(project, I18n.getContent(I18nKey.NEW_HOT_FIX_ACTION$DIALOG_MESSAGE),
-                I18n.getContent(I18nKey.NEW_HOT_FIX_ACTION$DIALOG_TITLE), null, dateStr,
+        String master = ConfigService.Companion.getInstance(project).getInitOptions().getMasterBranch();
+
+        NewBranchOptionDialog dialog = new NewBranchOptionDialog(project, I18n.getContent(I18nKey.NEW_HOT_FIX_ACTION$DIALOG_MESSAGE),
+                I18n.getContent(I18nKey.NEW_HOT_FIX_ACTION$DIALOG_TITLE), dateStr, master,
                 GitNewBranchNameValidator.newInstance(repositories, prefix));
+
+        if (dialog.showAndGet()) {
+            return dialog.getNewBranchOption();
+        }
+
+        return null;
     }
 
     @Override

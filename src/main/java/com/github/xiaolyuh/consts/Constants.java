@@ -1,5 +1,7 @@
 package com.github.xiaolyuh.consts;
 
+import java.util.Set;
+
 /**
  * 常量
  *
@@ -17,6 +19,8 @@ public abstract class Constants {
      */
     public static final String CONFIG_FILE_NAME = "git-flow-plus.config";
     public static final String CONFIG_FILE_NAME_PROJECT = "git-flow-k8s.json";
+
+    public static final Set<String> INTEREST_FILES = Set.of(CONFIG_FILE_NAME, CONFIG_FILE_NAME_PROJECT);
 
     /**
      * 加锁分支名称

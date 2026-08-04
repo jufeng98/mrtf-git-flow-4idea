@@ -140,12 +140,13 @@ public interface GitFlowPlus {
      * @param currentBranch currentBranch
      * @param targetBranch  目标分支
      * @param tagOptions    TagOptions
+     * @param switchBack
      * @return GitCommandResult
      */
     GitCommandResult mergeBranchAndPush(@NotNull GitRepository repository,
                                         @Nullable String currentBranch,
                                         @Nullable String targetBranch,
-                                        TagOptions tagOptions);
+                                        TagOptions tagOptions, boolean switchBack);
 
     /**
      * 加锁
