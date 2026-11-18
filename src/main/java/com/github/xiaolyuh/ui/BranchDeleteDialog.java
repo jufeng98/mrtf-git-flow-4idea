@@ -11,9 +11,9 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.*;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
+import com.intellij.ui.CollectionComboBoxModel;
 import git4idea.repo.GitRepository;
 import org.apache.commons.lang3.time.DateFormatUtils;
-import org.jdesktop.swingx.combobox.ListComboBoxModel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,8 +46,7 @@ public class BranchDeleteDialog extends DialogWrapper {
     public BranchDeleteDialog(GitRepository repository) {
         super(repository.getProject(), true);
 
-        ListComboBoxModel<String> model = new ListComboBoxModel<>(BOX_LIST_NAMES);
-        //noinspection unchecked
+        CollectionComboBoxModel<String> model = new CollectionComboBoxModel<>(BOX_LIST_NAMES);
         branchModel.setModel(model);
 
         deleteBranchOptions = new DeleteBranchOptions();
